@@ -1,0 +1,16 @@
+---
+replicasets:
+  "5b33ab33-fee0-470d-94ac-639adb530179":
+    master:
+      - "c0744938-d9c5-49a5-96f4-036730ccb068"
+    alias: "test-rs"
+    roles:
+      core: true
+      connector: true
+      runner: true
+      storage: true
+servers:
+  c0744938-d9c5-49a5-96f4-036730ccb068:
+    uri: "single-node:5567"
+    disabled: false
+    replicaset_uuid: "5b33ab33-fee0-470d-94ac-639adb530179"

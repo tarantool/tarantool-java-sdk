@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package tarantool.queue_ee;
+
+import "messages/message.proto";
+
+option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v2/server/protocol";
+
+// Сервер подписок на сообщения брокера очередей
+service ConsumerService {
+  // Подписка на сообщения с фильтром
+  rpc Subscribe(SubscriptionRequest) returns (stream SubscriptionNotifications);
+}
+
+// Запрос на подписку
+message SubscriptionRequest {
+  // Название очереди
+  string queue = 1;
+
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди
+  // Если не указан, то подписка происходит на все типы сообщений в очереди
+  optional string routing_key = 2;
+
+  // Опциональная строка указатель на последнее полученное сообщение.
+  // Необходимо для возможности получения истории сообщений
+  // или восстановления работы консьюмера после сбоя
+  // Значение не указано - подписка с текущего момента
+  // Значение пустая строка - подписка с начала очереди
+  // Значение указано - подписка с указанного сообщения в очереди
+  optional string cursor = 3;
+
+  // Ключ шардирования
+  // необходим для распределения данных в системе
+  // Если не указан, то подписка происходит на все типы сообщений в очереди
+  optional string sharding_key = 4;
+
+  // Ключи шардирования позволяют производить фильтрацию по нескольким ключам
+  // шардирования в рамках одной подписки
+  repeated string sharding_keys = 5;
+}
+
+// Сообщение в стриме подписки
+message SubscriptionNotifications {
+  // Новые сообщения в очереди с курсорами
+  repeated SubscriptionNotification notifications = 1;
+}
+
+// Уведомление клиента о новых сообщения в очереди
+message SubscriptionNotification {
+  // Строка-указатель сообщения
+  string cursor = 1;
+
+  // Сообщение
+  QueueMessage message = 2;
+}

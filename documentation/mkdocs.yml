@@ -1,0 +1,142 @@
+site_name: Tarantool Java SDK
+copyright: Copyright ©️ 2025 VK Tech
+repo_name: tarantool/tarantool-java-sdk
+repo_url: https://github.com/tarantool/tarantool-java-sdk
+strict: true
+
+extra:
+  language: ru
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tarantool/tarantool-java-sdk
+    - icon: tarantool/tarantool
+      link: https://www.tarantool.io/ru/
+  version:
+    provider: mike
+    alias: true
+
+plugins:
+  - drawio:
+      darkmode: true
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+
+theme:
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - content.footnote.tooltips
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+  name: material
+  custom_dir: overrides
+  palette:
+    # Palette toggle for light mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-night
+    # Palette toggle for dark mode
+    - scheme: default
+      toggle:
+        icon: material/weather-sunny
+
+#  favicon: images/favicon.svg
+  icon:
+    annotation: material/chat-question
+    repo: fontawesome/brands/github
+    logo: tarantool/tarantool
+    admonition:
+      note: octicons/tag-16
+      abstract: octicons/checklist-16
+      info: octicons/info-16
+      tip: octicons/squirrel-16
+      success: octicons/check-16
+      question: octicons/question-16
+      warning: octicons/alert-16
+      failure: octicons/x-circle-16
+      danger: octicons/zap-16
+      bug: octicons/bug-16
+      example: octicons/beaker-16
+      quote: octicons/quote-16
+
+nav:
+  - Главная:
+      - index.md
+  - Документация:
+      - documentation/index.md
+      - Spring Data:
+          - documentation/spring-data/index.md
+          - documentation/spring-data/configuration.md
+          - documentation/spring-data/repository.md
+          - documentation/spring-data/derived-methods.md
+          - documentation/spring-data/sort.md
+          - documentation/spring-data/query-lua.md
+          - documentation/spring-data/page-slice-pageable.md
+          - documentation/spring-data/scroll-api.md
+      - Высокоуровневый клиент:
+          - documentation/client/index.md
+          - Архитектура:
+              - documentation/client/arch/index.md
+              - documentation/client/arch/high-level-arch.md
+              - documentation/client/arch/heartbeat.md
+              - documentation/client/arch/balancer.md
+              - documentation/client/arch/connection-pool.md
+              - documentation/client/arch/instance-connection-group.md
+              - documentation/client/arch/exception-handling.md
+              - documentation/client/arch/connection-to-multiple-nodes.md
+              - documentation/client/arch/call.md
+              - documentation/client/arch/tuple_pojo_mapping.md
+      - Tarantool Testcontainers:
+          - documentation/testcontainers/index.md
+          - Одиночный узел:
+              - documentation/testcontainers/single/index.md
+              - documentation/testcontainers/single/single-node-testcontainers-arch.md
+              - documentation/testcontainers/single/single-node-testcontainers-standard-impl.md
+              - documentation/testcontainers/single/single-node-testcontainers-standard-impl-example.md
+          - Кластер TarantoolDB:
+              - documentation/testcontainers/tdb/index.md
+              - documentation/testcontainers/tdb/tdb-cluster-testcontainers-arch.md
+              - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl.md
+              - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example.md
+          - Кластер TQE:
+              - documentation/testcontainers/tqe/index.md
+              - documentation/testcontainers/tqe/tqe-cluster-arch.md
+              - documentation/testcontainers/tqe/tqe-cluster-example.md
+
+markdown_extensions:
+  - tables
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - overrides/.icons
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __spanz
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+exclude_docs: |
+  venv
+  requirements.txt
+  pom.xml
+  README.md

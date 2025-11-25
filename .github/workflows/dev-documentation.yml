@@ -1,0 +1,43 @@
+name: dev-documentation
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Мы хотим чтобы deploy в ветку gh-pages
+# происходили консистентно друг за другом
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy dev documentation
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: documentation
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          cache: 'pip'
+      - name: Download mkdocs plugins
+        run: pip install -r requirements.txt
+      - name: Deploy documentation into gh-pages branch
+        run: mike deploy dev --push
+      - name: Setup default version
+        run: mike set-default dev --push

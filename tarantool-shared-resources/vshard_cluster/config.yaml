@@ -1,0 +1,71 @@
+credentials:
+  users:
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [ super ]
+    replicator:
+      password: 'secret'
+      roles: [ replication ]
+    storage:
+      password: 'secret'
+      roles: [ sharding ]
+
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+
+sharding:
+  bucket_count: 3000
+
+groups:
+  storages:
+    app:
+      module: storage
+    sharding:
+      roles: [ storage ]
+    replication:
+      failover: manual
+    replicasets:
+      storage-001:
+        leader: storage-001-a
+        instances:
+          storage-001-a:
+            iproto:
+              listen:
+                - uri: "3303"
+          storage-001-b:
+            iproto:
+              listen:
+                - uri: "3304"
+      storage-002:
+        leader: storage-002-a
+        instances:
+          storage-002-a:
+            iproto:
+              listen:
+                - uri: "3305"
+          storage-002-b:
+            iproto:
+              listen:
+                - uri: "3306"
+  routers:
+    app:
+      module: router
+    sharding:
+      roles: [ router ]
+    replicasets:
+      router-001:
+        instances:
+          router-001-a:
+            iproto:
+              listen:
+                - uri: "3301"
+      router-002:
+        instances:
+          router-002-a:
+            iproto:
+              listen:
+                - uri: "3302"

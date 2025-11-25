@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
+package io.tarantool.spring.data31.utils.core;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import io.tarantool.spring.data.utils.GenericRepositoryMethods;
+import io.tarantool.spring.data31.utils.entity.Person;
+
+public interface PersonRepository
+    extends PagingAndSortingRepository<Person, Integer>,
+        GenericRepositoryMethods<Person, Integer>,
+        GenericPaginationMethods<Person, Integer> {}

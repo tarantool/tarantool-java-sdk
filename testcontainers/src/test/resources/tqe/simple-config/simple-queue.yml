@@ -1,0 +1,67 @@
+# Credentials
+credentials:
+  users:
+    test-super:
+      password: 'test'
+      roles: [ super ]
+    admin:
+      password: 'secret-cluster-cookie'
+      roles: [ super ]
+    replicator:
+      password: 'secret'
+      roles: [ replication ]
+    storage:
+      roles: [ sharding ]
+      password: storage
+
+# advertise configs for all nodes
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+      password: storage
+
+roles: [ roles.metrics-export ]
+# queues configs
+roles_cfg:
+  app.roles.queue:
+    queues:
+      - name: test
+        deduplication_mode: keep_latest
+        disabled_filters_by: [ sharding_key ]
+  roles.metrics-export:
+    http:
+      - listen: 8081
+        endpoints:
+          - format: prometheus
+            path: '/metrics'
+
+groups:
+  routers:
+    replicasets:
+      r-1:
+        sharding:
+          roles: [ router ]
+        roles: [ app.roles.api ]
+        instances:
+          router:
+            iproto:
+              listen:
+                - uri: router:3301
+  storages:
+    replicasets:
+      shard-1:
+        replication:
+          failover: manual
+        sharding:
+          roles: [ storage ]
+        roles: [ app.roles.queue ]
+        leader: master
+        instances:
+          master:
+            iproto:
+              listen:
+                - uri: master:3301
+

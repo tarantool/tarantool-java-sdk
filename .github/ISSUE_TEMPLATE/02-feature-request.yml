@@ -1,0 +1,77 @@
+name: Feature Request
+description: Suggest an idea or enhancement for this project
+title: "[FEATURE] "
+labels:
+  - enhancement
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Summary
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: A clear and concise description of the feature or enhancement you are requesting.
+      placeholder: Describe the feature or enhancement you are requesting.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Motivation
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why do you need this feature? What problem does it solve or what use case does it address?
+      placeholder: Explain why you need this feature.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Proposed Solution
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like. If possible, provide examples of how the feature would work, including code snippets or API changes.
+      placeholder: Describe your proposed solution.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Alternatives Considered
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered alternative solutions or workarounds? If so, please describe them.
+      placeholder: List any alternative solutions or workarounds you have considered.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional Context
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or references to related issues, pull requests, or external resources.
+      placeholder: Additional context, links, screenshots, etc.
+    validations:
+      required: false
