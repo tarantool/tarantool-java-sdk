@@ -41,7 +41,7 @@ jobs:
 
       # TODO: Try to avoid usage of unofficial GH Actions
       - name: Add & commit java doc
-        uses: EndBug/add-and-commit@v9.1.3
+        uses: EndBug/add-and-commit@v9.1.4
         with:
           add: './docs/* --force'
           author_name: ${{ github.event.pusher.name }}
