@@ -1,0 +1,51 @@
+name: Java Doc
+
+on:
+  push:
+    branches:
+      - master
+      - start_public_doc
+permissions:
+  contents: write
+
+jobs:
+  javadoc-build:
+    runs-on: tarantool-delivery-runners
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build javaDoc
+        run: |
+          ./mvnw javadoc:aggregate-jar
+          mkdir -p ./docs
+          mv ./target/reports/apidocs/* ./docs
+          mv ./target/*-javadoc.jar ./docs
+          mkdir docs/markdown
+          cp tarantool-spring-data/doc/instructions/* docs/markdown/
+          cp -r testcontainers/doc/* docs/markdown/
+          cp -r doc/ru/public/* docs/markdown/
+          cp INSTALL.md docs/markdown/
+          cp doc/adapt_md_for_html.sh docs/markdown/adapt_md_for_html.sh
+          cd docs/markdown/
+          ./adapt_md_for_html.sh
+          cd -
+          git rm -r --cached .
+
+      # TODO: Try to avoid usage of unofficial GH Actions
+      - name: Add & commit java doc
+        uses: EndBug/add-and-commit@v9.1.3
+        with:
+          add: './docs/* --force'
+          author_name: ${{ github.event.pusher.name }}
+          author_email: ${{ github.event.pusher.email }}
+          message: 'Java doc is stored'
+          new_branch: 'gh-apidoc'
+          push: 'origin HEAD:gh-apidoc --set-upstream --force'

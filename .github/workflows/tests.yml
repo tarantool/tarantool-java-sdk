@@ -1,0 +1,256 @@
+name: Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - '**/*.java'
+      - 'pom.xml'
+      - '**/pom.xml'
+      - '**/src/main/resources/**'
+      - '**/src/test/resources/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - '**/*.java'
+      - 'pom.xml'
+      - '**/pom.xml'
+      - '**/src/main/resources/**'
+      - '**/src/test/resources/**'
+  workflow_dispatch:
+
+env:
+#  Переменная, указывающая testcontainers в какой репозитории искать образы
+  TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: "registry.ps.tarantool.io/"
+#  Переменная, используемая в тестах в качестве префикса к названию образа. Переопределяется локально, если необходимо
+  TARANTOOL_REGISTRY: "registry.ps.tarantool.io/"
+
+jobs:
+  tests-unit:
+    runs-on: tarantool-delivery-runners
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Docker login to private registry
+        run: docker login "$TARANTOOL_REGISTRY" -u admin -p "${{ secrets.TARANTOOL_REGISTRY_PASSWORD }}"
+
+      # - name: Cache docker images
+      #   uses: satackey/action-docker-layer-caching@v0.0.11
+      #   continue-on-error: true
+
+      - name: Build and run unit tests
+        run: ./mvnw -B verify -Djacoco.destFile=target/jacoco-unit.exec --file pom.xml
+
+      - name: Print system images
+        run: docker images
+
+      #- name: Upload jacoco exec results
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: tests-unit-jacoco
+      #    path: "**/jacoco-unit.exec"
+      #    retention-days: 1
+
+  tests-box-integration:
+    runs-on: tarantool-delivery-runners
+    strategy:
+      fail-fast: false
+      matrix:
+        tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Docker login to private registry
+        run: docker login "$TARANTOOL_REGISTRY" -u admin -p "${{ secrets.TARANTOOL_REGISTRY_PASSWORD }}"
+
+      # - name: Cache docker images
+      #   uses: satackey/action-docker-layer-caching@v0.0.11
+      #   continue-on-error: true
+
+      - name: Set locale environment variables
+        run: |
+          # Замена зеркала в sources.list
+          sudo sed -i "s|archive.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
+          sudo sed -i "s|security.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
+          
+          sudo apt-get update
+          sudo apt-get install -y locales
+          sudo locale-gen en_US.UTF-8
+          sudo update-locale LANG=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          export LANGUAGE=en_US:en
+          export LC_ALL=en_US.UTF-8
+          locale
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          echo "LANGUAGE=en_US:en" >> $GITHUB_ENV
+          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+
+      - name: Build and run integration tests
+        env:
+          TARANTOOL_VERSION: ${{ matrix.tarantool-version }}
+          TARANTOOL_SERVER_USER: root
+          TARANTOOL_SERVER_GROUP: root
+        run: ./mvnw -B test -P box-integration -Djacoco.destFile=target/jacoco-box-integration.exec --file pom.xml
+
+      - name: Print system images
+        run: docker images
+
+      # - name: Upload jacoco exec results
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: tests-box-integration-jacoco
+      #    path: "**/jacoco-box-integration.exec"
+      #    retention-days: 1
+
+  tests-crud-integration:
+    runs-on: tarantool-delivery-runners
+    strategy:
+      fail-fast: false
+      matrix:
+        tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Docker login to private registry
+        run: docker login "$TARANTOOL_REGISTRY" -u admin -p "${{ secrets.TARANTOOL_REGISTRY_PASSWORD }}"
+
+      - name: Set locale environment variables
+        run: |
+          # Замена зеркала в sources.list
+          sudo sed -i "s|archive.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
+          sudo sed -i "s|security.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
+          
+          sudo apt-get update
+          sudo apt-get install -y locales
+          sudo locale-gen en_US.UTF-8
+          sudo update-locale LANG=en_US.UTF-8
+          export LANG=en_US.UTF-8
+          export LANGUAGE=en_US:en
+          export LC_ALL=en_US.UTF-8
+          locale
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          echo "LANGUAGE=en_US:en" >> $GITHUB_ENV
+          echo "LC_ALL=en_US.UTF-8" >> $GITHUB_ENV
+
+      # - name: Cache docker images
+      #   uses: satackey/action-docker-layer-caching@v0.0.11
+      #   continue-on-error: true
+
+      - name: Build and run integration tests
+        env:
+          TARANTOOL_VERSION: ${{ matrix.tarantool-version }}
+          TARANTOOL_SERVER_USER: root
+          TARANTOOL_SERVER_GROUP: root
+        run: ./mvnw -B test -P crud-integration -Djacoco.destFile=target/jacoco-cartridge-integration.exec --file pom.xml
+
+      - name: Print system images
+        run: docker images
+
+      #- name: Upload jacoco exec results
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: tests-cartridge-integration-jacoco
+      #    path: "**/jacoco-cartridge-integration.exec"
+      #    retention-days: 1
+
+  #merge-jacoco-report:
+  #  name: Jacoco Merge Results
+  #  needs:
+  #    - tests-unit
+  #    - tests-box-integration
+  #    - tests-crud-integration
+  #    - tests-ee
+  #    - tests-dr
+  #  runs-on: tarantool-delivery-runners
+  #  steps:
+  #    - uses: actions/checkout@v5
+
+  #    - name: Set up JDK 17
+  #      uses: actions/setup-java@v5
+  #      with:
+  #        distribution: 'zulu'
+  #        java-version: '17'
+  #        cache: 'maven'
+
+  #    - uses: actions/download-artifact@v2
+  #      with:
+  #        name: tests-unit-jacoco
+  #        path: target/
+
+  #    - uses: actions/download-artifact@v2
+  #      with:
+  #        name: tests-box-integration-jacoco
+  #        path: target/
+
+  #    - uses: actions/download-artifact@v2
+  #      with:
+  #        name: tests-cartridge-integration-jacoco
+  #        path: target/
+
+  #    - uses: actions/download-artifact@v2
+  #      with:
+  #        name: tests-ee-jacoco
+  #        path: target/
+
+  #    - uses: actions/download-artifact@v2
+  #      continue-on-error: true
+  #      with:
+  #        name: tests-dr-jacoco
+  #        path: target/
+
+  #    - name: merge results
+  #      run: |
+  #        cp -r ./target/tarantool-core/target ./tarantool-core/target && \
+  #        cp -r ./target/tarantool-jackson-mapping/target ./tarantool-jackson-mapping/target && \
+  #        cp -r ./target/tarantool-client/target ./tarantool-client/target && \
+  #        cp -r ./target/tarantool-pooling/target ./tarantool-pooling/target && \
+  #        cp -r ./target/tarantool-balancer/target ./tarantool-balancer/target && \
+  #        cp -r ./target/tarantool-schema/target ./tarantool-schema/target && \
+  #        ./mvnw -DskipTests -Darguments=-DskipTests package jacoco:report-aggregate && ls -la
+
+  #    - name: Upload jacoco coverage despite the check result
+  #      if: ${{ always() }}
+  #      uses: actions/upload-artifact@v2
+  #      with:
+  #        name: coverage-results-report
+  #        path: jacoco-coverage-aggregate-report/target/site/jacoco-aggregate
+  #        if-no-files-found: error
+  #        retention-days: 1
+
+  #    - name: Jacoco Report to PR
+  #      id: jacoco
+  #      uses: madrapps/jacoco-report@v1.6.1
+  #      with:
+  #        paths: jacoco-coverage-aggregate-report/target/site/jacoco-aggregate/jacoco.xml
+  #        token: ${{ secrets.GITHUB_TOKEN }}
+  #        min-coverage-overall: 40
+  #        min-coverage-changed-files: 60
+  #        update-comment: true

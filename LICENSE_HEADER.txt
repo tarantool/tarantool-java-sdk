@@ -1,0 +1,5 @@
+/*
+ * Copyright (c) 2025 VK Company Limited.
+ * All Rights Reserved.
+ */
+
