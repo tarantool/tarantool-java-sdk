@@ -1,0 +1,67 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
+  "build": {
+    "markdownEngineProperties": {
+      "alerts": {
+        "ВАЖНО": "alert alert-warning",
+        "ЗАМЕТКА": "alert alert-success"
+      },
+      "markdigExtensions": [
+        "Abbreviations",
+        "Alerts",
+        "AutoIdentifiers",
+        "AutoLinks",
+        "Bootstrap",
+        "Citations",
+        "CustomContainers",
+        "DefinitionLists",
+        "Diagrams",
+        "EmphasisExtras",
+        "Figures",
+        "Footers",
+        "Footnotes",
+        "Globalization",
+        "ListExtras",
+        "Mathematics",
+        "MediaLinks",
+        "SmartyPants",
+        "TaskLists",
+        "Yaml"
+      ]
+    },
+    "content": [
+      {
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**",
+          "javadoc/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "Tarantool Java SDK",
+      "_appTitle": "Tarantool Java SDK",
+      "_enableSearch": true,
+      "pdf": false,
+      "_appFooter": "Copyright© 2025 VK Tech. All Rights Reserved",
+      "_appFaviconPath": "images/favicon/favicon.svg",
+      "_appLogoPath": "images/favicon/favicon.svg",
+      "_gitContribute": "https://github.com/tarantool/tarantool-java-sdk/",
+      "_gitUrlPattern": "https://github.com/tarantool/tarantool-java-sdk/"
+    }
+  }
+}
