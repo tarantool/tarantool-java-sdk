@@ -21,3 +21,5 @@ target
 workbench.xmi
 .svace-dir
 .factorypath
+documentation/venv
+documentation/site
