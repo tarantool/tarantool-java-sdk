@@ -1,5 +1,7 @@
 site_name: Tarantool Java SDK
 copyright: Copyright ©️ 2025 VK Tech
+repo_name: tarantool/tarantool-java-sdk
+repo_url: https://github.com/tarantool/tarantool-java-sdk
 extra:
   language: ru
   generator: false
@@ -8,6 +10,9 @@ extra:
       link: https://github.com/tarantool/tarantool-java-sdk
     - icon: tarantool/tarantool
       link: https://www.tarantool.io/ru/
+  version:
+    provider: mike
+    alias: true
 
 theme:
   features:
@@ -34,6 +39,7 @@ theme:
 
 #  favicon: images/favicon.svg
   icon:
+    repo: fontawesome/brands/github
     logo: tarantool/tarantool
     admonition:
       note: octicons/tag-16
