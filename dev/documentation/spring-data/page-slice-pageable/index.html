@@ -9,24 +9,28 @@
       
       
       
+        <link rel="prev" href="../query-lua/">
+      
+      
+        <link rel="next" href="../scroll-api/">
       
       
         
       
       
-      <link rel="icon" href="/assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Tarantool Java SDK</title>
+        <title>Пагинация - Tarantool Java SDK</title>
       
     
     
-      <link rel="stylesheet" href="/assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
   
@@ -116,7 +120,7 @@
       
     
     
-    <script>__md_scope=new URL("/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -140,6 +144,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#tarantool-spring-data" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -156,7 +165,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="Tarantool Java SDK" class="md-header__button md-logo" aria-label="Tarantool Java SDK" data-md-component="logo">
+    <a href="../../.." title="Tarantool Java SDK" class="md-header__button md-logo" aria-label="Tarantool Java SDK" data-md-component="logo">
       
   
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -179,7 +188,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Пагинация
             
           </span>
         </div>
@@ -286,7 +295,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/." class="md-tabs__link">
+        <a href="../../.." class="md-tabs__link">
           
   
   
@@ -304,11 +313,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/documentation/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
           
   
   
@@ -350,7 +361,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="Tarantool Java SDK" class="md-nav__button md-logo" aria-label="Tarantool Java SDK" data-md-component="logo">
+    <a href="../../.." title="Tarantool Java SDK" class="md-nav__button md-logo" aria-label="Tarantool Java SDK" data-md-component="logo">
       
   
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -404,7 +415,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/." class="md-nav__link ">
+            <a href="../../.." class="md-nav__link ">
               
   
   
@@ -447,6 +458,8 @@
       
   
   
+    
+  
   
   
     
@@ -462,18 +475,21 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/documentation/" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -491,13 +507,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -514,6 +530,8 @@
                 
   
   
+    
+  
   
   
     
@@ -544,15 +562,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/documentation/spring-data/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -576,7 +594,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -596,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -624,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/repository/" class="md-nav__link">
+      <a href="../repository/" class="md-nav__link">
         
   
   
@@ -652,7 +670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/derived-methods/" class="md-nav__link">
+      <a href="../derived-methods/" class="md-nav__link">
         
   
   
@@ -680,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/sort/" class="md-nav__link">
+      <a href="../sort/" class="md-nav__link">
         
   
   
@@ -708,7 +726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/query-lua/" class="md-nav__link">
+      <a href="../query-lua/" class="md-nav__link">
         
   
   
@@ -733,10 +751,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/documentation/spring-data/page-slice-pageable/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Пагинация
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -752,6 +795,96 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tarantool-spring-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Пагинация в tarantool-spring-data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Пагинация в tarantool-spring-data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pageable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Особенности при несоответствии кортежа-курсора и номера страницы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Работа с производными методами
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -764,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/documentation/spring-data/scroll-api/" class="md-nav__link">
+      <a href="../scroll-api/" class="md-nav__link">
         
   
   
@@ -818,6 +951,86 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tarantool-spring-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Пагинация в tarantool-spring-data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Пагинация в tarantool-spring-data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pageable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pageable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#page" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Особенности при несоответствии кортежа-курсора и номера страницы
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Работа с производными методами
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -832,11 +1045,268 @@
 
 
 
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Документация
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Spring Data
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+  
+  
+
+
+  <h1>Пагинация</h1>
+
+<h2 id="tarantool-spring-data">Пагинация в tarantool-spring-data</h2>
+<p>Пагинация в tarantool-spring-data поддерживает интерфейсы <code>Slice&lt;T&gt;</code>,<code>Page&lt;T&gt;</code>,<code>Pageable</code>.
+Вместо offset-based пагинации, которую не поддерживает tarantool/crud, интерфейсы реализуют
+cursor-based пагинацию.</p>
+<h3 id="pageable">Pageable</h3>
+<p>Интерфейс <code>Pageable</code> представляет параметры страницы: номер, размер.</p>
+<p>Для использования пагинации в tarantool-spring-data интерфейс <code>Pageable</code> был расширен интерфейсом
+<code>TarantoolPageable</code>. Теперь настройки страницы дополнительно содержат кортеж-курсор
+(параметр <a href="https://github.com/tarantool/crud?tab=readme-ov-file#select">after</a>), относительно
+которого считывается страница, а также объект направления пагинации <code>PaginationDirection</code>.</p>
+<p>Для создания экземпляра <code>Pageable</code> должны использоваться конструкторы класса
+<code>TarantoolPageRequest</code>. Есть два варианта создания <code>TarantoolPageable</code>:</p>
+<ul>
+<li><code>new TarantoolPageRequest&lt;&gt;(int pageSize)</code> - постраничная выборка с начала данный в <code>space</code>.
+  Аргумент <code>pageSize</code> - размер страницы.</li>
+<li><code>new TarantoolPageRequest&lt;T&gt;(int pageNumber, int pageSize, T cursor)</code> - постраничная выборка
+  данных, начиная с некоторой страницы. Здесь нужно учесть соответствие между номером страницы
+  (начинаются с 0) и переданным курсором.</li>
+</ul>
+<p>В качестве примера рассмотрим <code>space</code> (таблицу), в котором хранится 100 записей, удовлетворяющих
+вашему запросу на постраничную выборку. Вы хотите получать по 10 записей на страницу, начиная со
+второй страницы (<code>pageNumber = 1</code>). Для этого стоит передать следующие параметры:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__spanz-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">TarantoolPageable</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span><span class="w"> </span><span class="n">pageable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TarantoolPageRequest</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">domainClassCursor</span><span class="p">);</span>
+</span></code></pre></div>
+<p>где <code>domainClassCursor</code> - это объект доменного класса (в примере класс <code>Person</code>), который является
+кортежем-курсором
+(см. параметр <a href="https://github.com/tarantool/crud?tab=readme-ov-file#select">after</a>).</p>
+<p>Пример класса модели данных:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__spanz-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@NoArgsConstructor</span>
+</span><span id="__spanz-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nd">@AllArgsConstructor</span>
+</span><span id="__spanz-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nd">@JsonFormat</span><span class="p">(</span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonFormat</span><span class="p">.</span><span class="na">Shape</span><span class="p">.</span><span class="na">ARRAY</span><span class="p">)</span>
+</span><span id="__spanz-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nd">@JsonIgnoreProperties</span><span class="p">(</span><span class="n">ignoreUnknown</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="c1">// for example bucket_id</span>
+</span><span id="__spanz-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nd">@Data</span>
+</span><span id="__spanz-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nd">@KeySpace</span><span class="p">(</span><span class="s">&quot;person&quot;</span><span class="p">)</span>
+</span><span id="__spanz-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Person</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+</span><span id="__spanz-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="nd">@Id</span>
+</span><span id="__spanz-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span>
+</span><span id="__spanz-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+</span><span id="__spanz-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
+</span><span id="__spanz-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">  </span><span class="nd">@Field</span><span class="p">(</span><span class="s">&quot;is_married&quot;</span><span class="p">)</span>
+</span><span id="__spanz-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;isMarried&quot;</span><span class="p">)</span>
+</span><span id="__spanz-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">isMarried</span><span class="p">;</span>
+</span><span id="__spanz-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
+</span><span id="__spanz-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="w">  </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">)</span>
+</span><span id="__spanz-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="w">  </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+</span><span id="__spanz-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="page">Page</h3>
+<p>При вызове методов с <code>Page</code> выполняются два запроса:</p>
+<ol>
+<li>Запрос на выборку данных. Если данных нет, возвращается <code>Page&lt;T&gt;</code> с <code>Unpaged</code> pageable.</li>
+<li>Если данные есть, создается запрос на вычисление общего количества записей в <code>space</code>,
+   удовлетворяющих условиям (метод <code>count()</code>). На основе общего количества записей и размера
+   страницы (передан в <code>TarantoolPageRequest</code> при создании) определяется общее количество страниц
+   (максимальный номер страницы).</li>
+</ol>
+<p><strong>Важно:</strong> при параллельной работе с постраничной пагинацией и манипулированием данными (например,
+удаление или добавление записей) значение количества страниц может измениться.</p>
+<p>Таким образом:</p>
+<ol>
+<li>При движении <strong>вперед</strong> страница существует (не пустая, и <code>Pageable</code> не является <code>Unpaged</code>),
+   если <strong>получены данные</strong> и номер страницы <strong>не превышает максимальный номер</strong>.</li>
+<li>При движении <strong>назад</strong> страница существует, если <strong>получены данные</strong> и <code>pageNumber &gt;= 0</code>.</li>
+</ol>
+<h3 id="slice">Slice</h3>
+<p>При вызове методов с <code>Slice</code> запрашивается <code>n + 1</code> записей, где <code>n</code> - размер
+среза. Если получено <code>n + 1</code> записей, то следующий срез существует.</p>
+<p>Таким образом:</p>
+<ol>
+<li>При движении <strong>вперед</strong> срез существует (не пустой, и <code>Pageable</code> не является <code>Unpaged</code>), если
+   <strong>получены данные</strong>.</li>
+<li>При движении <strong>назад</strong> срез существует, если <strong>получены данные</strong> и <code>pageNumber &gt;= 0</code>.</li>
+</ol>
+<h3 id="-">Особенности при несоответствии кортежа-курсора и номера страницы</h3>
+<p>Рассмотрим пример, когда кортеж-курсор соответствует кортежу, после которого начинается страница
+(см. параметр <a href="https://github.com/tarantool/crud?tab=readme-ov-file#select">after</a>) с номером 0
+(<code>pageNumber = 0</code> (т.е. передан <code>null</code>)), а в конструкторе <code>TarantoolPageRequest</code> указан номер
+для другой страницы, например второй (<code>pageNumber = 1</code>):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__spanz-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>                                                         (0)    (1)    (2)    (3)
+</span><span id="__spanz-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Реальное разбиение данных в space:                     |-----||-----||-----||-----|
+</span><span id="__spanz-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__spanz-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>                                                    [0]    [1]    [2]    [3]
+</span><span id="__spanz-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Разбиение, исходя из переданных параметров:     |-----||-----||-----||-----|
+</span><span id="__spanz-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+</span><span id="__spanz-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>                                                               (вперед)
+</span><span id="__spanz-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                                                       |-------------------&gt;
+</span><span id="__spanz-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>                                                    [0]    [1]    [2]    [3]
+</span><span id="__spanz-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>Page:                                           |--X--||-----||-----||-----|
+</span><span id="__spanz-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>                                                &lt;--------------------------|
+</span><span id="__spanz-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>                                                               (назад)
+</span><span id="__spanz-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+</span><span id="__spanz-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>                                                               (вперед)
+</span><span id="__spanz-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                                                       |-------------------------&gt;
+</span><span id="__spanz-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                                                  [0]    [1]    [2]    [3]   [4](3)
+</span><span id="__spanz-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>Slice:                                          |--X--||-----||-----||-----||-----|
+</span><span id="__spanz-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>                                                &lt;---------------------------------|
+</span><span id="__spanz-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>                                                               (назад)
+</span></code></pre></div>
+<p>В данном примере происходит следующее:</p>
+<p>Максимальный номер страницы - <code>[3]</code> (ваша нумерация). Он соответствует странице с номером <code>(2)</code>
+при реальном разбиении данных.</p>
+<ul>
+<li><code>Page</code>:<ul>
+<li>При движении <strong>вперед</strong> последняя существующая страница (не пустая, и <code>Pageable</code> не
+  является <code>Unpaged</code>) будет иметь номер <code>[3]</code> (<code>(2)</code> - при реальном разбиении на страницы).</li>
+<li>При движении <strong>назад</strong> последняя существующая страница будет иметь номер <code>[1]</code>, но при
+  этом метод <code>hasPrevious()</code> вернет значение <code>true</code> у этой страницы. При дальнейшем движении
+  вы получите одну пустую страницу с <code>Unpaged</code> pageable.</li>
+</ul>
+</li>
+<li><code>Slice</code>:<ul>
+<li>При движении <strong>вперед</strong> последний существующий срез (не пустой, и <code>Pageable</code> не является
+  <code>Unpaged</code>) будет иметь номер <code>[4]</code> (<code>(3)</code> - при реальном разбиении на страницы).</li>
+<li>При движении <strong>назад</strong> последний существующий срез будет иметь номер <code>[1]</code>, но при этом
+  метод <code>hasPrevious()</code> вернет значение <code>true</code> у этого среза. При дальнейшем движении вы
+  получите один пустой срез с <code>Unpaged</code> pageable.</li>
+</ul>
+</li>
+</ul>
+<p>Рассмотрим пример, когда кортеж-курсор соответствует кортежу, после которого начинается страница
+(см. параметр <a href="https://github.com/tarantool/crud?tab=readme-ov-file#select">after</a>) с номером 1
+(<code>pageNumber = 1</code>), а в конструкторе <code>TarantoolPageRequest</code> указан номер для другой страницы,
+например 1 (<code>pageNumber = 0</code>):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__spanz-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>                                                  (0)    (1)    (2)    (3)
+</span><span id="__spanz-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Реальное разбиение данных в БД:                 |-----||-----||-----||-----|
+</span><span id="__spanz-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__spanz-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                                                         [0]    [1]    [2]    [3]
+</span><span id="__spanz-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Разбиение, исходя из переданных параметров:            |-----||-----||-----||-----|
+</span><span id="__spanz-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__spanz-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>                                                               (вперед)
+</span><span id="__spanz-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                                                       |--------------------------&gt;
+</span><span id="__spanz-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                                                         [0]    [1]    [2]    [3]
+</span><span id="__spanz-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>Page:                                                  |-----||-----||-----||--X--|
+</span><span id="__spanz-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>                                                       &lt;-------------------|
+</span><span id="__spanz-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>                                                                 (назад)
+</span><span id="__spanz-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>
+</span><span id="__spanz-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>                                                                 (вперед)
+</span><span id="__spanz-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                                                       |-------------------&gt;
+</span><span id="__spanz-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                                                         [0]    [1]    [2]
+</span><span id="__spanz-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>Slice:                                                 |-----||-----||-----|
+</span><span id="__spanz-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>                                                       &lt;-------------------|
+</span><span id="__spanz-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>                                                              (назад)
+</span></code></pre></div>
+<p>В данном примере происходит следующее:</p>
+<p>Максимальный номер страницы - <code>[3]</code> (ваша нумерация). Он соответствует номеру несуществующей
+страницы при реальном разбиении данных:</p>
+<ul>
+<li>
+<p><code>Slice</code>:</p>
+<ul>
+<li>При движении <strong>вперед</strong> последний существующий срез будет иметь номер <code>[2]</code>.</li>
+<li>При движении <strong>назад</strong> последний существующий срез будет иметь номер
+  <code>[0]</code>(<code>(1)</code> - при реальном разбиении на страницы).</li>
+</ul>
+</li>
+<li>
+<p><code>Page</code>:</p>
+<ul>
+<li>При движении <strong>вперед</strong> последняя существующая страница (не пустая, и <code>Pageable</code> не
+  является <code>Unpaged</code>) будет иметь номер <code>[2]</code>, но при этом метод <code>hasNext()</code> вернет значение
+  <code>true</code> у этой страницы. При дальнейшем движении вы получите одну пустую страницу с
+  <code>Unpaged</code> pageable.</li>
+<li>При движении <strong>назад</strong> последняя существующая страница будет иметь номер <code>[0]</code> (<code>(1)</code> - при
+  реальном разбиении на страницы).</li>
+</ul>
+</li>
+</ul>
+<h3 id="_1">Работа с производными методами</h3>
+<p>При работе с производными методами существует особенность использования запросов с пагинацией.</p>
+<ul>
+<li>Если поле-предикат является полем, для которого построен индекс, то поиск элементов будет
+  происходить по этому индексу. Это означает, что при движении вперед возвращаемые на страницах
+  записи будут идти в порядке возрастания индекса, при движении назад в порядке убывания индекса
+  (используйте средства Java для сортировки элементов страниц).</li>
+<li>Если поле-предикат не является полем, для которого построен индекс, то поиск элементов будет
+  происходить по первичному индексу. Возвращаемые на страницах записи будут идти в порядке
+  возрастания первичного индекса вне зависимости от направления пагинации.</li>
+</ul>
+<details class="warning" open="open">
+<summary>Важно</summary>
+<ul>
+<li>Соблюдайте соответствие номера страницы и передаваемого курсора. В ином случае возможны пустые
+  страницы с <code>unpaged</code> pageable. Если не уверены в правильности передачи курсора вместе с 
+  номером страницы, то используйте конструктор <code>new TarantoolPageRequest&lt;&gt;(int pageSize)</code>, 
+  который позволяет пройтись от начала данных и не имеет недостатков присущих пагинации, 
+  начинающейся с произвольной страницы.</li>
+<li>Если вы работаете на версии Spring Data 3.1.x или выше, используйте 
+  <a href="../scroll-api/">Scroll API</a> для реализации запросов с пагинацией вместо <code>Slice</code> и <code>Page</code>.</li>
+</ul>
+</details>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -854,6 +1324,44 @@
       
         <footer class="md-footer">
   
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../query-lua/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Хранимые процедуры">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Хранимые процедуры
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../scroll-api/" class="md-footer__link md-footer__link--next" aria-label="Next: Пагинация (Scroll API)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Пагинация (Scroll API)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
     
   
   <div class="md-footer-meta md-typeset">
@@ -910,10 +1418,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/", "features": ["navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "content.footnote.tooltips", "content.code.copy", "content.code.select", "content.code.annotate"], "search": "/assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "content.footnote.tooltips", "content.code.copy", "content.code.select", "content.code.annotate"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
-      <script src="/assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>
