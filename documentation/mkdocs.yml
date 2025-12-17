@@ -25,6 +25,9 @@ theme:
     - navigation.top
     - navigation.footer
     - content.footnote.tooltips
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
   name: material
   custom_dir: overrides
   palette:
@@ -39,6 +42,7 @@ theme:
 
 #  favicon: images/favicon.svg
   icon:
+    annotation: material/chat-question
     repo: fontawesome/brands/github
     logo: tarantool/tarantool
     admonition:
@@ -56,7 +60,19 @@ theme:
       quote: octicons/quote-16
 
 nav:
-  - index.md
+  - Главная:
+      - index.md
+  - Документация:
+      - documentation/index.md
+      - Spring Data:
+          - documentation/spring-data/index.md
+          - documentation/spring-data/configuration.md
+          - documentation/spring-data/repository.md
+          - documentation/spring-data/derived-methods.md
+          - documentation/spring-data/sort.md
+          - documentation/spring-data/query-lua.md
+          - documentation/spring-data/page-slice-pageable.md
+          - documentation/spring-data/scroll-api.md
 
 markdown_extensions:
   - tables
@@ -72,3 +88,15 @@ markdown_extensions:
       options:
         custom_icons:
           - overrides/.icons
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __spanz
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+exclude_docs: |
+  venv
+  requirements.txt
+  pom.xml
+  README.md
