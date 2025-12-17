@@ -31,6 +31,6 @@ DB, Tarantool EE), а также интерфейсы `Spring Data` для ин�
     <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-client</artifactId>
-        <version>{tarantool-java-sdk.version}</version>
+        <version>${tarantool-java-sdk.version}</version>
     </dependency>
     ```

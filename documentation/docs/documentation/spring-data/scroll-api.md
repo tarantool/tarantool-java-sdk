@@ -209,9 +209,9 @@ title: Пагинация (Scroll API)
 #### TarantoolWindowIterator
 
 Данный класс является аналогом
-[WindowIterator](https://docs.spring.io/spring-data/commons/docs/current/api//org/springframework/data/support/WindowIterator.html),
-работа которого адаптирована под использование для Tarantool (интерфейс класса аналогичен
-[WindowIterator](https://docs.spring.io/spring-data/commons/docs/current/api//org/springframework/data/support/WindowIterator.html)).
+[WindowIterator](https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/support/WindowIterator.html),
+работа которого адаптирована под использование с Tarantool (интерфейс класса аналогичен
+`WindowIterator`).
 Пример использования:
 
 ```java
