@@ -86,6 +86,7 @@ nav:
               - documentation/client/arch/balancer.md
               - documentation/client/arch/connection-pool.md
               - documentation/client/arch/instance-connection-group.md
+              - documentation/client/arch/connection-to-multiple-nodes.md
               - documentation/client/arch/call.md
 
 markdown_extensions:
