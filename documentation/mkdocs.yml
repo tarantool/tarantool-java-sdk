@@ -14,6 +14,9 @@ extra:
     provider: mike
     alias: true
 
+plugins:
+  - drawio
+
 theme:
   features:
     - navigation.tracking
@@ -73,6 +76,8 @@ nav:
           - documentation/spring-data/query-lua.md
           - documentation/spring-data/page-slice-pageable.md
           - documentation/spring-data/scroll-api.md
+      - Высокоуровневый клиент:
+          - documentation/client/index.md
 
 markdown_extensions:
   - tables
