@@ -14,6 +14,10 @@ extra:
     provider: mike
     alias: true
 
+plugins:
+  - drawio:
+      darkmode: true
+
 theme:
   features:
     - navigation.tracking
@@ -73,6 +77,19 @@ nav:
           - documentation/spring-data/query-lua.md
           - documentation/spring-data/page-slice-pageable.md
           - documentation/spring-data/scroll-api.md
+      - Высокоуровневый клиент:
+          - documentation/client/index.md
+          - Архитектура:
+              - documentation/client/arch/index.md
+              - documentation/client/arch/high-level-arch.md
+              - documentation/client/arch/heartbeat.md
+              - documentation/client/arch/balancer.md
+              - documentation/client/arch/connection-pool.md
+              - documentation/client/arch/instance-connection-group.md
+              - documentation/client/arch/exception-handling.md
+              - documentation/client/arch/connection-to-multiple-nodes.md
+              - documentation/client/arch/call.md
+              - documentation/client/arch/tuple_pojo_mapping.md
 
 markdown_extensions:
   - tables
