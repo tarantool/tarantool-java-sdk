@@ -15,7 +15,8 @@ extra:
     alias: true
 
 plugins:
-  - drawio
+  - drawio:
+      darkmode: true
 
 theme:
   features:
@@ -78,6 +79,9 @@ nav:
           - documentation/spring-data/scroll-api.md
       - Высокоуровневый клиент:
           - documentation/client/index.md
+          - Архитектура:
+              - documentation/client/arch/index.md
+              - documentation/client/arch/high-level-arch.md
 
 markdown_extensions:
   - tables
