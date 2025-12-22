@@ -82,6 +82,7 @@ nav:
           - Архитектура:
               - documentation/client/arch/index.md
               - documentation/client/arch/high-level-arch.md
+              - documentation/client/arch/heartbeat.md
 
 markdown_extensions:
   - tables
