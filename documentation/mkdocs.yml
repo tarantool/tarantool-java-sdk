@@ -89,6 +89,7 @@ nav:
               - documentation/client/arch/exception-handling.md
               - documentation/client/arch/connection-to-multiple-nodes.md
               - documentation/client/arch/call.md
+              - documentation/client/arch/tuple_pojo_mapping.md
 
 markdown_extensions:
   - tables
