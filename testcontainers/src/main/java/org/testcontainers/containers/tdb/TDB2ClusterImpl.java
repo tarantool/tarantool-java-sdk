@@ -258,7 +258,7 @@ public class TDB2ClusterImpl implements TDBCluster {
 
   private EtcdContainer getEtcdContainer() {
     return new EtcdContainer(
-            Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+            Utils.resolveContainerImage("testcontainers.etcd.image", Etcd.CONTAINER_IMAGE),
             this.etcdContainerName,
             new ArrayList<>())
         .withNetwork(this.network)

@@ -63,7 +63,7 @@ class TCMContainerTest {
     return Stream.of(
         Arguments.of(
             new EtcdContainer(
-                Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+                Utils.resolveContainerImage("testcontainers.etcd.image", Etcd.CONTAINER_IMAGE),
                 ETCD_NAME,
                 EMPTY_LIST),
             new TCMContainer(
@@ -189,7 +189,8 @@ class TCMContainerTest {
           try (final Network net = Network.newNetwork();
               final EtcdContainer etcd =
                   new EtcdContainer(
-                          Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+                          Utils.resolveContainerImage(
+                              "testcontainers.etcd.image", Etcd.CONTAINER_IMAGE),
                           ETCD_NAME,
                           EMPTY_LIST)
                       .withStartupTimeout(startupDuration)
