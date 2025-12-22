@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -60,14 +60,13 @@ class TarantoolMappingContextTest {
   void testCreatePersistentEntity() {
     final TarantoolMappingContext<?, ?> mappingContext = new TarantoolMappingContext<>();
 
-    final TypeInformation<Person> informationForSimpleClass =
-        TypeInformation.of(Person.class);
+    final TypeInformation<Person> informationForSimpleClass = TypeInformation.of(Person.class);
 
     final TypeInformation<ComplexPerson> informationForIdentifierClass =
         TypeInformation.of(ComplexPerson.class);
 
-    assertInstanceOf(KeyValueCompositePersistentEntity.class,
-        createEntityForClass(ComplexPerson.class));
+    assertInstanceOf(
+        KeyValueCompositePersistentEntity.class, createEntityForClass(ComplexPerson.class));
 
     assertInstanceOf(KeyValuePersistentEntity.class, createEntityForClass(ComplexPerson.class));
   }
@@ -85,20 +84,27 @@ class TarantoolMappingContextTest {
 
   @Test
   void testCreateEntityWithWrongCompositeKeyPartTypes() {
-    Set<Class<?>> initialSet = new HashSet<Class<?>>() {{
-      add(EntityWithWrongFieldTypes.class);
-    }};
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> initEntities(initialSet));
+    Set<Class<?>> initialSet =
+        new HashSet<Class<?>>() {
+          {
+            add(EntityWithWrongFieldTypes.class);
+          }
+        };
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
 
-    Assertions.assertEquals(KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
+    Assertions.assertEquals(
+        KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
   }
 
   @Test
   void testCreateEntityWithWrongCompositeKeyPartCount() {
-    Set<Class<?>> initialSet = new HashSet<Class<?>>() {{
-      add(EntityWithWrongCompositeKeyPartsCount.class);
-    }};
+    Set<Class<?>> initialSet =
+        new HashSet<Class<?>>() {
+          {
+            add(EntityWithWrongCompositeKeyPartsCount.class);
+          }
+        };
     IllegalArgumentException exception =
         assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
 
@@ -106,8 +112,8 @@ class TarantoolMappingContextTest {
   }
 
   /**
-   * Create a mappingContext from the passed domain classes. After initialize - create for them PersistentEntities and
-   * add PersistentProperties to them.
+   * Create a mappingContext from the passed domain classes. After initialize - create for them
+   * PersistentEntities and add PersistentProperties to them.
    *
    * @param entitySet
    * @return
@@ -154,16 +160,17 @@ class TarantoolMappingContextTest {
     return mappingContext.createPersistentEntity(informationForClass);
   }
 
-  private <P extends KeyValueCompositeProperty<P>> PersistentProperty<?> createProperty(Class<?> classType,
-      ReflectionUtils.FieldFilter fieldFilter) {
+  private <P extends KeyValueCompositeProperty<P>> PersistentProperty<?> createProperty(
+      Class<?> classType, ReflectionUtils.FieldFilter fieldFilter) {
 
-    final TarantoolMappingContext<KeyValuePersistentEntity<?, P>, P> context = new TarantoolMappingContext<>();
-    KeyValuePersistentEntity<?, P> entity = context.createPersistentEntity(TypeInformation.of(classType));
+    final TarantoolMappingContext<KeyValuePersistentEntity<?, P>, P> context =
+        new TarantoolMappingContext<>();
+    KeyValuePersistentEntity<?, P> entity =
+        context.createPersistentEntity(TypeInformation.of(classType));
     Field field = org.springframework.data.util.ReflectionUtils.findField(classType, fieldFilter);
     assertNotNull(field);
 
-    return context.createPersistentProperty(Property.of(entity.getTypeInformation(), field),
-        entity,
-        SimpleTypeHolder.DEFAULT);
+    return context.createPersistentProperty(
+        Property.of(entity.getTypeInformation(), field), entity, SimpleTypeHolder.DEFAULT);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -45,11 +45,13 @@ public class PersonAsMap {
   public String name;
 
   public Map<String, Object> asMap() {
-    return new HashMap<String, Object>() {{
-      put(idFieldName, id);
-      put(isMarriedFieldName, isMarried);
-      put(nameFieldName, name);
-    }};
+    return new HashMap<String, Object>() {
+      {
+        put(idFieldName, id);
+        put(isMarriedFieldName, isMarried);
+        put(nameFieldName, name);
+      }
+    };
   }
 
   public List<?> asList() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -27,18 +27,23 @@ class CompositeIdPropertyAccessorTest {
   void testGetIdentifier() {
     final AbstractMappingContext<?, ?> mappingContext = new TarantoolMappingContext<>();
 
-    final Set<Class<?>> entitySet = new HashSet<Class<?>>() {{
-      add(ComplexPerson.class);
-    }};
+    final Set<Class<?>> entitySet =
+        new HashSet<Class<?>>() {
+          {
+            add(ComplexPerson.class);
+          }
+        };
     mappingContext.setInitialEntitySet(entitySet);
     mappingContext.initialize();
 
     final ComplexPerson target = new ComplexPerson(0, UUID.randomUUID(), true, "0");
 
-    final PersistentEntity<?, ?> persistentEntity = mappingContext.getRequiredPersistentEntity(ComplexPerson.class);
+    final PersistentEntity<?, ?> persistentEntity =
+        mappingContext.getRequiredPersistentEntity(ComplexPerson.class);
     final IdentifierAccessor identifierAccessor = persistentEntity.getIdentifierAccessor(target);
 
-    final CompositePersonKey expectedCompositeKey = new CompositePersonKey(target.getId(), target.getSecondId());
+    final CompositePersonKey expectedCompositeKey =
+        new CompositePersonKey(target.getId(), target.getSecondId());
 
     assertNotNull(identifierAccessor.getIdentifier());
     Object identifier = assertDoesNotThrow(identifierAccessor::getRequiredIdentifier);

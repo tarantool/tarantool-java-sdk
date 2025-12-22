@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -103,4 +103,3 @@ public interface GenericRepositoryMethods<T, ID> {
 
   List<T> findPersonById(ID id);
 }
-

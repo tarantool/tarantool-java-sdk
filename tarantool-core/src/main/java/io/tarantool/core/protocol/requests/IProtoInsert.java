@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -33,7 +33,8 @@ public class IProtoInsert extends IProtoBaseRequest {
   protected ArrayValue tuple;
   protected byte[] rawTuple;
 
-  public IProtoInsert(final Integer spaceId, final String spaceName, ArrayValue tuple, Long streamId) {
+  public IProtoInsert(
+      final Integer spaceId, final String spaceName, ArrayValue tuple, Long streamId) {
     this.spaceId = spaceId;
     this.spaceName = spaceName;
     this.tuple = tuple;
@@ -53,15 +54,15 @@ public class IProtoInsert extends IProtoBaseRequest {
     packer.addPayload(RAW_MAP_HEADER_WITH_TWO_ITEMS);
 
     if (spaceId != null) {
-      packer.addPayload(RAW_IPROTO_SPACE_ID);  // key
-      packer.packInt(spaceId);                 // value
+      packer.addPayload(RAW_IPROTO_SPACE_ID); // key
+      packer.packInt(spaceId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_SPACE_NAME);  // key
-      packer.packString(spaceName);              // value
+      packer.addPayload(RAW_IPROTO_SPACE_NAME); // key
+      packer.packString(spaceName); // value
     }
 
     packer.addPayload(RAW_IPROTO_TUPLE); // key
-    packValue(packer, rawTuple, tuple);  // value
+    packValue(packer, rawTuple, tuple); // value
 
     return getPacketFromBase(packer);
   }

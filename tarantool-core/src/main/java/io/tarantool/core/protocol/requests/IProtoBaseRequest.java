@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -85,7 +85,8 @@ public abstract class IProtoBaseRequest implements IProtoRequest {
     packer.packLong(syncId);
   }
 
-  protected void packValue(MessageBufferPacker packer, byte[] rawValue, Value value) throws IOException {
+  protected void packValue(MessageBufferPacker packer, byte[] rawValue, Value value)
+      throws IOException {
     if (rawValue != null) {
       packer.addPayload(rawValue);
       return;
@@ -137,10 +138,7 @@ public abstract class IProtoBaseRequest implements IProtoRequest {
 
   protected MapValue packVclock(Map<Integer, Long> vclock) {
     Map<Value, Value> vclockMap = new HashMap<>();
-    vclock.forEach((k, v) -> vclockMap.put(
-        ValueFactory.newInteger(k),
-        ValueFactory.newInteger(v)
-    ));
+    vclock.forEach((k, v) -> vclockMap.put(ValueFactory.newInteger(k), ValueFactory.newInteger(v)));
     return ValueFactory.newMap(vclockMap);
   }
 }

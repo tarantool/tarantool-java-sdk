@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,27 +21,28 @@ import io.tarantool.autogen.iproto.Iproto;
 
 class ParameterExtractorTest {
 
-  private static final ParameterExtractor<?> DEFAULT_PRIORITY_EXTRACTOR = new ParameterExtractor<>(
-      c -> c.getIproto().flatMap(Iproto::getNetMsgMax),
-      gr -> gr.getIproto().flatMap(i -> i.getNetMsgMax()),
-      r -> r.getIproto().flatMap(i -> i.getNetMsgMax()),
-      in -> in.getIproto().flatMap(i -> i.getNetMsgMax()),
-      (gl, gr, r, i) -> {
-        if (i.isPresent()) {
-          return i;
-        }
-        if (r.isPresent()) {
-          return r;
-        }
-        if (gr.isPresent()) {
-          return gr;
-        }
-        return gl;
-      }
-  );
+  private static final ParameterExtractor<?> DEFAULT_PRIORITY_EXTRACTOR =
+      new ParameterExtractor<>(
+          c -> c.getIproto().flatMap(Iproto::getNetMsgMax),
+          gr -> gr.getIproto().flatMap(i -> i.getNetMsgMax()),
+          r -> r.getIproto().flatMap(i -> i.getNetMsgMax()),
+          in -> in.getIproto().flatMap(i -> i.getNetMsgMax()),
+          (gl, gr, r, i) -> {
+            if (i.isPresent()) {
+              return i;
+            }
+            if (r.isPresent()) {
+              return r;
+            }
+            if (gr.isPresent()) {
+              return gr;
+            }
+            return gl;
+          });
 
   public static Stream<Arguments> dataForTestSimpleIproto() {
-    final String globalPar = """
+    final String globalPar =
+        """
         groups:
           g-1:
             replicasets:
@@ -52,7 +53,8 @@ class ParameterExtractorTest {
         iproto:
           net_msg_max: 685
         """;
-    final String groupPar = """
+    final String groupPar =
+        """
         groups:
           g-1:
             iproto:
@@ -66,7 +68,8 @@ class ParameterExtractorTest {
           net_msg_max: 685
         """;
 
-    final String replicasetPar = """
+    final String replicasetPar =
+        """
         groups:
           g-1:
             iproto:
@@ -82,7 +85,8 @@ class ParameterExtractorTest {
           net_msg_max: 685
         """;
 
-    final String instancePar = """
+    final String instancePar =
+        """
         groups:
           g-1:
             iproto:
@@ -104,30 +108,31 @@ class ParameterExtractorTest {
         Arguments.of(globalPar, BigInteger.valueOf(685), DEFAULT_PRIORITY_EXTRACTOR),
         Arguments.of(groupPar, BigInteger.valueOf(700), DEFAULT_PRIORITY_EXTRACTOR),
         Arguments.of(replicasetPar, BigInteger.valueOf(900), DEFAULT_PRIORITY_EXTRACTOR),
-        Arguments.of(instancePar, BigInteger.valueOf(1200), DEFAULT_PRIORITY_EXTRACTOR)
-    );
+        Arguments.of(instancePar, BigInteger.valueOf(1200), DEFAULT_PRIORITY_EXTRACTOR));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestSimpleIproto")
   void testSimpleIproto(String raw, Object expectedResult, ParameterExtractor<?> extractor) {
-    Assertions.assertDoesNotThrow(() -> {
+    Assertions.assertDoesNotThrow(
+        () -> {
+          final var config = ConfigurationUtils.create(raw);
+          final Map<String, ?> parameters = extractor.getParameter(config);
 
-      final var config = ConfigurationUtils.create(raw);
-      final Map<String, ?> parameters = extractor.getParameter(config);
-
-      parameters.forEach((key, value) -> {
-        Assertions.assertEquals(expectedResult, value);
-        final Optional<?> parameter = extractor.getParameter(key, config);
-        Assertions.assertEquals(Optional.ofNullable(expectedResult), parameter);
-      });
-    });
+          parameters.forEach(
+              (key, value) -> {
+                Assertions.assertEquals(expectedResult, value);
+                final Optional<?> parameter = extractor.getParameter(key, config);
+                Assertions.assertEquals(Optional.ofNullable(expectedResult), parameter);
+              });
+        });
   }
 
   @Test
   void testNotFoundParameter() {
     final String instanceName = "i-1";
-    final String withoutPramRaw = """
+    final String withoutPramRaw =
+        """
         groups:
           g-1:
             replicasets:
@@ -135,7 +140,8 @@ class ParameterExtractorTest {
                 instances:
                   %s:
                     isolated: false
-        """.formatted(instanceName);
+        """
+            .formatted(instanceName);
 
     final var config = ConfigurationUtils.create(withoutPramRaw);
 
@@ -151,42 +157,42 @@ class ParameterExtractorTest {
         // without groups
         " isolated: false",
 
-        //without groups values
+        // without groups values
         """
-            groups:
-              g-1:
-            """,
+        groups:
+          g-1:
+        """,
 
         // without replicaset values
         """
-            groups:
-              g-1:
-                replicasets:
-                  r-1:
-            """,
+        groups:
+          g-1:
+            replicasets:
+              r-1:
+        """,
 
-        //without replicasets
+        // without replicasets
         """
-            groups:
-              g-1:
-                isolated: false
-            """,
+        groups:
+          g-1:
+            isolated: false
+        """,
 
         // without instances
         """
-            groups:
-              g-1:
-                replicasets:
-                  r-1:
-                    isolated: false
-            """
-    );
+        groups:
+          g-1:
+            replicasets:
+              r-1:
+                isolated: false
+        """);
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestInvalidConfigShouldThrow")
   void testInvalidConfigShouldThrow(String raw) {
-    Assertions.assertThrows(Exception.class,
+    Assertions.assertThrows(
+        Exception.class,
         () -> DEFAULT_PRIORITY_EXTRACTOR.getParameter(ConfigurationUtils.create(raw)));
   }
 }

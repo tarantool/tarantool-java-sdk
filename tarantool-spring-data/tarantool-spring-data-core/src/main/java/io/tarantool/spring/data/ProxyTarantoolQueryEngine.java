@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,9 +17,7 @@ import io.tarantool.mapping.Tuple;
 import io.tarantool.spring.data.query.TarantoolCriteria;
 
 /**
- * <p>
  * Implementation of {@code findBy*()} and {@code countBy*{}} queries.
- * </P>
  *
  * @author Artyom Dubinin
  */
@@ -32,35 +30,37 @@ public class ProxyTarantoolQueryEngine {
     this.client = client;
   }
 
-  public Collection<?> execute(final TarantoolCriteria criteria,
+  public Collection<?> execute(
+      final TarantoolCriteria criteria,
       final Comparator<Entry<?, ?>> sort,
       final long offset,
       final int rows,
       final String keyspace) {
     assertNotNull(criteria, "criteria must be not null");
     criteria.withFirst(rows);
-    // TODO сделать для всех опций hashcode и equals для того, чтобы можно было реализовать кэширование
+    // TODO сделать для всех опций hashcode и equals для того, чтобы можно было реализовать
+    // кэширование
     return client.space(keyspace).select(criteria.getConditions(), criteria.getOptions()).join();
   }
 
   /**
-   * <p>
-   * Construct the final query predicate for Tarantool to execute, from the base query plus any paging and sorting.
-   * </P>
-   * <p>
-   * Variations here allow the base query predicate to be omitted, sorting to be omitted, and paging to be omitted.
-   * </P>
+   * Construct the final query predicate for Tarantool to execute, from the base query plus any
+   * paging and sorting.
+   *
+   * <p>Variations here allow the base query predicate to be omitted, sorting to be omitted, and
+   * paging to be omitted.
    *
    * @param criteria Search criteria, null means match everything
-   * @param sort     Possibly null collation
-   * @param offset   Start point of returned page, -1 if not used
-   * @param rows     Size of page, -1 if not used
+   * @param sort Possibly null collation
+   * @param offset Start point of returned page, -1 if not used
+   * @param rows Size of page, -1 if not used
    * @param keyspace The map name
-   * @param type     return target type entity
-   * @param <T>      return entity
+   * @param type return target type entity
+   * @param <T> return entity
    * @return Results from Tarantool
    */
-  public <T> Collection<T> execute(final TarantoolCriteria criteria,
+  public <T> Collection<T> execute(
+      final TarantoolCriteria criteria,
       final Comparator<Entry<?, ?>> sort,
       final long offset,
       final int rows,
@@ -68,12 +68,17 @@ public class ProxyTarantoolQueryEngine {
       Class<T> type) {
     assertNotNull(criteria, "criteria must be not null");
     criteria.withFirst(rows);
-    // TODO: сделать для всех опций hashcode и equals для того, чтобы можно было реализовать кэширование
+    // TODO: сделать для всех опций hashcode и equals для того, чтобы можно было реализовать
+    // кэширование
     // TODO: unwrap tuples in more elegant way (e.g. by option in select)
-    return unwrapTuples(client.space(keyspace).select(criteria.getConditions(), criteria.getOptions(), type).join());
+    return unwrapTuples(
+        client
+            .space(keyspace)
+            .select(criteria.getConditions(), criteria.getOptions(), type)
+            .join());
   }
 
-  static public <T> List<T> unwrapTuples(List<Tuple<T>> tuples) {
+  public static <T> List<T> unwrapTuples(List<Tuple<T>> tuples) {
     ArrayList<T> result = new ArrayList<>();
     for (Tuple<T> t : tuples) {
       result.add(t.get());
@@ -82,9 +87,7 @@ public class ProxyTarantoolQueryEngine {
   }
 
   /**
-   * <p>
    * Execute {@code countBy*()} queries against a Tarantool space.
-   * </P>
    *
    * @param criteria Predicate to use, not null
    * @param keyspace The map name

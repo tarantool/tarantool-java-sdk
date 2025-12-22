@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -25,7 +25,7 @@ public class WatcherStateMachine implements IProtoStateMachine {
 
   private final Connection connection;
 
-  private final static Logger log = LoggerFactory.getLogger(WatcherStateMachine.class);
+  private static final Logger log = LoggerFactory.getLogger(WatcherStateMachine.class);
 
   private final IProtoRequest request;
 
@@ -39,7 +39,8 @@ public class WatcherStateMachine implements IProtoStateMachine {
 
   private boolean calledOnce;
 
-  public WatcherStateMachine(String key,
+  public WatcherStateMachine(
+      String key,
       long syncId,
       Consumer<IProtoResponse> callback,
       Connection connection,
@@ -64,14 +65,13 @@ public class WatcherStateMachine implements IProtoStateMachine {
   }
 
   /**
-   * A function that handles the message of an event triggered in Tarantool using the suggested callbacks.
-   * <p>
-   *     TODO: now we always use "return false". If it will change, this
-   *      function should be corrected.
-   * </p>
-   * <p>
-   *     TODO: add handling for errors and logging.
-   * </p>
+   * A function that handles the message of an event triggered in Tarantool using the suggested
+   * callbacks.
+   *
+   * <p>TODO: now we always use "return false". If it will change, this function should be
+   * corrected.
+   *
+   * <p>TODO: add handling for errors and logging.
    *
    * @param message message sent from Tarantool as a result of watch event triggering.
    */
@@ -88,10 +88,7 @@ public class WatcherStateMachine implements IProtoStateMachine {
       }
     } else {
       log.warn("got error for watcher: {}", message);
-      opts.getErrorHandler().accept(
-          key,
-          new ClientException("watcher error: %s", message)
-      );
+      opts.getErrorHandler().accept(key, new ClientException("watcher error: %s", message));
     }
 
     return false;
@@ -109,18 +106,16 @@ public class WatcherStateMachine implements IProtoStateMachine {
   }
 
   private void send() {
-    CompletableFuture<Void> future = connection
-        .send(request)
-        .whenComplete(this::onSendComplete);
-    Timeout timer = timerService.newTimeout(
-        timeoutHandler -> {
-          if (!future.isDone()) {
-            future.completeExceptionally(new ClientException("watcher timeout"));
-          }
-        },
-        opts.getSendTimeout(),
-        TimeUnit.MILLISECONDS
-    );
+    CompletableFuture<Void> future = connection.send(request).whenComplete(this::onSendComplete);
+    Timeout timer =
+        timerService.newTimeout(
+            timeoutHandler -> {
+              if (!future.isDone()) {
+                future.completeExceptionally(new ClientException("watcher timeout"));
+              }
+            },
+            opts.getSendTimeout(),
+            TimeUnit.MILLISECONDS);
     future.whenComplete((r, exc) -> timer.cancel());
   }
 }

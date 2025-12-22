@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -48,9 +48,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     this.identifier = null;
   }
 
-  /**
-   * Check methods for adding and retrieving parts of a composite key.
-   */
+  /** Check methods for adding and retrieving parts of a composite key. */
   @Test
   public void testAddAndGetParts() {
     Class<?> entityClass = TestEntity.class;
@@ -62,17 +60,15 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner), isIdFieldFiler);
 
     assertNotNull(identifier);
-    List<Field> identifierFieldsFromProperties = this.identifier.getParts()
-        .stream()
-        .map(PersistentProperty::getField)
-        .collect(Collectors.toList());
+    List<Field> identifierFieldsFromProperties =
+        this.identifier.getParts().stream()
+            .map(PersistentProperty::getField)
+            .collect(Collectors.toList());
 
     compareFieldCollection(identifierFieldsFromProperties, getExpectedIdFields(entityClass));
   }
 
-  /**
-   * Check methods for adding and retrieving parts of a composite key.
-   */
+  /** Check methods for adding and retrieving parts of a composite key. */
   @Test
   public void testAddAndGetFields() {
     Class<?> entityClass = TestEntity.class;
@@ -90,16 +86,17 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   }
 
   /**
-   * Check methods for adding and getting parts of a composite key for an object without {@code @Id}.
+   * Check methods for adding and getting parts of a composite key for an object without
+   * {@code @Id}.
    */
   @Test
   public void testAddAndGetPartsWithEntityWithoutId() {
     Class<?> entityClass = TestEntityWithoutId.class;
 
-    PersistentEntity<?, P> owner = new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(TestEntity.class),
-        null);
-    ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner),
-        field -> field.isAnnotationPresent(Id.class));
+    PersistentEntity<?, P> owner =
+        new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(TestEntity.class), null);
+    ReflectionUtils.doWithFields(
+        entityClass, field -> addPart(field, owner), field -> field.isAnnotationPresent(Id.class));
 
     assertNull(identifier);
   }
@@ -114,8 +111,8 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     PersistentEntity<?, P> owner =
         new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(entityClass), null);
 
-    ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner),
-        field -> field.isAnnotationPresent(Id.class));
+    ReflectionUtils.doWithFields(
+        entityClass, field -> addPart(field, owner), field -> field.isAnnotationPresent(Id.class));
 
     // repeat
     assertNotNull(identifier);
@@ -128,22 +125,26 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   }
 
   private Stream<Arguments> dataForTestEquals() {
-    final Function<Class<?>, List<KeyValueCompositeProperty<P>>> doCreateEntityAndGetProperties = (entityType) -> {
+    final Function<Class<?>, List<KeyValueCompositeProperty<P>>> doCreateEntityAndGetProperties =
+        (entityType) -> {
+          final PersistentEntity<?, P> owner =
+              new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(entityType), null);
 
-      final PersistentEntity<?, P> owner =
-          new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(entityType),
-              null);
+          ReflectionUtils.doWithFields(
+              entityType,
+              field -> addPart(field, owner),
+              field -> field.isAnnotationPresent(Id.class));
 
-      ReflectionUtils.doWithFields(entityType, field -> addPart(field, owner),
-          field -> field.isAnnotationPresent(Id.class));
+          assertNotNull(identifier);
 
-      assertNotNull(identifier);
-
-      return new ArrayList<>(identifier.getParts());
-    };
+          return new ArrayList<>(identifier.getParts());
+        };
 
     return Stream.of(
-        Arguments.of(doCreateEntityAndGetProperties, TestEntity.class, SecondTestEntity.class,
+        Arguments.of(
+            doCreateEntityAndGetProperties,
+            TestEntity.class,
+            SecondTestEntity.class,
             TestEntityWithOneId.class));
   }
 
@@ -151,21 +152,26 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   @MethodSource("dataForTestEquals")
   void testEquals(
       Function<Class<?>, List<KeyValueCompositeProperty<P>>> generatePropertiesFunction,
-      Class<?> entityType, Class<?> sameEntityWithOtherClass, Class<?> entityWithOneId) {
+      Class<?> entityType,
+      Class<?> sameEntityWithOtherClass,
+      Class<?> entityWithOneId) {
     // first set
-    List<KeyValueCompositeProperty<P>> firstPropertiesList = generatePropertiesFunction.apply(entityType);
+    List<KeyValueCompositeProperty<P>> firstPropertiesList =
+        generatePropertiesFunction.apply(entityType);
     Identifier<P> firstIdentifier = identifier;
 
     identifier = null;
 
     // second set
-    List<KeyValueCompositeProperty<P>> secondPropertiesList = generatePropertiesFunction.apply(entityType);
+    List<KeyValueCompositeProperty<P>> secondPropertiesList =
+        generatePropertiesFunction.apply(entityType);
     Identifier<P> secondIdentifier = identifier;
 
     identifier = null;
 
     // third set
-    List<KeyValueCompositeProperty<P>> thirdPropertiesList = generatePropertiesFunction.apply(entityType);
+    List<KeyValueCompositeProperty<P>> thirdPropertiesList =
+        generatePropertiesFunction.apply(entityType);
     Identifier<P> thirdIdentifier = identifier;
 
     identifier = null;
@@ -197,8 +203,6 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
       assertNotEquals(firstPropertiesList.get(i), samePropertiesListWithOtherClass.get(i));
       assertNotEquals(secondPropertiesList.get(i), samePropertiesListWithOtherClass.get(i));
       assertNotEquals(thirdPropertiesList.get(i), samePropertiesListWithOtherClass.get(i));
-
-
     }
 
     for (int i = 0; i < oneIdPropertiesList.size(); i++) {
@@ -218,12 +222,12 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     assertEquals(firstIdentifier, secondIdentifier);
     assertEquals(secondIdentifier, thirdIdentifier);
 
-    //compare complex same identifier but other class
+    // compare complex same identifier but other class
     assertNotEquals(firstIdentifier, sameIdentifierWithOtherClass);
     assertNotEquals(secondIdentifier, sameIdentifierWithOtherClass);
     assertNotEquals(thirdIdentifier, sameIdentifierWithOtherClass);
 
-    //compare complex identifier with one id
+    // compare complex identifier with one id
     assertNotEquals(firstIdentifier, oneIdIdentifier);
     assertNotEquals(secondIdentifier, oneIdIdentifier);
     assertNotEquals(thirdIdentifier, oneIdIdentifier);
@@ -236,8 +240,8 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     // first set
     PersistentEntity<?, P> owner =
         new BasicKeyValuePersistentEntity<>(ClassTypeInformation.from(entityClass), null);
-    ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner),
-        field -> field.isAnnotationPresent(Id.class));
+    ReflectionUtils.doWithFields(
+        entityClass, field -> addPart(field, owner), field -> field.isAnnotationPresent(Id.class));
 
     assertNotNull(identifier);
     List<KeyValueCompositeProperty<P>> properties = new ArrayList<>(identifier.getParts());
@@ -250,11 +254,9 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   @Getter
   static class TestEntity {
 
-    @Id
-    private long id;
+    @Id private long id;
 
-    @Id
-    private int secondId;
+    @Id private int secondId;
 
     private int age;
   }
@@ -262,11 +264,9 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   @Getter
   static class SecondTestEntity {
 
-    @Id
-    private long id;
+    @Id private long id;
 
-    @Id
-    private int secondId;
+    @Id private int secondId;
 
     private int age;
   }
@@ -274,8 +274,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
   @Getter
   static class TestEntityWithOneId {
 
-    @Id
-    private long id;
+    @Id private long id;
 
     private int secondId;
 
@@ -286,19 +285,17 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
 
     private long id;
 
-    @Nullable
-    private String name;
+    @Nullable private String name;
 
     private int secondId;
   }
 
-  /**
-   * Create a PersistentProperty and add to first id property.
-   */
+  /** Create a PersistentProperty and add to first id property. */
   @SuppressWarnings("unchecked")
   private void addPart(Field field, PersistentEntity<?, P> owner) {
     Property property = Property.of(owner.getTypeInformation(), field);
-    Identifier<P> persistentProperty = new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
+    Identifier<P> persistentProperty =
+        new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
 
     if (this.identifier == null) {
       this.identifier = persistentProperty;
@@ -307,9 +304,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     this.identifier.addPart((P) persistentProperty);
   }
 
-  /**
-   * Compare fields by name and type.
-   */
+  /** Compare fields by name and type. */
   private void compareFieldCollection(List<Field> first, List<Field> second) {
     assertEquals(first.size(), second.size());
 
@@ -322,9 +317,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValueCompositeProperty<P
     }
   }
 
-  /**
-   * Get the expected fields marked with the {@code @Id} annotation.
-   */
+  /** Get the expected fields marked with the {@code @Id} annotation. */
   private List<Field> getExpectedIdFields(Class<?> entityClass) {
     return Arrays.stream(entityClass.getDeclaredFields())
         .filter(field -> field.isAnnotationPresent(Id.class))

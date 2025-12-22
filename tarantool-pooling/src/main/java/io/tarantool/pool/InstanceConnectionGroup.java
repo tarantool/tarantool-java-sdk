@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,7 +13,7 @@ import static io.tarantool.core.protocol.requests.IProtoAuth.DEFAULT_AUTH_TYPE;
 import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
 
 /**
- * <p>Class that implements a group of connections to a host.</p>
+ * Class that implements a group of connections to a host.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -21,98 +21,100 @@ import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
  */
 public final class InstanceConnectionGroup {
 
-  /**
-   * <p>Default hostname.</p>
-   */
+  /** Default hostname. */
   public static final String DEFAULT_HOST = "localhost";
 
-  /**
-   * <p>Default port.</p>
-   */
+  /** Default port. */
   public static final int DEFAULT_PORT = 3301;
 
-  /**
-   * <p>Default connection number in connection group.</p>
-   */
+  /** Default connection number in connection group. */
   public static final int DEFAULT_CONNECTION_NUMBER = 1;
 
   /**
-   * <p>Host name.</p>
-   * <p><i><b>Default</b></i>: {@code "localhost"}.</p>
+   * Host name.
+   *
+   * <p><i><b>Default</b></i>: {@code "localhost"}.
    */
   private final String host;
 
   /**
-   * <p>Host port.</p>
-   * <p><i><b>Default</b></i>: {@code 3301}.</p>
+   * Host port.
+   *
+   * <p><i><b>Default</b></i>: {@code 3301}.
    */
   private final int port;
 
   /**
-   * <p>Connection group size.</p>
-   * <p><i><b>Default</b></i>: {@code 1}.</p>
+   * Connection group size.
+   *
+   * <p><i><b>Default</b></i>: {@code 1}.
    */
   private final int size;
 
   /**
-   * <p>User name with which the connection is made.</p>
-   * <p><i><b>Default</b></i>: {@code "guest"}.</p>
+   * User name with which the connection is made.
+   *
+   * <p><i><b>Default</b></i>: {@code "guest"}.
    */
   private final String user;
 
   /**
-   * <p>Password for {@link  #user}.</p>
-   * <p><i><b>Default</b></i>: {@code no password (null)}.</p>
+   * Password for {@link #user}.
+   *
+   * <p><i><b>Default</b></i>: {@code no password (null)}.
    */
   private final String password;
 
   /**
-   * <p>Type of authentication in Tarantool.</p>
-   * <p><i><b>Default</b></i>: {@link AuthType#CHAP_SHA1}.</p>
+   * Type of authentication in Tarantool.
+   *
+   * <p><i><b>Default</b></i>: {@link AuthType#CHAP_SHA1}.
    *
    * @see AuthType
    */
   private final AuthType authType;
 
   /**
-   * <p>IP socket address.</p>
+   * IP socket address.
    *
    * @see InetSocketAddress
    */
   private final InetSocketAddress address;
 
-  /**
-   * <p>Default netty flush handler.</p>
-   */
+  /** Default netty flush handler. */
   private final FlushConsolidationHandler flushConsolidationHandler;
 
   /**
-   * <p>Tag of group.</p>
-   * <p><i><b>Default</b></i>: {@code "<user>:<host>:<port>"}.</p>
+   * Tag of group.
+   *
+   * <p><i><b>Default</b></i>: {@code "<user>:<host>:<port>"}.
    */
   private String tag;
 
   /**
-   * <p>Creates new {@link InstanceConnectionGroup} object with passed arguments.</p>
+   * Creates new {@link InstanceConnectionGroup} object with passed arguments.
    *
-   * @param host                      {@link #host}
-   * @param port                      {@link #port}
-   * @param size                      {@link #size}
-   * @param tag                       {@link #tag}
-   * @param user                      {@link #user}
-   * @param password                  {@link #password}
-   * @param authType                  {@link #authType}
+   * @param host {@link #host}
+   * @param port {@link #port}
+   * @param size {@link #size}
+   * @param tag {@link #tag}
+   * @param user {@link #user}
+   * @param password {@link #password}
+   * @param authType {@link #authType}
    * @param flushConsolidationHandler {@link #flushConsolidationHandler}
-   * @throws IllegalArgumentException when {@code "guest"} password is not empty or password of other users is empty
+   * @throws IllegalArgumentException when {@code "guest"} password is not empty or password of
+   *     other users is empty
    */
-  private InstanceConnectionGroup(String host,
+  private InstanceConnectionGroup(
+      String host,
       int port,
       int size,
       String tag,
       String user,
       String password,
       AuthType authType,
-      FlushConsolidationHandler flushConsolidationHandler) throws IllegalArgumentException {
+      FlushConsolidationHandler flushConsolidationHandler)
+      throws IllegalArgumentException {
     if (user != null && user.equals("guest")) {
       user = null;
     }
@@ -131,7 +133,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Creates new {@link Builder} object.</p>
+   * Creates new {@link Builder} object.
    *
    * @return {@link Builder} object.
    */
@@ -140,7 +142,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of host field.</p>
+   * Returns value of host field.
    *
    * @return {@link #host} value.
    */
@@ -149,7 +151,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of port field.</p>
+   * Returns value of port field.
    *
    * @return {@link #port} value.
    */
@@ -158,7 +160,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of size field.</p>
+   * Returns value of size field.
    *
    * @return {@link #size} value.
    */
@@ -167,7 +169,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of tag field.</p>
+   * Returns value of tag field.
    *
    * @return {@link #tag} value.
    */
@@ -189,7 +191,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of user field.</p>
+   * Returns value of user field.
    *
    * @return {@link #user} value.
    */
@@ -198,7 +200,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of password field.</p>
+   * Returns value of password field.
    *
    * @return {@link #password} value.
    */
@@ -207,7 +209,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of authentication type field.</p>
+   * Returns value of authentication type field.
    *
    * @return {@link #authType} value.
    */
@@ -216,7 +218,7 @@ public final class InstanceConnectionGroup {
   }
 
   /**
-   * <p>Returns value of address field.</p>
+   * Returns value of address field.
    *
    * @return {@link #address} value.
    */
@@ -233,9 +235,7 @@ public final class InstanceConnectionGroup {
     return flushConsolidationHandler;
   }
 
-  /**
-   * <p>Builder of {@link InstanceConnectionGroup} class.</p>
-   */
+  /** Builder of {@link InstanceConnectionGroup} class. */
   public static class Builder {
 
     /**
@@ -273,20 +273,18 @@ public final class InstanceConnectionGroup {
      */
     private AuthType authType = DEFAULT_AUTH_TYPE;
 
-    /**
-     * <p>Default netty flush handler.</p>
-     */
+    /** Default netty flush handler. */
     private FlushConsolidationHandler flushConsolidationHandler;
 
-    /**
-     * <p>Constructor of {@link Builder}.</p>
-     */
+    /** Constructor of {@link Builder}. */
     private Builder() {}
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#host}. Host should be not empty or null, otherwise it will
-     * use default value.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>"localhost"</i>.</p>
+     * Sets value of {@link InstanceConnectionGroup#host}. Host should be not empty or null,
+     * otherwise it will use default value.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required:
+     * <i>"localhost"</i>.
      *
      * @param host {@link InstanceConnectionGroup#host}.
      * @return {@link Builder} object.
@@ -302,8 +300,9 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#port}. Port value should be from 0 to 65535.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>3301</i>.</p>
+     * Sets value of {@link InstanceConnectionGroup#port}. Port value should be from 0 to 65535.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>3301</i>.
      *
      * @param port {@link InstanceConnectionGroup#port}.
      * @return {@link Builder} object.
@@ -320,8 +319,9 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#size}. Size value should greater 0.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>1</i>.</p>
+     * Sets value of {@link InstanceConnectionGroup#size}. Size value should greater 0.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>1</i>.
      *
      * @param size {@link InstanceConnectionGroup#size}.
      * @return {@link Builder} object.
@@ -338,10 +338,11 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#tag}. Tag value should be not null or empty, otherwise
-     * will use default value.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>{@code <user>:<host>:<port>}
-     * </i>.</p>
+     * Sets value of {@link InstanceConnectionGroup#tag}. Tag value should be not null or empty,
+     * otherwise will use default value.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>{@code
+     * <user>:<host>:<port>} </i>.
      *
      * @param tag {@link InstanceConnectionGroup#tag}.
      * @return {@link Builder} object.
@@ -357,9 +358,10 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#user}. Username should be not null or empty, otherwise
-     * will use default value.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>"guest"</i>.</p>
+     * Sets value of {@link InstanceConnectionGroup#user}. Username should be not null or empty,
+     * otherwise will use default value.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: <i>"guest"</i>.
      *
      * @param user {@link InstanceConnectionGroup#user}.
      * @return {@link Builder} object.
@@ -375,7 +377,7 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#password}.
+     * Sets value of {@link InstanceConnectionGroup#password}.
      *
      * @param password {@link InstanceConnectionGroup#password}.
      * @return {@link Builder} object.
@@ -391,9 +393,11 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p>Sets value of {@link InstanceConnectionGroup#authType}. Authentication type should be not null, otherwise
-     * will use default value.</p>
-     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: {@link AuthType#CHAP_SHA1}.</p>
+     * Sets value of {@link InstanceConnectionGroup#authType}. Authentication type should be not
+     * null, otherwise will use default value.
+     *
+     * <p><i><b>Note</b></i>: Don't use this method if a default value is required: {@link
+     * AuthType#CHAP_SHA1}.
      *
      * @param authType {@link InstanceConnectionGroup#authType}.
      * @return {@link Builder} object.
@@ -409,11 +413,13 @@ public final class InstanceConnectionGroup {
     }
 
     /**
-     * <p> Sets the {@link #flushConsolidationHandler} parameter when constructing an instance of a builder
-     * class. The following example creates a {@link InstanceConnectionGroup} object with a specified
-     * {@link #flushConsolidationHandler} parameter:
-     * <blockquote><pre>{@code
+     * Sets the {@link #flushConsolidationHandler} parameter when constructing an instance of a
+     * builder class. The following example creates a {@link InstanceConnectionGroup} object with a
+     * specified {@link #flushConsolidationHandler} parameter:
      *
+     * <blockquote>
+     *
+     * <pre>{@code
      * InstanceConnectionGroup group = InstanceConnectionGroup
      *                                          .builder()
      *                                          .withFlushConsolidationHandler(
@@ -421,24 +427,28 @@ public final class InstanceConnectionGroup {
      *                                          )
      *                                          .build();
      *
-     * }</pre></blockquote>
+     * }</pre>
+     *
+     * </blockquote>
      *
      * @param flushConsolidationHandler see {@link FlushConsolidationHandler} option.
      * @return {@link Builder} object.
      */
-    public Builder withFlushConsolidationHandler(FlushConsolidationHandler flushConsolidationHandler) {
+    public Builder withFlushConsolidationHandler(
+        FlushConsolidationHandler flushConsolidationHandler) {
       this.flushConsolidationHandler = flushConsolidationHandler;
       return this;
     }
 
     /**
-     * <p>Builds {@link InstanceConnectionGroup} object.</p>
+     * Builds {@link InstanceConnectionGroup} object.
      *
      * @return {@link InstanceConnectionGroup} object.
      */
     public InstanceConnectionGroup build() {
 
-      return new InstanceConnectionGroup(this.host,
+      return new InstanceConnectionGroup(
+          this.host,
           this.port,
           this.size,
           this.tag,

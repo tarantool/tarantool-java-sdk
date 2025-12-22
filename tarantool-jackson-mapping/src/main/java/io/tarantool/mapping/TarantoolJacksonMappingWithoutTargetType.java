@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,8 +22,8 @@ import io.tarantool.mapping.crud.CrudResponse;
 
 public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacksonMapping {
 
-  public static final TypeReference<Map<Integer, List<Field>>> TYPE_REF_MAP_INTEGER_LIST_FIELD
-      = new TypeReference<Map<Integer, List<Field>>>() {};
+  public static final TypeReference<Map<Integer, List<Field>>> TYPE_REF_MAP_INTEGER_LIST_FIELD =
+      new TypeReference<Map<Integer, List<Field>>>() {};
 
   public static CompletableFuture<TarantoolResponse<List<?>>> convertFutureResult(
       CompletableFuture<IProtoResponse> future) {
@@ -31,13 +31,7 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
   }
 
   public static TarantoolResponse<List<?>> readResponse(IProtoResponse response) {
-    return new TarantoolResponse<List<?>>(
-        readData(
-            response,
-            List.class
-        ),
-        getFormats(response)
-    );
+    return new TarantoolResponse<List<?>>(readData(response, List.class), getFormats(response));
   }
 
   public static CompletableFuture<Tuple<List<?>>> convertSpaceSingleResultFuture(
@@ -48,16 +42,11 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
   }
 
   private static TarantoolResponse<List<Tuple<List<?>>>> readSpaceData(IProtoResponse response) {
-    return new TarantoolResponse<>(
-        readData(
-            response,
-            LIST_TUPLE_LIST
-        ),
-        getFormats(response)
-    );
+    return new TarantoolResponse<>(readData(response, LIST_TUPLE_LIST), getFormats(response));
   }
 
-  private static Tuple<List<?>> getTupleWithInjectedFormat(TarantoolResponse<List<Tuple<List<?>>>> resp) {
+  private static Tuple<List<?>> getTupleWithInjectedFormat(
+      TarantoolResponse<List<Tuple<List<?>>>> resp) {
     Map<Integer, List<Field>> formats = resp.getFormats();
     List<Tuple<List<?>>> data = resp.get();
     if (data != null) {
@@ -77,29 +66,15 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
   public static CompletableFuture<Tuple<List<?>>> convertCrudSingleResultFuture(
       CompletableFuture<IProtoResponse> future) {
     return future
-        .thenApply(
-            TarantoolJacksonMappingWithoutTargetType::readCrudSingleResultData
-        )
-        .thenApply(
-            TarantoolJacksonMappingWithoutTargetType::getTupleWithInjectedFormat
-        );
-
+        .thenApply(TarantoolJacksonMappingWithoutTargetType::readCrudSingleResultData)
+        .thenApply(TarantoolJacksonMappingWithoutTargetType::getTupleWithInjectedFormat);
   }
 
   public static TarantoolResponse<List<Tuple<List<?>>>> readCrudSingleResultData(
       IProtoResponse response) {
     return new TarantoolResponse<>(
-        getRows(
-            readData(
-                response,
-                wrapIntoType(
-                    CrudResponse.class,
-                    LIST_TUPLE_LIST
-                )
-            )
-        ),
-        getFormats(response)
-    );
+        getRows(readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST))),
+        getFormats(response));
   }
 
   public static <T> T getRows(CrudResponse<T> response) {
@@ -115,10 +90,7 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
 
   public static SelectResponse<List<Tuple<List<?>>>> readSelectResult(IProtoResponse response) {
     return new SelectResponse<>(
-        readData(response, LIST_TUPLE),
-        getPosition(response),
-        getFormats(response)
-    );
+        readData(response, LIST_TUPLE), getPosition(response), getFormats(response));
   }
 
   private static SelectResponse<List<Tuple<List<?>>>> injectFormatIntoTuples(
@@ -138,10 +110,7 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
     Map<Integer, List<Field>> formats = Collections.emptyMap();
     ByteBodyValueWrapper rawFormats = response.getByteBodyValue(IPROTO_TUPLE_FORMATS);
     if (rawFormats != null) {
-      formats = readValue(
-          rawFormats,
-          TYPE_REF_MAP_INTEGER_LIST_FIELD
-      );
+      formats = readValue(rawFormats, TYPE_REF_MAP_INTEGER_LIST_FIELD);
     }
     return formats;
   }
@@ -150,11 +119,11 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
     byte[] position = null;
     ByteBodyValueWrapper rawPosition = response.getByteBodyValue(IPROTO_POSITION);
     if (rawPosition != null) {
-      position = Arrays.copyOfRange(
-          rawPosition.getPacket(),
-          rawPosition.getOffset(),
-          rawPosition.getOffset() + rawPosition.getValueLength()
-      );
+      position =
+          Arrays.copyOfRange(
+              rawPosition.getPacket(),
+              rawPosition.getOffset(),
+              rawPosition.getOffset() + rawPosition.getValueLength());
     }
     return position;
   }
@@ -166,22 +135,15 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
         .thenApply(resp -> getTuplesWithInjectedFormat(resp));
   }
 
-  public static TarantoolResponse<List<Tuple<List<?>>>> readCrudSelectResult(IProtoResponse response) {
+  public static TarantoolResponse<List<Tuple<List<?>>>> readCrudSelectResult(
+      IProtoResponse response) {
     return new TarantoolResponse<>(
-        getRows(
-            readData(
-                response,
-                wrapIntoType(
-                    CrudResponse.class,
-                    LIST_TUPLE_LIST
-                )
-            )
-        ),
-        getFormats(response)
-    );
+        getRows(readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST))),
+        getFormats(response));
   }
 
-  private static List<Tuple<List<?>>> getTuplesWithInjectedFormat(TarantoolResponse<List<Tuple<List<?>>>> resp) {
+  private static List<Tuple<List<?>>> getTuplesWithInjectedFormat(
+      TarantoolResponse<List<Tuple<List<?>>>> resp) {
     Map<Integer, List<Field>> formats = resp.getFormats();
     List<Tuple<List<?>>> tuples = resp.get();
     if (!formats.isEmpty()) {
@@ -194,27 +156,22 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
     return tuples;
   }
 
-  public static CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> convertCrudBatchResultFuture(
-      CompletableFuture<IProtoResponse> future) {
+  public static CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>>
+      convertCrudBatchResultFuture(CompletableFuture<IProtoResponse> future) {
     return future
         .thenApply(resp -> readCrudBatchResult(resp))
         .thenApply(resp -> getBatchTuplesWithInjectedFormat(resp));
   }
 
-  public static TarantoolResponse<CrudBatchResponse<List<Tuple<List<?>>>>> readCrudBatchResult(IProtoResponse response) {
+  public static TarantoolResponse<CrudBatchResponse<List<Tuple<List<?>>>>> readCrudBatchResult(
+      IProtoResponse response) {
     return new TarantoolResponse<>(
-        readData(
-            response,
-            wrapIntoType(
-                CrudBatchResponse.class,
-                LIST_TUPLE_LIST
-            )
-        ),
-        getFormats(response)
-    );
+        readData(response, wrapIntoType(CrudBatchResponse.class, LIST_TUPLE_LIST)),
+        getFormats(response));
   }
 
-  private static CrudBatchResponse<List<Tuple<List<?>>>> getBatchTuplesWithInjectedFormat(TarantoolResponse<CrudBatchResponse<List<Tuple<List<?>>>>> resp) {
+  private static CrudBatchResponse<List<Tuple<List<?>>>> getBatchTuplesWithInjectedFormat(
+      TarantoolResponse<CrudBatchResponse<List<Tuple<List<?>>>>> resp) {
     Map<Integer, List<Field>> formats = resp.getFormats();
     CrudBatchResponse<List<Tuple<List<?>>>> batchResp = resp.get();
     List<Tuple<List<?>>> tuples = batchResp.getRows();
@@ -229,9 +186,6 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
   }
 
   public static TarantoolResponse<?> fromEventData(IProtoResponse response) {
-    return new TarantoolResponse<>(
-        readEventData(response),
-        getFormats(response)
-    );
+    return new TarantoolResponse<>(readEventData(response), getFormats(response));
   }
 }

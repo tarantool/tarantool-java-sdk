@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -47,8 +47,8 @@ import io.tarantool.autogen.iproto.advertise.peer.Peer;
 import io.tarantool.autogen.iproto.listen.Listen;
 
 /**
- * Base implementation of {@link TQEConfigurator} that configure TQE cluster using configuration files. All other
- * implementations should extend this class.
+ * Base implementation of {@link TQEConfigurator} that configure TQE cluster using configuration
+ * files. All other implementations should extend this class.
  */
 public class FileTQEConfigurator implements TQEConfigurator {
 
@@ -64,7 +64,8 @@ public class FileTQEConfigurator implements TQEConfigurator {
   /* Constants
   /**********************************************************
   */
-  private static final String CONFIGURATOR_ERROR_MSG = "An error occurred when configuring the TQE cluster. See logs for details.";
+  private static final String CONFIGURATOR_ERROR_MSG =
+      "An error occurred when configuring the TQE cluster. See logs for details.";
 
   private static final String TQE_ROUTER_ROLE = "app.roles.api";
 
@@ -98,8 +99,13 @@ public class FileTQEConfigurator implements TQEConfigurator {
 
   private boolean configured;
 
-  private FileTQEConfigurator(DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs,
-      String clusterName, Duration startupTimeout, Duration bootstrapTimeout) {
+  private FileTQEConfigurator(
+      DockerImageName image,
+      Path queueConfig,
+      Collection<Path> grpcConfigs,
+      String clusterName,
+      Duration startupTimeout,
+      Duration bootstrapTimeout) {
     this.queueConfig = queueConfig;
     this.grpcConfigs = grpcConfigs;
     this.clusterName = clusterName;
@@ -110,40 +116,56 @@ public class FileTQEConfigurator implements TQEConfigurator {
     this.network = Network.newNetwork();
     this.queueParsedConfig = ConfigurationUtils.readFromFile(this.queueConfig);
     this.queue = initQueue(this.network, this.image, this.clusterName, this.startupTimeout);
-    this.grpc = initGrpc(this.grpcConfigs, this.network, this.image, this.clusterName, this.queue, this.startupTimeout);
+    this.grpc =
+        initGrpc(
+            this.grpcConfigs,
+            this.network,
+            this.image,
+            this.clusterName,
+            this.queue,
+            this.startupTimeout);
   }
 
-  private Map<String, GrpcContainer<?>> initGrpc(Collection<Path> grpcConfigs, Network network,
-      DockerImageName image, String clusterName, Map<String, TarantoolContainer<?>> queue, Duration startupTimeout) {
+  private Map<String, GrpcContainer<?>> initGrpc(
+      Collection<Path> grpcConfigs,
+      Network network,
+      DockerImageName image,
+      String clusterName,
+      Map<String, TarantoolContainer<?>> queue,
+      Duration startupTimeout) {
     Map<String, GrpcContainer<?>> grpc = new LinkedHashMap<>();
     int i = 1;
     for (Path grpcConfig : grpcConfigs) {
       final String grpcName = "grpc-" + i;
       final String containerName = grpcName + "-" + clusterName;
-      GrpcContainerImpl container = new GrpcContainerImpl(image, grpcConfig, grpcName, startupTimeout)
-          .withNetwork(network)
-          .withCreateContainerCmdModifier(cmd -> cmd.withName(containerName))
-          .withNetworkAliases(containerName)
-          .dependsOn(queue.values());
+      GrpcContainerImpl container =
+          new GrpcContainerImpl(image, grpcConfig, grpcName, startupTimeout)
+              .withNetwork(network)
+              .withCreateContainerCmdModifier(cmd -> cmd.withName(containerName))
+              .withNetworkAliases(containerName)
+              .dependsOn(queue.values());
       grpc.put(grpcName, container);
     }
     return grpc;
   }
 
-  private Map<String, TarantoolContainer<?>> initQueue(Network network,
-      DockerImageName image, String clusterName, Duration startupTimeout) {
+  private Map<String, TarantoolContainer<?>> initQueue(
+      Network network, DockerImageName image, String clusterName, Duration startupTimeout) {
 
     final List<String> instances = ConfigurationUtils.parseInstances(this.queueParsedConfig);
     final Map<String, TarantoolContainer<?>> nodes = new LinkedHashMap<>(instances.size());
 
-    this.routerNames.addAll(ConfigurationUtils.findInstancesWithRole(this.queueParsedConfig, TQE_ROUTER_ROLE));
+    this.routerNames.addAll(
+        ConfigurationUtils.findInstancesWithRole(this.queueParsedConfig, TQE_ROUTER_ROLE));
     if (this.routerNames.isEmpty()) {
       LOGGER.error("At least one container must have the 'router' and '{}' roles", TQE_ROUTER_ROLE);
       throw new ContainerLaunchException(CONFIGURATOR_ERROR_MSG);
     }
 
-    final Map<String, HostPort> advertiseClientUris = resolveAdvertiseClientUris(this.queueParsedConfig);
-    final Map<String, HostPort> advertisePeerUris = resolveAdvertisePeerUris(this.queueParsedConfig);
+    final Map<String, HostPort> advertiseClientUris =
+        resolveAdvertiseClientUris(this.queueParsedConfig);
+    final Map<String, HostPort> advertisePeerUris =
+        resolveAdvertisePeerUris(this.queueParsedConfig);
     final Map<String, List<HostPort>> listenUri = resolveListenUris(this.queueParsedConfig);
     if (listenUri.size() != instances.size()) {
       LOGGER.error("All nodes should have 'listen.uri' parameter!");
@@ -152,15 +174,19 @@ public class FileTQEConfigurator implements TQEConfigurator {
 
     for (String instance : instances) {
       final String containerName = instance + "-" + clusterName;
-      final Tarantool3Container container = new Tarantool3Container(image, instance)
-          .withNetwork(network)
-          .withConfigPath(queueConfig)
-          .withNetworkAliases(containerName)
-          .withCreateContainerCmdModifier(cmd -> cmd.withUser("root").withName(containerName))
-          .waitingFor(new Tarantool3WaitStrategy(instance, TCMConfig.DEFAULT_TARANTOOL_USERNAME,
-              TCMConfig.DEFAULT_TARANTOOL_PASSWORD))
-          .withStartupTimeout(startupTimeout)
-          .withCommand("tarantool");
+      final Tarantool3Container container =
+          new Tarantool3Container(image, instance)
+              .withNetwork(network)
+              .withConfigPath(queueConfig)
+              .withNetworkAliases(containerName)
+              .withCreateContainerCmdModifier(cmd -> cmd.withUser("root").withName(containerName))
+              .waitingFor(
+                  new Tarantool3WaitStrategy(
+                      instance,
+                      TCMConfig.DEFAULT_TARANTOOL_USERNAME,
+                      TCMConfig.DEFAULT_TARANTOOL_PASSWORD))
+              .withStartupTimeout(startupTimeout)
+              .withCommand("tarantool");
 
       final HostPort advertiseClientUri = advertiseClientUris.get(instance);
       if (advertiseClientUri != null) {
@@ -173,10 +199,14 @@ public class FileTQEConfigurator implements TQEConfigurator {
         setAliasAsNeedFromUri(container, instance, advertisePeerUri);
       }
 
-      setAliasAsNeedFromUri(container, instance,
-          listenUri.getOrDefault(instance, Collections.emptyList()).toArray(new HostPort[]{}));
+      setAliasAsNeedFromUri(
+          container,
+          instance,
+          listenUri.getOrDefault(instance, Collections.emptyList()).toArray(new HostPort[] {}));
 
-      setExposedPorts(container, listenUri.getOrDefault(instance, Collections.emptyList()).toArray(new HostPort[]{}));
+      setExposedPorts(
+          container,
+          listenUri.getOrDefault(instance, Collections.emptyList()).toArray(new HostPort[] {}));
       nodes.put(instance, container);
     }
     return nodes;
@@ -190,27 +220,27 @@ public class FileTQEConfigurator implements TQEConfigurator {
   }
 
   private static Map<String, HostPort> resolveAdvertiseClientUris(Tarantool3Configuration config) {
-    final var advertiseParameterExtractor = new ParameterExtractor<>(
-        c -> c.getIproto().flatMap(Iproto::getAdvertise).flatMap(Advertise::getClient),
-        g -> g.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
-        r -> r.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
-        in -> in.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
-        (glAddr, gAddr, rAddr, iAddr) -> {
-          if (iAddr.isPresent()) {
-            return iAddr;
-          }
+    final var advertiseParameterExtractor =
+        new ParameterExtractor<>(
+            c -> c.getIproto().flatMap(Iproto::getAdvertise).flatMap(Advertise::getClient),
+            g -> g.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
+            r -> r.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
+            in -> in.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getClient()),
+            (glAddr, gAddr, rAddr, iAddr) -> {
+              if (iAddr.isPresent()) {
+                return iAddr;
+              }
 
-          if (rAddr.isPresent()) {
-            return rAddr;
-          }
+              if (rAddr.isPresent()) {
+                return rAddr;
+              }
 
-          if (gAddr.isPresent()) {
-            return gAddr;
-          }
+              if (gAddr.isPresent()) {
+                return gAddr;
+              }
 
-          return glAddr;
-        }
-    );
+              return glAddr;
+            });
 
     return advertiseParameterExtractor.getParameter(config).entrySet().stream()
         .map(e -> new SimpleEntry<>(e.getKey(), HostPort.parse(e.getValue())))
@@ -218,27 +248,43 @@ public class FileTQEConfigurator implements TQEConfigurator {
   }
 
   private static Map<String, HostPort> resolveAdvertisePeerUris(Tarantool3Configuration config) {
-    final var advertisePeerUriExtractor = new ParameterExtractor<>(
-        c -> c.getIproto().flatMap(Iproto::getAdvertise).flatMap(Advertise::getPeer).flatMap(Peer::getUri),
-        g -> g.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getPeer()).flatMap(p -> p.getUri()),
-        r -> r.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getPeer()).flatMap(p -> p.getUri()),
-        in -> in.getIproto().flatMap(i -> i.getAdvertise()).flatMap(a -> a.getPeer()).flatMap(p -> p.getUri()),
-        (glAddr, gAddr, rAddr, iAddr) -> {
-          if (iAddr.isPresent()) {
-            return iAddr;
-          }
+    final var advertisePeerUriExtractor =
+        new ParameterExtractor<>(
+            c ->
+                c.getIproto()
+                    .flatMap(Iproto::getAdvertise)
+                    .flatMap(Advertise::getPeer)
+                    .flatMap(Peer::getUri),
+            g ->
+                g.getIproto()
+                    .flatMap(i -> i.getAdvertise())
+                    .flatMap(a -> a.getPeer())
+                    .flatMap(p -> p.getUri()),
+            r ->
+                r.getIproto()
+                    .flatMap(i -> i.getAdvertise())
+                    .flatMap(a -> a.getPeer())
+                    .flatMap(p -> p.getUri()),
+            in ->
+                in.getIproto()
+                    .flatMap(i -> i.getAdvertise())
+                    .flatMap(a -> a.getPeer())
+                    .flatMap(p -> p.getUri()),
+            (glAddr, gAddr, rAddr, iAddr) -> {
+              if (iAddr.isPresent()) {
+                return iAddr;
+              }
 
-          if (rAddr.isPresent()) {
-            return rAddr;
-          }
+              if (rAddr.isPresent()) {
+                return rAddr;
+              }
 
-          if (gAddr.isPresent()) {
-            return gAddr;
-          }
+              if (gAddr.isPresent()) {
+                return gAddr;
+              }
 
-          return glAddr;
-        }
-    );
+              return glAddr;
+            });
 
     return advertisePeerUriExtractor.getParameter(config).entrySet().stream()
         .map(e -> new SimpleEntry<>(e.getKey(), HostPort.parse(e.getValue())))
@@ -246,52 +292,72 @@ public class FileTQEConfigurator implements TQEConfigurator {
   }
 
   private static Map<String, List<HostPort>> resolveListenUris(Tarantool3Configuration config) {
-    final var listenUris = new ParameterExtractor<>(
-        c -> c.getIproto().flatMap(Iproto::getListen)
-            .flatMap(ll -> Optional.of(ll.stream()
-                .map(Listen::getUri)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList()))
-            ),
-        g -> g.getIproto().flatMap(i -> i.getListen())
-            .flatMap(ll -> Optional.of(ll.stream()
-                .map(l -> l.getUri())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList()))
-            ),
-        r -> r.getIproto().flatMap(i -> i.getListen())
-            .flatMap(ll -> Optional.of(ll.stream()
-                .map(l -> l.getUri())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList()))
-            ),
-        in -> in.getIproto().flatMap(i -> i.getListen())
-            .flatMap(ll -> Optional.of(ll.stream()
-                .map(l -> l.getUri())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList()))
-            ),
-        (glAddr, gAddr, rAddr, iAddr) -> {
-          final List<String> allAddresses = new ArrayList<>();
-          glAddr.ifPresent(allAddresses::addAll);
-          gAddr.ifPresent(allAddresses::addAll);
-          rAddr.ifPresent(allAddresses::addAll);
-          iAddr.ifPresent(allAddresses::addAll);
-          return allAddresses.isEmpty() ? Optional.empty() : Optional.of(allAddresses);
-        }
-    );
+    final var listenUris =
+        new ParameterExtractor<>(
+            c ->
+                c.getIproto()
+                    .flatMap(Iproto::getListen)
+                    .flatMap(
+                        ll ->
+                            Optional.of(
+                                ll.stream()
+                                    .map(Listen::getUri)
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .collect(Collectors.toList()))),
+            g ->
+                g.getIproto()
+                    .flatMap(i -> i.getListen())
+                    .flatMap(
+                        ll ->
+                            Optional.of(
+                                ll.stream()
+                                    .map(l -> l.getUri())
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .collect(Collectors.toList()))),
+            r ->
+                r.getIproto()
+                    .flatMap(i -> i.getListen())
+                    .flatMap(
+                        ll ->
+                            Optional.of(
+                                ll.stream()
+                                    .map(l -> l.getUri())
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .collect(Collectors.toList()))),
+            in ->
+                in.getIproto()
+                    .flatMap(i -> i.getListen())
+                    .flatMap(
+                        ll ->
+                            Optional.of(
+                                ll.stream()
+                                    .map(l -> l.getUri())
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .collect(Collectors.toList()))),
+            (glAddr, gAddr, rAddr, iAddr) -> {
+              final List<String> allAddresses = new ArrayList<>();
+              glAddr.ifPresent(allAddresses::addAll);
+              gAddr.ifPresent(allAddresses::addAll);
+              rAddr.ifPresent(allAddresses::addAll);
+              iAddr.ifPresent(allAddresses::addAll);
+              return allAddresses.isEmpty() ? Optional.empty() : Optional.of(allAddresses);
+            });
 
     return listenUris.getParameter(config).entrySet().stream()
-        .map(e ->
-            new SimpleEntry<>(e.getKey(), e.getValue().stream().map(HostPort::parse).collect(Collectors.toList())))
+        .map(
+            e ->
+                new SimpleEntry<>(
+                    e.getKey(),
+                    e.getValue().stream().map(HostPort::parse).collect(Collectors.toList())))
         .collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
   }
 
-  private static void setAliasAsNeedFromUri(TarantoolContainer<?> container, String instance, HostPort... uris) {
+  private static void setAliasAsNeedFromUri(
+      TarantoolContainer<?> container, String instance, HostPort... uris) {
     if (uris == null) {
       return;
     }
@@ -323,28 +389,36 @@ public class FileTQEConfigurator implements TQEConfigurator {
 
   @Override
   public synchronized void configure() {
-    final Entry<String, TarantoolContainer<?>> router = this.queue.entrySet().stream()
-        .filter(e -> this.routerNames.contains(e.getKey()))
-        .findFirst()
-        .orElseThrow(() -> {
-          LOGGER.error("Can't find any router");
-          return new ContainerLaunchException(CONFIGURATOR_ERROR_MSG);
-        });
-
-    final HostPort hostForRouter = resolveAdvertiseClientUris(this.queueParsedConfig).entrySet().stream()
-        .filter(e -> Objects.equals(e.getKey(), router.getKey()))
-        .map(Entry::getValue)
-        .findFirst()
-        .orElseGet(() -> resolveListenUris(this.queueParsedConfig).entrySet().stream()
-            .filter(e -> Objects.equals(e.getKey(), router.getKey()))
-            .filter(e -> !e.getValue().isEmpty())
-            .map(e -> e.getValue().get(0))
+    final Entry<String, TarantoolContainer<?>> router =
+        this.queue.entrySet().stream()
+            .filter(e -> this.routerNames.contains(e.getKey()))
             .findFirst()
-            .orElseThrow(() -> new ContainerLaunchException(CONFIGURATOR_ERROR_MSG))
-        );
+            .orElseThrow(
+                () -> {
+                  LOGGER.error("Can't find any router");
+                  return new ContainerLaunchException(CONFIGURATOR_ERROR_MSG);
+                });
 
-    ConfigurationUtils.bootstrap(hostForRouter, router.getValue(), this.bootstrapTimeout,
-        TCMConfig.DEFAULT_TARANTOOL_USERNAME, TCMConfig.DEFAULT_TARANTOOL_PASSWORD);
+    final HostPort hostForRouter =
+        resolveAdvertiseClientUris(this.queueParsedConfig).entrySet().stream()
+            .filter(e -> Objects.equals(e.getKey(), router.getKey()))
+            .map(Entry::getValue)
+            .findFirst()
+            .orElseGet(
+                () ->
+                    resolveListenUris(this.queueParsedConfig).entrySet().stream()
+                        .filter(e -> Objects.equals(e.getKey(), router.getKey()))
+                        .filter(e -> !e.getValue().isEmpty())
+                        .map(e -> e.getValue().get(0))
+                        .findFirst()
+                        .orElseThrow(() -> new ContainerLaunchException(CONFIGURATOR_ERROR_MSG)));
+
+    ConfigurationUtils.bootstrap(
+        hostForRouter,
+        router.getValue(),
+        this.bootstrapTimeout,
+        TCMConfig.DEFAULT_TARANTOOL_USERNAME,
+        TCMConfig.DEFAULT_TARANTOOL_PASSWORD);
     this.configured = true;
   }
 
@@ -362,7 +436,8 @@ public class FileTQEConfigurator implements TQEConfigurator {
     }
   }
 
-  public static Builder builder(DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
+  public static Builder builder(
+      DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
     return new Builder(image, queueConfig, grpcConfigs);
   }
 
@@ -387,12 +462,13 @@ public class FileTQEConfigurator implements TQEConfigurator {
         throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
       }
 
-      grpcConfigs.forEach(grpcConfig -> {
-        if (!Files.isRegularFile(grpcConfig)) {
-          LOGGER.error("Grpc config file is invalid (not regular): {})", grpcConfig);
-          throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
-        }
-      });
+      grpcConfigs.forEach(
+          grpcConfig -> {
+            if (!Files.isRegularFile(grpcConfig)) {
+              LOGGER.error("Grpc config file is invalid (not regular): {})", grpcConfig);
+              throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
+            }
+          });
       this.image = image;
       this.queueConfig = queueConfig;
       this.grpcConfigs = new LinkedHashSet<>(grpcConfigs);
@@ -402,7 +478,9 @@ public class FileTQEConfigurator implements TQEConfigurator {
       final String defaultClusterName;
       if (clusterName == null || clusterName.trim().isEmpty()) {
         defaultClusterName = DEFAULT_CLUSTER_NAME_PREFIX + "-" + UUID.randomUUID();
-        LOGGER.warn("Cluster name is invalid (null or blank): {}. Set default cluster name: '{}'", clusterName,
+        LOGGER.warn(
+            "Cluster name is invalid (null or blank): {}. Set default cluster name: '{}'",
+            clusterName,
             defaultClusterName);
       } else {
         defaultClusterName = clusterName;
@@ -422,12 +500,20 @@ public class FileTQEConfigurator implements TQEConfigurator {
     }
 
     public FileTQEConfigurator build() {
-      final String clusterName = this.clusterName == null || this.clusterName.trim().isEmpty() ?
-          DEFAULT_CLUSTER_NAME_PREFIX + "-" + UUID.randomUUID() : this.clusterName;
-      final Duration startupTimeout = this.startupTimeout == null ? DEFAULT_STARTUP_TIMEOUT : this.startupTimeout;
+      final String clusterName =
+          this.clusterName == null || this.clusterName.trim().isEmpty()
+              ? DEFAULT_CLUSTER_NAME_PREFIX + "-" + UUID.randomUUID()
+              : this.clusterName;
+      final Duration startupTimeout =
+          this.startupTimeout == null ? DEFAULT_STARTUP_TIMEOUT : this.startupTimeout;
       final Duration bootstrapTimeout =
           this.bootstrapTimeout == null ? DEFAULT_BOOTSTRAP_TIMEOUT : this.bootstrapTimeout;
-      return new FileTQEConfigurator(this.image, this.queueConfig, this.grpcConfigs, clusterName, startupTimeout,
+      return new FileTQEConfigurator(
+          this.image,
+          this.queueConfig,
+          this.grpcConfigs,
+          clusterName,
+          startupTimeout,
           bootstrapTimeout);
     }
   }

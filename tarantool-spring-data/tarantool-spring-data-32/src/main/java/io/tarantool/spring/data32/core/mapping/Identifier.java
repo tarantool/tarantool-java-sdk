@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,15 +10,13 @@ import java.util.Collection;
 
 import org.springframework.data.mapping.PersistentProperty;
 
-/**
- * The interface of the identifier class that will contain information about the composite key.
- */
+/** The interface of the identifier class that will contain information about the composite key. */
 public interface Identifier<P extends PersistentProperty<P>> {
 
   /**
    * Add a {@link PersistentProperty} tagged with {@code Id}.
    *
-   * @param property {@link PersistentProperty} tagged {@code  Id}
+   * @param property {@link PersistentProperty} tagged {@code Id}
    */
   void addPart(P property);
 
@@ -30,9 +28,10 @@ public interface Identifier<P extends PersistentProperty<P>> {
   Collection<P> getParts();
 
   /**
-   * Return a list {@link Field} of fields that are annotated {@code @Id}. Unlike method {@link #getParts()} this method
-   * returns an array {@link Field}, where {@link Field} is taken from each element of the collection returned by the
-   * {@link #getParts()} method. Necessary in order not to write polluting code.
+   * Return a list {@link Field} of fields that are annotated {@code @Id}. Unlike method {@link
+   * #getParts()} this method returns an array {@link Field}, where {@link Field} is taken from each
+   * element of the collection returned by the {@link #getParts()} method. Necessary in order not to
+   * write polluting code.
    *
    * @return fields of a composite key
    */

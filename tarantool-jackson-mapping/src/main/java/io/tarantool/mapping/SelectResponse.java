@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,17 +17,15 @@ import java.util.Map;
  */
 public class SelectResponse<T> extends TarantoolResponse<T> {
 
-  /**
-   * The position contains a position descriptor of last selected tuple.
-   */
+  /** The position contains a position descriptor of last selected tuple. */
   protected byte[] position;
 
   /**
    * Instantiates a new Select response.
    *
-   * @param data     the data
+   * @param data the data
    * @param position the position
-   * @param formats   schema formats
+   * @param formats schema formats
    */
   public SelectResponse(T data, byte[] position, Map<Integer, List<Field>> formats) {
     super(data, formats);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,7 +10,8 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 
 /**
- * Performs registration of requests and pushes them forward. Should stay first in the channel pipeline
+ * Performs registration of requests and pushes them forward. Should stay first in the channel
+ * pipeline
  *
  * @author Ivan Bannikov
  */

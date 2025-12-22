@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -14,7 +14,8 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.RAW_IPROTO_TYPE
 
 public class IProtoReplace extends IProtoInsert {
 
-  public IProtoReplace(final Integer spaceId, final String spaceName, ArrayValue tuple, Long streamId) {
+  public IProtoReplace(
+      final Integer spaceId, final String spaceName, ArrayValue tuple, Long streamId) {
     super(spaceId, spaceName, tuple, streamId);
   }
 

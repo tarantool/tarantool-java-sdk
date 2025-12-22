@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -51,7 +51,8 @@ public class TDB2ClusterImpl implements TDBCluster {
 
   public static final String DEFAULT_TEST_SUPER_USER = TCMConfig.DEFAULT_TARANTOOL_USERNAME;
 
-  public static final CharSequence DEFAULT_TEST_SUPER_USER_PWD = TCMConfig.DEFAULT_TARANTOOL_PASSWORD;
+  public static final CharSequence DEFAULT_TEST_SUPER_USER_PWD =
+      TCMConfig.DEFAULT_TARANTOOL_PASSWORD;
 
   public static final String TDB_PREFIX = TCMConfig.DEFAULT_TDB_PREFIX;
 
@@ -89,8 +90,14 @@ public class TDB2ClusterImpl implements TDBCluster {
 
   private final Map<String, TarantoolContainer<?>> replicas;
 
-  TDB2ClusterImpl(String image, Path migrationsDirectory, Duration startupTimeout, int routerCount, int shardCount,
-      int replicaCount, String configuration) {
+  TDB2ClusterImpl(
+      String image,
+      Path migrationsDirectory,
+      Duration startupTimeout,
+      int routerCount,
+      int shardCount,
+      int replicaCount,
+      String configuration) {
     this.clusterName = UUID.randomUUID().toString();
     this.etcdContainerName = "ETCD-" + this.clusterName;
     this.tcmContainerName = "TCM-" + this.clusterName;
@@ -103,22 +110,31 @@ public class TDB2ClusterImpl implements TDBCluster {
     this.pathToTarantoolConfig = Utils.createTempDirectory(this.clusterName).resolve("config.yaml");
     this.configuration = configuration;
     if (configuration == null) {
-      this.parsedConfiguration = ConfigurationUtils.generateSimpleConfiguration(routerCount, shardCount, replicaCount);
+      this.parsedConfiguration =
+          ConfigurationUtils.generateSimpleConfiguration(routerCount, shardCount, replicaCount);
       this.configuration = ConfigurationUtils.writeAsString(this.parsedConfiguration);
     } else {
       this.parsedConfiguration = ConfigurationUtils.create(configuration);
     }
 
     final List<String> instancesNames = ConfigurationUtils.parseInstances(this.parsedConfiguration);
-    this.nodes = prepareNodes(instancesNames, this.network, this.etcdHttpAddress, this.image, this.clusterName,
-        this.startupTimeout, this.migrationsDirectory, this.pathToTarantoolConfig);
+    this.nodes =
+        prepareNodes(
+            instancesNames,
+            this.network,
+            this.etcdHttpAddress,
+            this.image,
+            this.clusterName,
+            this.startupTimeout,
+            this.migrationsDirectory,
+            this.pathToTarantoolConfig);
 
     this.etcd = getEtcdContainer();
     this.tcm = getTcmContainer();
     this.tcm.dependsOn(this.etcd);
 
-    final List<String> routerInstances = ConfigurationUtils.findInstancesWithRole(this.parsedConfiguration,
-        "roles.crud-router");
+    final List<String> routerInstances =
+        ConfigurationUtils.findInstancesWithRole(this.parsedConfiguration, "roles.crud-router");
     this.routers = getNodeByPredicate(this.nodes, e -> routerInstances.contains(e.getKey()));
     this.replicas = getNodeByPredicate(this.nodes, e -> !routerInstances.contains(e.getKey()));
   }
@@ -172,15 +188,17 @@ public class TDB2ClusterImpl implements TDBCluster {
     final CountDownLatch latch = new CountDownLatch(this.nodes.size());
     final AtomicReference<Exception> failedToStart = new AtomicReference<>();
     for (TarantoolContainer<?> container : this.nodes.values()) {
-      new Thread(() -> {
-        try {
-          container.start();
-        } catch (Exception e) {
-          failedToStart.set(e);
-        } finally {
-          latch.countDown();
-        }
-      }).start();
+      new Thread(
+              () -> {
+                try {
+                  container.start();
+                } catch (Exception e) {
+                  failedToStart.set(e);
+                } finally {
+                  latch.countDown();
+                }
+              })
+          .start();
     }
     try {
       boolean await = latch.await(this.startupTimeout.getSeconds(), TimeUnit.SECONDS);
@@ -197,16 +215,17 @@ public class TDB2ClusterImpl implements TDBCluster {
 
     waitUntilNodesIsReady(this.nodes, this.startupTimeout);
 
-    final Entry<String, TarantoolContainer<?>> router = this.routers.entrySet().stream()
-        .findFirst().orElseThrow(() -> new ContainerLaunchException("Can't find any router"));
+    final Entry<String, TarantoolContainer<?>> router =
+        this.routers.entrySet().stream()
+            .findFirst()
+            .orElseThrow(() -> new ContainerLaunchException("Can't find any router"));
 
     ConfigurationUtils.bootstrap(
         new HostPort(router.getKey(), DEFAULT_IPROTO_TARANTOOL_PORT),
         router.getValue(),
         this.startupTimeout,
         TCMConfig.DEFAULT_TARANTOOL_USERNAME,
-        TCMConfig.DEFAULT_TARANTOOL_PASSWORD
-    );
+        TCMConfig.DEFAULT_TARANTOOL_PASSWORD);
 
     waitUntilNodesIsReady(this.nodes, this.startupTimeout);
 
@@ -238,8 +257,10 @@ public class TDB2ClusterImpl implements TDBCluster {
   }
 
   private EtcdContainer getEtcdContainer() {
-    return new EtcdContainer(Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE), this.etcdContainerName,
-        new ArrayList<>())
+    return new EtcdContainer(
+            Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+            this.etcdContainerName,
+            new ArrayList<>())
         .withNetwork(this.network)
         .withStartupTimeout(this.startupTimeout)
         .withShouldMountDataDirectory(false)
@@ -250,11 +271,10 @@ public class TDB2ClusterImpl implements TDBCluster {
 
   private TCMContainer getTcmContainer() {
     return new TCMContainer(
-        this.image,
-        this.tcmContainerName,
-        TCMConfig.builder().withEtcdAddress(this.etcdHttpAddress.string().toString()).build(),
-        this.pathToTarantoolConfig
-    )
+            this.image,
+            this.tcmContainerName,
+            TCMConfig.builder().withEtcdAddress(this.etcdHttpAddress.string().toString()).build(),
+            this.pathToTarantoolConfig)
         .withStartupTimeout(this.startupTimeout)
         .withNetwork(this.network)
         .withCreateContainerCmdModifier(cmd -> cmd.withName(this.tcmContainerName))
@@ -265,17 +285,32 @@ public class TDB2ClusterImpl implements TDBCluster {
     return configuration;
   }
 
-  private static void applyMigrations(Map<String, TarantoolContainer<?>> routers, Path migrationsDirectory,
+  private static void applyMigrations(
+      Map<String, TarantoolContainer<?>> routers,
+      Path migrationsDirectory,
       HttpHost etcdHttpAddress) {
     if (migrationsDirectory != null) {
       final TarantoolContainer<?> router = routers.values().iterator().next();
       try {
-        Utils.execExceptionally(LOGGER, router.getContainerInfo(),
-            "tt migrations publish failed", "tt", "migrations", "publish",
+        Utils.execExceptionally(
+            LOGGER,
+            router.getContainerInfo(),
+            "tt migrations publish failed",
+            "tt",
+            "migrations",
+            "publish",
             etcdHttpAddress.string() + TDB_PREFIX,
-            TarantoolContainer.DEFAULT_DATA_DIR.resolve(migrationsDirectory.getFileName()).toAbsolutePath().toString());
-        Utils.execExceptionally(LOGGER, router.getContainerInfo(),
-            "tt migrations apply failed", "tt", "migrations", "apply",
+            TarantoolContainer.DEFAULT_DATA_DIR
+                .resolve(migrationsDirectory.getFileName())
+                .toAbsolutePath()
+                .toString());
+        Utils.execExceptionally(
+            LOGGER,
+            router.getContainerInfo(),
+            "tt migrations apply failed",
+            "tt",
+            "migrations",
+            "apply",
             etcdHttpAddress.string() + TDB_PREFIX);
       } catch (IOException | InterruptedException e) {
         throw new RuntimeException(e);
@@ -283,56 +318,79 @@ public class TDB2ClusterImpl implements TDBCluster {
     }
   }
 
-  private static void waitUntilNodesIsReady(Map<String, TarantoolContainer<?>> nodes, Duration startupTimeout) {
+  private static void waitUntilNodesIsReady(
+      Map<String, TarantoolContainer<?>> nodes, Duration startupTimeout) {
     try {
-      Unreliables.retryUntilTrue((int) startupTimeout.getSeconds(), TimeUnit.SECONDS, () -> {
-        boolean isReady = true;
-        for (Entry<String, TarantoolContainer<?>> e : nodes.entrySet()) {
-          isReady = isReady &&
-              e.getValue().execInContainer("/bin/sh", "-c",
-                      "tools/client/wait_instance_ready.sh 1 " + e.getKey() + ":" + DEFAULT_IPROTO_TARANTOOL_PORT)
-                  .getExitCode() == 0;
-        }
-        return isReady;
-      });
+      Unreliables.retryUntilTrue(
+          (int) startupTimeout.getSeconds(),
+          TimeUnit.SECONDS,
+          () -> {
+            boolean isReady = true;
+            for (Entry<String, TarantoolContainer<?>> e : nodes.entrySet()) {
+              isReady =
+                  isReady
+                      && e.getValue()
+                              .execInContainer(
+                                  "/bin/sh",
+                                  "-c",
+                                  "tools/client/wait_instance_ready.sh 1 "
+                                      + e.getKey()
+                                      + ":"
+                                      + DEFAULT_IPROTO_TARANTOOL_PORT)
+                              .getExitCode()
+                          == 0;
+            }
+            return isReady;
+          });
     } catch (TimeoutException exc) {
       throw new ContainerLaunchException("Timed out waiting for cluster nodes to start", exc);
     }
   }
 
-  private static Map<String, TarantoolContainer<?>> getNodeByPredicate(Map<String,
-      TarantoolContainer<?>> nodes, Predicate<Entry<String, TarantoolContainer<?>>> predicate) {
-    return nodes.entrySet().stream().filter(predicate)
+  private static Map<String, TarantoolContainer<?>> getNodeByPredicate(
+      Map<String, TarantoolContainer<?>> nodes,
+      Predicate<Entry<String, TarantoolContainer<?>>> predicate) {
+    return nodes.entrySet().stream()
+        .filter(predicate)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private static Map<String, TarantoolContainer<?>> prepareNodes(List<String> instancesNames,
-      Network network, HttpHost etcdHttpAddress, String image, String clusterName, Duration startupTimeout,
-      Path migrationsDirectory, Path configPath) {
+  private static Map<String, TarantoolContainer<?>> prepareNodes(
+      List<String> instancesNames,
+      Network network,
+      HttpHost etcdHttpAddress,
+      String image,
+      String clusterName,
+      Duration startupTimeout,
+      Path migrationsDirectory,
+      Path configPath) {
     final Map<String, TarantoolContainer<?>> nodes = new ConcurrentHashMap<>();
 
-    instancesNames.forEach(instance -> {
-      final String instanceNameAlias = instance + "-" + clusterName;
-      final TarantoolContainer<Tarantool3Container> container = new Tarantool3Container(DockerImageName.parse(image),
-          instance)
-          .withConfigPath(configPath)
-          .withNetwork(network)
-          .withEnv("TT_CLI_USERNAME", DEFAULT_TEST_SUPER_USER)
-          .withEnv("TT_CLI_PASSWORD", DEFAULT_TEST_SUPER_USER_PWD.toString())
-          .withEtcdAddresses(etcdHttpAddress)
-          .withEtcdPrefix(TDB_PREFIX)
-          .withEnv("TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT", "3")
-          .withNetworkAliases(instanceNameAlias)
-          .withCreateContainerCmdModifier(cmd -> cmd.withName(instanceNameAlias))
-          .withStartupTimeout(startupTimeout)
-          .withPrivilegedMode(true)
-          .waitingFor(new Tarantool3WaitStrategy(instance, DEFAULT_TEST_SUPER_USER, DEFAULT_TEST_SUPER_USER_PWD));
+    instancesNames.forEach(
+        instance -> {
+          final String instanceNameAlias = instance + "-" + clusterName;
+          final TarantoolContainer<Tarantool3Container> container =
+              new Tarantool3Container(DockerImageName.parse(image), instance)
+                  .withConfigPath(configPath)
+                  .withNetwork(network)
+                  .withEnv("TT_CLI_USERNAME", DEFAULT_TEST_SUPER_USER)
+                  .withEnv("TT_CLI_PASSWORD", DEFAULT_TEST_SUPER_USER_PWD.toString())
+                  .withEtcdAddresses(etcdHttpAddress)
+                  .withEtcdPrefix(TDB_PREFIX)
+                  .withEnv("TT_CONFIG_ETCD_HTTP_REQUEST_TIMEOUT", "3")
+                  .withNetworkAliases(instanceNameAlias)
+                  .withCreateContainerCmdModifier(cmd -> cmd.withName(instanceNameAlias))
+                  .withStartupTimeout(startupTimeout)
+                  .withPrivilegedMode(true)
+                  .waitingFor(
+                      new Tarantool3WaitStrategy(
+                          instance, DEFAULT_TEST_SUPER_USER, DEFAULT_TEST_SUPER_USER_PWD));
 
-      if (migrationsDirectory != null) {
-        container.withMigrationsPath(migrationsDirectory);
-      }
-      nodes.put(instance, container);
-    });
+          if (migrationsDirectory != null) {
+            container.withMigrationsPath(migrationsDirectory);
+          }
+          nodes.put(instance, container);
+        });
     return nodes;
   }
 
@@ -400,8 +458,14 @@ public class TDB2ClusterImpl implements TDBCluster {
     }
 
     public TDB2ClusterImpl build() {
-      return new TDB2ClusterImpl(this.image, this.migrationsDirectory, this.startupTimeout, this.routerCount,
-          this.shardCount, this.replicaCount, this.configuration);
+      return new TDB2ClusterImpl(
+          this.image,
+          this.migrationsDirectory,
+          this.startupTimeout,
+          this.routerCount,
+          this.shardCount,
+          this.replicaCount,
+          this.configuration);
     }
   }
 }

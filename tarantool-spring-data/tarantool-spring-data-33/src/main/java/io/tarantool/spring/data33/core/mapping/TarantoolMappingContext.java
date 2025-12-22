@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,7 +18,8 @@ import org.springframework.lang.Nullable;
 import io.tarantool.spring.data.core.annotation.IdClassResolver;
 import io.tarantool.spring.data33.core.annotation.DefaultIdClassResolver;
 
-public class TarantoolMappingContext<E extends KeyValuePersistentEntity<?, P>, P extends KeyValuePersistentProperty<P>>
+public class TarantoolMappingContext<
+        E extends KeyValuePersistentEntity<?, P>, P extends KeyValuePersistentProperty<P>>
     extends KeyValueMappingContext<E, P> {
 
   private final IdClassResolver idClassResolver;
@@ -39,18 +40,20 @@ public class TarantoolMappingContext<E extends KeyValuePersistentEntity<?, P>, P
   @SuppressWarnings("unchecked")
   @Override
   protected <T> E createPersistentEntity(TypeInformation<T> typeInformation) {
-    final Class<?> idClassTypeValue = this.idClassResolver.resolveIdClassType(typeInformation.getType());
+    final Class<?> idClassTypeValue =
+        this.idClassResolver.resolveIdClassType(typeInformation.getType());
     if (idClassTypeValue == null) {
       return (E) new BasicKeyValuePersistentEntity<T, P>(typeInformation, this.keySpaceResolver);
     }
-    return (E) new BasicKeyValueCompositePersistentEntity<>(typeInformation,
-        this.keySpaceResolver,
-        idClassTypeValue);
+    return (E)
+        new BasicKeyValueCompositePersistentEntity<>(
+            typeInformation, this.keySpaceResolver, idClassTypeValue);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected P createPersistentProperty(Property property, E owner, SimpleTypeHolder simpleTypeHolder) {
+  protected P createPersistentProperty(
+      Property property, E owner, SimpleTypeHolder simpleTypeHolder) {
     if (KeyValueCompositePersistentEntity.class.isAssignableFrom(owner.getClass())) {
       return (P) new KeyValueCompositeProperty<>(property, owner, simpleTypeHolder);
     }

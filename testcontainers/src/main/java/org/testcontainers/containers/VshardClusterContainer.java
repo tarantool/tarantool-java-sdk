@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 import static org.testcontainers.containers.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
-import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.apache.commons.lang3.ArrayUtils;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 
 /**
  * @author Artyom Dubinin
@@ -54,13 +54,10 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   private final TarantoolConfigParser configParser;
 
   protected boolean useFixedPorts = false;
-  @Getter
-  protected String routerHost = ROUTER_HOST;
+  @Getter protected String routerHost = ROUTER_HOST;
   protected int routerPort = ROUTER_PORT;
-  @Getter
-  protected String routerUsername = VSHARD_CLUSTER_DEFAULT_USERNAME;
-  @Getter
-  protected String routerPassword = VSHARD_CLUSTER_DEFAULT_PASSWORD;
+  @Getter protected String routerUsername = VSHARD_CLUSTER_DEFAULT_USERNAME;
+  @Getter protected String routerPassword = VSHARD_CLUSTER_DEFAULT_PASSWORD;
   protected String directoryResourcePath = SCRIPT_RESOURCE_DIRECTORY;
   protected String instanceDir = INSTANCE_DIR;
   protected String configFile;
@@ -71,8 +68,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this(DOCKERFILE, instancesFile, configFile);
   }
 
-  public VshardClusterContainer(String instancesFile, String configFile,
-      Map<String, String> buildArgs) {
+  public VshardClusterContainer(
+      String instancesFile, String configFile, Map<String, String> buildArgs) {
     this(DOCKERFILE, "", instancesFile, configFile, buildArgs);
   }
 
@@ -80,13 +77,17 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this(dockerFile, "", instancesFile, configFile);
   }
 
-  public VshardClusterContainer(String dockerFile, String buildImageName,
-      String instancesFile, String configFile) {
+  public VshardClusterContainer(
+      String dockerFile, String buildImageName, String instancesFile, String configFile) {
     this(dockerFile, buildImageName, instancesFile, configFile, Collections.emptyMap());
   }
 
-  public VshardClusterContainer(String dockerFile, String buildImageName, String instancesFile,
-      String configFile, final Map<String, String> buildArgs) {
+  public VshardClusterContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String configFile,
+      final Map<String, String> buildArgs) {
     this(buildImage(dockerFile, buildImageName, buildArgs), instancesFile, configFile, buildArgs);
   }
 
@@ -95,22 +96,23 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
       final String buildImageName,
       final String instancesFile,
       final String configFile,
-      final String baseImage
-  ) {
+      final String baseImage) {
     this(
         buildImage(dockerFile, buildImageName, Arguments.get(baseImage, "enterprise")),
         instancesFile,
         configFile,
-        Arguments.get(baseImage)
-    );
+        Arguments.get(baseImage));
   }
 
-  protected VshardClusterContainer(ImageFromDockerfile image, String instancesFile,
+  protected VshardClusterContainer(
+      ImageFromDockerfile image,
+      String instancesFile,
       String configFile,
       Map<String, String> buildArgs) {
     super(withBuildArgs(image, buildArgs));
 
-    TARANTOOL_RUN_DIR = mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
+    TARANTOOL_RUN_DIR =
+        mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
 
     if (instancesFile == null || instancesFile.isEmpty()) {
       throw new IllegalArgumentException("Instance file name must not be null or empty");
@@ -124,7 +126,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this.clientHelper = new TarantoolContainerClientHelper(this);
   }
 
-  protected static ImageFromDockerfile withBuildArgs(ImageFromDockerfile image, Map<String, String> buildArgs) {
+  protected static ImageFromDockerfile withBuildArgs(
+      ImageFromDockerfile image, Map<String, String> buildArgs) {
     Map<String, String> args = mergeBuildArguments(buildArgs);
 
     if (!args.isEmpty()) {
@@ -147,19 +150,19 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static Map<String, String> mergeBuildArguments(Map<String, String> buildArgs) {
     Map<String, String> args = new HashMap<>(buildArgs);
 
-    for (String envVariable : Arrays.asList(
-        ENV_TARANTOOL_VERSION,
-        ENV_TARANTOOL_SERVER_USER,
-        ENV_TARANTOOL_SERVER_UID,
-        ENV_TARANTOOL_SERVER_GROUP,
-        ENV_TARANTOOL_SERVER_GID,
-        ENV_TARANTOOL_WORKDIR,
-        ENV_TARANTOOL_RUNDIR,
-        ENV_TARANTOOL_LOGDIR,
-        ENV_TARANTOOL_DATADIR,
-        ENV_TARANTOOL_INSTANCES_FILE,
-        ENV_TARANTOOL_CLUSTER_COOKIE
-    )) {
+    for (String envVariable :
+        Arrays.asList(
+            ENV_TARANTOOL_VERSION,
+            ENV_TARANTOOL_SERVER_USER,
+            ENV_TARANTOOL_SERVER_UID,
+            ENV_TARANTOOL_SERVER_GROUP,
+            ENV_TARANTOOL_SERVER_GID,
+            ENV_TARANTOOL_WORKDIR,
+            ENV_TARANTOOL_RUNDIR,
+            ENV_TARANTOOL_LOGDIR,
+            ENV_TARANTOOL_DATADIR,
+            ENV_TARANTOOL_INSTANCES_FILE,
+            ENV_TARANTOOL_CLUSTER_COOKIE)) {
       String variableValue = System.getenv(envVariable);
       if (variableValue != null && !args.containsKey(envVariable)) {
         args.put(envVariable, variableValue);
@@ -168,17 +171,21 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     return args;
   }
 
-  protected static ImageFromDockerfile buildImage(String dockerFile, String buildImageName,
-      final Map<String, String> buildArgs) {
+  protected static ImageFromDockerfile buildImage(
+      String dockerFile, String buildImageName, final Map<String, String> buildArgs) {
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
     }
-    return image.withFileFromClasspath("Dockerfile", dockerFile)
-        .withFileFromClasspath("cluster", buildArgs.get("CLUSTER_SRC_DIR") == null ?
-            "cluster" : buildArgs.get("CLUSTER_SRC_DIR"));
+    return image
+        .withFileFromClasspath("Dockerfile", dockerFile)
+        .withFileFromClasspath(
+            "cluster",
+            buildArgs.get("CLUSTER_SRC_DIR") == null
+                ? "cluster"
+                : buildArgs.get("CLUSTER_SRC_DIR"));
   }
 
   public int getRouterPort() {
@@ -235,7 +242,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
   protected void checkNotRunning() {
     if (isRunning()) {
-      throw new IllegalStateException("This option can be changed only before the container is running");
+      throw new IllegalStateException(
+          "This option can be changed only before the container is running");
     }
   }
 
@@ -244,7 +252,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     URL resource = getClass().getClassLoader().getResource(directoryResourcePath);
     if (resource == null) {
       throw new IllegalArgumentException(
-          String.format("No resource path found for the specified resource %s", directoryResourcePath));
+          String.format(
+              "No resource path found for the specified resource %s", directoryResourcePath));
     }
     this.directoryResourcePath = normalizePath(resource.getPath());
     return this;
@@ -305,13 +314,17 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     waitUntilCrudIsUp(TIMEOUT_CRUD_HEALTH_IN_SECONDS);
 
     logger().info("Tarantool vshard cluster cluster is started");
-    logger().info("Tarantool vshard cluster router is listening at {}:{}", getRouterHost(), getRouterPort());
+    logger()
+        .info(
+            "Tarantool vshard cluster router is listening at {}:{}",
+            getRouterHost(),
+            getRouterPort());
   }
 
   protected void waitUntilCrudIsUp(int secondsToWait) {
     if (!waitUntilTrue(secondsToWait, this::crudIsUp)) {
-      throw new RuntimeException("Timeout exceeded during router starting stage." +
-          " See the specific error in logs.");
+      throw new RuntimeException(
+          "Timeout exceeded during router starting stage." + " See the specific error in logs.");
     }
   }
 
@@ -335,8 +348,12 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     try {
       result = executeCommand("return crud._VERSION");
       if (result.getExitCode() != 0) {
-        logger().error("exit code: {}, stdout: {}, stderr: {}", result.getExitCode(), result.getStdout(),
-            result.getStderr());
+        logger()
+            .error(
+                "exit code: {}, stdout: {}, stderr: {}",
+                result.getExitCode(),
+                result.getStdout(),
+                result.getStderr());
         return false;
       } else {
         return true;
@@ -393,19 +410,19 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     }
 
     VshardClusterContainer that = (VshardClusterContainer) o;
-    return useFixedPorts == that.useFixedPorts &&
-        routerPort == that.routerPort &&
-        Objects.equals(clientHelper, that.clientHelper) &&
-        TARANTOOL_RUN_DIR.equals(that.TARANTOOL_RUN_DIR) &&
-        Objects.equals(configParser, that.configParser) &&
-        routerHost.equals(that.routerHost) &&
-        routerUsername.equals(that.routerUsername) &&
-        routerPassword.equals(that.routerPassword) &&
-        directoryResourcePath.equals(that.directoryResourcePath) &&
-        instanceDir.equals(that.instanceDir) &&
-        configFile.equals(that.configFile) &&
-        instancesFile.equals(that.instancesFile) &&
-        Objects.equals(sslContext, that.sslContext);
+    return useFixedPorts == that.useFixedPorts
+        && routerPort == that.routerPort
+        && Objects.equals(clientHelper, that.clientHelper)
+        && TARANTOOL_RUN_DIR.equals(that.TARANTOOL_RUN_DIR)
+        && Objects.equals(configParser, that.configParser)
+        && routerHost.equals(that.routerHost)
+        && routerUsername.equals(that.routerUsername)
+        && routerPassword.equals(that.routerPassword)
+        && directoryResourcePath.equals(that.directoryResourcePath)
+        && instanceDir.equals(that.instanceDir)
+        && configFile.equals(that.configFile)
+        && instancesFile.equals(that.instancesFile)
+        && Objects.equals(sslContext, that.sslContext);
   }
 
   @Override

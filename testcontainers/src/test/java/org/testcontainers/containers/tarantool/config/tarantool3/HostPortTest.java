@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -25,10 +25,8 @@ class HostPortTest {
         "hostname:     8080",
         "hostname:8080    ",
         "hostname : 8080",
-        "host@name:8080"
-    );
+        "host@name:8080");
   }
-
 
   @ParameterizedTest
   @MethodSource("dataForTestInvalidHostPorts")
@@ -42,16 +40,16 @@ class HostPortTest {
         Arguments.of("127.0.0.1:3301", new HostPort("127.0.0.1", 3301)),
         Arguments.of("example.com:443", new HostPort("example.com", 443)),
         Arguments.of("db-server:5432", new HostPort("db-server", 5432)),
-        Arguments.of("my-app.prod:9000", new HostPort("my-app.prod", 9000))
-    );
+        Arguments.of("my-app.prod:9000", new HostPort("my-app.prod", 9000)));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestHostPorts")
   void testHostPorts(String hostPort, HostPort expectedHostPort) {
-    Assertions.assertDoesNotThrow(() -> {
-      final HostPort parse = HostPort.parse(hostPort);
-      Assertions.assertEquals(expectedHostPort, parse);
-    });
+    Assertions.assertDoesNotThrow(
+        () -> {
+          final HostPort parse = HostPort.parse(hostPort);
+          Assertions.assertEquals(expectedHostPort, parse);
+        });
   }
 }

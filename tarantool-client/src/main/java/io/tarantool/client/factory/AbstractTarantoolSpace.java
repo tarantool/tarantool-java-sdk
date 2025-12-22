@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -14,22 +14,23 @@ import io.tarantool.mapping.JacksonMappingException;
 import io.tarantool.mapping.TarantoolJacksonMapping;
 
 /**
- * <p> Abstract class for all implementation.
+ * Abstract class for all implementation.
  *
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
  */
 abstract class AbstractTarantoolSpace {
 
   /**
-   * <p>The method extracts tuple from the returned list with single tuple. If the list is empty or null,
-   * then null will be returned.</p>
+   * The method extracts tuple from the returned list with single tuple. If the list is empty or
+   * null, then null will be returned.
    *
    * @param multiReturnResultList the result of operations as a list of tuples
-   * @param <T>                   data type of the tuple representation (custom type)
+   * @param <T> data type of the tuple representation (custom type)
    * @return a tuple as custom type or null
    * @throws JacksonMappingException if for some reason a list with many tuples is returned
    */
-  protected <T> T getFirstOrNullForReturnAsClass(List<T> multiReturnResultList) throws JacksonMappingException {
+  protected <T> T getFirstOrNullForReturnAsClass(List<T> multiReturnResultList)
+      throws JacksonMappingException {
     if (multiReturnResultList == null || multiReturnResultList.isEmpty()) {
       return null;
     }
@@ -38,13 +39,14 @@ abstract class AbstractTarantoolSpace {
       return multiReturnResultList.get(0);
     }
 
-    throw new JacksonMappingException("This method should return one tuple or null, but it returned "
-        + multiReturnResultList.size());
+    throw new JacksonMappingException(
+        "This method should return one tuple or null, but it returned "
+            + multiReturnResultList.size());
   }
 
   /**
-   * <p>The method extracts tuple from the returned list with single tuple. If the list is empty or null,
-   * then null will be returned.</p>
+   * The method extracts tuple from the returned list with single tuple. If the list is empty or
+   * null, then null will be returned.
    *
    * @param multiReturnResultList the result of operations as a list of tuples
    * @return a tuple as list of Java objects or null
@@ -60,17 +62,19 @@ abstract class AbstractTarantoolSpace {
       return multiReturnResultList.get(0);
     }
 
-    throw new JacksonMappingException("This method should return one tuple or null, but it returned "
-        + multiReturnResultList.size());
+    throw new JacksonMappingException(
+        "This method should return one tuple or null, but it returned "
+            + multiReturnResultList.size());
   }
 
   /**
-   * <p>The method allows to create a single parameterized type from those specified in the input arguments.</p>
+   * The method allows to create a single parameterized type from those specified in the input
+   * arguments.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <T>          type of {@code internalType}
-   * @param <E>          type of {@code externalType}
+   * @param <T> type of {@code internalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   protected <T, E> JavaType wrapIntoType(Class<E> externalType, TypeReference<T> internalType) {
@@ -78,11 +82,12 @@ abstract class AbstractTarantoolSpace {
   }
 
   /**
-   * <p>The method allows to create a single parameterized type from those specified in the input arguments.</p>
+   * The method allows to create a single parameterized type from those specified in the input
+   * arguments.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <E>          type of {@code externalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   protected <E> JavaType wrapIntoType(Class<E> externalType, JavaType internalType) {
@@ -90,12 +95,12 @@ abstract class AbstractTarantoolSpace {
   }
 
   /**
-   * <p> Same as {@link #wrapIntoType(Class, TypeReference)}.</p>
+   * Same as {@link #wrapIntoType(Class, TypeReference)}.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <T>          type of {@code internalType}
-   * @param <E>          type of {@code externalType}
+   * @param <T> type of {@code internalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   protected <T, E> JavaType wrapIntoType(Class<E> externalType, Class<T> internalType) {

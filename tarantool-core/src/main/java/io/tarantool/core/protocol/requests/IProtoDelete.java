@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -38,8 +38,13 @@ public class IProtoDelete extends IProtoBaseRequest {
   private Value key;
   private byte[] rawKey;
 
-  public IProtoDelete(final Integer spaceId, final String spaceName, final Integer indexId, final String indexName,
-      Value key, Long streamId) {
+  public IProtoDelete(
+      final Integer spaceId,
+      final String spaceName,
+      final Integer indexId,
+      final String indexName,
+      Value key,
+      Long streamId) {
     this.spaceId = spaceId;
     this.key = key;
     this.indexId = indexId;
@@ -48,8 +53,13 @@ public class IProtoDelete extends IProtoBaseRequest {
     this.setStreamId(streamId);
   }
 
-  public IProtoDelete(final Integer spaceId, final String spaceName, final Integer indexId, final String indexName,
-      byte[] key, Long streamId) {
+  public IProtoDelete(
+      final Integer spaceId,
+      final String spaceName,
+      final Integer indexId,
+      final String indexName,
+      byte[] key,
+      Long streamId) {
     this.spaceId = spaceId;
     this.indexId = indexId;
     this.spaceName = spaceName;
@@ -64,23 +74,23 @@ public class IProtoDelete extends IProtoBaseRequest {
     packer.addPayload(RAW_MAP_HEADER_WITH_THREE_ITEMS);
 
     if (spaceId != null) {
-      packer.addPayload(RAW_IPROTO_SPACE_ID);  // key
-      packer.packInt(spaceId);                 // value
+      packer.addPayload(RAW_IPROTO_SPACE_ID); // key
+      packer.packInt(spaceId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_SPACE_NAME);  // key
-      packer.packString(spaceName);              // value
+      packer.addPayload(RAW_IPROTO_SPACE_NAME); // key
+      packer.packString(spaceName); // value
     }
 
     if (indexId != null) {
-      packer.addPayload(RAW_IPROTO_INDEX_ID);  // key
-      packer.packInt(indexId);                 // value
+      packer.addPayload(RAW_IPROTO_INDEX_ID); // key
+      packer.packInt(indexId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_INDEX_NAME);  // key
-      packer.packString(indexName);              // value
+      packer.addPayload(RAW_IPROTO_INDEX_NAME); // key
+      packer.packString(indexName); // value
     }
 
     packer.addPayload(RAW_IPROTO_KEY); // key
-    packValue(packer, rawKey, key);    // value
+    packValue(packer, rawKey, key); // value
 
     return getPacketFromBase(packer);
   }

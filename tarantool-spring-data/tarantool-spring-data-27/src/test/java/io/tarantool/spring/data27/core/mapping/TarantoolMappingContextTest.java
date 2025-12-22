@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,12 +35,12 @@ import org.springframework.util.ReflectionUtils;
 
 import static io.tarantool.spring.data27.core.mapping.BasicKeyValueCompositePersistentEntity.KeyPartTypeChecker.COMPOSITE_KEY_FIELDS_NUMBER_EXCEPTION;
 import static io.tarantool.spring.data27.core.mapping.BasicKeyValueCompositePersistentEntity.KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION;
+import io.tarantool.spring.data27.core.mapping.BasicKeyValueCompositePersistentEntity.KeyPartTypeChecker;
 import io.tarantool.spring.data27.utils.entity.ComplexPerson;
 import io.tarantool.spring.data27.utils.entity.EntityWithInvalidKeyFieldsOrder;
 import io.tarantool.spring.data27.utils.entity.EntityWithWrongCompositeKeyPartsCount;
 import io.tarantool.spring.data27.utils.entity.EntityWithWrongFieldTypes;
 import io.tarantool.spring.data27.utils.entity.Person;
-import io.tarantool.spring.data27.core.mapping.BasicKeyValueCompositePersistentEntity.KeyPartTypeChecker;
 
 class TarantoolMappingContextTest {
 
@@ -69,8 +69,8 @@ class TarantoolMappingContextTest {
     final TypeInformation<ComplexPerson> informationForIdentifierClass =
         ClassTypeInformation.from(ComplexPerson.class);
 
-    assertInstanceOf(KeyValueCompositePersistentEntity.class,
-        createEntityForClass(ComplexPerson.class));
+    assertInstanceOf(
+        KeyValueCompositePersistentEntity.class, createEntityForClass(ComplexPerson.class));
 
     assertInstanceOf(KeyValuePersistentEntity.class, createEntityForClass(ComplexPerson.class));
   }
@@ -88,40 +88,50 @@ class TarantoolMappingContextTest {
 
   @Test
   void testCreateEntityWithWrongCompositeKeyPartTypes() {
-    Set<Class<?>> initialSet = new HashSet<Class<?>>() {{
-      add(EntityWithWrongFieldTypes.class);
-    }};
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> initEntities(initialSet));
+    Set<Class<?>> initialSet =
+        new HashSet<Class<?>>() {
+          {
+            add(EntityWithWrongFieldTypes.class);
+          }
+        };
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
 
     assertEquals(COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
   }
 
   @Test
   void testCreateEntityWithWrongCompositeKeyPartCount() {
-    Set<Class<?>> initialSet = new HashSet<Class<?>>() {{
-      add(EntityWithWrongCompositeKeyPartsCount.class);
-    }};
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> initEntities(initialSet));
+    Set<Class<?>> initialSet =
+        new HashSet<Class<?>>() {
+          {
+            add(EntityWithWrongCompositeKeyPartsCount.class);
+          }
+        };
+    IllegalArgumentException exception =
+        assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
 
     assertEquals(COMPOSITE_KEY_FIELDS_NUMBER_EXCEPTION, exception.getMessage());
   }
 
   @Test
   void testCreateEntityWithCompositeKeyFieldsInvalidOrder() {
-    Set<Class<?>> initialSet = new HashSet<Class<?>>() {{
-      add(EntityWithInvalidKeyFieldsOrder.class);
-    }};
+    Set<Class<?>> initialSet =
+        new HashSet<Class<?>>() {
+          {
+            add(EntityWithInvalidKeyFieldsOrder.class);
+          }
+        };
     IllegalArgumentException exception =
         assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
 
-    assertEquals(KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
+    assertEquals(
+        KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
   }
 
   /**
-   * Create a mappingContext from the passed domain classes. After initialize - create for them PersistentEntities and
-   * add PersistentProperties to them.
+   * Create a mappingContext from the passed domain classes. After initialize - create for them
+   * PersistentEntities and add PersistentProperties to them.
    *
    * @param entitySet
    * @return
@@ -168,16 +178,17 @@ class TarantoolMappingContextTest {
     return mappingContext.createPersistentEntity(informationForClass);
   }
 
-  private <P extends KeyValueCompositeProperty<P>> PersistentProperty<?> createProperty(Class<?> classType,
-      ReflectionUtils.FieldFilter fieldFilter) {
+  private <P extends KeyValueCompositeProperty<P>> PersistentProperty<?> createProperty(
+      Class<?> classType, ReflectionUtils.FieldFilter fieldFilter) {
 
-    final TarantoolMappingContext<KeyValuePersistentEntity<?, P>, P> context = new TarantoolMappingContext<>();
-    KeyValuePersistentEntity<?, P> entity = context.createPersistentEntity(ClassTypeInformation.from(classType));
+    final TarantoolMappingContext<KeyValuePersistentEntity<?, P>, P> context =
+        new TarantoolMappingContext<>();
+    KeyValuePersistentEntity<?, P> entity =
+        context.createPersistentEntity(ClassTypeInformation.from(classType));
     Field field = org.springframework.data.util.ReflectionUtils.findField(classType, fieldFilter);
     assertNotNull(field);
 
-    return context.createPersistentProperty(Property.of(entity.getTypeInformation(), field),
-        entity,
-        SimpleTypeHolder.DEFAULT);
+    return context.createPersistentProperty(
+        Property.of(entity.getTypeInformation(), field), entity, SimpleTypeHolder.DEFAULT);
   }
 }

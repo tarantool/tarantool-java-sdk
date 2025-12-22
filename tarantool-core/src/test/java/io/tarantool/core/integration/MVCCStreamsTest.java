@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -46,25 +46,18 @@ public class MVCCStreamsTest extends BaseTest {
   private static int spaceAId;
   private static int spaceBId;
 
-  private static final ArrayValue tupleA = ValueFactory.newArray(
-      ValueFactory.newString("key_c"),
-      ValueFactory.newString("value_c")
-  );
-  private static final ArrayValue tupleB = ValueFactory.newArray(
-      ValueFactory.newString("key_d"),
-      ValueFactory.newString("value_d")
-  );
-  private static final ArrayValue tupleTest = ValueFactory.newArray(
-      ValueFactory.newString("test"),
-      ValueFactory.newString("test")
-  );
+  private static final ArrayValue tupleA =
+      ValueFactory.newArray(ValueFactory.newString("key_c"), ValueFactory.newString("value_c"));
+  private static final ArrayValue tupleB =
+      ValueFactory.newArray(ValueFactory.newString("key_d"), ValueFactory.newString("value_d"));
+  private static final ArrayValue tupleTest =
+      ValueFactory.newArray(ValueFactory.newString("test"), ValueFactory.newString("test"));
   private static final ArrayValue keyA = ValueFactory.newArray(ValueFactory.newString("key_c"));
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
   @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP)
-      .withScriptFileName("server-mvcc.lua");
+  private static final TarantoolContainer tt =
+      new TarantoolContainer().withEnv(ENV_MAP).withScriptFileName("server-mvcc.lua");
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -92,9 +85,7 @@ public class MVCCStreamsTest extends BaseTest {
         tuple,
         ValueFactory.newArray(
             ValueFactory.newString((String) stored.get(0)),
-            ValueFactory.newString((String) stored.get(1))
-        )
-    );
+            ValueFactory.newString((String) stored.get(1))));
   }
 
   @SuppressWarnings("unchecked")
@@ -105,7 +96,9 @@ public class MVCCStreamsTest extends BaseTest {
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    client
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     return client;
   }
@@ -114,50 +107,21 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamBeginAndCommit() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(
-        streamId,
-        3_000L,
-        TransactionIsolationLevel.DEFAULT
-    ).get();
+    IProtoMessage messageBegin =
+        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
-    IProtoMessage messageSelectAInStream = client.select(
-        spaceAId,
-        null,
-        0,
-        null,
-        keyA,
-        1,
-        0,
-        BoxIterator.EQ,
-        false,
-        null,
-        null,
-        opts
-    ).get();
-    IProtoMessage messageSelectBInStream = client.select(
-        spaceBId,
-        null,
-        0,
-        null,
-        keyB,
-        1,
-        0,
-        BoxIterator.EQ,
-        false,
-        null,
-        null,
-        opts
-    ).get();
-    IProtoMessage messageSelectOutOfStream = client.select(
-        spaceAId,
-        0,
-        keyB,
-        1,
-        0,
-        BoxIterator.EQ
-    ).get();
+    IProtoMessage messageSelectAInStream =
+        client
+            .select(spaceAId, null, 0, null, keyA, 1, 0, BoxIterator.EQ, false, null, null, opts)
+            .get();
+    IProtoMessage messageSelectBInStream =
+        client
+            .select(spaceBId, null, 0, null, keyB, 1, 0, BoxIterator.EQ, false, null, null, opts)
+            .get();
+    IProtoMessage messageSelectOutOfStream =
+        client.select(spaceAId, 0, keyB, 1, 0, BoxIterator.EQ).get();
     IProtoMessage messageCommit = client.commit(streamId).get();
     assertEquals(IPROTO_OK, messageBegin.getRequestType());
     assertEquals(IPROTO_OK, messageInsertA.getRequestType());
@@ -178,11 +142,8 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamBeginAndRollback() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(
-        streamId,
-        3_000L,
-        TransactionIsolationLevel.DEFAULT
-    ).get();
+    IProtoMessage messageBegin =
+        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
@@ -199,18 +160,11 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamBeginAndCommitWithYieldingCall() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(
-        streamId,
-        3_000L,
-        TransactionIsolationLevel.DEFAULT
-    ).get();
+    IProtoMessage messageBegin =
+        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
-    IProtoMessage messageCall = client.call(
-        "insert_c",
-        ValueFactory.emptyArray(),
-        opts
-    ).get();
+    IProtoMessage messageCall = client.call("insert_c", ValueFactory.emptyArray(), opts).get();
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
     IProtoMessage messageCommit = client.commit(streamId).get();
     assertEquals(IPROTO_OK, messageBegin.getRequestType());
@@ -227,19 +181,13 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamBeginAndCommitWithThrowingCall() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(
-        streamId,
-        3_000L,
-        TransactionIsolationLevel.DEFAULT
-    ).get();
+    IProtoMessage messageBegin =
+        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
 
-    CompletableFuture<IProtoResponse> callFuture = client.call(
-        "fail",
-        ValueFactory.emptyArray(),
-        opts
-    );
+    CompletableFuture<IProtoResponse> callFuture =
+        client.call("fail", ValueFactory.emptyArray(), opts);
     Exception ex1 = assertThrows(CompletionException.class, () -> callFuture.join());
     Throwable rootCause1 = findRootCause(ex1);
     assertEquals(BoxError.class, rootCause1.getClass());
@@ -265,16 +213,13 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamAutoRollback() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(
-        streamId,
-        1,
-        TransactionIsolationLevel.DEFAULT
-    ).get();
+    IProtoMessage messageBegin = client.begin(streamId, 1, TransactionIsolationLevel.DEFAULT).get();
     Thread.sleep(3_000L);
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
 
     ExecutionException ex =
-        assertThrows(ExecutionException.class, () -> client.insert(spaceAId, null, tupleA, opts).get());
+        assertThrows(
+            ExecutionException.class, () -> client.insert(spaceAId, null, tupleA, opts).get());
     assertTrue(ex.getCause() instanceof BoxError);
     assertTrue(ex.getCause().getMessage().contains("Transaction has been aborted by timeout"));
   }

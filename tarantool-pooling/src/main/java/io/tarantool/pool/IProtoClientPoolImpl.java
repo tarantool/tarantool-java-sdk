@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -32,11 +32,13 @@ import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.exceptions.PoolClosedException;
 
 /**
- * <p>Basic pool implementation.</p>
+ * Basic pool implementation.
  *
- * <p>Example of usage:</p>
+ * <p>Example of usage:
  *
- * <blockquote><pre>{@code
+ * <blockquote>
+ *
+ * <pre>{@code
  * Bootstrap bootstrap = new Bootstrap()
  *     .group(new NioEventLoopGroup())
  *     .channel(NioSocketChannel.class)
@@ -67,111 +69,75 @@ import io.tarantool.pool.exceptions.PoolClosedException;
  *                            .withTag("node-2")
  *                            .build()));
  * CompletableFuture<IProtoClient> futureClient = pool.get("node-2", 0);
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  */
 public class IProtoClientPoolImpl implements IProtoClientPool {
 
-  /**
-   * Pool logger.
-   */
+  /** Pool logger. */
   private static final Logger log = LoggerFactory.getLogger(IProtoClientPoolImpl.class);
 
-  /**
-   * Bootstrap for connections.
-   */
+  /** Bootstrap for connections. */
   private final ConnectionFactory factory;
 
-  /**
-   * Map of pool entries, tag of group is key.
-   */
+  /** Map of pool entries, tag of group is key. */
   private final Map<String, List<PoolEntry>> entries;
 
-  /**
-   * Map with {@link io.tarantool.pool.InstanceConnectionGroup} entries.
-   */
+  /** Map with {@link io.tarantool.pool.InstanceConnectionGroup} entries. */
   private final Map<String, InstanceConnectionGroup> groups;
 
-  /**
-   * Service for handling timeouts.
-   */
+  /** Service for handling timeouts. */
   private final ManagedResource<Timer> timerResource;
 
-  /**
-   * Flag switching graceful shutdown handling.
-   */
+  /** Flag switching graceful shutdown handling. */
   private final boolean gracefulShutdown;
 
-  /**
-   * Options for enabling and tuning heartbeats.
-   */
+  /** Options for enabling and tuning heartbeats. */
   private final HeartbeatOpts heartbeatOpts;
 
-  /**
-   * Options for tuning watchers in connections.
-   */
+  /** Options for tuning watchers in connections. */
   private final WatcherOptions watcherOpts;
 
-  /**
-   * Count of connections which are invalidated or closed.
-   */
+  /** Count of connections which are invalidated or closed. */
   private final AtomicInteger unavailable;
 
-  /**
-   * Count of connections which are reconnecting
-   */
+  /** Count of connections which are reconnecting */
   private final AtomicInteger reconnecting;
 
-  /**
-   * Metrics registry.
-   */
+  /** Metrics registry. */
   private final MeterRegistry metricsRegistry;
 
-  /**
-   * Parameter that will say tarantool not to use Tuple Extension.
-   */
+  /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
 
-  /**
-   * Optional pool event listener.
-   */
+  /** Optional pool event listener. */
   private final PoolEventListener poolEventListener;
 
-  /**
-   * Boolean flag denoting if pool closed or not.
-   */
+  /** Boolean flag denoting if pool closed or not. */
   private final AtomicBoolean isClosed;
-  /**
-   * StringBuilder needed for fast string generation required for messages in exceptions.
-   */
+
+  /** StringBuilder needed for fast string generation required for messages in exceptions. */
   private volatile StringBuilder stringBuilder;
-  /**
-   * Connection timeout for clients in milliseconds.
-   */
+
+  /** Connection timeout for clients in milliseconds. */
   private long connectTimeout;
-  /**
-   * Time in milliseconds after reconnect will be run.
-   */
+
+  /** Time in milliseconds after reconnect will be run. */
   private long reconnectAfter;
-  /**
-   * Total count of connections initialized in pool.
-   */
+
+  /** Total count of connections initialized in pool. */
   private int totalSize;
 
-  /**
-   * Count of successful connection requests.
-   */
+  /** Count of successful connection requests. */
   private Counter requestSuccess;
 
-  /**
-   * Count of failed connection requests.
-   */
+  /** Count of failed connection requests. */
   private Counter requestErrors;
 
-  /**
-   * Count of connection requests for wrong tag or index.
-   */
+  /** Count of connection requests for wrong tag or index. */
   private Counter invalidRequests;
 
   /**
@@ -180,9 +146,10 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   private Counter lockedConnectionRequests;
 
   /**
-   * Handler for accepting ignored packets and processing them somehow. It is an instance of
-   * {@link io.tarantool.pool.TripleConsumer} which accepts three arguments: a first one is a tag of connection, the
-   * second one is an index of connection in group and the third argument is a packet.
+   * Handler for accepting ignored packets and processing them somehow. It is an instance of {@link
+   * io.tarantool.pool.TripleConsumer} which accepts three arguments: a first one is a tag of
+   * connection, the second one is an index of connection in group and the third argument is a
+   * packet.
    */
   private final TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler;
 
@@ -191,14 +158,15 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /**
    * Constructor for pool instance.
    *
-   * <p>This creates s pool instance with some defaults:</p>
+   * <p>This creates s pool instance with some defaults:
+   *
    * <ul>
-   *  <li>gracefulShutdown = {@code true}</li>
-   *  <li>heartbeatOpts = {@code null}</li>
-   *  <li>watcherOpts = {@code null}
+   *   <li>gracefulShutdown = {@code true}
+   *   <li>heartbeatOpts = {@code null}
+   *   <li>watcherOpts = {@code null}
    * </ul>
    *
-   * @param factory       the bootstrap
+   * @param factory the bootstrap
    * @param timerResource managed timer resource (ownership is defined by the caller)
    */
   public IProtoClientPoolImpl(ConnectionFactory factory, ManagedResource<Timer> timerResource) {
@@ -208,8 +176,9 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /**
    * Constructor for pool instance.
    *
-   * @param factory      the bootstrap
-   * @param timerService an instance of netty timer service (HashedWheelTimer). Ownership stays with caller.
+   * @param factory the bootstrap
+   * @param timerService an instance of netty timer service (HashedWheelTimer). Ownership stays with
+   *     caller.
    */
   public IProtoClientPoolImpl(ConnectionFactory factory, Timer timerService) {
     this(factory, ManagedResource.external(timerService));
@@ -218,36 +187,39 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /**
    * Constructor for pool instance.
    *
-   * <p>This creates s pool instance with some defaults:</p>
+   * <p>This creates s pool instance with some defaults:
+   *
    * <ul>
-   *  <li>heartbeatOpts = {@code null}</li>
-   *  <li>watcherOpts = {@code null}
+   *   <li>heartbeatOpts = {@code null}
+   *   <li>watcherOpts = {@code null}
    * </ul>
    *
-   * @param factory          the bootstrap
-   * @param timerResource    managed timer resource (ownership is defined by the caller)
+   * @param factory the bootstrap
+   * @param timerResource managed timer resource (ownership is defined by the caller)
    * @param gracefulShutdown a boolean flag switching gracefulShutdown facility
    */
-  public IProtoClientPoolImpl(ConnectionFactory factory,
-      ManagedResource<Timer> timerResource,
-      boolean gracefulShutdown) {
+  public IProtoClientPoolImpl(
+      ConnectionFactory factory, ManagedResource<Timer> timerResource, boolean gracefulShutdown) {
     this(factory, timerResource, gracefulShutdown, null, null, null, null, false, null);
   }
 
   /**
    * Constructor for pool instance.
    *
-   * <p>This creates s pool instance with some defaults:</p>
+   * <p>This creates s pool instance with some defaults:
+   *
    * <ul>
-   *  <li>watcherOpts = {@code null}
+   *   <li>watcherOpts = {@code null}
    * </ul>
    *
-   * @param factory          the bootstrap
-   * @param timerResource    managed timer resource (ownership is defined by the caller)
+   * @param factory the bootstrap
+   * @param timerResource managed timer resource (ownership is defined by the caller)
    * @param gracefulShutdown a boolean flag switching gracefulShutdown facility
-   * @param heartbeatOpts    an object with options for heartbeats. If presented heartbeats will be used.
+   * @param heartbeatOpts an object with options for heartbeats. If presented heartbeats will be
+   *     used.
    */
-  public IProtoClientPoolImpl(ConnectionFactory factory,
+  public IProtoClientPoolImpl(
+      ConnectionFactory factory,
       ManagedResource<Timer> timerResource,
       boolean gracefulShutdown,
       HeartbeatOpts heartbeatOpts) {
@@ -257,39 +229,53 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /**
    * Constructor for pool instance.
    *
-   * @param factory          the bootstrap
-   * @param timerResource    managed timer resource (ownership is defined by the caller)
+   * @param factory the bootstrap
+   * @param timerResource managed timer resource (ownership is defined by the caller)
    * @param gracefulShutdown a boolean flag switching gracefulShutdown facility
-   * @param heartbeatOpts    an object with options for heartbeats. If presented heartbeats will be used.
-   * @param watcherOpts      an object with options for watchers
-   * @param metricsRegistry  an instance of MeterRegistry containing all necessary counters and gauges.
+   * @param heartbeatOpts an object with options for heartbeats. If presented heartbeats will be
+   *     used.
+   * @param watcherOpts an object with options for watchers
+   * @param metricsRegistry an instance of MeterRegistry containing all necessary counters and
+   *     gauges.
    */
-  public IProtoClientPoolImpl(ConnectionFactory factory,
+  public IProtoClientPoolImpl(
+      ConnectionFactory factory,
       ManagedResource<Timer> timerResource,
       boolean gracefulShutdown,
       HeartbeatOpts heartbeatOpts,
       WatcherOptions watcherOpts,
       MeterRegistry metricsRegistry) {
-    this(factory, timerResource, gracefulShutdown, heartbeatOpts, watcherOpts, metricsRegistry,
-        null, false, null);
+    this(
+        factory,
+        timerResource,
+        gracefulShutdown,
+        heartbeatOpts,
+        watcherOpts,
+        metricsRegistry,
+        null,
+        false,
+        null);
   }
 
   /**
    * Constructor for pool instance.
    *
-   * @param factory               the bootstrap
-   * @param timerResource         managed timer resource (ownership is defined by the caller)
-   * @param gracefulShutdown      a boolean flag switching gracefulShutdown facility
-   * @param heartbeatOpts         an object with options for heartbeats. If presented heartbeats will be used.
-   * @param watcherOpts           an object with options for watchers
-   * @param metricsRegistry       an instance of MeterRegistry containing all necessary counters and gauges.
-   * @param ignoredPacketsHandler a lambda for accepting ignored packets and handling them somehow. It is an instance of
-   *                              {@link io.tarantool.pool.TripleConsumer} which accepts three arguments: a first one is
-   *                              a tag of connection, the second one is an index of connection in group and the third
-   *                              argument is a packet.
-   * @param useTupleExtension     Use TUPLE_EXT feature if true.
+   * @param factory the bootstrap
+   * @param timerResource managed timer resource (ownership is defined by the caller)
+   * @param gracefulShutdown a boolean flag switching gracefulShutdown facility
+   * @param heartbeatOpts an object with options for heartbeats. If presented heartbeats will be
+   *     used.
+   * @param watcherOpts an object with options for watchers
+   * @param metricsRegistry an instance of MeterRegistry containing all necessary counters and
+   *     gauges.
+   * @param ignoredPacketsHandler a lambda for accepting ignored packets and handling them somehow.
+   *     It is an instance of {@link io.tarantool.pool.TripleConsumer} which accepts three
+   *     arguments: a first one is a tag of connection, the second one is an index of connection in
+   *     group and the third argument is a packet.
+   * @param useTupleExtension Use TUPLE_EXT feature if true.
    */
-  public IProtoClientPoolImpl(ConnectionFactory factory,
+  public IProtoClientPoolImpl(
+      ConnectionFactory factory,
       ManagedResource<Timer> timerResource,
       boolean gracefulShutdown,
       HeartbeatOpts heartbeatOpts,
@@ -366,8 +352,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
                 .delete(0, stringBuilder.length())
                 .append("can't find connection group with tag ")
                 .append(tag)
-                .toString()
-        );
+                .toString());
       }
     }
     return group.getSize();
@@ -389,8 +374,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
                 .delete(0, stringBuilder.length())
                 .append("can't find connection group with tag ")
                 .append(tag)
-                .toString()
-        );
+                .toString());
       }
 
       if (!entries.containsKey(tag)) {
@@ -401,8 +385,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
                 .delete(0, stringBuilder.length())
                 .append("can't find connection entries with tag ")
                 .append(tag)
-                .toString()
-        );
+                .toString());
       }
 
       try {
@@ -423,8 +406,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
                 .append("group: ")
                 .append(tag)
                 .append(", index: ")
-                .append(index).toString()
-        );
+                .append(index)
+                .toString());
       }
     }
   }
@@ -490,52 +473,55 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   }
 
   /**
-   * Expands a group of connects by creating and initializing new {@link io.tarantool.pool.PoolEntry} instances.
-   * <p>
-   * This method is called when list of pool entries corresponding to tag and group has fewer size than in new
-   * connections instance group configuration. This method creates new entries to align this list with count of
-   * connections in instance group.
+   * Expands a group of connects by creating and initializing new {@link
+   * io.tarantool.pool.PoolEntry} instances.
+   *
+   * <p>This method is called when list of pool entries corresponding to tag and group has fewer
+   * size than in new connections instance group configuration. This method creates new entries to
+   * align this list with count of connections in instance group.
    *
    * @param connects list of {@link io.tarantool.pool.PoolEntry} entries
-   * @param group    an instance of {@link io.tarantool.pool.InstanceConnectionGroup}
+   * @param group an instance of {@link io.tarantool.pool.InstanceConnectionGroup}
    */
   private void expandGroup(List<PoolEntry> connects, InstanceConnectionGroup group) {
     log.info("create new connections: group {}", group.getTag());
     while (connects.size() < group.getSize()) {
-      connects.add(new PoolEntry(
-          factory,
-          timerResource.get(),
-          group,
-          connects.size(),
-          gracefulShutdown,
-          connectTimeout,
-          reconnectAfter,
-          heartbeatOpts,
-          watcherOpts,
-          unavailable,
-          reconnecting,
-          metricsRegistry,
-          ignoredPacketsHandler,
-          useTupleExtension,
-          poolEventListener
-      ));
+      connects.add(
+          new PoolEntry(
+              factory,
+              timerResource.get(),
+              group,
+              connects.size(),
+              gracefulShutdown,
+              connectTimeout,
+              reconnectAfter,
+              heartbeatOpts,
+              watcherOpts,
+              unavailable,
+              reconnecting,
+              metricsRegistry,
+              ignoredPacketsHandler,
+              useTupleExtension,
+              poolEventListener));
     }
   }
 
   /**
    * Reduces an entries list to passed count.
-   * <p>
-   * This method is called when list of entries corresponding to tag and group has bigger size than in new connections
-   * instance group configuration. This method deletes old clients to align this list with count of connections in
-   * instance group.
+   *
+   * <p>This method is called when list of entries corresponding to tag and group has bigger size
+   * than in new connections instance group configuration. This method deletes old clients to align
+   * this list with count of connections in instance group.
    *
    * @param connects list of {@link io.tarantool.pool.PoolEntry} entries
-   * @param count    a new count of pool entries to reduce
+   * @param count a new count of pool entries to reduce
    */
   private void shrinkGroup(List<PoolEntry> connects, int count) {
     if (connects == null || count >= connects.size()) {
-      log.warn("No connections to close. Opened connections:{}, keep open:{}", (connects != null) ?
-          connects.size() : 0, count);
+      log.warn(
+          "No connections to close. Opened connections:{}, keep open:{}",
+          (connects != null) ? connects.size() : 0,
+          count);
       return;
     }
 
@@ -551,9 +537,10 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
 
   /**
    * Used for initialization string builder used for generation exception messages.
-   * <p>
-   * Internal synchronized string builder is used for fast generation messages for exceptions instead of using
-   * String.format() or string concatenation. It is quick and has a lower memory usage.
+   *
+   * <p>Internal synchronized string builder is used for fast generation messages for exceptions
+   * instead of using String.format() or string concatenation. It is quick and has a lower memory
+   * usage.
    */
   private void initStringBuilder() {
     if (this.stringBuilder == null) {
@@ -561,79 +548,69 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     }
   }
 
-  /**
-   * Metrics initialization.
-   */
+  /** Metrics initialization. */
   private void initMetrics() {
     if (this.metricsRegistry == null) {
       return;
     }
-    Gauge
-        .builder("pool.size", () -> totalSize)
+    Gauge.builder("pool.size", () -> totalSize)
         .description("total number of connections at the moment")
         .register(metricsRegistry);
-    Gauge
-        .builder("pool.available", () -> totalSize - unavailable.get())
+    Gauge.builder("pool.available", () -> totalSize - unavailable.get())
         .description("total number of connections available at the moment")
         .register(metricsRegistry);
-    Gauge
-        .builder("pool.invalidated", () -> unavailable.get() - reconnecting.get())
+    Gauge.builder("pool.invalidated", () -> unavailable.get() - reconnecting.get())
         .description("number of connections unavailable at the moment")
         .register(metricsRegistry);
-    Gauge
-        .builder("pool.reconnecting", reconnecting::get)
+    Gauge.builder("pool.reconnecting", reconnecting::get)
         .description("number of connections reconnecting at the moment")
         .register(metricsRegistry);
 
-    Counter
-        .builder("pool.connect.success")
+    Counter.builder("pool.connect.success")
         .description("count of succeeded connects")
         .register(metricsRegistry);
-    Counter
-        .builder("pool.connect.errors")
+    Counter.builder("pool.connect.errors")
         .description("count of connect failures")
         .register(metricsRegistry);
-    LongTaskTimer
-        .builder("pool.connect.time")
+    LongTaskTimer.builder("pool.connect.time")
         .description("time of connects")
         .register(metricsRegistry);
 
-    requestSuccess = Counter
-        .builder("pool.request.success")
-        .description("Count of successful connections requests from pool")
-        .register(metricsRegistry);
-    requestErrors = Counter
-        .builder("pool.request.errors")
-        .description("Count of failed connection requests from pool")
-        .register(metricsRegistry);
-    invalidRequests = Counter
-        .builder("pool.request.misses")
-        .description("Count of connection requests with wrong tag or index")
-        .register(metricsRegistry);
-    lockedConnectionRequests = Counter
-        .builder("pool.request.unavail")
-        .description("Count of connection request finished with locked connect")
-        .register(metricsRegistry);
+    requestSuccess =
+        Counter.builder("pool.request.success")
+            .description("Count of successful connections requests from pool")
+            .register(metricsRegistry);
+    requestErrors =
+        Counter.builder("pool.request.errors")
+            .description("Count of failed connection requests from pool")
+            .register(metricsRegistry);
+    invalidRequests =
+        Counter.builder("pool.request.misses")
+            .description("Count of connection requests with wrong tag or index")
+            .register(metricsRegistry);
+    lockedConnectionRequests =
+        Counter.builder("pool.request.unavail")
+            .description("Count of connection request finished with locked connect")
+            .register(metricsRegistry);
 
-    Counter
-        .builder("pool.heartbeat.success")
+    Counter.builder("pool.heartbeat.success")
         .description("Count of successful heartbeat ping requests")
         .register(metricsRegistry);
-    Counter
-        .builder("pool.heartbeat.errors")
+    Counter.builder("pool.heartbeat.errors")
         .description("Count of failed heartbeat ping requests")
         .register(metricsRegistry);
-    LongTaskTimer
-        .builder("pool.heartbeat.time")
+    LongTaskTimer.builder("pool.heartbeat.time")
         .description("Time of ping request")
         .register(metricsRegistry);
   }
 
   /**
-   * Handler for {@link CompletableFuture#whenComplete} for incrementing counters depending on result.
+   * Handler for {@link CompletableFuture#whenComplete} for incrementing counters depending on
+   * result.
    *
    * @param r some result of future. Ignored.
-   * @param e exception. When it is null then increments counter for success otherwise increments counter for errors.
+   * @param e exception. When it is null then increments counter for success otherwise increments
+   *     counter for errors.
    */
   private void incPoolRequestCounters(Object r, Throwable e) {
     if (requestSuccess == null || requestErrors == null) {
@@ -647,9 +624,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     }
   }
 
-  /**
-   * Increment misses counter when wrong tag or index requested.
-   */
+  /** Increment misses counter when wrong tag or index requested. */
   private void incPoolInvalidRequests() {
     if (invalidRequests == null) {
       return;
@@ -658,9 +633,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     invalidRequests.increment();
   }
 
-  /**
-   * Increment counter when invalidated or closed connection was requested.
-   */
+  /** Increment counter when invalidated or closed connection was requested. */
   private void incPoolLockedConnectionRequests() {
     if (lockedConnectionRequests == null) {
       return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,7 +18,8 @@ public class Arguments {
     final Map<String, String> buildArgs = new HashMap<>();
     String registry = System.getenv("TARANTOOL_REGISTRY");
     if (registry != null && !registry.isEmpty()) {
-      buildArgs.put("IMAGE", registry.endsWith("/") ? registry + baseImage : registry + "/" + baseImage);
+      buildArgs.put(
+          "IMAGE", registry.endsWith("/") ? registry + baseImage : registry + "/" + baseImage);
     }
     buildArgs.put("DOWNLOAD_HOST", System.getenv("DOWNLOAD_HOST"));
     buildArgs.put("SDK_PATH", System.getenv("SDK_PATH"));

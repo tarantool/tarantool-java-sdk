@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,8 +21,11 @@ public class Etcd {
   private final List<String> endpoints;
 
   @JsonCreator
-  Etcd(@JsonProperty("prefix") String prefix, @JsonProperty("username") String username,
-      @JsonProperty("password") CharSequence password, @JsonProperty("endpoints") List<String> endpoints) {
+  Etcd(
+      @JsonProperty("prefix") String prefix,
+      @JsonProperty("username") String username,
+      @JsonProperty("password") CharSequence password,
+      @JsonProperty("endpoints") List<String> endpoints) {
     this.prefix = prefix;
     this.username = username;
     this.password = password;

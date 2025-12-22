@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,9 +17,7 @@ public class NilErrorResponse<T, V> {
   private final V error;
 
   @JsonCreator
-  public NilErrorResponse(
-      @JsonProperty("response") T response,
-      @JsonProperty("error") V error) {
+  public NilErrorResponse(@JsonProperty("response") T response, @JsonProperty("error") V error) {
     this.response = response;
     this.error = error;
   }
@@ -33,9 +31,6 @@ public class NilErrorResponse<T, V> {
 
   @Override
   public String toString() {
-    return "NilErrorResponse{" +
-        "response=" + response +
-        ", error=" + error +
-        '}';
+    return "NilErrorResponse{" + "response=" + response + ", error=" + error + '}';
   }
 }

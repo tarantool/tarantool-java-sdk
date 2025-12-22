@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,24 +22,23 @@ import org.springframework.lang.NonNull;
  */
 class TarantoolSliceImpl<T> extends TarantoolChunk<T> {
 
-  @Serial
-  private static final long serialVersionUID = 867755909294344406L;
+  @Serial private static final long serialVersionUID = 867755909294344406L;
 
   private final boolean hasNext;
 
   private final Pageable pageable;
 
   /**
-   * Creates a new {@link TarantoolSliceImpl} with the empty content. This will result in the created {@link Slice}
-   * being identical to the entire {@link List}.
+   * Creates a new {@link TarantoolSliceImpl} with the empty content. This will result in the
+   * created {@link Slice} being identical to the entire {@link List}.
    */
   public TarantoolSliceImpl() {
     this(Collections.emptyList(), Pageable.unpaged(), false);
   }
 
   /**
-   * Creates a new {@link TarantoolSliceImpl} with the given content. This will result in the created {@link Slice}
-   * being identical to the entire {@link List}.
+   * Creates a new {@link TarantoolSliceImpl} with the given content. This will result in the
+   * created {@link Slice} being identical to the entire {@link List}.
    *
    * @param content must not be {@literal null}.
    */
@@ -50,9 +49,9 @@ class TarantoolSliceImpl<T> extends TarantoolChunk<T> {
   /**
    * Creates a new {@link TarantoolSliceImpl} with the given content and {@link Pageable}.
    *
-   * @param content  the content of this {@link Slice}, must not be {@literal null}.
+   * @param content the content of this {@link Slice}, must not be {@literal null}.
    * @param pageable the paging information, must not be {@literal null}.
-   * @param hasNext  whether there's another slice following the current one.
+   * @param hasNext whether there's another slice following the current one.
    */
   public TarantoolSliceImpl(List<T> content, Pageable pageable, boolean hasNext) {
     super(content, pageable);
@@ -62,11 +61,11 @@ class TarantoolSliceImpl<T> extends TarantoolChunk<T> {
   }
 
   /**
-   * Returns true if there is a next data slice. No data content means that the next slice does not exist and method
-   * will return false.
+   * Returns true if there is a next data slice. No data content means that the next slice does not
+   * exist and method will return false.
    *
-   * @return Returns true if there is a next data slice. No data content means that the next slice does not exist and
-   * method will return false.
+   * @return Returns true if there is a next data slice. No data content means that the next slice
+   *     does not exist and method will return false.
    */
   @Override
   public boolean hasNext() {

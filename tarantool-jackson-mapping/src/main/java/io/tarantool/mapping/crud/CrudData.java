@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import io.tarantool.mapping.Field;
 
 /**
- * <p>The class implements data that comes in response to CRUD operations from Tarantool.</p>
+ * The class implements data that comes in response to CRUD operations from Tarantool.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -23,23 +23,17 @@ import io.tarantool.mapping.Field;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CrudData<T> {
 
-  /**
-   * <p>Space schema metadata.</p>
-   */
+  /** Space schema metadata. */
   List<Field> metadata;
 
-  /**
-   * <p>Tuple rows coming from Tarantool.</p>
-   */
+  /** Tuple rows coming from Tarantool. */
   T rows;
 
-  /**
-   * <p>Creates a {@link CrudData} object.</p>
-   */
+  /** Creates a {@link CrudData} object. */
   public CrudData() {}
 
   /**
-   * <p>Returns value of metadata field.</p>
+   * Returns value of metadata field.
    *
    * @return {@link #metadata} value.
    */
@@ -48,7 +42,7 @@ public class CrudData<T> {
   }
 
   /**
-   * <p>Sets value of {@link #metadata} field.</p>
+   * Sets value of {@link #metadata} field.
    *
    * @param metadata value of {@link #metadata} field
    */
@@ -58,7 +52,7 @@ public class CrudData<T> {
   }
 
   /**
-   * <p>Returns value of rows field.</p>
+   * Returns value of rows field.
    *
    * @return {@link #rows} value.
    */
@@ -67,7 +61,7 @@ public class CrudData<T> {
   }
 
   /**
-   * <p>Sets value of {@link #rows} field.</p>
+   * Sets value of {@link #rows} field.
    *
    * @param rows value of {@link #rows} field
    */
@@ -78,9 +72,6 @@ public class CrudData<T> {
 
   @Override
   public String toString() {
-    return "CrudData{" +
-        "metadata=" + metadata +
-        ", rows=" + rows +
-        '}';
+    return "CrudData{" + "metadata=" + metadata + ", rows=" + rows + '}';
   }
 }

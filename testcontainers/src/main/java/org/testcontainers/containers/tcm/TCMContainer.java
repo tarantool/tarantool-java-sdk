@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -37,7 +37,8 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
 
   private static final String TNT_CONFIG_NAME = "config.yaml";
 
-  private static final Path TARANTOOL_CONFIG_PATH = Paths.get("/", "app", "tarantooldb", TNT_CONFIG_NAME);
+  private static final Path TARANTOOL_CONFIG_PATH =
+      Paths.get("/", "app", "tarantooldb", TNT_CONFIG_NAME);
 
   private static final String WAIT_ETCD_READY_SCRIPT = "tools/client/wait_etcd_ready.sh";
 
@@ -61,13 +62,21 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
 
   private Path tempConfigDirectory;
 
-  public TCMContainer(String image, String nodeName, TCMConfig tcmConfig, Path tarantoolConfigPath) {
+  public TCMContainer(
+      String image, String nodeName, TCMConfig tcmConfig, Path tarantoolConfigPath) {
     super(Objects.requireNonNull(image, "image must not be null"));
 
     this.nodeName = Objects.requireNonNull(nodeName, "nodeName must not be null");
     this.tcmConfig = Objects.requireNonNull(tcmConfig, "tcmConfig must not be null");
-    this.tarantoolConfigPath = Objects.requireNonNull(tarantoolConfigPath, "tarantoolConfigPath must not be null");
-    this.prefix = this.tcmConfig.getInitialSettings().cluster().getStorageConnection().getEtcdConnection().getPrefix();
+    this.tarantoolConfigPath =
+        Objects.requireNonNull(tarantoolConfigPath, "tarantoolConfigPath must not be null");
+    this.prefix =
+        this.tcmConfig
+            .getInitialSettings()
+            .cluster()
+            .getStorageConnection()
+            .getEtcdConnection()
+            .getPrefix();
     this.etcdAddress = this.tcmConfig.getStorage().getEtcd().getEndpoints().get(0);
     this.mapper = new YAMLMapper().enable(Feature.INDENT_ARRAYS_WITH_INDICATOR);
     this.mapper.setSerializationInclusion(Include.NON_NULL);
@@ -79,7 +88,8 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
       return;
     }
 
-    withCopyFileToContainer(MountableFile.forHostPath(tarantoolConfigPath), TARANTOOL_CONFIG_PATH.toString());
+    withCopyFileToContainer(
+        MountableFile.forHostPath(tarantoolConfigPath), TARANTOOL_CONFIG_PATH.toString());
 
     this.tempConfigDirectory = Utils.createTempDirectory(UUID.randomUUID().toString());
     final Path pathToConfigurationFile = this.tempConfigDirectory.resolve("tcm-config.yaml");
@@ -90,7 +100,8 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
       throw new ContainerLaunchException("Error writing TCM config to file", e);
     }
 
-    withCopyFileToContainer(MountableFile.forHostPath(pathToConfigurationFile), TCM_CONFIG_PATH.toString());
+    withCopyFileToContainer(
+        MountableFile.forHostPath(pathToConfigurationFile), TCM_CONFIG_PATH.toString());
     withCommand("./tcm -c " + TCM_CONFIG_PATH);
     withNetworkAliases(this.nodeName);
     withLogConsumer(new Slf4jLogConsumer(LOGGER).withPrefix(this.nodeName));
@@ -117,14 +128,16 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
     }
 
     try (Stream<Path> stream = Files.walk(dir)) {
-      stream.sorted(Comparator.reverseOrder())
-          .forEach(path -> {
-            try {
-              Files.deleteIfExists(path);
-            } catch (IOException e) {
-              LOGGER.error("Error deleting file {}", path, e);
-            }
-          });
+      stream
+          .sorted(Comparator.reverseOrder())
+          .forEach(
+              path -> {
+                try {
+                  Files.deleteIfExists(path);
+                } catch (IOException e) {
+                  LOGGER.error("Error deleting file {}", path, e);
+                }
+              });
     } catch (IOException e) {
       LOGGER.error("Error walking directory {}", dir, e);
     }
@@ -132,12 +145,30 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
 
   public void publishConfig() {
     try {
-      Utils.execExceptionally(LOGGER, this.getContainerInfo(), "TCM can't resolve etcd host", WAIT_ETCD_READY_SCRIPT,
-          "25", this.etcdAddress);
-      Utils.execExceptionally(LOGGER, this.getContainerInfo(), "TCM can't publish cluster config", TT_COMMAND,
-          "cluster", "publish", this.etcdAddress + this.prefix, TNT_CONFIG_NAME, "--force");
-      Utils.execExceptionally(LOGGER, this.getContainerInfo(), "TCM can't apply cluster configuration",
-          WAIT_CONFIG_READY_SCRIPT, "25", this.etcdAddress + this.prefix);
+      Utils.execExceptionally(
+          LOGGER,
+          this.getContainerInfo(),
+          "TCM can't resolve etcd host",
+          WAIT_ETCD_READY_SCRIPT,
+          "25",
+          this.etcdAddress);
+      Utils.execExceptionally(
+          LOGGER,
+          this.getContainerInfo(),
+          "TCM can't publish cluster config",
+          TT_COMMAND,
+          "cluster",
+          "publish",
+          this.etcdAddress + this.prefix,
+          TNT_CONFIG_NAME,
+          "--force");
+      Utils.execExceptionally(
+          LOGGER,
+          this.getContainerInfo(),
+          "TCM can't apply cluster configuration",
+          WAIT_CONFIG_READY_SCRIPT,
+          "25",
+          this.etcdAddress + this.prefix);
     } catch (IOException | InterruptedException e) {
       throw new IllegalStateException("Error publishing TCM config", e);
     }
@@ -152,9 +183,9 @@ public class TCMContainer extends GenericContainer<TCMContainer> {
     if (this == o) return true;
     if (!(o instanceof TCMContainer)) return false;
     TCMContainer that = (TCMContainer) o;
-    return Objects.equals(nodeName, that.nodeName) &&
-        Objects.equals(tcmConfig, that.tcmConfig) &&
-        Objects.equals(tarantoolConfigPath, that.tarantoolConfigPath);
+    return Objects.equals(nodeName, that.nodeName)
+        && Objects.equals(tcmConfig, that.tcmConfig)
+        && Objects.equals(tarantoolConfigPath, that.tarantoolConfigPath);
   }
 
   @Override

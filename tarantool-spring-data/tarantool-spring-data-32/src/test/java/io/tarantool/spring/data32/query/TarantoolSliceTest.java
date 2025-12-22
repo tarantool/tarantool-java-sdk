@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -40,8 +40,8 @@ public class TarantoolSliceTest {
 
   private static List<Person> PERSONS;
 
-  private static final Pageable SOME_PAGEABLE = new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR);
-
+  private static final Pageable SOME_PAGEABLE =
+      new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR);
 
   @BeforeAll
   static void setUp() {
@@ -63,7 +63,8 @@ public class TarantoolSliceTest {
   @ParameterizedTest
   @MethodSource("dataForTestConstructorsShouldThrow")
   public <T> void testConstructorsShouldThrow(List<T> content, Pageable pageable, boolean hasNext) {
-    assertThrows(IllegalArgumentException.class, () -> new TarantoolSliceImpl<>(content, pageable, hasNext));
+    assertThrows(
+        IllegalArgumentException.class, () -> new TarantoolSliceImpl<>(content, pageable, hasNext));
   }
 
   static Stream<Executable> dataForTestConstructorsDoesntThrow() {
@@ -82,11 +83,8 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestGetNumber() {
     return Stream.of(
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            SOME_PAGEABLE.getPageNumber()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true),
-            0));
+            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), SOME_PAGEABLE.getPageNumber()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true), 0));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -98,18 +96,12 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestGetSize() {
     return Stream.of(
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            SOME_PAGEABLE.getPageSize()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            PERSONS.size()),
+            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), SOME_PAGEABLE.getPageSize()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), PERSONS.size()),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
             SOME_PAGEABLE.getPageSize()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            0)
-    );
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), 0));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -120,18 +112,10 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestGetNumberOfElements() {
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            PERSONS.size()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            PERSONS.size()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
-            0),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            0));
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), PERSONS.size()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), PERSONS.size()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true), 0),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), 0));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -142,18 +126,12 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestGetContent() {
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            PERSONS),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            PERSONS),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), PERSONS),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), PERSONS),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
             Collections.emptyList()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Collections.emptyList()));
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Collections.emptyList()));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -164,18 +142,10 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestHasContent() {
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            true),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            true),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            false));
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), true),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), true),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true), false),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), false));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -187,11 +157,8 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestGetSort() {
     return Stream.of(
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            SOME_PAGEABLE.getSort()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Sort.unsorted()));
+            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), SOME_PAGEABLE.getSort()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Sort.unsorted()));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -204,27 +171,30 @@ public class TarantoolSliceTest {
     final int MIDDLE_PAGE_NUMBER = 2;
     return Stream.of(
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), true),
+            new TarantoolSliceImpl<>(
+                PERSONS, new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), true),
             true),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS,
-                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), true),
+            new TarantoolSliceImpl<>(
+                PERSONS,
+                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR),
+                true),
             false),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true), true),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true),
-            true),
-
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(),
-                new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), true),
-            true),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(),
-                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), true),
+            new TarantoolSliceImpl<>(
+                Collections.emptyList(),
+                new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR),
+                true),
             true),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true),
-            true));
+            new TarantoolSliceImpl<>(
+                Collections.emptyList(),
+                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR),
+                true),
+            true),
+        Arguments.of(
+            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true), true));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -235,34 +205,18 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestIsLast() {
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            false),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), false),
         // last imitation
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, false),
-            true),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false),
-            true),
-
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
-            true),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, false), true),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true), false),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false), true),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true), true),
         // last imitation
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, false), true),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, false),
-            true),
+            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true), true),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true),
-            true),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), false),
-            true)
-    );
+            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), false), true));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -274,18 +228,16 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestHasNext() {
     return Stream.of(
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, new TarantoolPageRequest<>(PAGE_SIZE), true),
-            true),
+            new TarantoolSliceImpl<>(PERSONS, new TarantoolPageRequest<>(PAGE_SIZE), true), true),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, new TarantoolPageRequest<>(PAGE_SIZE), false),
+            new TarantoolSliceImpl<>(PERSONS, new TarantoolPageRequest<>(PAGE_SIZE), false), false),
+        Arguments.of(
+            new TarantoolSliceImpl<>(
+                Collections.emptyList(), new TarantoolPageRequest<>(PAGE_SIZE), true),
             false),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(),
-                new TarantoolPageRequest<>(PAGE_SIZE), true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(),
-                new TarantoolPageRequest<>(PAGE_SIZE), false),
+            new TarantoolSliceImpl<>(
+                Collections.emptyList(), new TarantoolPageRequest<>(PAGE_SIZE), false),
             false));
   }
 
@@ -298,33 +250,26 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestHasPrevious() {
     final int MIDDLE_PAGE_NUMBER = 2;
     return Stream.of(
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true), false),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS,
-                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), false),
+            new TarantoolSliceImpl<>(
+                PERSONS,
+                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR),
+                false),
             true),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true), false),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false), false),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true), false),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true),
+            new TarantoolSliceImpl<>(
+                Collections.emptyList(),
+                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR),
+                false),
             false),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false),
-            false),
-
+            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true), false),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(),
-                new TarantoolPageRequest<>(MIDDLE_PAGE_NUMBER, PAGE_SIZE, SOME_CURSOR), false),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true),
-            false),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), false),
-            false));
+            new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), false), false));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -336,38 +281,22 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestGetPageable() {
     Pageable pageable = new TarantoolPageRequest<>(PAGE_SIZE);
     return Stream.of(
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, pageable, true), pageable),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true), pageable),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS, pageable, false), pageable),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false), pageable),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, pageable, true),
-            pageable),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true),
-            pageable),
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, pageable, false),
-            pageable),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false),
-            pageable),
-
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true),
-            Pageable.unpaged()),
+            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), true), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), true),
             Pageable.unpaged()),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false),
-            Pageable.unpaged()),
+            new TarantoolSliceImpl<>(PERSONS, Pageable.unpaged(), false), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), Pageable.unpaged(), false),
             Pageable.unpaged()),
-
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Pageable.unpaged()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Pageable.unpaged()));
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Pageable.unpaged()));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -379,30 +308,23 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestNextPageable() {
     Pageable pageable = new TarantoolPageRequest<>(PAGE_SIZE);
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Pageable.unpaged()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Pageable.unpaged()),
-
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), pageable, true),
             new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1))),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true),
-            Pageable.unpaged()),
-
+            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), pageable, false),
             Pageable.unpaged()),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false),
-            Pageable.unpaged()),
-
+            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false), Pageable.unpaged()),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE),
-                new TarantoolPageRequest<>(4, PAGE_SIZE, null), true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(0, PAGE_SIZE),
+                new TarantoolPageRequest<>(4, PAGE_SIZE, null),
+                true),
             new TarantoolPageRequest<>(5, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1))));
   }
 
@@ -414,15 +336,12 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestPreviousPageable() {
     Pageable firstPagePageable = new TarantoolPageRequest<>(PAGE_SIZE);
-    Pageable secondPagePageable = new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1));
+    Pageable secondPagePageable =
+        new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1));
 
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Pageable.unpaged()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), firstPagePageable, true),
             Pageable.unpaged()),
@@ -435,27 +354,32 @@ public class TarantoolSliceTest {
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), firstPagePageable, false),
             Pageable.unpaged()),
-
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, true),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(PAGE_SIZE))),
+            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(PAGE_SIZE))),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), secondPagePageable, true),
             Pageable.unpaged()),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, false),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, false),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(PAGE_SIZE))),
+            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(PAGE_SIZE))),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), secondPagePageable, false),
             Pageable.unpaged()),
-
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE),
-                new TarantoolPageRequest<>(4, PAGE_SIZE, null), true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(0, PAGE_SIZE),
+                new TarantoolPageRequest<>(4, PAGE_SIZE, null),
+                true),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(4, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(0))));
+            new TarantoolPageRequest<>(4, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(0))));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -467,35 +391,26 @@ public class TarantoolSliceTest {
   static Stream<Arguments> dataForTestNextOrLastPageable() {
     Pageable pageable = new TarantoolPageRequest<>(PAGE_SIZE);
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Pageable.unpaged()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Pageable.unpaged()),
-
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), pageable, true),
             new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1))),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true), pageable),
         Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, true),
-            pageable),
-
+            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), pageable, false), pageable),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false), pageable),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), pageable, false),
-            pageable),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList(), pageable, false),
-            pageable),
-
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE),
-                new TarantoolPageRequest<>(4, PAGE_SIZE, null), true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(0, PAGE_SIZE),
+                new TarantoolPageRequest<>(4, PAGE_SIZE, null),
+                true),
             new TarantoolPageRequest<>(5, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1))),
-
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE),
-                new TarantoolPageRequest<>(4, PAGE_SIZE, null), false),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(0, PAGE_SIZE),
+                new TarantoolPageRequest<>(4, PAGE_SIZE, null),
+                false),
             new TarantoolPageRequest<>(4, PAGE_SIZE, null)));
   }
 
@@ -507,15 +422,12 @@ public class TarantoolSliceTest {
 
   static Stream<Arguments> dataForTestPreviousOrFirstPageable() {
     Pageable firstPagePageable = new TarantoolPageRequest<>(PAGE_SIZE);
-    Pageable secondPagePageable = new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1));
+    Pageable secondPagePageable =
+        new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE - 1));
 
     return Stream.of(
-        Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS),
-            Pageable.unpaged()),
-        Arguments.of(
-            new TarantoolSliceImpl<>(Collections.emptyList()),
-            Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(PERSONS), Pageable.unpaged()),
+        Arguments.of(new TarantoolSliceImpl<>(Collections.emptyList()), Pageable.unpaged()),
         Arguments.of(
             new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE), firstPagePageable, true),
             firstPagePageable),
@@ -528,27 +440,32 @@ public class TarantoolSliceTest {
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), firstPagePageable, false),
             firstPagePageable),
-
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, true),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(PAGE_SIZE))),
+            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(PAGE_SIZE))),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), secondPagePageable, true),
             secondPagePageable),
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, false),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(PAGE_SIZE, 2 * PAGE_SIZE), secondPagePageable, false),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(PAGE_SIZE))),
+            new TarantoolPageRequest<>(1, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(PAGE_SIZE))),
         Arguments.of(
             new TarantoolSliceImpl<>(Collections.emptyList(), secondPagePageable, false),
             secondPagePageable),
-
         Arguments.of(
-            new TarantoolSliceImpl<>(PERSONS.subList(0, PAGE_SIZE),
-                new TarantoolPageRequest<>(4, PAGE_SIZE, null), true),
+            new TarantoolSliceImpl<>(
+                PERSONS.subList(0, PAGE_SIZE),
+                new TarantoolPageRequest<>(4, PAGE_SIZE, null),
+                true),
             // to take into account the direction of pagination use previousOrFirst method
-            new TarantoolPageRequest<>(4, PAGE_SIZE, PERSONS.get(PAGE_SIZE)).previousOrFirst(PERSONS.get(0))));
+            new TarantoolPageRequest<>(4, PAGE_SIZE, PERSONS.get(PAGE_SIZE))
+                .previousOrFirst(PERSONS.get(0))));
   }
 
   @ParameterizedTest(autoCloseArguments = false)
@@ -571,7 +488,11 @@ public class TarantoolSliceTest {
 
   @ParameterizedTest(autoCloseArguments = false)
   @MethodSource("dataForTestMap")
-  <T, U> void testMap(Slice<T> slice, Function<T, U> mapper, List<U> expectedMappedList, Slice<U> expectedMappedSlice) {
+  <T, U> void testMap(
+      Slice<T> slice,
+      Function<T, U> mapper,
+      List<U> expectedMappedList,
+      Slice<U> expectedMappedSlice) {
     assertEquals(expectedMappedSlice, slice.map(mapper));
     assertEquals(expectedMappedList, slice.map(mapper).getContent());
   }
@@ -584,8 +505,7 @@ public class TarantoolSliceTest {
                 new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
                 new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true),
                 new TarantoolSliceImpl<>(PERSONS, SOME_PAGEABLE, true)),
-            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true))
-    );
+            new TarantoolSliceImpl<>(Collections.emptyList(), SOME_PAGEABLE, true)));
   }
 
   @ParameterizedTest(autoCloseArguments = false)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,7 +10,7 @@ import io.tarantool.client.universal.UniversalFunctions;
 import io.tarantool.pool.IProtoClientPool;
 
 /**
- * <p>Implements a base contract for a space.</p>
+ * Implements a base contract for a space.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  */

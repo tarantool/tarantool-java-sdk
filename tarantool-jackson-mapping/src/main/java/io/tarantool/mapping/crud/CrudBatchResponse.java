@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,10 +12,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * <p> The class is designed to deserialize and present the response as Java objects for CRUD
- * {@code insertMany(List) insertMany(...)},
- * {@code replaceMany(List) replaceMany(...)},
- * {@code upsertMany(List) upsertMany(...)} operations.</p>
+ * The class is designed to deserialize and present the response as Java objects for CRUD {@code
+ * insertMany(List) insertMany(...)}, {@code replaceMany(List) replaceMany(...)}, {@code
+ * upsertMany(List) upsertMany(...)} operations.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -24,21 +23,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public final class CrudBatchResponse<T> {
 
-  /**
-   * <p>Rows of tuples on which the action is performed.</p>
-   */
+  /** Rows of tuples on which the action is performed. */
   private final T rows;
 
-  /**
-   * <p>List of errors encountered during the operation.</p>
-   */
+  /** List of errors encountered during the operation. */
   private final List<CrudError> errors;
 
   /**
-   * <p>Creates a {@link CrudBatchResponse} object with the given parameters.</p>
+   * Creates a {@link CrudBatchResponse} object with the given parameters.
    *
    * @param response {@link CrudData} object
-   * @param errors   list of {@link CrudError} objects
+   * @param errors list of {@link CrudError} objects
    */
   @JsonCreator
   public CrudBatchResponse(
@@ -49,7 +44,7 @@ public final class CrudBatchResponse<T> {
   }
 
   /**
-   * <p>Returns value of rows field.</p>
+   * Returns value of rows field.
    *
    * @return {@link #rows} value.
    */
@@ -58,7 +53,7 @@ public final class CrudBatchResponse<T> {
   }
 
   /**
-   * <p>Returns value of errors field.</p>
+   * Returns value of errors field.
    *
    * @return list of {@link CrudError} objects.
    */

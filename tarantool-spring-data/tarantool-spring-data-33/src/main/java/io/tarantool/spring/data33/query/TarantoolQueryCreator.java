@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -32,7 +32,8 @@ import io.tarantool.client.crud.Condition;
 import io.tarantool.client.crud.ConditionOperator;
 import io.tarantool.spring.data.query.TarantoolCriteria;
 
-public class TarantoolQueryCreator extends AbstractQueryCreator<KeyValueQuery<TarantoolCriteria>, TarantoolCriteria> {
+public class TarantoolQueryCreator
+    extends AbstractQueryCreator<KeyValueQuery<TarantoolCriteria>, TarantoolCriteria> {
 
   private final Map<Part, String> cache = new ConcurrentHashMap<>();
 
@@ -75,8 +76,11 @@ public class TarantoolQueryCreator extends AbstractQueryCreator<KeyValueQuery<Ta
 
     Part.Type type = part.getType();
     if (isIgnoreCase(part)) {
-      throw new InvalidDataAccessApiUsageException(String.format(
-          INVALID_DATA_ACCESS_API_USAGE_EXCEPTION_MESSAGE_TEMPLATE + "IgnoreCase isn't supported yet", type));
+      throw new InvalidDataAccessApiUsageException(
+          String.format(
+              INVALID_DATA_ACCESS_API_USAGE_EXCEPTION_MESSAGE_TEMPLATE
+                  + "IgnoreCase isn't supported yet",
+              type));
     }
     String property = cache.computeIfAbsent(part, this::getFieldName);
 
@@ -120,15 +124,21 @@ public class TarantoolQueryCreator extends AbstractQueryCreator<KeyValueQuery<Ta
     return tarantoolCriteria;
   }
 
-  private void generateConditions(TarantoolCriteria tarantoolCriteria, Part.Type type, String property,
-      Iterator<Object> iterator, ConditionOperator... operators) {
+  private void generateConditions(
+      TarantoolCriteria tarantoolCriteria,
+      Part.Type type,
+      String property,
+      Iterator<Object> iterator,
+      ConditionOperator... operators) {
     for (int i = 0; i < type.getNumberOfArguments(); i++) {
       if (!iterator.hasNext()) {
-        throw new InvalidDataAccessApiUsageException(String.format(
-            INVALID_DATA_ACCESS_API_USAGE_EXCEPTION_MESSAGE_TEMPLATE + "Transmitted not enough arguments (%d of %d)",
-            type,
-            i,
-            type.getNumberOfArguments()));
+        throw new InvalidDataAccessApiUsageException(
+            String.format(
+                INVALID_DATA_ACCESS_API_USAGE_EXCEPTION_MESSAGE_TEMPLATE
+                    + "Transmitted not enough arguments (%d of %d)",
+                type,
+                i,
+                type.getNumberOfArguments()));
       }
       tarantoolCriteria.addCondition(Condition.create(operators[i], property, iterator.next()));
     }
@@ -137,8 +147,10 @@ public class TarantoolQueryCreator extends AbstractQueryCreator<KeyValueQuery<Ta
   private boolean isIgnoreCase(Part part) {
     switch (part.shouldIgnoreCase()) {
       case ALWAYS:
-        Assert.state(canUpperCase(part.getProperty()),
-            String.format("Unable to ignore case of %s types, the property '%s' must reference a String",
+        Assert.state(
+            canUpperCase(part.getProperty()),
+            String.format(
+                "Unable to ignore case of %s types, the property '%s' must reference a String",
                 part.getProperty().getType().getName(), part.getProperty().getSegment()));
         return true;
       case WHEN_POSSIBLE:
@@ -155,20 +167,22 @@ public class TarantoolQueryCreator extends AbstractQueryCreator<KeyValueQuery<Ta
 
   @Override
   @NonNull
-  protected TarantoolCriteria and(@NonNull Part part, @NonNull TarantoolCriteria base,
-      @NonNull Iterator<Object> iterator) {
+  protected TarantoolCriteria and(
+      @NonNull Part part, @NonNull TarantoolCriteria base, @NonNull Iterator<Object> iterator) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull
-  protected TarantoolCriteria or(@NonNull TarantoolCriteria base, @NonNull TarantoolCriteria criteria) {
+  protected TarantoolCriteria or(
+      @NonNull TarantoolCriteria base, @NonNull TarantoolCriteria criteria) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   @NonNull
-  protected KeyValueQuery<TarantoolCriteria> complete(@Nullable final TarantoolCriteria criteria, @NonNull Sort sort) {
+  protected KeyValueQuery<TarantoolCriteria> complete(
+      @Nullable final TarantoolCriteria criteria, @NonNull Sort sort) {
     return new KeyValueQuery<>(criteria);
   }
 }

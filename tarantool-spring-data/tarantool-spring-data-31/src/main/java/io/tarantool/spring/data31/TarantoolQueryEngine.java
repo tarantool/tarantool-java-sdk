@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -20,9 +20,7 @@ import io.tarantool.spring.data31.query.TarantoolCriteriaAccessor;
 import io.tarantool.spring.data31.query.TarantoolSortAccessor;
 
 /**
- * <p>
  * Implementation of {@code findBy*()} and {@code countBy*{}} queries.
- * </P>
  *
  * @author Artyom Dubinin
  */
@@ -38,7 +36,8 @@ public class TarantoolQueryEngine
 
   @Override
   @NonNull
-  public Collection<?> execute(@Nullable final TarantoolCriteria criteria,
+  public Collection<?> execute(
+      @Nullable final TarantoolCriteria criteria,
       @Nullable final Comparator<Entry<?, ?>> sort,
       final long offset,
       final int rows,
@@ -47,23 +46,23 @@ public class TarantoolQueryEngine
   }
 
   /**
-   * <p>
-   * Construct the final query predicate for Tarantool to execute, from the base query plus any paging and sorting.
-   * </P>
-   * <p>
-   * Variations here allow the base query predicate to be omitted, sorting to be omitted, and paging to be omitted.
-   * </P>
+   * Construct the final query predicate for Tarantool to execute, from the base query plus any
+   * paging and sorting.
+   *
+   * <p>Variations here allow the base query predicate to be omitted, sorting to be omitted, and
+   * paging to be omitted.
    *
    * @param criteria Search criteria, null means match everything
-   * @param sort     Possibly null collation
-   * @param offset   Start point of returned page, -1 if not used
-   * @param rows     Size of page, -1 if not used
+   * @param sort Possibly null collation
+   * @param offset Start point of returned page, -1 if not used
+   * @param rows Size of page, -1 if not used
    * @param keyspace The map name
    * @return Results from Tarantool
    */
   @Override
   @NonNull
-  public <T> Collection<T> execute(@Nullable final TarantoolCriteria criteria,
+  public <T> Collection<T> execute(
+      @Nullable final TarantoolCriteria criteria,
       @Nullable final Comparator<Entry<?, ?>> sort,
       final long offset,
       final int rows,
@@ -73,9 +72,7 @@ public class TarantoolQueryEngine
   }
 
   /**
-   * <p>
    * Execute {@code countBy*()} queries against a Tarantool space.
-   * </P>
    *
    * @param criteria Predicate to use, not null
    * @param keyspace The map name

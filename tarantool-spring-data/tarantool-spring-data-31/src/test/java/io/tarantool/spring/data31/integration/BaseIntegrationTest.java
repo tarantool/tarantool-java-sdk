@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -41,13 +41,13 @@ public abstract class BaseIntegrationTest {
 
   private static void configureContainer() {
     if (!isCartridgeAvailable()) {
-      VshardClusterContainer vshardClusterContainer = new VshardClusterContainer(
-          "vshard_cluster/Dockerfile",
-          dockerRegistry + "vshard-cluster-java",
-          "vshard_cluster/instances.yaml",
-          "vshard_cluster/config.yaml",
-          "tarantool/tarantool"
-      );
+      VshardClusterContainer vshardClusterContainer =
+          new VshardClusterContainer(
+              "vshard_cluster/Dockerfile",
+              dockerRegistry + "vshard-cluster-java",
+              "vshard_cluster/instances.yaml",
+              "vshard_cluster/config.yaml",
+              "tarantool/tarantool");
 
       if (!vshardClusterContainer.isRunning()) {
         vshardClusterContainer.withPrivilegedMode(true);
@@ -55,15 +55,16 @@ public abstract class BaseIntegrationTest {
       }
       clusterContainer = vshardClusterContainer;
     } else {
-      TarantoolCartridgeContainer cartridgeContainer = new TarantoolCartridgeContainer(
-          "Dockerfile",
-          dockerRegistry + "cartridge",
-          "cartridge/instances.yml",
-          "cartridge/replicasets.yml",
-          org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
-          .withStartupTimeout(Duration.ofMinutes(5))
-          .withLogConsumer(new Slf4jLogConsumer(
-              LoggerFactory.getLogger(BaseIntegrationTest.class)));
+      TarantoolCartridgeContainer cartridgeContainer =
+          new TarantoolCartridgeContainer(
+                  "Dockerfile",
+                  dockerRegistry + "cartridge",
+                  "cartridge/instances.yml",
+                  "cartridge/replicasets.yml",
+                  org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
+              .withStartupTimeout(Duration.ofMinutes(5))
+              .withLogConsumer(
+                  new Slf4jLogConsumer(LoggerFactory.getLogger(BaseIntegrationTest.class)));
 
       if (!cartridgeContainer.isRunning()) {
         cartridgeContainer.start();

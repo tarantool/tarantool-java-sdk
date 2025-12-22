@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,16 +28,16 @@ import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.PathUtils;
 
-/**
- * <p>Base implementation of {@link TDGContainer} interface.</p>
- */
-public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> implements TDGContainer<TDGContainerImpl> {
+/** Base implementation of {@link TDGContainer} interface. */
+public class TDGContainerImpl extends GenericContainer<TDGContainerImpl>
+    implements TDGContainer<TDGContainerImpl> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TDGContainerImpl.class);
 
   private static final int DEFAULT_DELAY_AFTER_START_IN_SECONDS = 1;
 
-  // We should not close the network inside this class because we cannot close the network before the container in it
+  // We should not close the network inside this class because we cannot close the network before
+  // the container in it
   private final Network network;
 
   private final String node;
@@ -58,13 +58,21 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
 
   private boolean isClosed;
 
-  TDGContainerImpl(DockerImageName dockerImageName, Network network, String node, Path dataPath, String advertiseUri,
-      String[] aliases, Duration startupTimeout) {
+  TDGContainerImpl(
+      DockerImageName dockerImageName,
+      Network network,
+      String node,
+      Path dataPath,
+      String advertiseUri,
+      String[] aliases,
+      Duration startupTimeout) {
     super(dockerImageName);
     this.network = network;
     this.exposedHttpPort = DEFAULT_HTTP_PORT;
-    this.exposedIProtoPort = advertiseUri == null ? TarantoolContainer.DEFAULT_TARANTOOL_PORT :
-        Integer.parseInt(advertiseUri.split(":")[1]);
+    this.exposedIProtoPort =
+        advertiseUri == null
+            ? TarantoolContainer.DEFAULT_TARANTOOL_PORT
+            : Integer.parseInt(advertiseUri.split(":")[1]);
     this.node = node;
     this.dataPath = dataPath;
     this.advertiseUri = advertiseUri;
@@ -91,7 +99,8 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
   @Override
   public synchronized void stop() {
     if (this.isClosed) {
-      LOGGER.warn("TDG container [{}] is already stopped without save mount. Skipping...", this.node);
+      LOGGER.warn(
+          "TDG container [{}] is already stopped without save mount. Skipping...", this.node);
       return;
     }
     LOGGER.info("TDG container [{}] is stopping...", this.node);
@@ -141,8 +150,11 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
 
       withExposedPorts(this.exposedHttpPort, this.exposedIProtoPort);
       withNetwork(this.network);
-      addFileSystemBind(this.dataPath.toAbsolutePath().toString(), DEFAULT_TDG_DATA_DIR.toAbsolutePath().toString(),
-          BindMode.READ_WRITE, SelinuxContext.SHARED);
+      addFileSystemBind(
+          this.dataPath.toAbsolutePath().toString(),
+          DEFAULT_TDG_DATA_DIR.toAbsolutePath().toString(),
+          BindMode.READ_WRITE,
+          SelinuxContext.SHARED);
       withNetworkAliases(this.node);
       withNetworkAliases(this.aliases);
       if (this.advertiseUri != null) {
@@ -150,8 +162,11 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
       }
       withLogConsumer(new Slf4jLogConsumer(LOGGER).withPrefix(this.node));
       withEnv("TT_INSTANCE_NAME", this.node);
-      withEnv("TARANTOOL_ADVERTISE_URI", this.advertiseUri == null ?
-          this.node + ":" + TarantoolContainer.DEFAULT_TARANTOOL_PORT : this.advertiseUri);
+      withEnv(
+          "TARANTOOL_ADVERTISE_URI",
+          this.advertiseUri == null
+              ? this.node + ":" + TarantoolContainer.DEFAULT_TARANTOOL_PORT
+              : this.advertiseUri);
       withCreateContainerCmdModifier(cmd -> cmd.withName(this.node).withUser("root"));
       withPrivilegedMode(true);
 
@@ -176,17 +191,23 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
       return false;
     }
     TDGContainerImpl that = (TDGContainerImpl) o;
-    return Objects.equals(network, that.network) &&
-        Objects.equals(node, that.node) &&
-        Objects.equals(advertiseUri, that.advertiseUri) &&
-        Objects.deepEquals(aliases, that.aliases) &&
-        Objects.equals(dataPath, that.dataPath) &&
-        Objects.equals(startupTimeout, that.startupTimeout);
+    return Objects.equals(network, that.network)
+        && Objects.equals(node, that.node)
+        && Objects.equals(advertiseUri, that.advertiseUri)
+        && Objects.deepEquals(aliases, that.aliases)
+        && Objects.equals(dataPath, that.dataPath)
+        && Objects.equals(startupTimeout, that.startupTimeout);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), network, node, advertiseUri, Arrays.hashCode(aliases), dataPath,
+    return Objects.hash(
+        super.hashCode(),
+        network,
+        node,
+        advertiseUri,
+        Arrays.hashCode(aliases),
+        dataPath,
         startupTimeout);
   }
 
@@ -202,9 +223,7 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
 
   public static class Builder {
 
-    /**
-     * Default node name prefix, when {@link #withNode(String)} isn't called.
-     */
+    /** Default node name prefix, when {@link #withNode(String)} isn't called. */
     private static final String DEFAULT_TDG_PREFIX_NAME = "tdg";
 
     private static final Pattern URI_PATTERN = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9._-]*:\\d+$");
@@ -241,15 +260,19 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
     }
 
     /**
-     * Sets {@code TARANTOOL_ADVERTISE_URI} parameter value. Must be in the following format: {@code hostname:port}.
+     * Sets {@code TARANTOOL_ADVERTISE_URI} parameter value. Must be in the following format: {@code
+     * hostname:port}.
      *
      * @param advertiseUri {@code TARANTOOL_ADVERTISE_URI} parameter value
      */
     public Builder withAdvertiseUri(String advertiseUri) {
       if (!URI_PATTERN.matcher(advertiseUri).matches()) {
         throw new IllegalArgumentException(
-            "Invalid URI: '" + advertiseUri + "'. Must be in the format of '<hostname>:<port>'. "
-                + "Check pattern: " + URI_PATTERN.pattern());
+            "Invalid URI: '"
+                + advertiseUri
+                + "'. Must be in the format of '<hostname>:<port>'. "
+                + "Check pattern: "
+                + URI_PATTERN.pattern());
       }
       this.advertiseUri = advertiseUri;
       return this;
@@ -266,9 +289,9 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
     }
 
     /**
-     * Sets container name that is using like a container name and container alias. {@code node} is using as the
-     * hostname in the {@code TARANTOOL_ADVERTISE_URI} parameter if the {@link #withAdvertiseUri(String)} method is not
-     * called.
+     * Sets container name that is using like a container name and container alias. {@code node} is
+     * using as the hostname in the {@code TARANTOOL_ADVERTISE_URI} parameter if the {@link
+     * #withAdvertiseUri(String)} method is not called.
      *
      * @param node TDG node name
      */
@@ -278,8 +301,8 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
     }
 
     /**
-     * Sets the path on the host that is mounted with the {@link TDGContainer#DEFAULT_TDG_DATA_DIR} path in the
-     * container.
+     * Sets the path on the host that is mounted with the {@link TDGContainer#DEFAULT_TDG_DATA_DIR}
+     * path in the container.
      *
      * @param dataPath path on host
      */
@@ -308,7 +331,13 @@ public class TDGContainerImpl extends GenericContainer<TDGContainerImpl> impleme
       this.node = this.node == null ? DEFAULT_TDG_PREFIX_NAME + "-" + this.uuid : this.node;
       this.dataPath = this.dataPath == null ? Utils.createTempDirectory(this.node) : this.dataPath;
 
-      return new TDGContainerImpl(this.image, this.network, this.node, this.dataPath, this.advertiseUri, this.aliases,
+      return new TDGContainerImpl(
+          this.image,
+          this.network,
+          this.node,
+          this.dataPath,
+          this.advertiseUri,
+          this.aliases,
           this.startupTimeout);
     }
   }

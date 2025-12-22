@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,14 +21,16 @@ import io.tarantool.spring.data34.config.properties.TarantoolProperties;
 @Configuration(proxyBeanMethods = false)
 public class TarantoolBoxConfiguration extends BaseTarantoolBoxConfiguration {
 
-  public TarantoolBoxConfiguration(ObjectProvider<TarantoolProperties> properties,
+  public TarantoolBoxConfiguration(
+      ObjectProvider<TarantoolProperties> properties,
       ObjectProvider<TarantoolBoxClientBuilder> tarantoolBoxClientBuilder) {
     super(properties.getIfAvailable(), tarantoolBoxClientBuilder.getIfAvailable());
   }
 
   @Bean(name = DEFAULT_TARANTOOL_BOX_KEY_VALUE_ADAPTER_REF)
   @ConditionalOnMissingBean(TarantoolBoxKeyValueAdapter.class)
-  public TarantoolBoxKeyValueAdapter tarantoolCrudKeyValueAdapter(TarantoolBoxClient tarantoolBoxClient) {
+  public TarantoolBoxKeyValueAdapter tarantoolCrudKeyValueAdapter(
+      TarantoolBoxClient tarantoolBoxClient) {
     return new TarantoolBoxKeyValueAdapter(tarantoolBoxClient);
   }
 

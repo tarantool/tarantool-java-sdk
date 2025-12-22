@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -58,7 +58,8 @@ public class IProtoExecute extends IProtoBaseRequest {
     this.rawOptions = options;
   }
 
-  public IProtoExecute(String statementText, ArrayValue sqlBind, ArrayValue options, Long streamId) {
+  public IProtoExecute(
+      String statementText, ArrayValue sqlBind, ArrayValue options, Long streamId) {
     super();
     this.setStreamId(streamId);
     this.withStatementId = false;
@@ -84,18 +85,18 @@ public class IProtoExecute extends IProtoBaseRequest {
     packer.addPayload(RAW_MAP_HEADER_WITH_THREE_ITEMS);
 
     if (withStatementId) {
-      packer.addPayload(RAW_IPROTO_STMT_ID);  // key
-      packer.packLong(statementId);            // value
+      packer.addPayload(RAW_IPROTO_STMT_ID); // key
+      packer.packLong(statementId); // value
     } else {
       packer.addPayload(RAW_IPROTO_SQL_TEXT);
       packer.packString(statementText);
     }
 
     packer.addPayload(RAW_IPROTO_SQL_BIND); // key
-    packValue(packer, rawSqlBind, sqlBind);  // value
+    packValue(packer, rawSqlBind, sqlBind); // value
 
     packer.addPayload(RAW_IPROTO_OPTIONS); // key
-    packValue(packer, rawOptions, options);  // value
+    packValue(packer, rawOptions, options); // value
 
     return getPacketFromBase(packer);
   }

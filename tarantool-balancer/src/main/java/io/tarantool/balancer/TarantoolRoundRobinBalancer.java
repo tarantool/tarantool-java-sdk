@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -62,13 +62,14 @@ public class TarantoolRoundRobinBalancer implements TarantoolBalancer {
       }
 
       return clientFuture
-          .handle((connect, exc) -> {
-            if (exc != null) {
-              log.warn("taking {}:{} failed", tag, connectionIndex, exc);
-              return getNext();
-            }
-            return CompletableFuture.completedFuture(connect);
-          })
+          .handle(
+              (connect, exc) -> {
+                if (exc != null) {
+                  log.warn("taking {}:{} failed", tag, connectionIndex, exc);
+                  return getNext();
+                }
+                return CompletableFuture.completedFuture(connect);
+              })
           .thenCompose(x -> x);
     }
 

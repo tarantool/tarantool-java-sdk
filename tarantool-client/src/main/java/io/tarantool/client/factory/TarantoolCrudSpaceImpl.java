@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -40,18 +40,23 @@ import io.tarantool.mapping.crud.CrudError;
 import io.tarantool.mapping.crud.CrudScalarResponse;
 
 /**
- * <p>Class extends {@link AbstractTarantoolSpace} class and implementing {@link TarantoolCrudSpace}.</p>
- * <p>To use this class correctly, you can follow this example:</p>
- * <blockquote><pre>{@code
+ * Class extends {@link AbstractTarantoolSpace} class and implementing {@link TarantoolCrudSpace}.
  *
- *  // Creates box client with default settings.
- *  TarantoolCrudClient crudClient = TarantoolCrudClientImpl.builder().build();
- *  ...
+ * <p>To use this class correctly, you can follow this example:
  *
- *  TarantoolCrudSpace space = crudClient.space("spaceName");
- *  ...
+ * <blockquote>
  *
- * }</pre></blockquote>
+ * <pre>{@code
+ * // Creates box client with default settings.
+ * TarantoolCrudClient crudClient = TarantoolCrudClientImpl.builder().build();
+ * ...
+ *
+ * TarantoolCrudSpace space = crudClient.space("spaceName");
+ * ...
+ *
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
@@ -62,150 +67,116 @@ import io.tarantool.mapping.crud.CrudScalarResponse;
  */
 final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements TarantoolCrudSpace {
 
-  /**
-   * <p> Template for crud insert function.</p>
-   */
+  /** Template for crud insert function. */
   public static final String CRUD_INSERT = "crud.insert";
 
-  /**
-   * <p> Template for crud_insert function.</p>
-   */
+  /** Template for crud_insert function. */
   public static final String CRUD_INSERT_OBJECT = "crud.insert_object";
-  /**
-   * <p> Template for crud insert_many function.</p>
-   */
+
+  /** Template for crud insert_many function. */
   public static final String CRUD_INSERT_MANY = "crud.insert_many";
-  /**
-   * <p> Template for crud insert_object_many function.</p>
-   */
+
+  /** Template for crud insert_object_many function. */
   public static final String CRUD_INSERT_MANY_OBJECT = "crud.insert_object_many";
-  /**
-   * <p> Template for crud replace function.</p>
-   */
+
+  /** Template for crud replace function. */
   public static final String CRUD_REPLACE = "crud.replace";
-  /**
-   * <p> Template for crud replace_object function.</p>
-   */
+
+  /** Template for crud replace_object function. */
   public static final String CRUD_REPLACE_OBJECT = "crud.replace_object";
-  /**
-   * <p> Template for crud replace_many function.</p>
-   */
+
+  /** Template for crud replace_many function. */
   public static final String CRUD_REPLACE_MANY = "crud.replace_many";
-  /**
-   * <p> Template for crud replace_object_many function.</p>
-   */
+
+  /** Template for crud replace_object_many function. */
   public static final String CRUD_REPLACE_OBJECT_MANY = "crud.replace_object_many";
-  /**
-   * <p> Template for crud get function.</p>
-   */
+
+  /** Template for crud get function. */
   public static final String CRUD_GET = "crud.get";
-  /**
-   * <p> Template for crud select function.</p>
-   */
+
+  /** Template for crud select function. */
   public static final String CRUD_SELECT = "crud.select";
-  /**
-   * <p> Template for crud delete function.</p>
-   */
+
+  /** Template for crud delete function. */
   public static final String CRUD_DELETE = "crud.delete";
-  /**
-   * <p> Template for crud update function.</p>
-   */
+
+  /** Template for crud update function. */
   public static final String CRUD_UPDATE = "crud.update";
-  /**
-   * <p> Template for crud upsert function.</p>
-   */
+
+  /** Template for crud upsert function. */
   public static final String CRUD_UPSERT = "crud.upsert";
-  /**
-   * <p> Template for crud upsert_many function.</p>
-   */
+
+  /** Template for crud upsert_many function. */
   public static final String CRUD_UPSERT_MANY = "crud.upsert_many";
-  /**
-   * <p> Template for crud upsert_object function.</p>
-   */
+
+  /** Template for crud upsert_object function. */
   public static final String CRUD_UPSERT_OBJECT = "crud.upsert_object";
-  /**
-   * <p> Template for crud upsert_object_many function.</p>
-   */
+
+  /** Template for crud upsert_object_many function. */
   public static final String CRUD_UPSERT_OBJECT_MANY = "crud.upsert_object_many";
-  /**
-   * <p> Template for crud truncate function.</p>
-   */
+
+  /** Template for crud truncate function. */
   public static final String CRUD_TRUNCATE = "crud.truncate";
-  /**
-   * <p> Template for crud count function.</p>
-   */
+
+  /** Template for crud count function. */
   public static final String CRUD_COUNT = "crud.count";
-  /**
-   * <p> Template for crud len function.</p>
-   */
+
+  /** Template for crud len function. */
   public static final String CRUD_LEN = "crud.len";
-  /**
-   * <p> Template for crud min function.</p>
-   */
+
+  /** Template for crud min function. */
   public static final String CRUD_MIN = "crud.min";
-  /**
-   * <p> Template for crud max function.</p>
-   */
+
+  /** Template for crud max function. */
   public static final String CRUD_MAX = "crud.max";
-  /**
-   * <p> Template type reference for scalar return values.</p>
-   */
+
+  /** Template type reference for scalar return values. */
   public static final TypeReference<CrudScalarResponse<Integer>> CRUD_CALL_INT_RESULT =
       new TypeReference<CrudScalarResponse<Integer>>() {};
-  /**
-   * <p> Template type reference for boolean return values.</p>
-   */
+
+  /** Template type reference for boolean return values. */
   public static final TypeReference<CrudScalarResponse<Boolean>> CRUD_CALL_BOOL_RESULT =
       new TypeReference<CrudScalarResponse<Boolean>>() {};
-  /**
-   * <p>{@link InsertOptions} default value.</p>
-   */
+
+  /** {@link InsertOptions} default value. */
   private static final InsertOptions DEFAULT_INSERT_OPTIONS = InsertOptions.builder().build();
-  /**
-   * <p>{@link InsertManyOptions} default value.</p>
-   */
-  private static final InsertManyOptions DEFAULT_INSERT_MANY_OPTIONS = InsertManyOptions.builder().build();
-  /**
-   * <p>{@link UpsertManyOptions} default value.</p>
-   */
-  private static final UpsertManyOptions DEFAULT_UPSERT_MANY_OPTIONS = UpsertManyOptions.builder().build();
-  /**
-   * <p>{@link GetOptions} default value.</p>
-   */
+
+  /** {@link InsertManyOptions} default value. */
+  private static final InsertManyOptions DEFAULT_INSERT_MANY_OPTIONS =
+      InsertManyOptions.builder().build();
+
+  /** {@link UpsertManyOptions} default value. */
+  private static final UpsertManyOptions DEFAULT_UPSERT_MANY_OPTIONS =
+      UpsertManyOptions.builder().build();
+
+  /** {@link GetOptions} default value. */
   private static final GetOptions DEFAULT_GET_OPTIONS = GetOptions.builder().build();
-  /**
-   * <p>{@link SelectOptions} default value.</p>
-   */
+
+  /** {@link SelectOptions} default value. */
   private static final SelectOptions DEFAULT_SELECT_OPTIONS = SelectOptions.builder().build();
-  /**
-   * <p>{@link DeleteOptions} default value.</p>
-   */
+
+  /** {@link DeleteOptions} default value. */
   private static final DeleteOptions DEFAULT_DELETE_OPTIONS = DeleteOptions.builder().build();
-  /**
-   * <p>{@link UpdateOptions} default value.</p>
-   */
+
+  /** {@link UpdateOptions} default value. */
   private static final UpdateOptions DEFAULT_UPDATE_OPTIONS = UpdateOptions.builder().build();
-  /**
-   * <p>{@link TruncateOptions} default value.</p>
-   */
+
+  /** {@link TruncateOptions} default value. */
   private static final TruncateOptions DEFAULT_TRUNCATE_OPTIONS = TruncateOptions.builder().build();
-  /**
-   * <p>{@link LenOptions} default value.</p>
-   */
+
+  /** {@link LenOptions} default value. */
   private static final LenOptions DEFAULT_LEN_OPTIONS = LenOptions.builder().build();
-  /**
-   * <p>{@link CountOptions} default value.</p>
-   */
+
+  /** {@link CountOptions} default value. */
   private static final CountOptions DEFAULT_COUNT_OPTIONS = CountOptions.builder().build();
-  /**
-   * <p>{@link MinMaxOptions} default value.</p>
-   */
+
+  /** {@link MinMaxOptions} default value. */
   private static final MinMaxOptions DEFAULT_MIN_MAX_OPTIONS = MinMaxOptions.builder().build();
 
   /**
-   * <p> This constructor creates {@link TarantoolCrudSpaceImpl} based on the passed parameters.</p>
+   * This constructor creates {@link TarantoolCrudSpaceImpl} based on the passed parameters.
    *
-   * @param balancer  see also: {@link #balancer}.
+   * @param balancer see also: {@link #balancer}.
    * @param spaceName see also: {@link #spaceName}.
    */
   public TarantoolCrudSpaceImpl(TarantoolBalancer balancer, String spaceName) {
@@ -213,7 +184,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> insert(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> insert(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_INSERT, arguments);
   }
 
@@ -243,7 +215,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> insert(Object tuple, InsertOptions options, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> insert(
+      Object tuple, InsertOptions options, Class<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_INSERT, toTupleOptsArgs(tuple, options));
   }
 
@@ -253,15 +226,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> insert(Object tuple, InsertOptions options,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> insert(
+      Object tuple, InsertOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_INSERT, toTupleOptsArgs(tuple, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(Options options,
-      TypeReference<T> entity,
-      Object... arguments) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudBatchCall(CRUD_INSERT_MANY, options, entity, arguments);
   }
 
@@ -271,52 +243,50 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertObjectMany(List<?> tuples) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertObjectMany(
+      List<?> tuples) {
     return insertObjectMany(tuples, DEFAULT_INSERT_MANY_OPTIONS);
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertMany(List<?> tuples,
-      InsertManyOptions options) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertMany(
+      List<?> tuples, InsertManyOptions options) {
     return crudBatchCall(CRUD_INSERT_MANY, options, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertObjectMany(List<?> tuples,
-      InsertManyOptions options) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> insertObjectMany(
+      List<?> tuples, InsertManyOptions options) {
     return crudBatchCall(CRUD_INSERT_MANY_OBJECT, options, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> insertMany(List<?> tuples,
-      Class<T> entity) {
+  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> insertMany(
+      List<?> tuples, Class<T> entity) {
     return insertMany(tuples, DEFAULT_INSERT_MANY_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> insertMany(List<?> tuples,
-      InsertManyOptions options,
-      Class<T> entity) {
+  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> insertMany(
+      List<?> tuples, InsertManyOptions options, Class<T> entity) {
     return crudBatchCall(CRUD_INSERT_MANY, options, entity, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(List<?> tuples,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(
+      List<?> tuples, TypeReference<T> entity) {
     return insertMany(tuples, DEFAULT_INSERT_MANY_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(List<?> tuples,
-      InsertManyOptions options,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> insertMany(
+      List<?> tuples, InsertManyOptions options, TypeReference<T> entity) {
     return crudBatchCall(CRUD_INSERT_MANY, options, entity, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(Options options,
-      TypeReference<T> entity,
-      Object... arguments) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudBatchCall(CRUD_REPLACE_MANY, options, entity, arguments);
   }
 
@@ -326,45 +296,44 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceObjectMany(List<?> tuples) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceObjectMany(
+      List<?> tuples) {
     return replaceObjectMany(tuples, DEFAULT_INSERT_MANY_OPTIONS);
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceMany(List<?> tuples,
-      InsertManyOptions options) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceMany(
+      List<?> tuples, InsertManyOptions options) {
     return crudBatchCall(CRUD_REPLACE_MANY, options, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceObjectMany(List<?> tuples,
-      InsertManyOptions options) {
+  public CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> replaceObjectMany(
+      List<?> tuples, InsertManyOptions options) {
     return crudBatchCall(CRUD_REPLACE_OBJECT_MANY, options, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> replaceMany(List<?> tuples,
-      Class<T> entity) {
+  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> replaceMany(
+      List<?> tuples, Class<T> entity) {
     return replaceMany(tuples, DEFAULT_INSERT_MANY_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> replaceMany(List<?> tuples,
-      InsertManyOptions options,
-      Class<T> entity) {
+  public <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> replaceMany(
+      List<?> tuples, InsertManyOptions options, Class<T> entity) {
     return crudBatchCall(CRUD_REPLACE_MANY, options, entity, toTuplesOptsArgs(tuples, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(List<?> tuples,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(
+      List<?> tuples, TypeReference<T> entity) {
     return replaceMany(tuples, DEFAULT_INSERT_MANY_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(List<?> tuples,
-      InsertManyOptions options,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> replaceMany(
+      List<?> tuples, InsertManyOptions options, TypeReference<T> entity) {
     return crudBatchCall(CRUD_REPLACE_MANY, options, entity, toTuplesOptsArgs(tuples, options));
   }
 
@@ -401,43 +370,37 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<List<CrudError>> upsertMany(List<?> tuplesOperationData, UpsertManyOptions options) {
-    return crudBatchCall(
-        CRUD_UPSERT_MANY,
-        options,
-        toTuplesOptsArgs(
-            tuplesOperationData,
-            options
-        )
-    ).thenApply(CrudBatchResponse::getErrors);
+  public CompletableFuture<List<CrudError>> upsertMany(
+      List<?> tuplesOperationData, UpsertManyOptions options) {
+    return crudBatchCall(CRUD_UPSERT_MANY, options, toTuplesOptsArgs(tuplesOperationData, options))
+        .thenApply(CrudBatchResponse::getErrors);
   }
 
   @Override
-  public CompletableFuture<List<CrudError>> upsertObjectMany(List<?> tuplesOperationData, UpsertManyOptions options) {
+  public CompletableFuture<List<CrudError>> upsertObjectMany(
+      List<?> tuplesOperationData, UpsertManyOptions options) {
     return crudBatchCall(
-        CRUD_UPSERT_OBJECT_MANY,
-        options,
-        toTuplesOptsArgs(
-            tuplesOperationData,
-            options
-        )
-    ).thenApply(CrudBatchResponse::getErrors);
+            CRUD_UPSERT_OBJECT_MANY, options, toTuplesOptsArgs(tuplesOperationData, options))
+        .thenApply(CrudBatchResponse::getErrors);
   }
 
   @Override
-  public CompletableFuture<List<CrudError>> upsertMany(UpsertBatch batch, UpsertManyOptions options) {
+  public CompletableFuture<List<CrudError>> upsertMany(
+      UpsertBatch batch, UpsertManyOptions options) {
     return crudBatchCall(CRUD_UPSERT_MANY, options, toTuplesOptsArgs(batch, options))
         .thenApply(CrudBatchResponse::getErrors);
   }
 
   @Override
-  public CompletableFuture<List<CrudError>> upsertObjectMany(UpsertBatch batch, UpsertManyOptions options) {
+  public CompletableFuture<List<CrudError>> upsertObjectMany(
+      UpsertBatch batch, UpsertManyOptions options) {
     return crudBatchCall(CRUD_UPSERT_OBJECT_MANY, options, toTuplesOptsArgs(batch, options))
         .thenApply(CrudBatchResponse::getErrors);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> replace(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> replace(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_REPLACE, arguments);
   }
 
@@ -467,7 +430,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> replace(Object tuple, InsertOptions options, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> replace(
+      Object tuple, InsertOptions options, Class<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_REPLACE, toTupleOptsArgs(tuple, options));
   }
 
@@ -477,13 +441,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> replace(Object tuple, InsertOptions options, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> replace(
+      Object tuple, InsertOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_REPLACE, toTupleOptsArgs(tuple, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<T>> select(Options options, TypeReference<T> entity,
-      Object... arguments) {
+  public <T> CompletableFuture<TarantoolResponse<T>> select(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSelectResult(options, entity, arguments);
   }
 
@@ -498,7 +463,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<List<Tuple<List<?>>>> select(List<Condition> conditions, SelectOptions options) {
+  public CompletableFuture<List<Tuple<List<?>>>> select(
+      List<Condition> conditions, SelectOptions options) {
     return crudCallSelectResult(options, toSelectArgs(conditions, options));
   }
 
@@ -508,25 +474,26 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<List<Tuple<T>>> select(List<Condition> conditions, SelectOptions options,
-      Class<T> entity) {
+  public <T> CompletableFuture<List<Tuple<T>>> select(
+      List<Condition> conditions, SelectOptions options, Class<T> entity) {
     return crudCallSelectResult(options, entity, toSelectArgs(conditions, options));
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<T>> select(List<Condition> conditions, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<T>> select(
+      List<Condition> conditions, TypeReference<T> entity) {
     return select(conditions, DEFAULT_SELECT_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<T>> select(List<Condition> conditions,
-      SelectOptions options,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<T>> select(
+      List<Condition> conditions, SelectOptions options, TypeReference<T> entity) {
     return crudCallSelectResult(options, entity, toSelectArgs(conditions, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> get(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> get(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_GET, arguments);
   }
 
@@ -556,12 +523,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> get(Object key, GetOptions options, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> get(
+      Object key, GetOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_GET, toKeyOptsArgs(key, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> delete(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> delete(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_DELETE, arguments);
   }
 
@@ -581,7 +550,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> delete(Object key, DeleteOptions options, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> delete(
+      Object key, DeleteOptions options, Class<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_DELETE, toKeyOptsArgs(key, options));
   }
 
@@ -591,12 +561,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> delete(Object key, DeleteOptions options, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> delete(
+      Object key, DeleteOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_DELETE, toKeyOptsArgs(key, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> min(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> min(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_MIN, arguments);
   }
 
@@ -616,7 +588,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> min(String indexName, MinMaxOptions options, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> min(
+      String indexName, MinMaxOptions options, Class<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_MIN, toIndexNameOptsArgs(indexName, options));
   }
 
@@ -626,12 +599,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> min(String indexName, MinMaxOptions options, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> min(
+      String indexName, MinMaxOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_MIN, toIndexNameOptsArgs(indexName, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> max(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> max(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_MAX, arguments);
   }
 
@@ -651,7 +626,8 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> max(String indexName, MinMaxOptions options, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> max(
+      String indexName, MinMaxOptions options, Class<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_MAX, toIndexNameOptsArgs(indexName, options));
   }
 
@@ -661,12 +637,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> max(String indexName, MinMaxOptions options, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> max(
+      String indexName, MinMaxOptions options, TypeReference<T> entity) {
     return crudCallSingleResult(options, entity, CRUD_MAX, toIndexNameOptsArgs(indexName, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Options options, TypeReference<T> entity, Object... arguments) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      Options options, TypeReference<T> entity, Object... arguments) {
     return crudCallSingleResult(options, entity, CRUD_UPDATE, arguments);
   }
 
@@ -681,65 +659,69 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<Tuple<List<?>>> update(Object key, List<List<?>> operations, UpdateOptions options) {
-    return crudCallSingleResult(options, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public CompletableFuture<Tuple<List<?>>> update(
+      Object key, List<List<?>> operations, UpdateOptions options) {
+    return crudCallSingleResult(
+        options, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
-  public CompletableFuture<Tuple<List<?>>> update(Object key, Operations operations, UpdateOptions options) {
-    return crudCallSingleResult(options, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public CompletableFuture<Tuple<List<?>>> update(
+      Object key, Operations operations, UpdateOptions options) {
+    return crudCallSingleResult(
+        options, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key, List<List<?>> operations, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, List<List<?>> operations, Class<T> entity) {
     return update(key, operations, DEFAULT_UPDATE_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key, Operations operations, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, Operations operations, Class<T> entity) {
     return update(key, operations, DEFAULT_UPDATE_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key,
-      List<List<?>> operations,
-      UpdateOptions options,
-      Class<T> entity) {
-    return crudCallSingleResult(options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, List<List<?>> operations, UpdateOptions options, Class<T> entity) {
+    return crudCallSingleResult(
+        options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key,
-      Operations operations,
-      UpdateOptions options,
-      Class<T> entity) {
-    return crudCallSingleResult(options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, Operations operations, UpdateOptions options, Class<T> entity) {
+    return crudCallSingleResult(
+        options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key, List<List<?>> operations, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, List<List<?>> operations, TypeReference<T> entity) {
     return update(key, operations, DEFAULT_UPDATE_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key, Operations operations, TypeReference<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, Operations operations, TypeReference<T> entity) {
     return update(key, operations, DEFAULT_UPDATE_OPTIONS, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key,
-      List<List<?>> operations,
-      UpdateOptions options,
-      TypeReference<T> entity) {
-    return crudCallSingleResult(options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, List<List<?>> operations, UpdateOptions options, TypeReference<T> entity) {
+    return crudCallSingleResult(
+        options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(Object key,
-      Operations operations,
-      UpdateOptions options,
-      TypeReference<T> entity) {
-    return crudCallSingleResult(options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
+  public <T> CompletableFuture<Tuple<T>> update(
+      Object key, Operations operations, UpdateOptions options, TypeReference<T> entity) {
+    return crudCallSingleResult(
+        options, entity, CRUD_UPDATE, toKeyOperationsOptsArgs(key, operations, options));
   }
 
   @Override
@@ -773,34 +755,34 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   @Override
-  public CompletableFuture<Void> upsert(Object tuple, List<List<?>> operations, UpdateOptions options) {
-    return crudCallSingleResult(options,
-        CRUD_UPSERT,
-        toTupleOperationsOptsArgs(tuple, operations, options))
+  public CompletableFuture<Void> upsert(
+      Object tuple, List<List<?>> operations, UpdateOptions options) {
+    return crudCallSingleResult(
+            options, CRUD_UPSERT, toTupleOperationsOptsArgs(tuple, operations, options))
         .thenAccept((r) -> {});
   }
 
   @Override
-  public CompletableFuture<Void> upsertObject(Object tuple, List<List<?>> operations, UpdateOptions options) {
-    return crudCallSingleResult(options,
-        CRUD_UPSERT_OBJECT,
-        toTupleOperationsOptsArgs(tuple, operations, options))
+  public CompletableFuture<Void> upsertObject(
+      Object tuple, List<List<?>> operations, UpdateOptions options) {
+    return crudCallSingleResult(
+            options, CRUD_UPSERT_OBJECT, toTupleOperationsOptsArgs(tuple, operations, options))
         .thenAccept((r) -> {});
   }
 
   @Override
-  public CompletableFuture<Void> upsert(Object tuple, Operations operations, UpdateOptions options) {
-    return crudCallSingleResult(options,
-        CRUD_UPSERT,
-        toTupleOperationsOptsArgs(tuple, operations, options))
+  public CompletableFuture<Void> upsert(
+      Object tuple, Operations operations, UpdateOptions options) {
+    return crudCallSingleResult(
+            options, CRUD_UPSERT, toTupleOperationsOptsArgs(tuple, operations, options))
         .thenAccept((r) -> {});
   }
 
   @Override
-  public CompletableFuture<Void> upsertObject(Object tuple, Operations operations, UpdateOptions options) {
-    return crudCallSingleResult(options,
-        CRUD_UPSERT_OBJECT,
-        toTupleOperationsOptsArgs(tuple, operations, options))
+  public CompletableFuture<Void> upsertObject(
+      Object tuple, Operations operations, UpdateOptions options) {
+    return crudCallSingleResult(
+            options, CRUD_UPSERT_OBJECT, toTupleOperationsOptsArgs(tuple, operations, options))
         .thenAccept((r) -> {});
   }
 
@@ -855,19 +837,20 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   /**
-   * <p>Converts completable future response for requests returning scalar values to completable future with
-   * integer.</p>
+   * Converts completable future response for requests returning scalar values to completable future
+   * with integer.
    *
    * @param responseFuture response for requests returning scalar.
    * @return {@link CompletableFuture} object with integer.
    */
-  private CompletableFuture<Integer> mapCountLenResult(CompletableFuture<IProtoResponse> responseFuture) {
+  private CompletableFuture<Integer> mapCountLenResult(
+      CompletableFuture<IProtoResponse> responseFuture) {
     return TarantoolJacksonMapping.convertFutureResult(responseFuture, CRUD_CALL_INT_RESULT)
         .thenApply(response -> response.get().getValue());
   }
 
   /**
-   * <p>Get options as Map.</p>
+   * Get options as Map.
    *
    * @param options {@link CrudOptions} object.
    * @return list options.
@@ -880,26 +863,28 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
   }
 
   /**
-   * <p>Converts completable future response for requests returning boolean value to completable future with
-   * boolean.</p>
+   * Converts completable future response for requests returning boolean value to completable future
+   * with boolean.
    *
    * @param responseFuture response for boolean requests.
    * @return {@link CompletableFuture} object with boolean.
    */
-  private CompletableFuture<Boolean> mapTruncateResult(CompletableFuture<IProtoResponse> responseFuture) {
+  private CompletableFuture<Boolean> mapTruncateResult(
+      CompletableFuture<IProtoResponse> responseFuture) {
     return TarantoolJacksonMapping.convertFutureResult(responseFuture, CRUD_CALL_BOOL_RESULT)
         .thenApply(response -> response.get().getValue());
   }
 
   /**
-   * <p>Converts tuple, operations and options to array of arguments.</p>
+   * Converts tuple, operations and options to array of arguments.
    *
-   * @param tuple      tuple object.
+   * @param tuple tuple object.
    * @param operations update or upsert operations.
-   * @param options    {@link CrudOptions} object.
+   * @param options {@link CrudOptions} object.
    * @return list of tuple, operations and options.
    */
-  private Object[] toTupleOperationsOptsArgs(Object tuple, List<?> operations, CrudOptions options) {
+  private Object[] toTupleOperationsOptsArgs(
+      Object tuple, List<?> operations, CrudOptions options) {
     if (tuple == null) {
       throw new IllegalArgumentException("key can't be null");
     }
@@ -909,18 +894,19 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{tuple, operations, options.getOptions()};
+    return new Object[] {tuple, operations, options.getOptions()};
   }
 
   /**
-   * <p>Converts key, operations and options to array of arguments.</p>
+   * Converts key, operations and options to array of arguments.
    *
-   * @param key        key of tuple.
+   * @param key key of tuple.
    * @param operations update or upsert operations.
-   * @param options    {@link CrudOptions} object.
+   * @param options {@link CrudOptions} object.
    * @return list of key, operations and options.
    */
-  private Object[] toKeyOperationsOptsArgs(Object key, List<List<?>> operations, CrudOptions options) {
+  private Object[] toKeyOperationsOptsArgs(
+      Object key, List<List<?>> operations, CrudOptions options) {
     if (key == null) {
       throw new IllegalArgumentException("key can't be null");
     }
@@ -930,15 +916,15 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{key, operations, options.getOptions()};
+    return new Object[] {key, operations, options.getOptions()};
   }
 
   /**
-   * <p>Converts key, operations and options to array of arguments.</p>
+   * Converts key, operations and options to array of arguments.
    *
-   * @param key        key of tuple.
+   * @param key key of tuple.
    * @param operations update or upsert operations.
-   * @param options    {@link CrudOptions} object.
+   * @param options {@link CrudOptions} object.
    * @return list of key, operations and options.
    */
   private Object[] toKeyOperationsOptsArgs(Object key, Operations operations, CrudOptions options) {
@@ -951,27 +937,27 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{key, operations, options.getOptions()};
+    return new Object[] {key, operations, options.getOptions()};
   }
 
   /**
-   * <p>Converts index name and options to array of arguments.</p>
+   * Converts index name and options to array of arguments.
    *
    * @param indexName index name.
-   * @param options   {@link CrudOptions} object.
+   * @param options {@link CrudOptions} object.
    * @return list of index name and options.
    */
   private Object[] toIndexNameOptsArgs(String indexName, CrudOptions options) {
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{indexName, options.getOptions()};
+    return new Object[] {indexName, options.getOptions()};
   }
 
   /**
-   * <p>Converts key and options to array of arguments.</p>
+   * Converts key and options to array of arguments.
    *
-   * @param key     key of tuple.
+   * @param key key of tuple.
    * @param options {@link CrudOptions} object.
    * @return list of key and options.
    */
@@ -982,14 +968,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{key, options.getOptions()};
+    return new Object[] {key, options.getOptions()};
   }
 
   /**
-   * <p>Get conditions and options as array of select arguments.</p>
+   * Get conditions and options as array of select arguments.
    *
    * @param conditions list of {@link Condition} objects.
-   * @param options    {@link CrudOptions} object.
+   * @param options {@link CrudOptions} object.
    * @return list of conditions and options.
    */
   private Object[] toSelectArgs(List<Condition> conditions, CrudOptions options) {
@@ -999,13 +985,13 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{conditions, options.getOptions()};
+    return new Object[] {conditions, options.getOptions()};
   }
 
   /**
-   * <p>Converts tuples and options to array of arguments .</p>
+   * Converts tuples and options to array of arguments .
    *
-   * @param tuples  list of tuple objects.
+   * @param tuples list of tuple objects.
    * @param options {@link CrudOptions} object.
    * @return array of tuples and options.
    */
@@ -1016,13 +1002,13 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{tuples, options.getOptions()};
+    return new Object[] {tuples, options.getOptions()};
   }
 
   /**
-   * <p>Converts tuple operations as UpsertBatch and options to array of arguments .</p>
+   * Converts tuple operations as UpsertBatch and options to array of arguments .
    *
-   * @param tuples  list of tuple objects.
+   * @param tuples list of tuple objects.
    * @param options {@link CrudOptions} object.
    * @return list of tuples and options.
    */
@@ -1033,13 +1019,13 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{tuples, options.getOptions()};
+    return new Object[] {tuples, options.getOptions()};
   }
 
   /**
-   * <p>Converts tuple and options to array of arguments.</p>
+   * Converts tuple and options to array of arguments.
    *
-   * @param tuple   tuple object.
+   * @param tuple tuple object.
    * @param options {@link CrudOptions} object.
    * @return list of tuple and options.
    */
@@ -1050,127 +1036,100 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
-    return new Object[]{tuple, options.getOptions()};
+    return new Object[] {tuple, options.getOptions()};
   }
 
   /**
-   * <p>Sends a low-level call request based on the passed parameters.</p>
+   * Sends a low-level call request based on the passed parameters.
    *
-   * @param <T>     return entity
+   * @param <T> return entity
    * @param options {@link Options} object.
-   * @param entity  {@link TypeReference} object.
-   * @param args    list of arguments.
-   * @return if success - {@link CompletableFuture} with list of tuples list, otherwise - {@link CompletableFuture} with
-   * exception.
+   * @param entity {@link TypeReference} object.
+   * @param args list of arguments.
+   * @return if success - {@link CompletableFuture} with list of tuples list, otherwise - {@link
+   *     CompletableFuture} with exception.
    */
-  private <T> CompletableFuture<TarantoolResponse<T>> crudCallSelectResult(Options options,
-      TypeReference<T> entity,
-      Object... args) {
-    return convertCrudSelectResultFuture(
-        iprotoCall(options, CRUD_SELECT, args),
-        entity
-    );
+  private <T> CompletableFuture<TarantoolResponse<T>> crudCallSelectResult(
+      Options options, TypeReference<T> entity, Object... args) {
+    return convertCrudSelectResultFuture(iprotoCall(options, CRUD_SELECT, args), entity);
   }
 
-  private <T> CompletableFuture<Tuple<T>> crudCallSingleResult(Options options,
-      TypeReference<T> entity,
-      String functionName,
-      Object... args) {
+  private <T> CompletableFuture<Tuple<T>> crudCallSingleResult(
+      Options options, TypeReference<T> entity, String functionName, Object... args) {
     return TarantoolJacksonMapping.convertCrudSingleResultFuture(
-        iprotoCall(options, functionName, args),
-        entity
-    );
+        iprotoCall(options, functionName, args), entity);
   }
 
-  private <T> CompletableFuture<List<Tuple<T>>> crudCallSelectResult(Options options,
-      Class<T> entity,
-      Object... args) {
+  private <T> CompletableFuture<List<Tuple<T>>> crudCallSelectResult(
+      Options options, Class<T> entity, Object... args) {
     return convertCrudSelectResultFuture(
-        iprotoCall(options, TarantoolCrudSpaceImpl.CRUD_SELECT, args),
-        entity
-    );
+        iprotoCall(options, TarantoolCrudSpaceImpl.CRUD_SELECT, args), entity);
   }
 
-  private <T> CompletableFuture<Tuple<T>> crudCallSingleResult(Options options,
-      Class<T> entity,
-      String functionName,
-      Object... args) {
+  private <T> CompletableFuture<Tuple<T>> crudCallSingleResult(
+      Options options, Class<T> entity, String functionName, Object... args) {
     return TarantoolJacksonMapping.convertCrudSingleResultFuture(
-        iprotoCall(options, functionName, args),
-        entity
-    );
+        iprotoCall(options, functionName, args), entity);
   }
 
-  private CompletableFuture<List<Tuple<List<?>>>> crudCallSelectResult(Options options, Object... args) {
+  private CompletableFuture<List<Tuple<List<?>>>> crudCallSelectResult(
+      Options options, Object... args) {
     return convertCrudSelectResultFuture(
-        iprotoCall(options, TarantoolCrudSpaceImpl.CRUD_SELECT, args)
-    );
+        iprotoCall(options, TarantoolCrudSpaceImpl.CRUD_SELECT, args));
   }
 
-  private CompletableFuture<Tuple<List<?>>> crudCallSingleResult(Options options,
-      String functionName,
-      Object... args) {
+  private CompletableFuture<Tuple<List<?>>> crudCallSingleResult(
+      Options options, String functionName, Object... args) {
     return TarantoolJacksonMapping.convertCrudSingleResultFuture(
-        iprotoCall(options, functionName, args)
-    );
-  }
-
-
-  /**
-   * <p>Sends a low-level batch call request based on the passed parameters.</p>
-   *
-   * @param functionName crud function name.
-   * @param options      {@link Options} object.
-   * @param entity       {@link TypeReference} object.
-   * @param args         list of arguments.
-   * @param <T>          return entity
-   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
-   */
-  private <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> crudBatchCall(String functionName,
-      Options options,
-      TypeReference<T> entity,
-      Object... args) {
-    return TarantoolJacksonMapping
-        .convertFutureResult(iprotoCall(options, functionName, args),
-            wrapIntoType(CrudBatchResponse.class, entity));
+        iprotoCall(options, functionName, args));
   }
 
   /**
-   * <p>Sends a low-level batch call request based on the passed parameters.</p>
+   * Sends a low-level batch call request based on the passed parameters.
    *
    * @param functionName crud function name.
-   * @param options      {@link Options} object.
-   * @param entity       {@link Class} object.
-   * @param args         list of arguments.
-   * @param <T>          return entity
-   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   * @param options {@link Options} object.
+   * @param entity {@link TypeReference} object.
+   * @param args list of arguments.
+   * @param <T> return entity
+   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise
+   *     - {@link CompletableFuture} with exception.
    */
-  private <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> crudBatchCall(String functionName,
-      Options options,
-      Class<T> entity,
-      Object... args) {
+  private <T> CompletableFuture<TarantoolResponse<CrudBatchResponse<T>>> crudBatchCall(
+      String functionName, Options options, TypeReference<T> entity, Object... args) {
+    return TarantoolJacksonMapping.convertFutureResult(
+        iprotoCall(options, functionName, args), wrapIntoType(CrudBatchResponse.class, entity));
+  }
+
+  /**
+   * Sends a low-level batch call request based on the passed parameters.
+   *
+   * @param functionName crud function name.
+   * @param options {@link Options} object.
+   * @param entity {@link Class} object.
+   * @param args list of arguments.
+   * @param <T> return entity
+   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise
+   *     - {@link CompletableFuture} with exception.
+   */
+  private <T> CompletableFuture<CrudBatchResponse<List<Tuple<T>>>> crudBatchCall(
+      String functionName, Options options, Class<T> entity, Object... args) {
     return TarantoolJacksonMapping.convertCrudBatchResultFuture(
-        iprotoCall(options, functionName, args),
-        entity
-    );
+        iprotoCall(options, functionName, args), entity);
   }
 
   /**
-   * <p>Sends a low-level batch call request based on the passed parameters.</p>
+   * Sends a low-level batch call request based on the passed parameters.
    *
    * @param functionName crud function name.
-   * @param options      {@link Options} object.
-   * @param args         list of arguments.
-   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   * @param options {@link Options} object.
+   * @param args list of arguments.
+   * @return if success - {@link CompletableFuture} with {@link CrudBatchResponse} object, otherwise
+   *     - {@link CompletableFuture} with exception.
    */
-  private CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> crudBatchCall(String functionName,
-      Options options,
-      Object... args) {
+  private CompletableFuture<CrudBatchResponse<List<Tuple<List<?>>>>> crudBatchCall(
+      String functionName, Options options, Object... args) {
     return TarantoolJacksonMapping.convertCrudBatchResultFuture(
-        iprotoCall(options, functionName, args)
-    );
+        iprotoCall(options, functionName, args));
   }
 }

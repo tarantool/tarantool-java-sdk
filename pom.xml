@@ -2,19 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <name>tarantool-java-ee</name>
+  <name>tarantool-java-sdk</name>
   <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework</description>
   <url>https://tarantool.io</url>
   <inceptionYear>2023</inceptionYear>
 
   <groupId>io.tarantool</groupId>
-  <artifactId>tarantool-java-ee</artifactId>
+  <artifactId>tarantool-java-sdk</artifactId>
   <packaging>pom</packaging>
   <version>2.0.0-SNAPSHOT</version>
 
   <licenses>
     <license>
-      <name>VK Company Limited</name>
+      <name>VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY</name>
       <url>LICENSE</url>
       <distribution>repo</distribution>
     </license>
@@ -26,9 +26,9 @@
   </organization>
 
   <scm>
-    <connection>scm:git:https://github.com/tarantool/tarantool-java-ee.git</connection>
-    <developerConnection>scm:git:https://github.com/tarantool/tarantool-java-ee.git</developerConnection>
-    <url>scm:git:https://github.com/tarantool/tarantool-java-ee.git</url>
+    <connection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</connection>
+    <developerConnection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</developerConnection>
+    <url>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -63,6 +63,27 @@
             <licenseHeader>
               <file>${license.header.file}</file>
             </licenseHeader>
+
+            <includes>
+              <include>**/*.java</include>
+            </includes>
+
+            <googleJavaFormat>
+              <style>GOOGLE</style>
+              <!-- https://github.com/google/google-java-format library version -->
+              <version>1.28.0</version>
+              <reflowLongStrings>true</reflowLongStrings>
+              <formatJavadoc>true</formatJavadoc>
+            </googleJavaFormat>
+
+            <importOrder>
+              <order>\#javax|\#java|javax|java,\#|,\#io.tarantool|io.tarantool</order>
+              <!-- you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\#` prefix for static imports. -->
+              <!--                  <file>${project.basedir}/eclipse.importorder</file>-->
+            </importOrder>
+
+            <removeUnusedImports />
+            <removeWildcardImports />
           </java>
         </configuration>
       </plugin>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,24 +10,30 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * <p> The class implements <a href="https://github.com/tarantool/crud#select-conditions"> condition</a>
- * for the CRUD select operation.</p>
- * <p>Example:</p>
- * <blockquote><pre>{@code
- *  TarantoolCrudSpace space = crudClient.space("spaceName");
+ * The class implements <a href="https://github.com/tarantool/crud#select-conditions">condition</a>
+ * for the CRUD select operation.
  *
- *  // Inserts tuple (id = 1, isMarried = true, name = "Vanya")
- *  space.insert(Arrays.asList(1, true, "Vanya")).get();
+ * <p>Example:
  *
- *  // Defines select operation condition
- *  Condition cond = Condition.builder()
- *                              .withOperator("=")
- *                              .withFieldIdentifier("name")
- *                              .withValue("Vanya")
- *                              .build();
- *  // Selects tuple with condition. Returns tuple (id = 1, isMarried = true, name = "Vanya")
- *  List<List<?>> res = space.select(cond);
- * }</pre></blockquote>
+ * <blockquote>
+ *
+ * <pre>{@code
+ * TarantoolCrudSpace space = crudClient.space("spaceName");
+ *
+ * // Inserts tuple (id = 1, isMarried = true, name = "Vanya")
+ * space.insert(Arrays.asList(1, true, "Vanya")).get();
+ *
+ * // Defines select operation condition
+ * Condition cond = Condition.builder()
+ *                             .withOperator("=")
+ *                             .withFieldIdentifier("name")
+ *                             .withValue("Vanya")
+ *                             .build();
+ * // Selects tuple with condition. Returns tuple (id = 1, isMarried = true, name = "Vanya")
+ * List<List<?>> res = space.select(cond);
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -37,30 +43,27 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class Condition {
 
-  /**
-   * <p> Operator defining the selection condition.</p>
-   */
+  /** Operator defining the selection condition. */
   private final String operator;
 
-  /**
-   * <p>A name of field which is an operand for comparison operation in select condition.</p>
-   */
+  /** A name of field which is an operand for comparison operation in select condition. */
   private final String fieldIdentifier;
-  /**
-   * <p>The value of {@link #fieldIdentifier}.</p>
-   */
+
+  /** The value of {@link #fieldIdentifier}. */
   private final Object value;
 
   /**
-   * <p>Creates a {@link Condition} object with the given parameters.</p>
+   * Creates a {@link Condition} object with the given parameters.
    *
-   * @param operator        {@link #operator}
+   * @param operator {@link #operator}
    * @param fieldIdentifier {@link #fieldIdentifier}
-   * @param value           {@link #value}
-   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or value == null}
+   * @param value {@link #value}
+   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or
+   *     value == null}
    * @see Condition
    */
-  public Condition(String operator, String fieldIdentifier, Object value) throws IllegalArgumentException {
+  public Condition(String operator, String fieldIdentifier, Object value)
+      throws IllegalArgumentException {
     if (operator == null) {
       throw new IllegalArgumentException("operator can't be null");
     }
@@ -77,13 +80,14 @@ public class Condition {
   /**
    * Same as {@link #Condition(String, String, Object)}.
    *
-   * @param operator        {@link ConditionOperator}.
+   * @param operator {@link ConditionOperator}.
    * @param fieldIdentifier {@link #fieldIdentifier}
-   * @param value           {@link #value}
+   * @param value {@link #value}
    * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null}
    * @see Condition
    */
-  public Condition(ConditionOperator operator, String fieldIdentifier, Object value) throws IllegalArgumentException {
+  public Condition(ConditionOperator operator, String fieldIdentifier, Object value)
+      throws IllegalArgumentException {
     if (operator == null) {
       throw new IllegalArgumentException("operator can't be null");
     }
@@ -98,7 +102,7 @@ public class Condition {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link Condition.Builder} object
    */
@@ -107,13 +111,14 @@ public class Condition {
   }
 
   /**
-   * <p>Factory method. Creates a {@link Condition} object with the given options.</p>
+   * Factory method. Creates a {@link Condition} object with the given options.
    *
-   * @param operator        {@link #operator}
+   * @param operator {@link #operator}
    * @param fieldIdentifier {@link #fieldIdentifier}
-   * @param value           {@link #value}
+   * @param value {@link #value}
    * @return {@link Condition} object
-   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or value == null}
+   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or
+   *     value == null}
    */
   public static Condition create(String operator, String fieldIdentifier, Object value)
       throws IllegalArgumentException {
@@ -123,11 +128,12 @@ public class Condition {
   /**
    * Same as {@link #create(String, String, Object)}.
    *
-   * @param operator        {@link ConditionOperator}
+   * @param operator {@link ConditionOperator}
    * @param fieldIdentifier {@link #fieldIdentifier}
-   * @param value           {@link #value}
+   * @param value {@link #value}
    * @return {@link Condition} object
-   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or value == null}
+   * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or
+   *     value == null}
    */
   public static Condition create(ConditionOperator operator, String fieldIdentifier, Object value)
       throws IllegalArgumentException {
@@ -135,7 +141,7 @@ public class Condition {
   }
 
   /**
-   * <p>Returns value of operator field.</p>
+   * Returns value of operator field.
    *
    * @return {@link #operator} value.
    */
@@ -144,7 +150,7 @@ public class Condition {
   }
 
   /**
-   * <p>Returns identifier of field operand of condition.</p>
+   * Returns identifier of field operand of condition.
    *
    * @return {@link #operator} value.
    */
@@ -153,7 +159,7 @@ public class Condition {
   }
 
   /**
-   * <p>Returns value of operand in condition.</p>
+   * Returns value of operand in condition.
    *
    * @return {@link #value} value.
    */
@@ -170,8 +176,9 @@ public class Condition {
       return false;
     }
     Condition condition = (Condition) o;
-    return operator.equals(condition.operator) && fieldIdentifier.equals(condition.fieldIdentifier) &&
-        Objects.equals(value, condition.value);
+    return operator.equals(condition.operator)
+        && fieldIdentifier.equals(condition.fieldIdentifier)
+        && Objects.equals(value, condition.value);
   }
 
   @Override
@@ -180,29 +187,23 @@ public class Condition {
   }
 
   /**
-   * <p>Builder class for {@link Condition}.</p>
+   * Builder class for {@link Condition}.
    *
    * @see Condition
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link Condition#operator}.</p>
-     */
+    /** See also: {@link Condition#operator}. */
     private String operator;
 
-    /**
-     * <p>See also: {@link Condition#fieldIdentifier}.</p>
-     */
+    /** See also: {@link Condition#fieldIdentifier}. */
     private String fieldIdentifier;
 
-    /**
-     * <p>See also: {@link Condition#value}.</p>
-     */
+    /** See also: {@link Condition#value}. */
     private Object value;
 
     /**
-     * <p>Sets value of {@link #operator} field. Operator parameter can't be null.</p>
+     * Sets value of {@link #operator} field. Operator parameter can't be null.
      *
      * @param operator value of operator field.
      * @return {@link Condition.Builder} object.
@@ -236,7 +237,7 @@ public class Condition {
     }
 
     /**
-     * <p>Sets value of {@link #fieldIdentifier} field. FieldIdentifier parameter can't be null.</p>
+     * Sets value of {@link #fieldIdentifier} field. FieldIdentifier parameter can't be null.
      *
      * @param fieldIdentifier value of fieldIdentifier field.
      * @return {@link Condition.Builder} object.
@@ -253,7 +254,8 @@ public class Condition {
     }
 
     /**
-     * <p>Sets value of {@link #value} field. Value parameter can't be null, but it can be an empty list.</p>
+     * Sets value of {@link #value} field. Value parameter can't be null, but it can be an empty
+     * list.
      *
      * @param value value of value field.
      * @return {@link Condition.Builder} object.
@@ -266,15 +268,15 @@ public class Condition {
     }
 
     /**
-     * <p>Builds object of {@link Condition} class.</p>
+     * Builds object of {@link Condition} class.
      *
      * @return {@link Condition} object
-     * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or value == null}
+     * @throws IllegalArgumentException when {@code operator == null or fieldIdentifier == null or
+     *     value == null}
      * @see Condition
      */
     public Condition build() throws IllegalArgumentException {
       return new Condition(operator, fieldIdentifier, value);
     }
   }
-
 }

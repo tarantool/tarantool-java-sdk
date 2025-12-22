@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,8 +35,8 @@ public class IProtoPrepare extends IProtoBaseRequest {
     preparePacker(packer);
     packer.addPayload(RAW_MAP_HEADER_WITH_ONE_ITEM);
 
-    packer.addPayload(RAW_IPROTO_SQL_TEXT);  // key
-    packer.packString(statementText);        // value
+    packer.addPayload(RAW_IPROTO_SQL_TEXT); // key
+    packer.packString(statementText); // value
 
     return getPacketFromBase(packer);
   }

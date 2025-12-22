@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -48,8 +48,7 @@ public class IntervalExtensionModule {
     INSTANCE.addDeserializer(Interval.class, new IntervalDeserializer(Interval.class));
   }
 
-  private IntervalExtensionModule() {
-  }
+  private IntervalExtensionModule() {}
 
   public static class IntervalSerializer extends StdSerializer<Interval> {
 
@@ -58,16 +57,19 @@ public class IntervalExtensionModule {
     }
 
     @Override
-    public void serialize(Interval value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Interval value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       int fieldsCount = 0;
-      List<Long> fields = Arrays.asList(value.getYear(),
-          value.getMonth(),
-          value.getWeek(),
-          value.getDay(),
-          value.getHour(),
-          value.getMin(),
-          value.getSec(),
-          value.getNsec());
+      List<Long> fields =
+          Arrays.asList(
+              value.getYear(),
+              value.getMonth(),
+              value.getWeek(),
+              value.getDay(),
+              value.getHour(),
+              value.getMin(),
+              value.getSec(),
+              value.getNsec());
       for (long fieldValue : fields) {
         if (fieldValue != 0) {
           fieldsCount++;
@@ -93,7 +95,8 @@ public class IntervalExtensionModule {
       }
     }
 
-    private static void packField(MessageBufferPacker packer, int fieldId, long fieldValue) throws IOException {
+    private static void packField(MessageBufferPacker packer, int fieldId, long fieldValue)
+        throws IOException {
       if (fieldValue != 0) {
         packer.packInt(fieldId);
         packer.packLong(fieldValue);
@@ -101,7 +104,8 @@ public class IntervalExtensionModule {
     }
   }
 
-  public static class IntervalDeserializer extends StdDeserializer<Interval> implements TarantoolDeserializer<Interval> {
+  public static class IntervalDeserializer extends StdDeserializer<Interval>
+      implements TarantoolDeserializer<Interval> {
 
     public IntervalDeserializer(Class<?> vc) {
       super(vc);
@@ -112,11 +116,12 @@ public class IntervalExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_INTERVAL) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append("Unexpected extension type (0x")
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for Interval object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append("Unexpected extension type (0x")
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for Interval object")
+                .toString());
       }
 
       return deserialize(ext);

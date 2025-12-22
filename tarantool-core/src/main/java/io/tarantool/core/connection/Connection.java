@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -14,10 +14,10 @@ import java.util.function.Consumer;
 import io.tarantool.core.protocol.IProtoMessage;
 import io.tarantool.core.protocol.IProtoResponse;
 
-
 public interface Connection extends AutoCloseable {
 
-  CompletableFuture<Greeting> connect(InetSocketAddress addr, long timeoutMs) throws IllegalStateException;
+  CompletableFuture<Greeting> connect(InetSocketAddress addr, long timeoutMs)
+      throws IllegalStateException;
 
   CompletableFuture<Void> send(IProtoMessage message) throws IllegalStateException;
 

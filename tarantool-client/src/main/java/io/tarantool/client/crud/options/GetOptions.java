@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,27 +18,36 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 
 /**
- * <p> The class implements options for the CRUD operation
- * <a href="https://github.com/tarantool/crud#get"> get()</a>.</p>
- * <p>The following options are available:</p>
- * <p>Common options:</p>
+ * The class implements options for the CRUD operation <a
+ * href="https://github.com/tarantool/crud#get">get()</a>.
+ *
+ * <p>The following options are available:
+ *
+ * <p>Common options:
+ *
  * <ul>
- *     <li>{@link #timeout}.</li>
- *     <li>{@link #streamId}.</li>
+ *   <li>{@link #timeout}.
+ *   <li>{@link #streamId}.
  * </ul>
- * <p>Crud options:</p>
+ *
+ * <p>Crud options:
+ *
  * <ul>
- * <li>{@value TIMEOUT}.</li>
- * <li>{@value BUCKET_ID}.</li>
- * <li>{@value FIELDS}.</li>
- * <li>{@value PREFER_REPLICA}.</li>
- * <li>{@value MODE}.</li>
- * <li>{@value VSHARD_ROUTER}.</li>
- * <li>{@value FETCH_LATEST_METADATA}.</li>
- * <li>{@value BALANCE}.</li>
+ *   <li>{@value TIMEOUT}.
+ *   <li>{@value BUCKET_ID}.
+ *   <li>{@value FIELDS}.
+ *   <li>{@value PREFER_REPLICA}.
+ *   <li>{@value MODE}.
+ *   <li>{@value VSHARD_ROUTER}.
+ *   <li>{@value FETCH_LATEST_METADATA}.
+ *   <li>{@value BALANCE}.
  * </ul>
- * <p>Examples:</p>
- * <blockquote><pre>{@code
+ *
+ * <p>Examples:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -56,8 +65,13 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *
  *  // Returns list with one tuple as list [1, "Vanya"]
  *  List<?> res = space.get(Collections.singletonList(1), options).get();
- * }</pre></blockquote>
- * <blockquote><pre>{@code
+ * }</pre>
+ *
+ * </blockquote>
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 2>>
  *
  * TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -73,7 +87,9 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *
  *  // Returns list with one tuple as list [1, "Vanya"]
  *  List<?> res = space.get(Collections.singletonList(1), options).get();
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -84,88 +100,88 @@ public class GetOptions implements CrudOptions {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GetOptions.class);
 
-  /**
-   * <p>Field names for getting only a subset of fields.</p>
-   */
+  /** Field names for getting only a subset of fields. */
   private static final String FIELDS = "fields";
 
-  /**
-   * <p>Bucket ID.</p>
-   */
+  /** Bucket ID. */
   private static final String BUCKET_ID = "bucket_id";
 
   /**
-   * <p>{@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master
-   * discovery timeout (in milliseconds).</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * router to Tarantool instance and the time when the answer will come from Tarantool instance to router.</p>
+   * {@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master discovery
+   * timeout (in milliseconds).
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the router to Tarantool instance and the time when the answer will come from
+   * Tarantool instance to router.
    */
   private static final String TIMEOUT = "timeout";
 
   /**
-   * <p>If {@link Mode#WRITE write} is specified then count is performed on master, default value is {@link Mode#WRITE
-   * write}.</p>
+   * If {@link Mode#WRITE write} is specified then count is performed on master, default value is
+   * {@link Mode#WRITE write}.
    */
   private static final String MODE = "mode";
 
   /**
-   * <p>If <tt>true</tt> then the preferred target is one of the replicas, default value is <tt>false</tt>.</p>
+   * If <tt>true</tt> then the preferred target is one of the replicas, default value is
+   * <tt>false</tt>.
    */
   private static final String PREFER_REPLICA = "prefer_replica";
 
   /**
-   * <p>Use replica according to
-   * <a href="https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_api/#router-api-call">vshard
-   * load balancing policy</a>, default value is <tt>false</tt>.</p>
+   * Use replica according to <a
+   * href="https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_api/#router-api-call">vshard
+   * load balancing policy</a>, default value is <tt>false</tt>.
    */
   private static final String BALANCE = "balance";
 
   /**
-   * <p>Cartridge vshard group name. Set this parameter if your space is not a part of
-   * the default vshard cluster.</p>
+   * Cartridge vshard group name. Set this parameter if your space is not a part of the default
+   * vshard cluster.
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
   /**
-   * <p>Guarantees the up-to-date metadata (space format) in first return value, otherwise it may not take into
-   * account the latest migration of the data format. Performance overhead is up to 15%. <tt>False</tt> by default
-   * .</p>
+   * Guarantees the up-to-date metadata (space format) in first return value, otherwise it may not
+   * take into account the latest migration of the data format. Performance overhead is up to 15%.
+   * <tt>False</tt> by default .
    */
   private static final String FETCH_LATEST_METADATA = "fetch_latest_metadata";
 
-  /**
-   * <p>Default value for {@link #timeout}.</p>
-   */
+  /** Default value for {@link #timeout}. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * connector to Tarantool and the time when the answer will come from Tarantool to connector.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the connector to Tarantool and the time when the answer will come from Tarantool
+   * to connector.
    */
   private final Long timeout;
 
   /**
-   * <p> Stream id for count operation.</p>
-   * <p> Default value: {@code null}.</p>
+   * Stream id for count operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: {@code null}.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
-  /**
-   * <p>A map containing the correspondence between option names and their meanings.</p>
-   */
+  /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> crudOptions;
 
   /**
-   * <p>Creates a {@link GetOptions} object with the given parameters.</p>
+   * Creates a {@link GetOptions} object with the given parameters.
    *
-   * @param timeout  {@link #timeout}
+   * @param timeout {@link #timeout}
    * @param streamId {@link #streamId}
-   * @param options  {@link #crudOptions}
+   * @param options {@link #crudOptions}
    * @see GetOptions
    */
   public GetOptions(Long timeout, Long streamId, Map<String, Object> options) {
@@ -176,7 +192,7 @@ public class GetOptions implements CrudOptions {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link GetOptions.Builder} object
    */
@@ -185,7 +201,7 @@ public class GetOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of timeout option.</p>
+   * Returns value of timeout option.
    *
    * @return {@link #timeout} value.
    */
@@ -195,7 +211,7 @@ public class GetOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of stream id option.</p>
+   * Returns value of stream id option.
    *
    * @return {@link #streamId} value.
    */
@@ -205,7 +221,7 @@ public class GetOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns an immutable option map for the count operation.</p>
+   * Returns an immutable option map for the count operation.
    *
    * @return {@link Map} object.
    */
@@ -215,25 +231,19 @@ public class GetOptions implements CrudOptions {
   }
 
   /**
-   * <p>Builder class for {@link GetOptions}.</p>
+   * Builder class for {@link GetOptions}.
    *
    * @see GetOptions
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link GetOptions#crudOptions}.</p>
-     */
+    /** See also: {@link GetOptions#crudOptions}. */
     private final Map<String, Object> options = new HashMap<>();
 
-    /**
-     * <p>See also: {@link GetOptions#timeout}.</p>
-     */
+    /** See also: {@link GetOptions#timeout}. */
     private long timeout = DEFAULT_TIMEOUT;
 
-    /**
-     * <p>See also: {@link GetOptions#streamId}.</p>
-     */
+    /** See also: {@link GetOptions#streamId}. */
     private Long streamId;
 
     public Builder() {
@@ -241,7 +251,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.</p>
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
      *
      * @param timeout value of timeout option.
      * @return {@link GetOptions.Builder} object.
@@ -258,7 +268,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.
      *
      * @param streamId value of stream id option
      * @return {@link GetOptions.Builder} object
@@ -275,7 +285,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.</p>
+     * Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.
      *
      * @param timeout value of {@link #TIMEOUT} option
      * @return {@link GetOptions.Builder} object
@@ -288,9 +298,10 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Adds options by name into {@link #options} map. Name parameter should not be equal {@code null}.</p>
+     * Adds options by name into {@link #options} map. Name parameter should not be equal {@code
+     * null}.
      *
-     * @param name  name of option
+     * @param name name of option
      * @param value value of option
      * @see GetOptions
      * @see GetOptions.Builder
@@ -304,7 +315,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.
      *
      * @param bucketId value of {@link #BUCKET_ID} option
      * @return {@link GetOptions.Builder} object
@@ -320,7 +331,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.</p>
+     * Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.
      *
      * @param fields value of {@link #FIELDS} option
      * @return {@link GetOptions.Builder} object
@@ -333,7 +344,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.</p>
+     * Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.
      *
      * @param fields value of {@link #FIELDS} option
      * @return {@link GetOptions.Builder} object
@@ -346,7 +357,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #MODE} option. Default value - {@link Mode#WRITE}.</p>
+     * Sets value of {@link #MODE} option. Default value - {@link Mode#WRITE}.
      *
      * @param mode value of {@link #MODE} option
      * @return {@link GetOptions.Builder}
@@ -360,7 +371,8 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #PREFER_REPLICA} option to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #PREFER_REPLICA} option to <tt>true</tt>. Default value -
+     * <tt>false</tt>.
      *
      * @return {@link GetOptions.Builder}
      * @see #PREFER_REPLICA
@@ -372,7 +384,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #BALANCE} option to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #BALANCE} option to <tt>true</tt>. Default value - <tt>false</tt>.
      *
      * @return {@link GetOptions.Builder}
      * @see #BALANCE
@@ -384,9 +396,9 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #VSHARD_ROUTER} option.</p>
+     * Sets value of {@link #VSHARD_ROUTER} option.
      *
-     * @param vshardRouter value of {@link  #VSHARD_ROUTER} option
+     * @param vshardRouter value of {@link #VSHARD_ROUTER} option
      * @return {@link GetOptions.Builder}
      * @see #VSHARD_ROUTER
      * @see GetOptions
@@ -397,7 +409,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FETCH_LATEST_METADATA} to <tt>true</tt>.</p>
+     * Sets value of {@link #FETCH_LATEST_METADATA} to <tt>true</tt>.
      *
      * @return {@link GetOptions.Builder} object
      * @see #FETCH_LATEST_METADATA
@@ -409,9 +421,9 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets options by name and value. OptionName parameter should not be equal {@code null}.</p>
+     * Sets options by name and value. OptionName parameter should not be equal {@code null}.
      *
-     * @param optionName  name of option
+     * @param optionName name of option
      * @param optionValue value of option
      * @return {@link GetOptions.Builder}
      * @see GetOptions
@@ -422,7 +434,7 @@ public class GetOptions implements CrudOptions {
     }
 
     /**
-     * <p>Builds object of {@link GetOptions} class.</p>
+     * Builds object of {@link GetOptions} class.
      *
      * @return {@link GetOptions} object
      * @see GetOptions

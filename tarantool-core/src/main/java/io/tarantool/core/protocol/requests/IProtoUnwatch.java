@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,10 +28,7 @@ public class IProtoUnwatch extends IProtoWatch {
   public String toString() {
     if (this.stringBuilder == null) {
       this.stringBuilder = new StringBuilder();
-      this.stringBuilder
-          .append("IProtoUnwatch(key = ")
-          .append(eventKey)
-          .append(")");
+      this.stringBuilder.append("IProtoUnwatch(key = ").append(eventKey).append(")");
     }
     return this.stringBuilder.toString();
   }

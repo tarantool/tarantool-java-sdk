@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -40,17 +40,28 @@ public class BoxErrorTest {
     return Stream.of(
         Arguments.of("1", "2", 3L, "4", 5L, 6L, ValueFactory.emptyMap()),
         Arguments.of("1", "2", 3L, "4", 5L, 6L, null),
-        Arguments.of("1", "2", 3L, "4", 5L, 6L, ValueFactory.newMap(
-            ValueFactory.newString("a"), ValueFactory.newString("b"),
-            ValueFactory.newInteger(1), ValueFactory.newInteger(2)
-        ))
-    );
+        Arguments.of(
+            "1",
+            "2",
+            3L,
+            "4",
+            5L,
+            6L,
+            ValueFactory.newMap(
+                ValueFactory.newString("a"), ValueFactory.newString("b"),
+                ValueFactory.newInteger(1), ValueFactory.newInteger(2))));
   }
 
   @ParameterizedTest
   @MethodSource("dataForBoxErrorStackItem")
   public void testBoxErrorStackItem(
-      String type, String file, Long line, String message, Long errno, Long errcode, MapValue fields) {
+      String type,
+      String file,
+      Long line,
+      String message,
+      Long errno,
+      Long errcode,
+      MapValue fields) {
     ValueFactory.MapBuilder mp = ValueFactory.newMapBuilder();
     if (type != null) {
       mp.put(MP_ERROR_TYPE, ValueFactory.newString(type));
@@ -89,25 +100,19 @@ public class BoxErrorTest {
         Arguments.of(
             IPROTO_ERROR_BASE,
             "tarantool_message",
-            Arrays.asList(
-                Arrays.asList("1", "2", 3L, "4", 5L, 6L, ValueFactory.emptyMap())
-            ),
-            "BoxError{code=0, message='tarantool_message', stack=[" +
-                "BoxErrorStackItem{type='1', line=3, file='2', message='4', errno=5, code=6, details={}}" +
-                "]}"
-        ),
+            Arrays.asList(Arrays.asList("1", "2", 3L, "4", 5L, 6L, ValueFactory.emptyMap())),
+            "BoxError{code=0, message='tarantool_message', stack=[BoxErrorStackItem{type='1',"
+                + " line=3, file='2', message='4', errno=5, code=6, details={}}]}"),
         Arguments.of(
             IPROTO_ERROR_BASE,
             "tarantool_message",
             Arrays.asList(
                 Arrays.asList("1", "2", 3L, "4", 5L, 6L, ValueFactory.emptyMap()),
-                Arrays.asList("8", "9", 10L, "11", 12L, 13L, ValueFactory.emptyMap())
-            ),
-            "BoxError{code=0, message='tarantool_message', stack=[" +
-                "BoxErrorStackItem{type='1', line=3, file='2', message='4', errno=5, code=6, details={}}, " +
-                "BoxErrorStackItem{type='8', line=10, file='9', message='11', errno=12, code=13, details={}}]" +
-                "}")
-    );
+                Arrays.asList("8", "9", 10L, "11", 12L, 13L, ValueFactory.emptyMap())),
+            "BoxError{code=0, message='tarantool_message', stack=[BoxErrorStackItem{type='1',"
+                + " line=3, file='2', message='4', errno=5, code=6, details={}},"
+                + " BoxErrorStackItem{type='8', line=10, file='9', message='11', errno=12, code=13,"
+                + " details={}}]}"));
   }
 
   @ParameterizedTest
@@ -148,17 +153,14 @@ public class BoxErrorTest {
       encodedStack.add(mp.build());
     }
 
-    BoxError result = BoxError.fromIProtoMessage(new IProtoResponseImpl(
-        ValueFactory.newMap(
-            MP_IPROTO_REQUEST_TYPE, ValueFactory.newInteger(requestType)
-        ),
-        ValueFactory.newMap(
-            MP_IPROTO_ERROR_24, ValueFactory.newString(tarantoolMessage),
-            MP_IPROTO_ERROR, ValueFactory.newMap(
-                MP_ERROR_STACK, ValueFactory.newArray(encodedStack)
-            )
-        )
-    ));
+    BoxError result =
+        BoxError.fromIProtoMessage(
+            new IProtoResponseImpl(
+                ValueFactory.newMap(MP_IPROTO_REQUEST_TYPE, ValueFactory.newInteger(requestType)),
+                ValueFactory.newMap(
+                    MP_IPROTO_ERROR_24, ValueFactory.newString(tarantoolMessage),
+                    MP_IPROTO_ERROR,
+                        ValueFactory.newMap(MP_ERROR_STACK, ValueFactory.newArray(encodedStack)))));
     assertEquals(exceptionMessage, result.getMessage());
     assertEquals(requestType - IPROTO_ERROR_BASE, result.getErrorCode());
     assertEquals(tarantoolMessage, result.getTarantoolMessage());

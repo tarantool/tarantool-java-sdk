@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,7 +24,6 @@ import io.tarantool.core.connection.handlers.IncomingIProtoMessageHandler;
 import io.tarantool.core.connection.handlers.OutgoingIProtoMessageHandler;
 import io.tarantool.core.protocol.IProtoResponse;
 
-
 class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
 
   private final CompletableFuture<Greeting> promise;
@@ -34,7 +33,8 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final FlushConsolidationHandler flushConsolidationHandler;
   private final int idleTimeout;
 
-  private ConnectionChannelInitializer(CompletableFuture<Greeting> promise,
+  private ConnectionChannelInitializer(
+      CompletableFuture<Greeting> promise,
       BiConsumer<IProtoResponse, Throwable> messageHandler,
       SslContext sslContext,
       ChannelFutureListener closeHandler,
@@ -64,30 +64,15 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
     if (this.idleTimeout > 0) {
       pipeline.addLast(
           "IdleTimeoutHandler",
-          new IdleStateHandler(false, idleTimeout, 0, 0, TimeUnit.MILLISECONDS)
-      );
+          new IdleStateHandler(false, idleTimeout, 0, 0, TimeUnit.MILLISECONDS));
     }
 
+    pipeline.addLast("GreetingHandler", new GreetingHandler(promise));
+    pipeline.addLast("MessagePackFrameDecoder", new IProtoFrameDecoder());
+    pipeline.addLast("MessagePackFrameEncoder", new IProtoFrameEncoder());
+    pipeline.addLast("OutgoingIProtoMessageHandler", new OutgoingIProtoMessageHandler());
     pipeline.addLast(
-        "GreetingHandler",
-        new GreetingHandler(promise)
-    );
-    pipeline.addLast(
-        "MessagePackFrameDecoder",
-        new IProtoFrameDecoder()
-    );
-    pipeline.addLast(
-        "MessagePackFrameEncoder",
-        new IProtoFrameEncoder()
-    );
-    pipeline.addLast(
-        "OutgoingIProtoMessageHandler",
-        new OutgoingIProtoMessageHandler()
-    );
-    pipeline.addLast(
-        "IncomingIProtoMessageHandler",
-        new IncomingIProtoMessageHandler(messageHandler)
-    );
+        "IncomingIProtoMessageHandler", new IncomingIProtoMessageHandler(messageHandler));
   }
 
   public static class Builder {
@@ -121,7 +106,8 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
       return this;
     }
 
-    public Builder withFlushConsolidationHandler(FlushConsolidationHandler flushConsolidationHandler) {
+    public Builder withFlushConsolidationHandler(
+        FlushConsolidationHandler flushConsolidationHandler) {
       this.flushConsolidationHandler = flushConsolidationHandler;
       return this;
     }
@@ -138,8 +124,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
           this.sslContext,
           this.closeHandler,
           this.flushConsolidationHandler,
-          this.idleTimeout
-      );
+          this.idleTimeout);
     }
   }
 }

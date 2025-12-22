@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,14 +12,10 @@ import java.util.concurrent.TimeUnit;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
 import org.testcontainers.lifecycle.Startable;
 
-/**
- * Represents TQE cluster that can start, stop, save mount data, restart.
- */
+/** Represents TQE cluster that can start, stop, save mount data, restart. */
 public interface TQECluster extends Startable {
 
-  /**
-   * Stop cluster nodes with saving mount data and start them after delay.
-   */
+  /** Stop cluster nodes with saving mount data and start them after delay. */
   default void restart(long delayBefore, TimeUnit unitBefore, long delayAfter, TimeUnit unitAfter)
       throws InterruptedException {
 
@@ -41,18 +37,12 @@ public interface TQECluster extends Startable {
     }
   }
 
-  /**
-   * Returns name of TQE cluster
-   */
+  /** Returns name of TQE cluster */
   String clusterName();
 
-  /**
-   * Returns Tarantool cluster nodes
-   */
+  /** Returns Tarantool cluster nodes */
   Map<String, TarantoolContainer<?>> queue();
 
-  /**
-   * Returns grpc nodes
-   */
+  /** Returns grpc nodes */
   Map<String, GrpcContainer<?>> grpc();
 }

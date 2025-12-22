@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -60,15 +60,15 @@ public class IProtoEval extends IProtoBaseRequest {
       packer.addPayload(RAW_MAP_HEADER_WITH_TWO_ITEMS);
     } else {
       packer.addPayload(RAW_MAP_HEADER_WITH_THREE_ITEMS);
-      packer.packInt(IPROTO_TUPLE_FORMATS);  // key
-      packer.addPayload(rawFormats);            // value
+      packer.packInt(IPROTO_TUPLE_FORMATS); // key
+      packer.addPayload(rawFormats); // value
     }
 
-    packer.addPayload(RAW_IPROTO_EXPR);  // key
-    packer.packString(expression);       // value
+    packer.addPayload(RAW_IPROTO_EXPR); // key
+    packer.packString(expression); // value
 
     packer.addPayload(RAW_IPROTO_TUPLE); // key
-    packValue(packer, rawArgs, args);    // value
+    packValue(packer, rawArgs, args); // value
 
     return getPacketFromBase(packer);
   }

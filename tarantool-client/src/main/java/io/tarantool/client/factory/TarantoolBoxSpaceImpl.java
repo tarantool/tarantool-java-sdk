@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -36,10 +36,13 @@ import io.tarantool.schema.Space;
 import io.tarantool.schema.TarantoolSchemaFetcher;
 
 /**
- * <p>Class extends {@link AbstractTarantoolSpace} class and implementing {@link TarantoolBoxSpace}.</p>
- * <p>To use this class correctly, you can follow this example:</p>
- * <blockquote><pre>{@code
+ * Class extends {@link AbstractTarantoolSpace} class and implementing {@link TarantoolBoxSpace}.
  *
+ * <p>To use this class correctly, you can follow this example:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * // Creates box client with default settings.
  *  TarantoolBoxClient boxClient = TarantoolBoxClientImpl.builder().build();
  *  ...
@@ -47,7 +50,9 @@ import io.tarantool.schema.TarantoolSchemaFetcher;
  *  TarantoolBoxSpace space = boxClient.space("spaceName");
  *  ...
  *
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -58,66 +63,56 @@ import io.tarantool.schema.TarantoolSchemaFetcher;
  */
 final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements TarantoolBoxSpace {
 
-  /**
-   * <p>{@link SelectOptions} default value.</p>
-   */
+  /** {@link SelectOptions} default value. */
   private static final SelectOptions defaultSelectOptions = SelectOptions.builder().build();
 
-  /**
-   * <p>{@link DeleteOptions} default value.</p>
-   */
+  /** {@link DeleteOptions} default value. */
   private static final DeleteOptions defaultDeleteOptions = DeleteOptions.builder().build();
 
-  /**
-   * <p>{@link UpdateOptions} default value.</p>
-   */
+  /** {@link UpdateOptions} default value. */
   private static final UpdateOptions defaultUpdateOptions = UpdateOptions.builder().build();
 
-  /**
-   * <p>{@link Options} default value.</p>
-   */
+  /** {@link Options} default value. */
   private static final Options defaultOptions = BaseOptions.builder().build();
 
-
   /**
-   * <p>An object that fetches a new information about a schema only if version of schema is changed.</p>
+   * An object that fetches a new information about a schema only if version of schema is changed.
    *
    * @see TarantoolSchemaFetcher
    */
   private final TarantoolSchemaFetcher fetcher;
 
   /**
-   * <p>The balancer used for connect selection to send request</p>
+   * The balancer used for connect selection to send request
    *
    * @see TarantoolBalancer
    */
   private final TarantoolBalancer balancer;
 
   /**
-   * <p>Space id.</p>
+   * Space id.
    *
-   * @see <a href="https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_space/id/">Space id</a>
+   * @see <a
+   *     href="https://www.tarantool.io/en/doc/latest/reference/reference_lua/box_space/id/">Space
+   *     id</a>
    */
   private Integer spaceId;
 
-  /**
-   * <p>Space name.</p>
-   */
+  /** Space name. */
   private String spaceName;
 
-  /**
-   * <p>{@link Space} object.</p>
-   */
+  /** {@link Space} object. */
   private Space space;
 
   /**
-   * <p> This constructor creates {@link TarantoolBoxSpaceImpl} based on the passed parameters.</p>
+   * This constructor creates {@link TarantoolBoxSpaceImpl} based on the passed parameters.
    *
    * @param balancer see also: {@link #balancer}.
-   * @param spaceId  see also: {@link #spaceId}.
-   * @param fetcher  see also: {@link #fetcher}.
+   * @param spaceId see also: {@link #spaceId}.
+   * @param fetcher see also: {@link #fetcher}.
    */
-  TarantoolBoxSpaceImpl(TarantoolBalancer balancer, Integer spaceId, TarantoolSchemaFetcher fetcher) {
+  TarantoolBoxSpaceImpl(
+      TarantoolBalancer balancer, Integer spaceId, TarantoolSchemaFetcher fetcher) {
     this.balancer = balancer;
     this.fetcher = fetcher;
     Objects.requireNonNull(spaceId, "spaceId must be not null");
@@ -128,20 +123,22 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p> This constructor creates {@link TarantoolBoxSpaceImpl} based on the passed parameters.</p>
+   * This constructor creates {@link TarantoolBoxSpaceImpl} based on the passed parameters.
    *
-   * @param balancer  see also: {@link #balancer}.
+   * @param balancer see also: {@link #balancer}.
    * @param spaceName see also: {@link #spaceName}.
-   * @param fetcher   see also: {@link #fetcher}.
+   * @param fetcher see also: {@link #fetcher}.
    */
-  TarantoolBoxSpaceImpl(TarantoolBalancer balancer, String spaceName, TarantoolSchemaFetcher fetcher) {
+  TarantoolBoxSpaceImpl(
+      TarantoolBalancer balancer, String spaceName, TarantoolSchemaFetcher fetcher) {
     this.balancer = balancer;
     this.fetcher = fetcher;
     Objects.requireNonNull(spaceName, "spaceName must be not null");
     this.spaceName = spaceName;
     if (fetcher != null) {
       this.space = fetcher.getSpace(spaceName);
-      this.spaceId = space.getId(); // TODO: add option to be able to have relevant metadata within box class
+      this.spaceId =
+          space.getId(); // TODO: add option to be able to have relevant metadata within box class
     }
   }
 
@@ -167,17 +164,21 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
 
   @Override
   public <T> CompletableFuture<Tuple<T>> insert(Object tuple, Options options, Class<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoInsert(tuple, options), entity);
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoInsert(tuple, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> insert(Object tuple, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> insert(
+      Object tuple, TypeReference<T> entity) {
     return insert(tuple, defaultOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> insert(Object tuple, Options options, TypeReference<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoInsert(tuple, options), entity);
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> insert(
+      Object tuple, Options options, TypeReference<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoInsert(tuple, options), entity);
   }
 
   @Override
@@ -202,17 +203,21 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
 
   @Override
   public <T> CompletableFuture<Tuple<T>> replace(Object tuple, Options options, Class<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoReplace(tuple, options), entity);
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoReplace(tuple, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> replace(Object tuple, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> replace(
+      Object tuple, TypeReference<T> entity) {
     return replace(tuple, defaultOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> replace(Object tuple, Options options, TypeReference<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoReplace(tuple, options), entity);
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> replace(
+      Object tuple, Options options, TypeReference<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoReplace(tuple, options), entity);
   }
 
   @Override
@@ -226,18 +231,20 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   @Override
-  public CompletableFuture<SelectResponse<List<Tuple<List<?>>>>> select(List<?> key, SelectOptions options) {
+  public CompletableFuture<SelectResponse<List<Tuple<List<?>>>>> select(
+      List<?> key, SelectOptions options) {
     return TarantoolJacksonMapping.convertSelectResultFuture(iprotoSelect(key, options));
   }
 
   @Override
-  public <T> CompletableFuture<SelectResponse<List<Tuple<T>>>> select(List<?> key, Class<T> entity) {
+  public <T> CompletableFuture<SelectResponse<List<Tuple<T>>>> select(
+      List<?> key, Class<T> entity) {
     return select(key, defaultSelectOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<SelectResponse<List<Tuple<T>>>> select(List<?> key, SelectOptions options,
-      Class<T> entity) {
+  public <T> CompletableFuture<SelectResponse<List<Tuple<T>>>> select(
+      List<?> key, SelectOptions options, Class<T> entity) {
     return TarantoolJacksonMapping.convertSelectResultFuture(iprotoSelect(key, options), entity);
   }
 
@@ -247,8 +254,8 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   @Override
-  public <T> CompletableFuture<SelectResponse<T>> select(List<?> key, SelectOptions options,
-      TypeReference<T> entity) {
+  public <T> CompletableFuture<SelectResponse<T>> select(
+      List<?> key, SelectOptions options, TypeReference<T> entity) {
     return TarantoolJacksonMapping.convertSelectResultFuture(iprotoSelect(key, options), entity);
   }
 
@@ -278,18 +285,23 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> delete(List<?> key, DeleteOptions options, Class<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoDelete(key, options), entity);
+  public <T> CompletableFuture<Tuple<T>> delete(
+      List<?> key, DeleteOptions options, Class<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoDelete(key, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> delete(List<?> key, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> delete(
+      List<?> key, TypeReference<T> entity) {
     return delete(key, defaultDeleteOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> delete(List<?> key, DeleteOptions options, TypeReference<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoDelete(key, options), entity);
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> delete(
+      List<?> key, DeleteOptions options, TypeReference<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoDelete(key, options), entity);
   }
 
   @Override
@@ -308,65 +320,69 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   @Override
-  public CompletableFuture<Tuple<List<?>>> update(List<?> key, List<List<?>> operations, UpdateOptions options) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options));
+  public CompletableFuture<Tuple<List<?>>> update(
+      List<?> key, List<List<?>> operations, UpdateOptions options) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options));
   }
 
   @Override
-  public CompletableFuture<Tuple<List<?>>> update(List<?> key, Operations operations, UpdateOptions options) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options));
+  public CompletableFuture<Tuple<List<?>>> update(
+      List<?> key, Operations operations, UpdateOptions options) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options));
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(List<?> key, List<List<?>> operations, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      List<?> key, List<List<?>> operations, Class<T> entity) {
     return update(key, operations, defaultUpdateOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(List<?> key, Operations operations, Class<T> entity) {
+  public <T> CompletableFuture<Tuple<T>> update(
+      List<?> key, Operations operations, Class<T> entity) {
     return update(key, operations, defaultUpdateOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(List<?> key,
-      List<List<?>> operations,
-      UpdateOptions options,
-      Class<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options), entity);
+  public <T> CompletableFuture<Tuple<T>> update(
+      List<?> key, List<List<?>> operations, UpdateOptions options, Class<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<Tuple<T>> update(List<?> key,
-      Operations operations,
-      UpdateOptions options,
-      Class<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options), entity);
+  public <T> CompletableFuture<Tuple<T>> update(
+      List<?> key, Operations operations, UpdateOptions options, Class<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(List<?> key, List<List<?>> operations, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(
+      List<?> key, List<List<?>> operations, TypeReference<T> entity) {
     return update(key, operations, defaultUpdateOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(List<?> key, Operations operations, TypeReference<T> entity) {
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(
+      List<?> key, Operations operations, TypeReference<T> entity) {
     return update(key, operations, defaultUpdateOptions, entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(List<?> key,
-      List<List<?>> operations,
-      UpdateOptions options,
-      TypeReference<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options), entity);
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(
+      List<?> key, List<List<?>> operations, UpdateOptions options, TypeReference<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options), entity);
   }
 
   @Override
-  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(List<?> key,
-      Operations operations,
-      UpdateOptions options,
-      TypeReference<T> entity) {
-    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(iprotoUpdate(key, operations, options), entity);
+  public <T> CompletableFuture<TarantoolResponse<Tuple<T>>> update(
+      List<?> key, Operations operations, UpdateOptions options, TypeReference<T> entity) {
+    return TarantoolJacksonMapping.convertSpaceSingleResultFuture(
+        iprotoUpdate(key, operations, options), entity);
   }
 
   @Override
@@ -380,12 +396,14 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   @Override
-  public CompletableFuture<Void> upsert(Object tuple, List<List<?>> operations, UpdateOptions options) {
+  public CompletableFuture<Void> upsert(
+      Object tuple, List<List<?>> operations, UpdateOptions options) {
     return iprotoUpsert(tuple, operations, options).thenAccept((r) -> {});
   }
 
   @Override
-  public CompletableFuture<Void> upsert(Object tuple, Operations operations, UpdateOptions options) {
+  public CompletableFuture<Void> upsert(
+      Object tuple, Operations operations, UpdateOptions options) {
     return iprotoUpsert(tuple, operations, options).thenAccept((r) -> {});
   }
 
@@ -395,18 +413,17 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level upsert request based on the passed parameters.</p>
+   * Sends a low-level upsert request based on the passed parameters.
    *
-   * @param tuple      if such a tuple exists, then it updates based on the passed operations, otherwise it inserts the
-   *                   passed tuple.
+   * @param tuple if such a tuple exists, then it updates based on the passed operations, otherwise
+   *     it inserts the passed tuple.
    * @param operations a list of operations indicating how to update fields in tuple.
-   * @param options    {@link UpdateOptions} object.
+   * @param options {@link UpdateOptions} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
-  private CompletableFuture<IProtoResponse> iprotoUpsert(Object tuple,
-      List<?> operations,
-      UpdateOptions options) {
+  private CompletableFuture<IProtoResponse> iprotoUpsert(
+      Object tuple, List<?> operations, UpdateOptions options) {
     if (tuple == null) {
       throw new IllegalArgumentException("tuple can't be null");
     }
@@ -418,29 +435,32 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
     }
 
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext()
-            .thenCompose(client -> {
-              final IProtoRequestOpts requestOpts =
-                  IProtoRequestOpts.empty()
-                      .withRequestTimeout(options.getTimeout())
-                      .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-              int indexId;
-              if (fetcher != null) {
-                indexId = getIndexIdWithEnabledFetcher(options);
-              } else {
-                assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
-                assertIndexName(options);
-                indexId = options.getIndexId();
-              }
+                  int indexId;
+                  if (fetcher != null) {
+                    indexId = getIndexIdWithEnabledFetcher(options);
+                  } else {
+                    assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
+                    assertIndexName(options);
+                    indexId = options.getIndexId();
+                  }
 
-              return client.upsert(this.spaceId,
-                  this.spaceName,
-                  indexId,
-                  TarantoolJacksonMapping.toValue(tuple),
-                  TarantoolJacksonMapping.toValue(operations),
-                  requestOpts);
-            });
+                  return client.upsert(
+                      this.spaceId,
+                      this.spaceName,
+                      indexId,
+                      TarantoolJacksonMapping.toValue(tuple),
+                      TarantoolJacksonMapping.toValue(operations),
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -449,17 +469,16 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level update request based on the passed parameters.</p>
+   * Sends a low-level update request based on the passed parameters.
    *
-   * @param key        list of keys by which tuple is updated.
+   * @param key list of keys by which tuple is updated.
    * @param operations a list of operations indicating how to update fields in tuple.
-   * @param options    {@link UpdateOptions} object.
+   * @param options {@link UpdateOptions} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
-  private CompletableFuture<IProtoResponse> iprotoUpdate(List<?> key,
-      List<?> operations,
-      UpdateOptions options) {
+  private CompletableFuture<IProtoResponse> iprotoUpdate(
+      List<?> key, List<?> operations, UpdateOptions options) {
     if (key == null) {
       throw new IllegalArgumentException("key can't be null");
     }
@@ -471,33 +490,37 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
     }
 
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext()
-            .thenCompose(client -> {
-              final IProtoRequestOpts requestOpts =
-                  IProtoRequestOpts.empty()
-                      .withRequestTimeout(options.getTimeout())
-                      .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-              Integer indexId;
-              String indexName = null;
-              if (fetcher != null) {
-                indexId = getIndexIdWithEnabledFetcher(options);
-              } else {
-                final boolean serverHasMetaNamesFeature = client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
-                assertSpaceName(serverHasMetaNamesFeature);
-                assertIndexName(options, serverHasMetaNamesFeature);
-                indexName = options.getIndexName();
-                indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
-              }
+                  Integer indexId;
+                  String indexName = null;
+                  if (fetcher != null) {
+                    indexId = getIndexIdWithEnabledFetcher(options);
+                  } else {
+                    final boolean serverHasMetaNamesFeature =
+                        client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
+                    assertSpaceName(serverHasMetaNamesFeature);
+                    assertIndexName(options, serverHasMetaNamesFeature);
+                    indexName = options.getIndexName();
+                    indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
+                  }
 
-              return client.update(this.spaceId,
-                  this.spaceName,
-                  indexId,
-                  indexName,
-                  TarantoolJacksonMapping.toValue(key),
-                  TarantoolJacksonMapping.toValue(operations),
-                  requestOpts);
-            });
+                  return client.update(
+                      this.spaceId,
+                      this.spaceName,
+                      indexId,
+                      indexName,
+                      TarantoolJacksonMapping.toValue(key),
+                      TarantoolJacksonMapping.toValue(operations),
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -506,12 +529,12 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level delete request based on the passed parameters.</p>
+   * Sends a low-level delete request based on the passed parameters.
    *
-   * @param key     list of keys by which tuple is deleted.
+   * @param key list of keys by which tuple is deleted.
    * @param options {@link DeleteOptions} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
   private CompletableFuture<IProtoResponse> iprotoDelete(List<?> key, DeleteOptions options) {
     if (options == null) {
@@ -519,32 +542,36 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
     }
 
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext()
-            .thenCompose(client -> {
-              final IProtoRequestOpts requestOpts =
-                  IProtoRequestOpts.empty()
-                      .withRequestTimeout(options.getTimeout())
-                      .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-              Integer indexId;
-              String indexName = null;
-              if (fetcher != null) {
-                indexId = getIndexIdWithEnabledFetcher(options);
-              } else {
-                final boolean serverHasMetaNamesFeature = client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
-                assertSpaceName(serverHasMetaNamesFeature);
-                assertIndexName(options, serverHasMetaNamesFeature);
-                indexName = options.getIndexName();
-                indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
-              }
+                  Integer indexId;
+                  String indexName = null;
+                  if (fetcher != null) {
+                    indexId = getIndexIdWithEnabledFetcher(options);
+                  } else {
+                    final boolean serverHasMetaNamesFeature =
+                        client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
+                    assertSpaceName(serverHasMetaNamesFeature);
+                    assertIndexName(options, serverHasMetaNamesFeature);
+                    indexName = options.getIndexName();
+                    indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
+                  }
 
-              return client.delete(this.spaceId,
-                  this.spaceName,
-                  indexId,
-                  indexName,
-                  TarantoolJacksonMapping.toValue(key),
-                  requestOpts);
-            });
+                  return client.delete(
+                      this.spaceId,
+                      this.spaceName,
+                      indexId,
+                      indexName,
+                      TarantoolJacksonMapping.toValue(key),
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -553,12 +580,12 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level select request based on the passed parameters.</p>
+   * Sends a low-level select request based on the passed parameters.
    *
-   * @param key     list of keys by which tuple is selected.
+   * @param key list of keys by which tuple is selected.
    * @param options {@link SelectOptions} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
   private CompletableFuture<IProtoResponse> iprotoSelect(List<?> key, SelectOptions options) {
     if (options == null) {
@@ -580,38 +607,42 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
     }
 
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext()
-            .thenCompose(client -> {
-              final IProtoRequestOpts requestOpts =
-                  IProtoRequestOpts.empty()
-                      .withRequestTimeout(options.getTimeout())
-                      .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-              Integer indexId;
-              String indexName = null;
-              if (fetcher != null) {
-                indexId = getIndexIdWithEnabledFetcher(options);
-              } else {
-                final boolean serverHasMetaNamesFeature = client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
-                assertSpaceName(serverHasMetaNamesFeature);
-                assertIndexName(options, serverHasMetaNamesFeature);
-                indexName = options.getIndexName();
-                indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
-              }
+                  Integer indexId;
+                  String indexName = null;
+                  if (fetcher != null) {
+                    indexId = getIndexIdWithEnabledFetcher(options);
+                  } else {
+                    final boolean serverHasMetaNamesFeature =
+                        client.isFeatureEnabled(SPACE_AND_INDEX_NAMES);
+                    assertSpaceName(serverHasMetaNamesFeature);
+                    assertIndexName(options, serverHasMetaNamesFeature);
+                    indexName = options.getIndexName();
+                    indexId = getIndexIdDependingOnPriority(options, serverHasMetaNamesFeature);
+                  }
 
-              return client.select(this.spaceId,
-                  this.spaceName,
-                  indexId,
-                  indexName,
-                  TarantoolJacksonMapping.toValue(key),
-                  options.getLimit(),
-                  options.getOffset(),
-                  options.getIterator(),
-                  options.isPositionFetchEnabled(),
-                  castedAfter,
-                  afterMode,
-                  requestOpts);
-            });
+                  return client.select(
+                      this.spaceId,
+                      this.spaceName,
+                      indexId,
+                      indexName,
+                      TarantoolJacksonMapping.toValue(key),
+                      options.getLimit(),
+                      options.getOffset(),
+                      options.getIterator(),
+                      options.isPositionFetchEnabled(),
+                      castedAfter,
+                      afterMode,
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -621,12 +652,12 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level replace request based on the passed parameters.</p>
+   * Sends a low-level replace request based on the passed parameters.
    *
-   * @param tuple   tuple object for replace.
+   * @param tuple tuple object for replace.
    * @param options {@link Options} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
   private CompletableFuture<IProtoResponse> iprotoReplace(Object tuple, Options options) {
     if (tuple == null) {
@@ -636,20 +667,24 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
       throw new IllegalArgumentException("options can't be null");
     }
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext().thenCompose(client -> {
-          final IProtoRequestOpts requestOpts =
-              IProtoRequestOpts.empty()
-                  .withRequestTimeout(options.getTimeout())
-                  .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-          if (fetcher == null) {
-            assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
-          }
-          return client.replace(this.spaceId,
-              this.spaceName,
-              TarantoolJacksonMapping.toValue(tuple),
-              requestOpts);
-        });
+                  if (fetcher == null) {
+                    assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
+                  }
+                  return client.replace(
+                      this.spaceId,
+                      this.spaceName,
+                      TarantoolJacksonMapping.toValue(tuple),
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -658,12 +693,12 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Sends a low-level insert request based on the passed parameters.</p>
+   * Sends a low-level insert request based on the passed parameters.
    *
-   * @param tuple   tuple object for insertion.
+   * @param tuple tuple object for insertion.
    * @param options {@link Options} object.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
   private CompletableFuture<IProtoResponse> iprotoInsert(Object tuple, Options options) {
     if (tuple == null) {
@@ -674,21 +709,24 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
     }
 
     final CompletableFuture<IProtoResponse> requestFuture =
-        balancer.getNext()
-            .thenCompose(client -> {
-              final IProtoRequestOpts requestOpts =
-                  IProtoRequestOpts.empty()
-                      .withRequestTimeout(options.getTimeout())
-                      .withStreamId(options.getStreamId());
+        balancer
+            .getNext()
+            .thenCompose(
+                client -> {
+                  final IProtoRequestOpts requestOpts =
+                      IProtoRequestOpts.empty()
+                          .withRequestTimeout(options.getTimeout())
+                          .withStreamId(options.getStreamId());
 
-              if (fetcher == null) {
-                assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
-              }
-              return client.insert(this.spaceId,
-                  this.spaceName,
-                  TarantoolJacksonMapping.toValue(tuple),
-                  requestOpts);
-            });
+                  if (fetcher == null) {
+                    assertSpaceName(client.isFeatureEnabled(SPACE_AND_INDEX_NAMES));
+                  }
+                  return client.insert(
+                      this.spaceId,
+                      this.spaceName,
+                      TarantoolJacksonMapping.toValue(tuple),
+                      requestOpts);
+                });
 
     if (fetcher != null) {
       return fetcher.processRequest(requestFuture);
@@ -697,68 +735,73 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Checks whether the space name is allowed to be used directly via IProto. Used by the
-   * {@link #iprotoDelete(List, DeleteOptions)}, {@link #iprotoSelect(List, SelectOptions)},
-   * {@link #iprotoUpdate(List, List, UpdateOptions)}, {@link #iprotoUpsert(Object, List, UpdateOptions)},
-   * {@link #iprotoInsert(Object, Options)}, {@link #iprotoReplace(Object, Options)} methods.</p>
+   * Checks whether the space name is allowed to be used directly via IProto. Used by the {@link
+   * #iprotoDelete(List, DeleteOptions)}, {@link #iprotoSelect(List, SelectOptions)}, {@link
+   * #iprotoUpdate(List, List, UpdateOptions)}, {@link #iprotoUpsert(Object, List, UpdateOptions)},
+   * {@link #iprotoInsert(Object, Options)}, {@link #iprotoReplace(Object, Options)} methods.
    *
-   * @param serverHasMetaNamesFeature if true then the {@link io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is
-   *                                  enabled
-   * @throws IllegalArgumentException when space name is passed but serverHasMetaNamesFeature is false
+   * @param serverHasMetaNamesFeature if true then the {@link
+   *     io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is enabled
+   * @throws IllegalArgumentException when space name is passed but serverHasMetaNamesFeature is
+   *     false
    */
-  private void assertSpaceName(boolean serverHasMetaNamesFeature)
-      throws IllegalArgumentException {
+  private void assertSpaceName(boolean serverHasMetaNamesFeature) throws IllegalArgumentException {
 
     if (!serverHasMetaNamesFeature && spaceName != null) {
-      throw new IllegalArgumentException(WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
+      throw new IllegalArgumentException(
+          WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
     }
   }
 
   /**
-   * <p>Checks, based on the passed parameters, whether the index name can be used directly via IProto. Used by the
-   * {@link #iprotoDelete(List, DeleteOptions)}, {@link #iprotoSelect(List, SelectOptions)},
-   * {@link #iprotoUpdate(List, List, UpdateOptions)}, {@link #iprotoInsert(Object, Options)},
-   * {@link #iprotoReplace(Object, Options)} methods.</p>
+   * Checks, based on the passed parameters, whether the index name can be used directly via IProto.
+   * Used by the {@link #iprotoDelete(List, DeleteOptions)}, {@link #iprotoSelect(List,
+   * SelectOptions)}, {@link #iprotoUpdate(List, List, UpdateOptions)}, {@link #iprotoInsert(Object,
+   * Options)}, {@link #iprotoReplace(Object, Options)} methods.
    *
-   * @param options                   request parameters
-   * @param serverHasMetaNamesFeature if true then the {@link io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is
-   *                                  enabled
-   * @throws IllegalArgumentException when index name is passed but serverHasMetaNamesFeature is false
+   * @param options request parameters
+   * @param serverHasMetaNamesFeature if true then the {@link
+   *     io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is enabled
+   * @throws IllegalArgumentException when index name is passed but serverHasMetaNamesFeature is
+   *     false
    */
   private void assertIndexName(OptionsWithIndex options, boolean serverHasMetaNamesFeature)
       throws IllegalArgumentException {
 
     if (!serverHasMetaNamesFeature && options.getIndexName() != null) {
-      throw new IllegalArgumentException(WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
+      throw new IllegalArgumentException(
+          WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
     }
   }
 
   /**
-   * <p>Checks, based on the passed parameters, whether the index name can be used directly via IProto. Used by the
-   * {@link #iprotoUpsert(Object, List, UpdateOptions)} method.</p>
+   * Checks, based on the passed parameters, whether the index name can be used directly via IProto.
+   * Used by the {@link #iprotoUpsert(Object, List, UpdateOptions)} method.
    *
    * @param options request parameters
    * @throws IllegalArgumentException when index name is passed
    */
-  private void assertIndexName(OptionsWithIndex options)
-      throws IllegalArgumentException {
+  private void assertIndexName(OptionsWithIndex options) throws IllegalArgumentException {
 
     if (options.getIndexName() != null) {
-      throw new IllegalArgumentException(WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
+      throw new IllegalArgumentException(
+          WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0);
     }
   }
 
   /**
-   * <p>Returns the index id provided that the fetcher is disabled and the index name can be passed directly through
-   * IProto without fetcher. Used by the {@link #iprotoDelete(List, DeleteOptions)},
-   * {@link #iprotoSelect(List, SelectOptions)}, {@link #iprotoUpdate(List, List, UpdateOptions)} methods.</p>
+   * Returns the index id provided that the fetcher is disabled and the index name can be passed
+   * directly through IProto without fetcher. Used by the {@link #iprotoDelete(List,
+   * DeleteOptions)}, {@link #iprotoSelect(List, SelectOptions)}, {@link #iprotoUpdate(List, List,
+   * UpdateOptions)} methods.
    *
-   * @param options                   {@link OptionsWithIndex} object
-   * @param serverHasMetaNamesFeature if true then the {@link io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is
-   *                                  enabled
+   * @param options {@link OptionsWithIndex} object
+   * @param serverHasMetaNamesFeature if true then the {@link
+   *     io.tarantool.core.IProtoFeature#SPACE_AND_INDEX_NAMES} is enabled
    * @return index id
    */
-  private Integer getIndexIdDependingOnPriority(OptionsWithIndex options, boolean serverHasMetaNamesFeature) {
+  private Integer getIndexIdDependingOnPriority(
+      OptionsWithIndex options, boolean serverHasMetaNamesFeature) {
     if (serverHasMetaNamesFeature && options.getIndexName() != null) {
       return null;
     }
@@ -766,7 +809,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
   }
 
   /**
-   * <p>Returns the index identifier based on the options passed when fetcher is enabled.</p>
+   * Returns the index identifier based on the options passed when fetcher is enabled.
    *
    * @param options {@link OptionsWithIndex}.
    * @return index id.

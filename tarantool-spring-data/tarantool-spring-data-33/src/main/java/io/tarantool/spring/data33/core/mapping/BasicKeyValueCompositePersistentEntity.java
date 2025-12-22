@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,7 +28,8 @@ import io.tarantool.spring.data33.core.mapping.model.PersistentCompositeIdIsNewS
 public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueCompositeProperty<P>>
     extends BasicKeyValuePersistentEntity<T, P> implements KeyValueCompositePersistentEntity<T, P> {
 
-  public static final String TYPE_MISMATCH = "Target bean of type %s is not of type of the persistent entity (%s)";
+  public static final String TYPE_MISMATCH =
+      "Target bean of type %s is not of type of the persistent entity (%s)";
 
   private final Class<?> idClassTypeValue;
   private @Nullable P idProperty;
@@ -36,11 +37,12 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
   private Map<Field, Field> entityIdClassFields;
 
   /**
-   * @param information              must not be {@literal null}.
+   * @param information must not be {@literal null}.
    * @param fallbackKeySpaceResolver can be {@literal null}.
-   * @param idClassTypeValue         class that specified in {@link IdClass}
+   * @param idClassTypeValue class that specified in {@link IdClass}
    */
-  public BasicKeyValueCompositePersistentEntity(TypeInformation<T> information,
+  public BasicKeyValueCompositePersistentEntity(
+      TypeInformation<T> information,
       @Nullable KeySpaceResolver fallbackKeySpaceResolver,
       Class<?> idClassTypeValue) {
     super(information, fallbackKeySpaceResolver);
@@ -58,9 +60,9 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
           "Persistable override is not currently supported for entities with a composite key.");
     }
 
-    return hasIdProperty() ?
-        new CompositeIdPropertyAccessor(bean, this.entityIdClassFields, getIdClassType()) :
-        new AbsentIdentifierAccessor();
+    return hasIdProperty()
+        ? new CompositeIdPropertyAccessor(bean, this.entityIdClassFields, getIdClassType())
+        : new AbsentIdentifierAccessor();
   }
 
   @Override
@@ -84,9 +86,7 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
 
   @Override
   protected P returnPropertyIfBetterIdPropertyCandidateOrNull(P property) {
-    Assert.isInstanceOf(Identifier.class,
-        property,
-        "property must be Identifier for this class");
+    Assert.isInstanceOf(Identifier.class, property, "property must be Identifier for this class");
 
     if (!property.isIdProperty()) {
       return null;
@@ -103,20 +103,23 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
   }
 
   /**
-   * Verifies the given bean type to no be {@literal null} and of the type of the current {@link PersistentEntity}.
+   * Verifies the given bean type to no be {@literal null} and of the type of the current {@link
+   * PersistentEntity}.
    *
    * @param bean must not be {@literal null}.
    */
   private void verifyBeanType(Object bean) {
 
     Assert.notNull(bean, "Target bean must not be null");
-    Assert.isInstanceOf(getType(), bean,
+    Assert.isInstanceOf(
+        getType(),
+        bean,
         () -> String.format(TYPE_MISMATCH, bean.getClass().getName(), getType().getName()));
   }
 
   /**
-   * A null-object implementation of {@link IdentifierAccessor} to be able to return an accessor for entities that do
-   * not have an identifier property.
+   * A null-object implementation of {@link IdentifierAccessor} to be able to return an accessor for
+   * entities that do not have an identifier property.
    */
   private static class AbsentIdentifierAccessor implements IdentifierAccessor {
 
@@ -132,8 +135,8 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
   }
 
   /**
-   * A class that checks the types of fields of a composite key. In addition, the correspondence between types and field
-   * names marked with {@code @Id}.
+   * A class that checks the types of fields of a composite key. In addition, the correspondence
+   * between types and field names marked with {@code @Id}.
    */
   public static class KeyPartTypeChecker {
 
@@ -141,22 +144,23 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
         "Number of fields specified in domain class and composite class the key is different!";
 
     public static final String COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION =
-        "Domain class fields marked with @Id differ from fields specified in the composite key class";
+        "Domain class fields marked with @Id differ from fields specified in the composite key"
+            + " class";
 
     /**
-     * Check the number and types of entity fields, annotated {@code @Id} and fields {@link CompositeKey} and if the
-     * types and quantities match return the id part fields mapping.
+     * Check the number and types of entity fields, annotated {@code @Id} and fields {@link
+     * CompositeKey} and if the types and quantities match return the id part fields mapping.
      *
      * @param persistentEntity persistent entity
-     * @param idProperty       id property
-     * @return mapping between fields of composite key class and fields annotated {@code @Id} in entity.
+     * @param idProperty id property
+     * @return mapping between fields of composite key class and fields annotated {@code @Id} in
+     *     entity.
      */
-    public static Map<Field, Field> getFieldMapIfTypesValid(KeyValueCompositePersistentEntity<?, ?> persistentEntity,
-        Identifier<?> idProperty) {
+    public static Map<Field, Field> getFieldMapIfTypesValid(
+        KeyValueCompositePersistentEntity<?, ?> persistentEntity, Identifier<?> idProperty) {
       Map<Field, Field> entityIdClassFields = new HashMap<>();
 
-      List<Field> compositeKeyFields =
-          persistentEntity.getIdClassTypeFields();
+      List<Field> compositeKeyFields = persistentEntity.getIdClassTypeFields();
 
       Field[] entityFields = idProperty.getFields();
 
@@ -180,13 +184,13 @@ public class BasicKeyValueCompositePersistentEntity<T, P extends KeyValueComposi
     /**
      * Compares two class fields by name and type.
      *
-     * @param firstField  first field
+     * @param firstField first field
      * @param secondField second field
      * @return true if fields are equal
      */
     private static boolean equalFields(Field firstField, Field secondField) {
-      return firstField.getName().equals(secondField.getName()) &&
-          firstField.getType().equals(secondField.getType());
+      return firstField.getName().equals(secondField.getName())
+          && firstField.getType().equals(secondField.getType());
     }
   }
 }

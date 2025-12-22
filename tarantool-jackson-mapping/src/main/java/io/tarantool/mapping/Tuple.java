@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -47,9 +47,12 @@ public class Tuple<T> {
     if (this.stringBuilder == null) {
       this.stringBuilder = new StringBuilder();
       this.stringBuilder
-          .append("Tuple(formatId = ").append(getFormatId())
-          .append(", data = ").append(data)
-          .append(", format = ").append(format)
+          .append("Tuple(formatId = ")
+          .append(getFormatId())
+          .append(", data = ")
+          .append(data)
+          .append(", format = ")
+          .append(format)
           .append(")");
     }
     return this.stringBuilder.toString();

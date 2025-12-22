@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,9 +22,7 @@ import io.tarantool.spring.data34.utils.entity.ComplexPerson;
 
 public class PersistentCompositeIdIsNewStrategyTest<P extends KeyValueCompositeProperty<P>> {
 
-  /**
-   * Check the strategy creation method and check whether the domain entity is new.
-   */
+  /** Check the strategy creation method and check whether the domain entity is new. */
   @Test
   public void testForIdOnly() {
 
@@ -37,9 +35,7 @@ public class PersistentCompositeIdIsNewStrategyTest<P extends KeyValueCompositeP
     assertFalse(strategy.isNew(emptyEntity));
   }
 
-  /**
-   * Check the strategy creation method and check whether the domain entity is new.
-   */
+  /** Check the strategy creation method and check whether the domain entity is new. */
   @Test
   public void testIsNew() {
     PersistentCompositeIdIsNewStrategy strategy =
@@ -55,20 +51,18 @@ public class PersistentCompositeIdIsNewStrategyTest<P extends KeyValueCompositeP
     assertNotNull(compositeKeyType);
 
     BasicKeyValueCompositePersistentEntity<?, P> persistentEntity =
-        new BasicKeyValueCompositePersistentEntity<>(TypeInformation.of(entityType),
-            null,
-            compositeKeyType);
+        new BasicKeyValueCompositePersistentEntity<>(
+            TypeInformation.of(entityType), null, compositeKeyType);
     ReflectionUtils.doWithFields(entityType, field -> addProperty(field, persistentEntity));
     return persistentEntity;
   }
 
-  /**
-   * Add Persistent property into PersistentEntity.
-   */
+  /** Add Persistent property into PersistentEntity. */
   @SuppressWarnings("unchecked")
   private void addProperty(Field field, BasicKeyValueCompositePersistentEntity<?, P> owner) {
     Property property = Property.of(owner.getTypeInformation(), field);
-    P persistentProperty = (P) new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
+    P persistentProperty =
+        (P) new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
     owner.addPersistentProperty(persistentProperty);
   }
 }

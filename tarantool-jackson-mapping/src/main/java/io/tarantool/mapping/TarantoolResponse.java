@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,13 +11,13 @@ import java.util.Map;
 public class TarantoolResponse<T> {
 
   protected StringBuilder stringBuilder;
-  /**
-   * Data selection result.
-   */
+
+  /** Data selection result. */
   protected T data;
 
   /**
-   * The formats contain schemas of every tuple in response. Key is formatId, value is list of format fields.
+   * The formats contain schemas of every tuple in response. Key is formatId, value is list of
+   * format fields.
    */
   protected Map<Integer, List<Field>> formats;
 

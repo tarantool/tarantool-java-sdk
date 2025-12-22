@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -15,15 +15,13 @@ import org.springframework.data.repository.query.QueryMethod;
 import io.tarantool.spring.data.query.Query;
 import io.tarantool.spring.data.query.TarantoolQueryMethod;
 
-/**
- * Tarantool {@link QueryMethod} Implementation
- */
-public class TarantoolQueryMethodImpl
-    extends QueryMethod implements TarantoolQueryMethod {
+/** Tarantool {@link QueryMethod} Implementation */
+public class TarantoolQueryMethodImpl extends QueryMethod implements TarantoolQueryMethod {
 
   private final Method method;
 
-  public TarantoolQueryMethodImpl(Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
+  public TarantoolQueryMethodImpl(
+      Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
     super(method, metadata, factory);
     this.method = method;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,25 +35,25 @@ import io.tarantool.spring.data32.repository.config.EnableTarantoolRepositories;
 @SpringBootTest(classes = {TarantoolCrudConfigurationTest.Config.class})
 public class TarantoolCrudConfigurationTest extends GenericTarantoolConfigurationTest {
 
-  @MockBean
-  TarantoolCrudClient client;
+  @MockBean TarantoolCrudClient client;
 
-  @Autowired
-  private TarantoolCrudConfiguration tarantoolCrudConfiguration;
+  @Autowired private TarantoolCrudConfiguration tarantoolCrudConfiguration;
 
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   @RepeatedTest(10)
   void testGetCrudClientBuilder() throws IOException {
     assertEquals(properties, tarantoolCrudConfiguration.getProperties());
 
-    final TarantoolCrudClientBuilder crudClientBuilder = tarantoolCrudConfiguration.getClientBuilder();
+    final TarantoolCrudClientBuilder crudClientBuilder =
+        tarantoolCrudConfiguration.getClientBuilder();
 
     if (properties.getConnectionGroups() == null) {
       assertNull(crudClientBuilder.getGroups());
     } else {
       assertEquals(properties.getConnectionGroups().size(), crudClientBuilder.getGroups().size());
       List<InstanceConnectionGroup> connectionGroupsFromBuilder = crudClientBuilder.getGroups();
-      List<PropertyInstanceConnectionGroup> connectionGroupsFromProperty = properties.getConnectionGroups();
+      List<PropertyInstanceConnectionGroup> connectionGroupsFromProperty =
+          properties.getConnectionGroups();
       assertNotNull(connectionGroupsFromBuilder);
       assertNotNull(connectionGroupsFromProperty);
       for (int i = 0; i < connectionGroupsFromBuilder.size(); i++) {
@@ -76,9 +76,12 @@ public class TarantoolCrudConfigurationTest extends GenericTarantoolConfiguratio
     } else {
       HeartbeatOpts builderHeartbeatOpts = crudClientBuilder.getHeartbeatOpts();
 
-      assertEquals(propertiesHeartbeatOpts.getPingInterval(), builderHeartbeatOpts.getPingInterval());
-      assertEquals(propertiesHeartbeatOpts.getDeathThreshold(), builderHeartbeatOpts.getDeathThreshold());
-      assertEquals(propertiesHeartbeatOpts.getInvalidationThreshold(),
+      assertEquals(
+          propertiesHeartbeatOpts.getPingInterval(), builderHeartbeatOpts.getPingInterval());
+      assertEquals(
+          propertiesHeartbeatOpts.getDeathThreshold(), builderHeartbeatOpts.getDeathThreshold());
+      assertEquals(
+          propertiesHeartbeatOpts.getInvalidationThreshold(),
           builderHeartbeatOpts.getInvalidationThreshold());
       assertEquals(propertiesHeartbeatOpts.getWindowSize(), builderHeartbeatOpts.getWindowSize());
     }
@@ -102,7 +105,8 @@ public class TarantoolCrudConfigurationTest extends GenericTarantoolConfiguratio
     assertTrue(beanDefinitions.contains(DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF));
 
     final KeyValueTemplate keyValueTemplate =
-        applicationContext.getBean(DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF, KeyValueTemplate.class);
+        applicationContext.getBean(
+            DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF, KeyValueTemplate.class);
     assertNotNull(keyValueTemplate);
   }
 

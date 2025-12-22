@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,28 +21,24 @@ class TarantoolConfigParser {
 
   public TarantoolConfigParser(String instanceFileName) {
     Yaml yaml = new Yaml(new Constructor(Config.class, new LoaderOptions()));
-    InputStream inputStream = this.getClass()
-        .getClassLoader()
-        .getResourceAsStream(instanceFileName);
+    InputStream inputStream =
+        this.getClass().getClassLoader().getResourceAsStream(instanceFileName);
     config = yaml.load(inputStream);
   }
 
   public Integer[] getExposablePorts() {
-    List<Integer> ports = config.getGroups()
-        .get("routers")
-        .getReplicasets()
-        .values()
-        .stream()
-        .map(replicaset -> replicaset.getInstances().values())
-        .flatMap(Collection::stream)
-        .map(instance -> instance.getIproto().values())
-        .flatMap(Collection::stream)
-        .flatMap(Collection::stream)
-        .map(Map::values)
-        .flatMap(Collection::stream)
-        .map(Integer::parseInt)
-        .collect(Collectors.toList());
+    List<Integer> ports =
+        config.getGroups().get("routers").getReplicasets().values().stream()
+            .map(replicaset -> replicaset.getInstances().values())
+            .flatMap(Collection::stream)
+            .map(instance -> instance.getIproto().values())
+            .flatMap(Collection::stream)
+            .flatMap(Collection::stream)
+            .map(Map::values)
+            .flatMap(Collection::stream)
+            .map(Integer::parseInt)
+            .collect(Collectors.toList());
 
-    return ports.toArray(new Integer[]{});
+    return ports.toArray(new Integer[] {});
   }
 }

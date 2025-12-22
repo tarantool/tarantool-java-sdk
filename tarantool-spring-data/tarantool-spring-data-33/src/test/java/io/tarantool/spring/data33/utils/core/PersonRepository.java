@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,5 +11,6 @@ import io.tarantool.spring.data.utils.GenericRepositoryMethods;
 import io.tarantool.spring.data33.utils.entity.Person;
 
 public interface PersonRepository
-    extends PagingAndSortingRepository<Person, Integer>, GenericRepositoryMethods<Person, Integer>,
-    GenericPaginationMethods<Person, Integer> {}
+    extends PagingAndSortingRepository<Person, Integer>,
+        GenericRepositoryMethods<Person, Integer>,
+        GenericPaginationMethods<Person, Integer> {}

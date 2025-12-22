@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -30,8 +30,7 @@ public class IProtoRequestImpl extends IProtoBaseRequest {
   protected int requestType;
   protected Map<Integer, Value> bodyMap;
 
-  public IProtoRequestImpl() {
-  }
+  public IProtoRequestImpl() {}
 
   public IProtoRequestImpl(MapValue header, MapValue body) {
     this.header = header;
@@ -47,14 +46,8 @@ public class IProtoRequestImpl extends IProtoBaseRequest {
   }
 
   protected static Map<Integer, Value> convertMap(MapValue map) {
-    return map
-        .map()
-        .entrySet()
-        .stream()
-        .collect(Collectors.toMap(
-            e -> ((IntegerValue) e.getKey()).asInt(),
-            Map.Entry::getValue
-        ));
+    return map.map().entrySet().stream()
+        .collect(Collectors.toMap(e -> ((IntegerValue) e.getKey()).asInt(), Map.Entry::getValue));
   }
 
   @Override

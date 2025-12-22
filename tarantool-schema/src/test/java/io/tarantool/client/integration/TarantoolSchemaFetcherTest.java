@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -50,14 +50,20 @@ public class TarantoolSchemaFetcherTest {
 
   private static final String API_USER = "api_user";
 
-  private static final Map<String, String> CREDS = new HashMap<String, String>(){{
-    put(API_USER, "secret");
-  }};
+  private static final Map<String, String> CREDS =
+      new HashMap<String, String>() {
+        {
+          put(API_USER, "secret");
+        }
+      };
 
-  private static final Map<String, String> CREDS_MAP = new HashMap<String, String>(){{
-    put("TARANTOOL_USER_NAME", API_USER);
-    put("TARANTOOL_USER_PASSWORD", CREDS.get(API_USER));
-  }};
+  private static final Map<String, String> CREDS_MAP =
+      new HashMap<String, String>() {
+        {
+          put("TARANTOOL_USER_NAME", API_USER);
+          put("TARANTOOL_USER_PASSWORD", CREDS.get(API_USER));
+        }
+      };
 
   private static final Bootstrap bootstrap =
       new Bootstrap()
@@ -71,8 +77,8 @@ public class TarantoolSchemaFetcherTest {
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(CREDS_MAP);
+  private static final TarantoolContainer tt = new TarantoolContainer().withEnv(CREDS_MAP);
+
   private Long spacePersonId;
   private static IProtoClient client;
 
@@ -87,7 +93,8 @@ public class TarantoolSchemaFetcherTest {
   @BeforeAll
   public static void setUp() {
     client = new IProtoClientImpl(factory, timerService);
-    client.connect(new InetSocketAddress(tt.getHost(), tt.getPort()), 3_000)
+    client
+        .connect(new InetSocketAddress(tt.getHost(), tt.getPort()), 3_000)
         .join(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     client.authorize(API_USER, CREDS.get(API_USER)).join();
   }
@@ -101,18 +108,15 @@ public class TarantoolSchemaFetcherTest {
     assertEquals(spacePersonId, fetcher.getSpace("person").getId());
     assertEquals(initialSchemaVersion, fetcher.getSchemaVersion());
 
-    fetcher.processRequest(
-        client.ping()
-    ).join();
+    fetcher.processRequest(client.ping()).join();
 
     assertEquals(initialSchemaVersion, fetcher.getSchemaVersion());
-    client.eval("box.schema.space.create('space_from_java_code')", ValueFactory.emptyArray())
+    client
+        .eval("box.schema.space.create('space_from_java_code')", ValueFactory.emptyArray())
         .join();
     assertEquals(initialSchemaVersion, fetcher.getSchemaVersion());
 
-    fetcher.processRequest(
-        client.ping()
-    ).join();
+    fetcher.processRequest(client.ping()).join();
     assertEquals(initialSchemaVersion + 1, fetcher.getSchemaVersion());
   }
 
@@ -146,14 +150,16 @@ public class TarantoolSchemaFetcherTest {
   private static TarantoolSchemaFetcher getTarantoolSchemaFetcher() {
     ManagedResource<Timer> timerResource = ManagedResource.external(timerService);
     IProtoClientPoolImpl pool = new IProtoClientPoolImpl(factory, timerResource);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(tt.getHost())
-            .withPort(tt.getPort())
-            .withTag("a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(tt.getHost())
+                .withPort(tt.getPort())
+                .withTag("a")
+                .build()));
 
-    TarantoolDistributingRoundRobinBalancer balancer = new TarantoolDistributingRoundRobinBalancer(pool);
+    TarantoolDistributingRoundRobinBalancer balancer =
+        new TarantoolDistributingRoundRobinBalancer(pool);
     balancer.getNext().join().authorize(API_USER, CREDS.get(API_USER)).join();
     return new TarantoolSchemaFetcher(balancer, false);
   }
@@ -161,30 +167,28 @@ public class TarantoolSchemaFetcherTest {
   @Test
   public void testSpacesChange() {
     TarantoolSchemaFetcher fetcher = getTarantoolSchemaFetcher();
-    fetcher.processRequest(
-        client.ping()
-    ).join();
+    fetcher.processRequest(client.ping()).join();
 
-    List<Field> initialFormat = Arrays.asList(
-        new Field().setName("id").setType("number"),
-        new Field().setName("is_married").setType("boolean").setNullable(true),
-        new Field().setName("name").setType("string")
-    );
+    List<Field> initialFormat =
+        Arrays.asList(
+            new Field().setName("id").setType("number"),
+            new Field().setName("is_married").setType("boolean").setNullable(true),
+            new Field().setName("name").setType("string"));
     assertEquals(initialFormat, fetcher.getSpace("person").getFormat());
 
-    client.eval(
-            "box.space.person:format({" +
-                "{ 'id', type = 'number' }, " +
-                "{ 'is_married', type = 'boolean', is_nullable = true}, " +
-                "{ 'name', type = 'string' }, " +
-                "{ 'new_field', type = 'string', is_nullable = true }" +
-                "})", ValueFactory.emptyArray())
+    client
+        .eval(
+            "box.space.person:format({"
+                + "{ 'id', type = 'number' }, "
+                + "{ 'is_married', type = 'boolean', is_nullable = true}, "
+                + "{ 'name', type = 'string' }, "
+                + "{ 'new_field', type = 'string', is_nullable = true }"
+                + "})",
+            ValueFactory.emptyArray())
         .join();
     assertEquals(initialFormat, fetcher.getSpace("person").getFormat());
 
-    fetcher.processRequest(
-        client.ping()
-    ).join();
+    fetcher.processRequest(client.ping()).join();
     List<Field> changedFormat = new ArrayList<>(initialFormat);
     changedFormat.add(new Field().setName("new_field").setType("string").setNullable(true));
     assertEquals(changedFormat, fetcher.getSpace("person").getFormat());
@@ -201,13 +205,16 @@ public class TarantoolSchemaFetcherTest {
 
     assertEquals(1, fetcher.getSpace("person").getIndexes().size());
 
-    client.eval(
-        "box.space.person:create_index('name_index', { parts = { 'name' } })",
-        ValueFactory.emptyArray()
-    ).join();
+    client
+        .eval(
+            "box.space.person:create_index('name_index', { parts = { 'name' } })",
+            ValueFactory.emptyArray())
+        .join();
 
-    realIndexFromEval = (Map<?, ?>) ((List<?>) tt.executeCommandDecoded("return box.space.person.index")).get(0);
-    assertEquals(new HashSet<>(Arrays.asList(0, 1, "pk", "name_index")), realIndexFromEval.keySet());
+    realIndexFromEval =
+        (Map<?, ?>) ((List<?>) tt.executeCommandDecoded("return box.space.person.index")).get(0);
+    assertEquals(
+        new HashSet<>(Arrays.asList(0, 1, "pk", "name_index")), realIndexFromEval.keySet());
 
     assertEquals(1, fetcher.getSpace("person").getIndexes().size());
 
@@ -222,11 +229,9 @@ public class TarantoolSchemaFetcherTest {
     assertEquals(nameIndex.get("id"), nameIndexFromFetcher.getIndexId());
     assertEquals(nameIndex.get("name"), nameIndexFromFetcher.getName());
     assertEquals("name_index", nameIndexFromFetcher.getName());
-    assertEquals(Strings.toLowerCase((String) nameIndex.get("type")), nameIndexFromFetcher.getType());
+    assertEquals(
+        Strings.toLowerCase((String) nameIndex.get("type")), nameIndexFromFetcher.getType());
 
-    client.eval(
-        "box.space.person.index['name_index']:drop()",
-        ValueFactory.emptyArray()
-    ).join();
+    client.eval("box.space.person.index['name_index']:drop()", ValueFactory.emptyArray()).join();
   }
 }

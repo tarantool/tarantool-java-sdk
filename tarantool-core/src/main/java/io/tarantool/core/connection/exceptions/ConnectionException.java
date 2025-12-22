@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.core.connection.exceptions;
-
 
 /**
  * This is a basic class for exceptions related to low-level connection.

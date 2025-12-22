@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,17 +18,24 @@ public abstract class BaseTest {
 
   protected static final String API_USER = "api_user";
 
-  protected static final Map<String, String> CREDS = new HashMap<String, String>(){{
-    put(API_USER, "secret");
-  }};
+  protected static final Map<String, String> CREDS =
+      new HashMap<String, String>() {
+        {
+          put(API_USER, "secret");
+        }
+      };
 
-  protected static final Map<String, String> ENV_MAP = new HashMap<String, String>(){{
-    put("TARANTOOL_USER_NAME", API_USER);
-    put("TARANTOOL_USER_PASSWORD", CREDS.get(API_USER));
-  }};
+  protected static final Map<String, String> ENV_MAP =
+      new HashMap<String, String>() {
+        {
+          put("TARANTOOL_USER_NAME", API_USER);
+          put("TARANTOOL_USER_PASSWORD", CREDS.get(API_USER));
+        }
+      };
 
   /**
-   * Gets collection of data without object-wrapper like {@link TarantoolResponse} or {@link SelectResponse}.
+   * Gets collection of data without object-wrapper like {@link TarantoolResponse} or {@link
+   * SelectResponse}.
    *
    * @return the collection of data
    */
@@ -37,8 +44,8 @@ public abstract class BaseTest {
   }
 
   /**
-   * Gets collection of data without object-wrapper like {@link TarantoolResponse} or {@link SelectResponse} for Target
-   * class.
+   * Gets collection of data without object-wrapper like {@link TarantoolResponse} or {@link
+   * SelectResponse} for Target class.
    *
    * @return the collection of data
    */

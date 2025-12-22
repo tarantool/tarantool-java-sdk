@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,26 +11,18 @@ import java.util.Map;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
 import org.testcontainers.containers.tqe.GrpcContainer;
 
-/**
- * Interface to configure TQE cluster.
- */
+/** Interface to configure TQE cluster. */
 public interface TQEConfigurator extends AutoCloseable {
 
-  /**
-   * Default tqe containers startup timeout.
-   */
+  /** Default tqe containers startup timeout. */
   Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofSeconds(10);
 
   Duration DEFAULT_BOOTSTRAP_TIMEOUT = Duration.ofSeconds(5);
 
-  /**
-   * Returns name of TQE cluster
-   */
+  /** Returns name of TQE cluster */
   String clusterName();
 
-  /**
-   * Returns map of keys are queue instance names and values are queue Tarantool node containers
-   */
+  /** Returns map of keys are queue instance names and values are queue Tarantool node containers */
   Map<String, TarantoolContainer<?>> queue();
 
   /**
@@ -38,13 +30,9 @@ public interface TQEConfigurator extends AutoCloseable {
    */
   Map<String, GrpcContainer<?>> grpc();
 
-  /**
-   * Configures all containers of TQE cluster
-   */
+  /** Configures all containers of TQE cluster */
   void configure();
 
-  /**
-   * Returns true if all containers of TQE cluster are configured and ready to start.
-   */
+  /** Returns true if all containers of TQE cluster are configured and ready to start. */
   boolean isConfigured();
 }

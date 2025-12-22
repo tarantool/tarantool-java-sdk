@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,7 +13,9 @@ public class TarantoolBeanNames {
 
   public static final String DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF = "keyValueTemplate";
 
-  public static final String DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF = "tarantoolCrudKeyValueAdapter";
+  public static final String DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF =
+      "tarantoolCrudKeyValueAdapter";
 
-  public static final String DEFAULT_TARANTOOL_BOX_KEY_VALUE_ADAPTER_REF = "tarantoolBoxKeyValueAdapter";
+  public static final String DEFAULT_TARANTOOL_BOX_KEY_VALUE_ADAPTER_REF =
+      "tarantoolBoxKeyValueAdapter";
 }

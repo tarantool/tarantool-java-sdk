@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,7 +22,8 @@ public class KeyValueCompositeProperty<P extends KeyValuePersistentProperty<P>>
 
   private final List<P> identifierPartsWithoutFirst;
 
-  public KeyValueCompositeProperty(Property property, PersistentEntity<?, P> owner, SimpleTypeHolder simpleTypeHolder) {
+  public KeyValueCompositeProperty(
+      Property property, PersistentEntity<?, P> owner, SimpleTypeHolder simpleTypeHolder) {
     super(property, owner, simpleTypeHolder);
     this.identifierPartsWithoutFirst = new ArrayList<>();
   }
@@ -73,8 +74,8 @@ public class KeyValueCompositeProperty<P extends KeyValuePersistentProperty<P>>
       return super.equals(o);
     }
 
-    if (this.identifierPartsWithoutFirst.size() != other.identifierPartsWithoutFirst.size() ||
-        !other.getProperty().equals(getProperty())) {
+    if (this.identifierPartsWithoutFirst.size() != other.identifierPartsWithoutFirst.size()
+        || !other.getProperty().equals(getProperty())) {
       return false;
     }
 

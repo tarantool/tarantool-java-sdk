@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -99,11 +99,7 @@ public class IProtoRawResponse extends IProtoResponseImpl implements IProtoRespo
           unpacker.skipValue();
           int end = (int) unpacker.getTotalReadBytes();
           byteBodyValues.put(
-              bodyKey,
-              new ByteBodyValueWrapper(
-                  packet, headerSize + read, end - read
-              )
-          );
+              bodyKey, new ByteBodyValueWrapper(packet, headerSize + read, end - read));
         }
       }
     } catch (IOException e) {

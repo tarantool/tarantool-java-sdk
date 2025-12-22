@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -86,8 +86,8 @@ public class Topology {
     }
 
     /**
-     * Returns value that indicates whether the role is present in the replica set. If the role is marked as disabled,
-     * method returns false.
+     * Returns value that indicates whether the role is present in the replica set. If the role is
+     * marked as disabled, method returns false.
      *
      * @param role finding role
      */
@@ -114,8 +114,7 @@ public class Topology {
     public Server(
         @JsonProperty("uri") String uri,
         @JsonProperty("disabled") Boolean disabled,
-        @JsonProperty("replicaset_uuid") UUID replicasetUuid
-    ) {
+        @JsonProperty("replicaset_uuid") UUID replicasetUuid) {
       this.uri = uri;
       this.disabled = disabled;
       this.replicasetUuid = replicasetUuid;

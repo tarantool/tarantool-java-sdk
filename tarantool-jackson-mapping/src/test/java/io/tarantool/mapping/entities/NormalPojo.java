@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -15,7 +15,10 @@ import java.math.BigInteger;
 public class NormalPojo {
 
   public enum Suit {
-    SPADE, HEART, DIAMOND, CLUB;
+    SPADE,
+    HEART,
+    DIAMOND,
+    CLUB;
   }
 
   public boolean bool;

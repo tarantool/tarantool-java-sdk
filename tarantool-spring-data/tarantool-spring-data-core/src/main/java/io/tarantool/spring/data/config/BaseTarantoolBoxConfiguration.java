@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,12 +10,13 @@ import io.tarantool.client.factory.TarantoolBoxClientBuilder;
 import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.spring.data.config.properties.BaseTarantoolProperties;
 
-public class BaseTarantoolBoxConfiguration extends TarantoolConfiguration<TarantoolBoxClientBuilder> {
+public class BaseTarantoolBoxConfiguration
+    extends TarantoolConfiguration<TarantoolBoxClientBuilder> {
 
   private final TarantoolBoxClientBuilder tarantoolBoxClientBuilder;
 
-  public BaseTarantoolBoxConfiguration(BaseTarantoolProperties properties,
-      TarantoolBoxClientBuilder tarantoolBoxClientBuilder) {
+  public BaseTarantoolBoxConfiguration(
+      BaseTarantoolProperties properties, TarantoolBoxClientBuilder tarantoolBoxClientBuilder) {
     super(properties);
     this.tarantoolBoxClientBuilder = tarantoolBoxClientBuilder;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -25,7 +25,6 @@ import org.msgpack.value.ValueFactory;
 
 import io.tarantool.core.protocol.IProtoResponseImpl;
 
-
 /**
  * @author Artyom Dubinin
  * @author Ivan Bannikov
@@ -34,13 +33,14 @@ public class ConnectionTest {
 
   @Test
   public void test_connectionFactory_shouldWorkCorrectly_withoutConnect() {
-    Bootstrap bootstrap = new Bootstrap()
-        .group(new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()))
-        .channel(NioSocketChannel.class)
-        .option(ChannelOption.SO_REUSEADDR, true)
-        .option(ChannelOption.SO_KEEPALIVE, true)
-        .option(ChannelOption.TCP_NODELAY, true)
-        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+    Bootstrap bootstrap =
+        new Bootstrap()
+            .group(new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()))
+            .channel(NioSocketChannel.class)
+            .option(ChannelOption.SO_REUSEADDR, true)
+            .option(ChannelOption.SO_KEEPALIVE, true)
+            .option(ChannelOption.TCP_NODELAY, true)
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
 
     Timer timerService = new HashedWheelTimer();
     ConnectionImpl connection = new ConnectionImpl(bootstrap, timerService);
@@ -52,10 +52,10 @@ public class ConnectionTest {
     headerMap.put(ValueFactory.newInteger(0x01), ValueFactory.newInteger(0x00));
     MapValue header = ValueFactory.newMap(headerMap);
     MapValue body = ValueFactory.newMap(new HashMap<Value, Value>());
-    Exception ex = assertThrows(
-        IllegalStateException.class,
-        () -> connection.send(new IProtoResponseImpl(header, body))
-    );
+    Exception ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> connection.send(new IProtoResponseImpl(header, body)));
     assertEquals("Connection is not established", ex.getMessage());
     connection.close();
   }

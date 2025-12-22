@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -29,7 +29,8 @@ public class BoxError extends RuntimeException {
     return new BoxError(
         packet.getErrorCode(),
         packet.getBodyStringValue(IPROTO_ERROR_24).asString(),
-        packet.getBodyMapValue(IPROTO_ERROR)
+        packet
+            .getBodyMapValue(IPROTO_ERROR)
             .map()
             .get(MP_ERROR_STACK)
             .asArrayValue()
@@ -37,8 +38,7 @@ public class BoxError extends RuntimeException {
             .stream()
             .map(Value::asMapValue)
             .map(BoxErrorStackItem::fromStruct)
-            .collect(Collectors.toList())
-    );
+            .collect(Collectors.toList()));
   }
 
   private BoxError(int code, String tarantoolMessage, List<BoxErrorStackItem> stack) {
@@ -50,11 +50,16 @@ public class BoxError extends RuntimeException {
   @Override
   public String getMessage() {
     if (sb == null) {
-      sb = new StringBuilder("BoxError{")
-          .append("code=").append(code)
-          .append(", message='").append(tarantoolMessage).append('\'')
-          .append(", stack=").append(stack)
-          .append('}');
+      sb =
+          new StringBuilder("BoxError{")
+              .append("code=")
+              .append(code)
+              .append(", message='")
+              .append(tarantoolMessage)
+              .append('\'')
+              .append(", stack=")
+              .append(stack)
+              .append('}');
     }
     return this.sb.toString();
   }

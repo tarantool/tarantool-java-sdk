@@ -7,7 +7,7 @@
 
   <parent>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-java-ee</artifactId>
+    <artifactId>tarantool-java-sdk</artifactId>
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 

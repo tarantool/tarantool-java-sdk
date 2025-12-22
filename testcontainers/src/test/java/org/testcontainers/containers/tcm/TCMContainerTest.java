@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -48,9 +48,11 @@ class TCMContainerTest {
 
   static {
     try {
-      PATH_TO_TARANTOOL_CONFIG = Paths.get(
-          Objects.requireNonNull(TCMContainerTest.class.getClassLoader().getResource("tdb/tarantool.yaml"))
-              .toURI());
+      PATH_TO_TARANTOOL_CONFIG =
+          Paths.get(
+              Objects.requireNonNull(
+                      TCMContainerTest.class.getClassLoader().getResource("tdb/tarantool.yaml"))
+                  .toURI());
 
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
@@ -60,157 +62,163 @@ class TCMContainerTest {
   public static Stream<Arguments> dataForTCM() {
     return Stream.of(
         Arguments.of(
-            new EtcdContainer(Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE), ETCD_NAME, EMPTY_LIST),
+            new EtcdContainer(
+                Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+                ETCD_NAME,
+                EMPTY_LIST),
             new TCMContainer(
                 TARANTOOL_DB_IMAGE_NAME,
                 "tcm",
-                TCMConfig.builder().withEtcdAddress("http://" + ETCD_NAME + ":" + Etcd.ETCD_CLIENT_PORT).build(),
-                PATH_TO_TARANTOOL_CONFIG
-            )
-        )
-    );
+                TCMConfig.builder()
+                    .withEtcdAddress("http://" + ETCD_NAME + ":" + Etcd.ETCD_CLIENT_PORT)
+                    .build(),
+                PATH_TO_TARANTOOL_CONFIG)));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTCM")
   void testTCMContainerEtcdAvailable(EtcdContainer etcd, TCMContainer tcm) {
-    assertDoesNotThrow(() -> {
-      try (Network net = Network.newNetwork()) {
-        Duration startupDuration = Duration.ofSeconds(10);
-        etcd.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+    assertDoesNotThrow(
+        () -> {
+          try (Network net = Network.newNetwork()) {
+            Duration startupDuration = Duration.ofSeconds(10);
+            etcd.withStartupTimeout(startupDuration).withNetwork(net);
 
-        tcm.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+            tcm.withStartupTimeout(startupDuration).withNetwork(net);
 
-        etcd.start();
-        tcm.start();
-      }
-    });
+            etcd.start();
+            tcm.start();
+          }
+        });
   }
 
   @ParameterizedTest
   @MethodSource("dataForTCM")
   void testTCMContainerEtcdNotAvailableShouldThrow(EtcdContainer etcd, TCMContainer tcm) {
-    assertThrows(ContainerLaunchException.class, () -> {
-      try (Network net = Network.newNetwork()) {
-        Duration startupDuration = Duration.ofSeconds(10);
-        etcd.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+    assertThrows(
+        ContainerLaunchException.class,
+        () -> {
+          try (Network net = Network.newNetwork()) {
+            Duration startupDuration = Duration.ofSeconds(10);
+            etcd.withStartupTimeout(startupDuration).withNetwork(net);
 
-        tcm.withStartupTimeout(startupDuration);
-        etcd.start();
-        tcm.start();
-      }
-    });
+            tcm.withStartupTimeout(startupDuration);
+            etcd.start();
+            tcm.start();
+          }
+        });
   }
 
   @ParameterizedTest
   @MethodSource("dataForTCM")
   void testPublishConfigurationsWithAvailableEtcd(EtcdContainer etcd, TCMContainer tcm) {
-    BiFunction<KV, String, Long> getKVCount = (client, prefix) ->
-        client.get(
-            ByteSequence.from(prefix.getBytes(StandardCharsets.UTF_8)),
-            GetOption.builder().isPrefix(true).build()
-        ).join().getCount();
+    BiFunction<KV, String, Long> getKVCount =
+        (client, prefix) ->
+            client
+                .get(
+                    ByteSequence.from(prefix.getBytes(StandardCharsets.UTF_8)),
+                    GetOption.builder().isPrefix(true).build())
+                .join()
+                .getCount();
 
-    assertDoesNotThrow(() -> {
-      try (Network net = Network.newNetwork()) {
-        Duration startupDuration = Duration.ofSeconds(10);
-        etcd.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+    assertDoesNotThrow(
+        () -> {
+          try (Network net = Network.newNetwork()) {
+            Duration startupDuration = Duration.ofSeconds(10);
+            etcd.withStartupTimeout(startupDuration).withNetwork(net);
 
-        tcm.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+            tcm.withStartupTimeout(startupDuration).withNetwork(net);
 
-        etcd.start();
+            etcd.start();
 
-        final String etcdEndpoint = "http://localhost:" + etcd.getMappedPort(Etcd.ETCD_CLIENT_PORT);
+            final String etcdEndpoint =
+                "http://localhost:" + etcd.getMappedPort(Etcd.ETCD_CLIENT_PORT);
 
-        try (Client commonEtcdClient = Client.builder().endpoints(etcdEndpoint).build()) {
-          final KV client = commonEtcdClient.getKVClient();
-          final long tcmKvCountBeforeTcmStart = getKVCount.apply(client, "/tcm");
-          final long configKvCountBeforeTcmStart = getKVCount.apply(client, "/tdb");
-          assertEquals(0, tcmKvCountBeforeTcmStart);
-          assertEquals(0, configKvCountBeforeTcmStart);
+            try (Client commonEtcdClient = Client.builder().endpoints(etcdEndpoint).build()) {
+              final KV client = commonEtcdClient.getKVClient();
+              final long tcmKvCountBeforeTcmStart = getKVCount.apply(client, "/tcm");
+              final long configKvCountBeforeTcmStart = getKVCount.apply(client, "/tdb");
+              assertEquals(0, tcmKvCountBeforeTcmStart);
+              assertEquals(0, configKvCountBeforeTcmStart);
 
-          tcm.start();
+              tcm.start();
 
-          final long tcmKvCountAfterTcmStart = getKVCount.apply(client, "/tcm");
-          final long configKvCountAfterTcmStart = getKVCount.apply(client, "/tdb");
-          assertTrue(tcmKvCountAfterTcmStart > 0);
-          assertEquals(0, configKvCountAfterTcmStart);
+              final long tcmKvCountAfterTcmStart = getKVCount.apply(client, "/tcm");
+              final long configKvCountAfterTcmStart = getKVCount.apply(client, "/tdb");
+              assertTrue(tcmKvCountAfterTcmStart > 0);
+              assertEquals(0, configKvCountAfterTcmStart);
 
-          tcm.publishConfig();
+              tcm.publishConfig();
 
-          final long configKvCountAfterTcmConfigPublish = getKVCount.apply(client, "/tdb");
-          assertTrue(configKvCountAfterTcmConfigPublish > 0);
-        }
-      }
-    });
+              final long configKvCountAfterTcmConfigPublish = getKVCount.apply(client, "/tdb");
+              assertTrue(configKvCountAfterTcmConfigPublish > 0);
+            }
+          }
+        });
   }
 
   @ParameterizedTest
   @MethodSource("dataForTCM")
-  void testPublishConfigurationsWithUnavailableEtcdShouldThrow(EtcdContainer etcd, TCMContainer tcm) {
-    assertThrows(ContainerLaunchException.class, () -> {
-      try (Network net = Network.newNetwork()) {
-        Duration startupDuration = Duration.ofSeconds(10);
-        etcd.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+  void testPublishConfigurationsWithUnavailableEtcdShouldThrow(
+      EtcdContainer etcd, TCMContainer tcm) {
+    assertThrows(
+        ContainerLaunchException.class,
+        () -> {
+          try (Network net = Network.newNetwork()) {
+            Duration startupDuration = Duration.ofSeconds(10);
+            etcd.withStartupTimeout(startupDuration).withNetwork(net);
 
-        tcm.withStartupTimeout(startupDuration)
-            .withNetwork(net);
+            tcm.withStartupTimeout(startupDuration).withNetwork(net);
 
-        etcd.start();
-        tcm.start();
+            etcd.start();
+            tcm.start();
 
-        etcd.close();
-        tcm.publishConfig();
-      }
-    });
+            etcd.close();
+            tcm.publishConfig();
+          }
+        });
   }
 
   @Test
   void testPublishConfigurationsWithInvalidEtcdAddressShouldThrow() {
     Duration startupDuration = Duration.ofSeconds(10);
     final String addressWithoutSchema = ETCD_NAME + ":" + Etcd.ETCD_CLIENT_PORT;
-    assertThrows(ContainerLaunchException.class, () -> {
-      try (
-          final Network net = Network.newNetwork();
-
-          final EtcdContainer etcd = new EtcdContainer(Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
-              ETCD_NAME, EMPTY_LIST)
-              .withStartupTimeout(startupDuration)
-              .withNetwork(net);
-
-          final TCMContainer tcm = new TCMContainer(
-              TARANTOOL_DB_IMAGE_NAME,
-              "tcm",
-              TCMConfig.builder().withEtcdAddress(addressWithoutSchema).build(),
-              PATH_TO_TARANTOOL_CONFIG)
-              .withStartupTimeout(startupDuration)
-              .withNetwork(net)
-      ) {
-        etcd.start();
-        tcm.start();
-        tcm.publishConfig();
-      }
-    });
+    assertThrows(
+        ContainerLaunchException.class,
+        () -> {
+          try (final Network net = Network.newNetwork();
+              final EtcdContainer etcd =
+                  new EtcdContainer(
+                          Utils.resolveContainerImage("ETCD_IMAGE", Etcd.CONTAINER_IMAGE),
+                          ETCD_NAME,
+                          EMPTY_LIST)
+                      .withStartupTimeout(startupDuration)
+                      .withNetwork(net);
+              final TCMContainer tcm =
+                  new TCMContainer(
+                          TARANTOOL_DB_IMAGE_NAME,
+                          "tcm",
+                          TCMConfig.builder().withEtcdAddress(addressWithoutSchema).build(),
+                          PATH_TO_TARANTOOL_CONFIG)
+                      .withStartupTimeout(startupDuration)
+                      .withNetwork(net)) {
+            etcd.start();
+            tcm.start();
+            tcm.publishConfig();
+          }
+        });
   }
 
   @Test
   void testPublishConfigurationsWithNullTCMOptionsShouldThrow() {
-    assertThrows(NullPointerException.class, () -> {
-      try (final TCMContainer tcm = new TCMContainer(
-          TARANTOOL_DB_IMAGE_NAME,
-          "tcm",
-          null,
-          PATH_TO_TARANTOOL_CONFIG)
-      ) {
-        tcm.start();
-        tcm.publishConfig();
-      }
-    });
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          try (final TCMContainer tcm =
+              new TCMContainer(TARANTOOL_DB_IMAGE_NAME, "tcm", null, PATH_TO_TARANTOOL_CONFIG)) {
+            tcm.start();
+            tcm.publishConfig();
+          }
+        });
   }
 }

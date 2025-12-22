@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -50,8 +50,7 @@ public class OptionsTest {
         Arguments.of(BaseOptions.builder().build().getTimeout()),
         Arguments.of(SelectOptions.builder().build().getTimeout()),
         Arguments.of(DeleteOptions.builder().build().getTimeout()),
-        Arguments.of(UpdateOptions.builder().build().getTimeout())
-    );
+        Arguments.of(UpdateOptions.builder().build().getTimeout()));
   }
 
   @ParameterizedTest
@@ -65,8 +64,7 @@ public class OptionsTest {
         Arguments.of(BaseOptions.builder().build().getStreamId()),
         Arguments.of(SelectOptions.builder().build().getStreamId()),
         Arguments.of(DeleteOptions.builder().build().getStreamId()),
-        Arguments.of(UpdateOptions.builder().build().getStreamId())
-    );
+        Arguments.of(UpdateOptions.builder().build().getStreamId()));
   }
 
   @ParameterizedTest
@@ -75,23 +73,20 @@ public class OptionsTest {
     assertNull(streamId);
   }
 
-
   @Test
   void testDefaultCrudLimit() {
-    assertEquals(io.tarantool.client.crud.options.SelectOptions.DEFAULT_LIMIT,
+    assertEquals(
+        io.tarantool.client.crud.options.SelectOptions.DEFAULT_LIMIT,
         io.tarantool.client.crud.options.SelectOptions.builder().build().getOptions().get("first"));
   }
 
   @Test
   void testAfterWithBefore() {
 
-    assertDoesNotThrow(() -> io.tarantool.client.crud.options.SelectOptions.builder()
-        .withFirst(-1)
-        .build());
+    assertDoesNotThrow(
+        () -> io.tarantool.client.crud.options.SelectOptions.builder().withFirst(-1).build());
 
-    assertDoesNotThrow(() -> io.tarantool.client.crud.options.SelectOptions.builder()
-        .withFirst(1)
-        .build());
+    assertDoesNotThrow(
+        () -> io.tarantool.client.crud.options.SelectOptions.builder().withFirst(1).build());
   }
 }
-

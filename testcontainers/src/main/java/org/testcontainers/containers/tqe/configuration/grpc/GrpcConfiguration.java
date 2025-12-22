@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,11 +11,10 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * Aggregates all configuration for grpc nodes of TQE with version < 3.x
- */
+/** Aggregates all configuration for grpc nodes of TQE with version < 3.x */
 
-//TODO: избавиться от класса после того, как будет завершена задача<a href="https://jira.vk.team/browse/TNTP-5506">
+// TODO: избавиться от класса после того, как будет завершена задача<a
+// href="https://jira.vk.team/browse/TNTP-5506">
 // jira</a>
 /*
 type AppConfig struct {

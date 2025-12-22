@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -27,14 +27,14 @@ import io.tarantool.spring.data33.repository.config.EnableTarantoolRepositories;
 import io.tarantool.spring.data33.utils.TarantoolTestSupport;
 
 /**
- * <p>The test checks whether the Spring framework parses a file with the specified properties correctly. Before
- * creating the test class, a random file with properties is written to the classpath:properties-test.yaml file. Next,
- * when creating a test class the Spring context is raised and parses the file with properties. A test is launched to
- * check the uniqueness of the current properties and properties that were specified in the previous iteration. It is
- * checked that the generated Spring class TarantoolProperty is equal to the class written to the file. Next, the next
- * entry to the file occurs, after which there is a forced reload of the Spring context -> the file with properties is
- * parsed again and everything happens according to circle.
- * </p>
+ * The test checks whether the Spring framework parses a file with the specified properties
+ * correctly. Before creating the test class, a random file with properties is written to the
+ * classpath:properties-test.yaml file. Next, when creating a test class the Spring context is
+ * raised and parses the file with properties. A test is launched to check the uniqueness of the
+ * current properties and properties that were specified in the previous iteration. It is checked
+ * that the generated Spring class TarantoolProperty is equal to the class written to the file.
+ * Next, the next entry to the file occurs, after which there is a forced reload of the Spring
+ * context -> the file with properties is parsed again and everything happens according to circle.
  */
 @SpringBootTest(classes = {TarantoolPropertiesTest.Config.class})
 @TestPropertySource(properties = {Constants.DEFAULT_PROPERTY_FILE_LOCATION_CLASSPATH})
@@ -44,24 +44,26 @@ public class TarantoolPropertiesTest {
   private static TarantoolProperties writtenToFileProperties;
   private static TarantoolProperties prevSpringParsedProperties;
   private static TarantoolProperties prevWrittenToFileProperties;
-  @Autowired
-  private TarantoolProperties springParsedProperties;
+  @Autowired private TarantoolProperties springParsedProperties;
 
-  @MockBean
-  private TarantoolCrudClient client;
+  @MockBean private TarantoolCrudClient client;
 
   @BeforeAll
   static void beforeAll() throws IOException {
-    writtenToFileProperties = TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
+    writtenToFileProperties =
+        TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
   }
 
   @AfterAll
   static void afterAll() throws IOException {
-    Files.deleteIfExists(TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(Constants.DEFAULT_PROPERTY_FILE_NAME));
+    Files.deleteIfExists(
+        TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(
+            Constants.DEFAULT_PROPERTY_FILE_NAME));
   }
 
   /**
-   * The annotation allows you to tell Spring that the context is dirty and needs to be reloaded after the test.
+   * The annotation allows you to tell Spring that the context is dirty and needs to be reloaded
+   * after the test.
    */
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   @RepeatedTest(10)
@@ -74,11 +76,10 @@ public class TarantoolPropertiesTest {
     prevSpringParsedProperties = springParsedProperties;
 
     // Write the Properties class that will be parsed by Spring in the next iteration.
-    writtenToFileProperties = TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
+    writtenToFileProperties =
+        TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
   }
 
   @EnableTarantoolRepositories
   static class Config {}
 }
-
-

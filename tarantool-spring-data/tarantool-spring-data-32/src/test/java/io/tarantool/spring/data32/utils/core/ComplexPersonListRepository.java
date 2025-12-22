@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,4 +13,4 @@ import io.tarantool.spring.data32.utils.entity.CompositePersonKey;
 
 public interface ComplexPersonListRepository
     extends ListCrudRepository<ComplexPerson, CompositePersonKey>,
-    GenericListRepositoryMethods<ComplexPerson, CompositePersonKey> {}
+        GenericListRepositoryMethods<ComplexPerson, CompositePersonKey> {}

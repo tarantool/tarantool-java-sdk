@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,11 +35,12 @@ public class TarantoolCriteriaTest {
     assertEquals(identifier, conditionConstructor.getFieldIdentifier());
     assertEquals(value, conditionConstructor.getValue());
 
-    final Condition conditionFromBuilder = Condition.builder()
-        .withOperator(operator)
-        .withValue(value)
-        .withFieldIdentifier(identifier)
-        .build();
+    final Condition conditionFromBuilder =
+        Condition.builder()
+            .withOperator(operator)
+            .withValue(value)
+            .withFieldIdentifier(identifier)
+            .build();
     assertEquals(operator, conditionFromBuilder.getOperator());
     assertEquals(identifier, conditionFromBuilder.getFieldIdentifier());
     assertEquals(value, conditionFromBuilder.getValue());
@@ -54,11 +55,12 @@ public class TarantoolCriteriaTest {
     assertEquals(identifier, conditionConstructorWithEnum.getFieldIdentifier());
     assertEquals(value, conditionConstructorWithEnum.getValue());
 
-    final Condition conditionFromBuilderWithEnum = Condition.builder()
-        .withOperator(EQ)
-        .withValue(value)
-        .withFieldIdentifier(identifier)
-        .build();
+    final Condition conditionFromBuilderWithEnum =
+        Condition.builder()
+            .withOperator(EQ)
+            .withValue(value)
+            .withFieldIdentifier(identifier)
+            .build();
     assertEquals(operator, conditionFromBuilderWithEnum.getOperator());
     assertEquals(identifier, conditionFromBuilderWithEnum.getFieldIdentifier());
     assertEquals(value, conditionFromBuilderWithEnum.getValue());
@@ -72,12 +74,14 @@ public class TarantoolCriteriaTest {
     tarantoolCriteria.addCondition(conditionFromBuilderWithEnum);
 
     final Conditions expectedConditions = new Conditions();
-    expectedConditions.addAll(Arrays.asList(condition,
-        conditionConstructor,
-        conditionFromBuilder,
-        conditionWithEnum,
-        conditionConstructorWithEnum,
-        conditionFromBuilderWithEnum));
+    expectedConditions.addAll(
+        Arrays.asList(
+            condition,
+            conditionConstructor,
+            conditionFromBuilder,
+            conditionWithEnum,
+            conditionConstructorWithEnum,
+            conditionFromBuilderWithEnum));
 
     assertEquals(expectedConditions, tarantoolCriteria.getConditions());
   }
@@ -96,5 +100,4 @@ public class TarantoolCriteriaTest {
     options = criteria.getOptions();
     assertEquals(-1, options.getOptions().get(key));
   }
-
 }

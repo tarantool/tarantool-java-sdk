@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.mapping.slash.errors;
 
 /**
- * <p>The base class of exceptions when working with the tarantool/errors library.</p>
+ * The base class of exceptions when working with the tarantool/errors library.
  *
  * @author <a href="https://github.com/artdu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
@@ -15,14 +15,14 @@ package io.tarantool.mapping.slash.errors;
 public class TarantoolSlashErrorsException extends RuntimeException {
 
   /**
-   * <p>The reason for the exception.</p>
+   * The reason for the exception.
    *
    * @see TarantoolSlashErrors
    */
   private final TarantoolSlashErrors reason;
 
   /**
-   * <p>Creates a {@link TarantoolSlashErrorsException} object with the given parameters.</p>
+   * Creates a {@link TarantoolSlashErrorsException} object with the given parameters.
    *
    * @param reason {@link TarantoolSlashErrors} object
    */
@@ -32,7 +32,7 @@ public class TarantoolSlashErrorsException extends RuntimeException {
   }
 
   /**
-   * <p>Returns value of reason field.</p>
+   * Returns value of reason field.
    *
    * @return {@link #reason} value.
    */

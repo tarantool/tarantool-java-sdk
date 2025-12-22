@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,7 +28,8 @@ public class PersonReplaceManyFragment implements ReplaceManyFragment<Person> {
     return getResults(this.client.space("person").replaceMany(tuples, Person.class));
   }
 
-  private static List<Person> getResults(CompletableFuture<CrudBatchResponse<List<Tuple<Person>>>> tuples) {
+  private static List<Person> getResults(
+      CompletableFuture<CrudBatchResponse<List<Tuple<Person>>>> tuples) {
     return new ArrayList<>(tuples.join().getRows().stream().map(Tuple::get).toList());
   }
 }

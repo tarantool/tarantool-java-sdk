@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -34,8 +34,7 @@ public class UniversalExtensionModule {
     threadLocalStringBuilder = ThreadLocal.withInitial(StringBuilder::new);
   }
 
-  private UniversalExtensionModule() {
-  }
+  private UniversalExtensionModule() {}
 
   public static class ObjectDeserializer extends UntypedObjectDeserializer {
 
@@ -43,11 +42,14 @@ public class UniversalExtensionModule {
 
     public ObjectDeserializer() {
       super(null, null);
-      deserializers.put(IPROTO_EXT_DECIMAL, new DecimalExtensionModule.BigDecimalDeserializer(BigDecimal.class));
+      deserializers.put(
+          IPROTO_EXT_DECIMAL, new DecimalExtensionModule.BigDecimalDeserializer(BigDecimal.class));
       deserializers.put(IPROTO_EXT_UUID, new UUIDExtensionModule.UUIDDeserializer(UUID.class));
-      deserializers.put(IPROTO_EXT_DATETIME,
+      deserializers.put(
+          IPROTO_EXT_DATETIME,
           new DatetimeExtensionModule.ZonedDateTimeDeserializer(ZonedDateTime.class));
-      deserializers.put(IPROTO_EXT_INTERVAL, new IntervalExtensionModule.IntervalDeserializer(Interval.class));
+      deserializers.put(
+          IPROTO_EXT_INTERVAL, new IntervalExtensionModule.IntervalDeserializer(Interval.class));
       deserializers.put(IPROTO_EXT_TUPLE, new TupleExtensionModule.TupleDeserializer());
     }
 
@@ -57,7 +59,8 @@ public class UniversalExtensionModule {
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-      if (p.currentTokenId() != JsonTokenId.ID_EMBEDDED_OBJECT || !isExtensionValue(p.getEmbeddedObject())) {
+      if (p.currentTokenId() != JsonTokenId.ID_EMBEDDED_OBJECT
+          || !isExtensionValue(p.getEmbeddedObject())) {
         return super.deserialize(p, ctxt);
       }
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
@@ -65,9 +68,11 @@ public class UniversalExtensionModule {
       TarantoolDeserializer<?> res = deserializers.get(type);
       if (res == null) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new IllegalStateException(sb.delete(0, threadLocalStringBuilder.get().length())
-            .append("Deserializer for type Object is not found for 0x")
-            .append(Utils.byteToHex(type)).toString());
+        throw new IllegalStateException(
+            sb.delete(0, threadLocalStringBuilder.get().length())
+                .append("Deserializer for type Object is not found for 0x")
+                .append(Utils.byteToHex(type))
+                .toString());
       }
       return res.deserialize(ext);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -80,11 +80,8 @@ import io.tarantool.core.protocol.IProtoResponse;
 public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
-      IProtoRequestOpts.empty()
-          .withRequestTimeout(5000);
-  @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+      IProtoRequestOpts.empty().withRequestTimeout(5000);
+  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
   private static int spaceAId;
   private static int spaceBId;
 
@@ -110,9 +107,11 @@ public class IProtoClientTest extends BaseTest {
     result = tt.executeCommandDecoded("return box.space.space_a.index[0].name");
     indexAName = (String) result.get(0);
 
-    result = tt.executeCommandDecoded("do local net = require('net.box'); " +
-        "local c = net.connect('127.0.0.1:3301'); " +
-        "return c.schema_version end");
+    result =
+        tt.executeCommandDecoded(
+            "do local net = require('net.box'); "
+                + "local c = net.connect('127.0.0.1:3301'); "
+                + "return c.schema_version end");
     schemaVersion = (Integer) result.get(0);
 
     address = new InetSocketAddress(tt.getHost(), tt.getPort());
@@ -141,44 +140,32 @@ public class IProtoClientTest extends BaseTest {
             0,
             1,
             0,
-            BoxIterator.EQ
-        ),
+            BoxIterator.EQ),
         Arguments.of(
             "box.space.space_a:insert({'key_a', 'value_a'})",
             ValueFactory.newArray(ValueFactory.newString("key_a")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_a"),
-                    ValueFactory.newString("value_a")
-                )
-            ),
+                    ValueFactory.newString("key_a"), ValueFactory.newString("value_a"))),
             spaceAId,
             0,
             1,
             0,
-            BoxIterator.EQ
-        ),
+            BoxIterator.EQ),
         Arguments.of(
-            "box.space.space_a:insert({'key_a', 'value_a'});" +
-                "box.space.space_a:insert({'key_b', 'value_b'})",
+            "box.space.space_a:insert({'key_a', 'value_a'});"
+                + "box.space.space_a:insert({'key_b', 'value_b'})",
             ValueFactory.newArray(ValueFactory.newString("key_a")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_a"),
-                    ValueFactory.newString("value_a")
-                ),
+                    ValueFactory.newString("key_a"), ValueFactory.newString("value_a")),
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_b"),
-                    ValueFactory.newString("value_b")
-                )
-            ),
+                    ValueFactory.newString("key_b"), ValueFactory.newString("value_b"))),
             spaceAId,
             0,
             2,
             0,
-            BoxIterator.GE
-        )
-    );
+            BoxIterator.GE));
   }
 
   private static Stream<Arguments> dataForTestSelectWithSpaceAndIndexNames() {
@@ -282,25 +269,19 @@ public class IProtoClientTest extends BaseTest {
             1,
             0,
             BoxIterator.EQ));
-
-
   }
 
   private static Stream<Arguments> dataForTestInsertAndReplace() {
-    ArrayValue tuple = ValueFactory.newArray(
-        ValueFactory.newString("key_c"),
-        ValueFactory.newString("value_c")
-    );
+    ArrayValue tuple =
+        ValueFactory.newArray(ValueFactory.newString("key_c"), ValueFactory.newString("value_c"));
     return Stream.of(
         Arguments.of(spaceAId, tuple, "return box.space.space_a:get('key_c')"),
-        Arguments.of(spaceBId, tuple, "return box.space.space_b:get('key_c')")
-    );
+        Arguments.of(spaceBId, tuple, "return box.space.space_b:get('key_c')"));
   }
 
   private static Stream<Arguments> dataForTestInsertAndReplaceWithSpaceAndeIndexNames() {
-    ArrayValue tuple = ValueFactory.newArray(
-        ValueFactory.newString("key_c"),
-        ValueFactory.newString("value_c"));
+    ArrayValue tuple =
+        ValueFactory.newArray(ValueFactory.newString("key_c"), ValueFactory.newString("value_c"));
     return Stream.of(
         Arguments.of(null, spaceAName, tuple, "return box.space.space_a:get('key_c')"),
         Arguments.of(spaceAId, null, tuple, "return box.space.space_a:get('key_c')"),
@@ -319,17 +300,11 @@ public class IProtoClientTest extends BaseTest {
                 ValueFactory.newArray(
                     ValueFactory.newString("="),
                     ValueFactory.newInteger(1),
-                    ValueFactory.newString("new_value_c")
-                )
-            ),
+                    ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c")
-                )
-            ),
-            "return box.space.space_a:get('key_c')"
-        ),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
+            "return box.space.space_a:get('key_c')"),
         // update in space with trigger calling box.session.push
         Arguments.of(
             "return insert('space_b', {'key_b', 'value_b'})",
@@ -340,18 +315,11 @@ public class IProtoClientTest extends BaseTest {
                 ValueFactory.newArray(
                     ValueFactory.newString("="),
                     ValueFactory.newInteger(1),
-                    ValueFactory.newString("new_value_b")
-                )
-            ),
+                    ValueFactory.newString("new_value_b"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_b"),
-                    ValueFactory.newString("new_value_b")
-                )
-            ),
-            "return box.space.space_b:get('key_b')"
-        )
-    );
+                    ValueFactory.newString("key_b"), ValueFactory.newString("new_value_b"))),
+            "return box.space.space_b:get('key_b')"));
   }
 
   private static Stream<Arguments> dataForTestUpdateWithSpaceAndIndexNames() {
@@ -371,8 +339,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -388,8 +355,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -405,8 +371,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -422,8 +387,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -439,8 +403,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -456,8 +419,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -473,8 +435,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -490,8 +451,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_c', 'value_c'})",
@@ -507,8 +467,7 @@ public class IProtoClientTest extends BaseTest {
                     ValueFactory.newString("new_value_c"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_c"),
-                    ValueFactory.newString("new_value_c"))),
+                    ValueFactory.newString("key_c"), ValueFactory.newString("new_value_c"))),
             "return box.space.space_a:get('key_c')"));
   }
 
@@ -524,14 +483,9 @@ public class IProtoClientTest extends BaseTest {
               ValueFactory.newArray(ValueFactory.newString("key_d")),
               ValueFactory.newArray(
                   ValueFactory.newArray(
-                      ValueFactory.newString("key_d"),
-                      ValueFactory.newString("value_d")
-                  )
-              ),
+                      ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
               "return box.space.space_a:get('key_d')",
-              i % 2 == 0
-          )
-      );
+              i % 2 == 0));
       argumentsList.add(
           // delete non-existing record
           Arguments.of(
@@ -541,9 +495,7 @@ public class IProtoClientTest extends BaseTest {
               ValueFactory.newArray(ValueFactory.newString("key_d")),
               ValueFactory.emptyArray(),
               "return box.space.space_a:get('key_d')",
-              i % 2 == 0
-          )
-      );
+              i % 2 == 0));
       argumentsList.add(
           // delete from space with trigger calling box.session.push()
           Arguments.of(
@@ -553,14 +505,9 @@ public class IProtoClientTest extends BaseTest {
               ValueFactory.newArray(ValueFactory.newString("key_b")),
               ValueFactory.newArray(
                   ValueFactory.newArray(
-                      ValueFactory.newString("key_b"),
-                      ValueFactory.newString("value_b")
-                  )
-              ),
+                      ValueFactory.newString("key_b"), ValueFactory.newString("value_b"))),
               "return box.space.space_b:get('key_b')",
-              i % 2 == 0
-          )
-      );
+              i % 2 == 0));
     }
 
     return argumentsList.stream();
@@ -578,8 +525,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -590,8 +536,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -602,8 +547,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -614,8 +558,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -626,8 +569,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -638,8 +580,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -650,8 +591,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -662,8 +602,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"),
         Arguments.of(
             "return box.space.space_a:insert({'key_d', 'value_d'})",
@@ -674,8 +613,7 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(ValueFactory.newString("key_d")),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_d"),
-                    ValueFactory.newString("value_d"))),
+                    ValueFactory.newString("key_d"), ValueFactory.newString("value_d"))),
             "return box.space.space_a:get('key_d')"));
   }
 
@@ -685,13 +623,10 @@ public class IProtoClientTest extends BaseTest {
     StringValue valueAfterInsert = ValueFactory.newString("value_insert");
     StringValue valueAfterUpdate = ValueFactory.newString("value_update");
     ArrayValue toInsert = ValueFactory.newArray(key, valueAfterInsert);
-    ArrayValue toUpdate = ValueFactory.newArray(
+    ArrayValue toUpdate =
         ValueFactory.newArray(
-            ValueFactory.newString("="),
-            ValueFactory.newInteger(1),
-            valueAfterUpdate
-        )
-    );
+            ValueFactory.newArray(
+                ValueFactory.newString("="), ValueFactory.newInteger(1), valueAfterUpdate));
     String checkA = "return box.space.space_a:get('key_e')";
     String checkB = "return box.space.space_b:get('key_e')";
     return Stream.of(
@@ -702,8 +637,7 @@ public class IProtoClientTest extends BaseTest {
             toInsert,
             toUpdate,
             ValueFactory.newArray(key, valueAfterUpdate),
-            checkA
-        ),
+            checkA),
         Arguments.of(
             "return",
             spaceAId,
@@ -711,8 +645,7 @@ public class IProtoClientTest extends BaseTest {
             toInsert,
             toUpdate,
             ValueFactory.newArray(key, valueAfterInsert),
-            checkA
-        ),
+            checkA),
         Arguments.of(
             "return insert('space_b', {'key_e', 'value_old'})",
             spaceBId,
@@ -720,8 +653,7 @@ public class IProtoClientTest extends BaseTest {
             toInsert,
             toUpdate,
             ValueFactory.newArray(key, valueAfterUpdate),
-            checkB
-        ),
+            checkB),
         Arguments.of(
             "return",
             spaceBId,
@@ -729,9 +661,7 @@ public class IProtoClientTest extends BaseTest {
             toInsert,
             toUpdate,
             ValueFactory.newArray(key, valueAfterInsert),
-            checkB
-        )
-    );
+            checkB));
   }
 
   private static Stream<Arguments> dataForTestUpsertWithSpaceAndIndexNames() {
@@ -740,11 +670,10 @@ public class IProtoClientTest extends BaseTest {
     StringValue valueAfterInsert = ValueFactory.newString("value_insert");
     StringValue valueAfterUpdate = ValueFactory.newString("value_update");
     ArrayValue toInsert = ValueFactory.newArray(key, valueAfterInsert);
-    ArrayValue toUpdate = ValueFactory.newArray(
+    ArrayValue toUpdate =
         ValueFactory.newArray(
-            ValueFactory.newString("="),
-            ValueFactory.newInteger(1),
-            valueAfterUpdate));
+            ValueFactory.newArray(
+                ValueFactory.newString("="), ValueFactory.newInteger(1), valueAfterUpdate));
     String checkA = "return box.space.space_a:get('key_e')";
     return Stream.of(
         Arguments.of(
@@ -773,8 +702,7 @@ public class IProtoClientTest extends BaseTest {
             toInsert,
             toUpdate,
             ValueFactory.newArray(key, valueAfterUpdate),
-            checkA)
-    );
+            checkA));
   }
 
   private static Stream<Arguments> dataForTestEval() {
@@ -784,39 +712,19 @@ public class IProtoClientTest extends BaseTest {
             ValueFactory.newArray(
                 ValueFactory.newInteger(1),
                 ValueFactory.newInteger(2),
-                ValueFactory.newString("three")
-            ),
-            ValueFactory.newArray(
-                ValueFactory.newInteger(3),
-                ValueFactory.newString("three")
-            )
-        ),
+                ValueFactory.newString("three")),
+            ValueFactory.newArray(ValueFactory.newInteger(3), ValueFactory.newString("three"))),
         Arguments.of(
-            "return nil",
-            ValueFactory.newArray(),
-            ValueFactory.newArray(ValueFactory.newNil())
-        ),
-        Arguments.of(
-            "return",
-            ValueFactory.emptyArray(),
-            ValueFactory.emptyArray()
-        ),
+            "return nil", ValueFactory.newArray(), ValueFactory.newArray(ValueFactory.newNil())),
+        Arguments.of("return", ValueFactory.emptyArray(), ValueFactory.emptyArray()),
         Arguments.of(
             "return nil, nil",
             ValueFactory.emptyArray(),
-            ValueFactory.newArray(
-                ValueFactory.newNil(),
-                ValueFactory.newNil()
-            )
-        ),
+            ValueFactory.newArray(ValueFactory.newNil(), ValueFactory.newNil())),
         Arguments.of(
             "return 1, nil",
             ValueFactory.emptyArray(),
-            ValueFactory.newArray(
-                ValueFactory.newInteger(1),
-                ValueFactory.newNil()
-            )
-        ),
+            ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newNil())),
         Arguments.of(
             "return nil, { 1, 2, 3 }",
             ValueFactory.emptyArray(),
@@ -825,64 +733,31 @@ public class IProtoClientTest extends BaseTest {
                 ValueFactory.newArray(
                     ValueFactory.newInteger(1),
                     ValueFactory.newInteger(2),
-                    ValueFactory.newInteger(3)
-                )
-            )
-        ),
+                    ValueFactory.newInteger(3)))),
         Arguments.of(
             "return echo(1, nil)",
             ValueFactory.emptyArray(),
-            ValueFactory.newArray(
-                ValueFactory.newInteger(1),
-                ValueFactory.newNil()
-            )
-        ),
+            ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newNil())),
         Arguments.of(
             "return nil, echo(1, box.NULL)",
             ValueFactory.emptyArray(),
             ValueFactory.newArray(
-                ValueFactory.newNil(),
-                ValueFactory.newInteger(1),
-                ValueFactory.newNil()
-            )
-        )
-    );
+                ValueFactory.newNil(), ValueFactory.newInteger(1), ValueFactory.newNil())));
   }
 
   private static Stream<Arguments> dataForTestEvalError() {
     return Stream.of(
-        Arguments.of(
-            "return echo",
-            IPROTO_ERR_INVALID_MSGPACK
-        ),
-        Arguments.of(
-            "return error('lua error')",
-            IPROTO_ERR_INVALID_MSGPACK
-        ),
-        Arguments.of(
-            "error('lua error')",
-            IPROTO_ERR_INVALID_MSGPACK
-        ),
-        Arguments.of(
-            "return 'zero' / 0",
-            IPROTO_ERR_INVALID_MSGPACK
-        ),
-        Arguments.of(
-            "return box.error({reason = 'box.error'})",
-            IPROTO_ERR_UNKNOWN
-        ),
-        Arguments.of(
-            "return box.error({reason = 'box.error', code = 32})",
-            IPROTO_ERR_PROC_LUA
-        )
-    );
+        Arguments.of("return echo", IPROTO_ERR_INVALID_MSGPACK),
+        Arguments.of("return error('lua error')", IPROTO_ERR_INVALID_MSGPACK),
+        Arguments.of("error('lua error')", IPROTO_ERR_INVALID_MSGPACK),
+        Arguments.of("return 'zero' / 0", IPROTO_ERR_INVALID_MSGPACK),
+        Arguments.of("return box.error({reason = 'box.error'})", IPROTO_ERR_UNKNOWN),
+        Arguments.of("return box.error({reason = 'box.error', code = 32})", IPROTO_ERR_PROC_LUA));
   }
 
   public static Stream<Arguments> dataForTestEvalWithPushHandler() {
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     return Stream.of(
         Arguments.of(
             "return echo_with_push(...)",
@@ -890,48 +765,56 @@ public class IProtoClientTest extends BaseTest {
             Arrays.asList(
                 ValueFactory.newArray(
                     ValueFactory.newArray(
-                        ValueFactory.newString("push1"),
-                        ValueFactory.newString("out of band")
-                    )
-                ),
+                        ValueFactory.newString("push1"), ValueFactory.newString("out of band"))),
                 ValueFactory.newArray(
                     ValueFactory.newArray(
-                        ValueFactory.newString("push2"),
-                        ValueFactory.newString("out of band")
-                    )
-                )
-            )
-        ),
-        Arguments.of("return echo(...)", args, Collections.emptyList())
-    );
+                        ValueFactory.newString("push2"), ValueFactory.newString("out of band"))))),
+        Arguments.of("return echo(...)", args, Collections.emptyList()));
   }
 
   private static Stream<Arguments> dataForTestCallError() {
     return Stream.of(
-        Arguments.of("nonecho", IPROTO_ERR_NO_SUCH_PROC, Collections.singletonList(
-            Arrays.asList("ClientError", "./src/box/lua/call.c", "Procedure 'nonecho' is not defined", 33L, 0L)
-        )),
-        Arguments.of("fail", IPROTO_ERR_PROC_LUA, Collections.singletonList(
-            Arrays.asList("LuajitError", "./src/lua/utils.c", "Fail!", 32L, 0L)
-        )),
-        Arguments.of("fail_by_box_error", IPROTO_ERR_UNKNOWN, Collections.singletonList(
-            Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L)
-        )),
-        Arguments.of("wrong_ret", IPROTO_ERR_INVALID_MSGPACK, Collections.singletonList(
-            Arrays.asList("LuajitError", "./src/lua/serializer.c", "unsupported Lua type 'function'", 32L, 0L)
-        )),
-        Arguments.of("wrapped_fail_by_box_error", IPROTO_ERR_UNKNOWN, Arrays.asList(
-            Arrays.asList("ClientError", "/app/server.lua", "wrapped failure", 0L, 0L),
-            Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L)
-        ))
-    );
+        Arguments.of(
+            "nonecho",
+            IPROTO_ERR_NO_SUCH_PROC,
+            Collections.singletonList(
+                Arrays.asList(
+                    "ClientError",
+                    "./src/box/lua/call.c",
+                    "Procedure 'nonecho' is not defined",
+                    33L,
+                    0L))),
+        Arguments.of(
+            "fail",
+            IPROTO_ERR_PROC_LUA,
+            Collections.singletonList(
+                Arrays.asList("LuajitError", "./src/lua/utils.c", "Fail!", 32L, 0L))),
+        Arguments.of(
+            "fail_by_box_error",
+            IPROTO_ERR_UNKNOWN,
+            Collections.singletonList(
+                Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L))),
+        Arguments.of(
+            "wrong_ret",
+            IPROTO_ERR_INVALID_MSGPACK,
+            Collections.singletonList(
+                Arrays.asList(
+                    "LuajitError",
+                    "./src/lua/serializer.c",
+                    "unsupported Lua type 'function'",
+                    32L,
+                    0L))),
+        Arguments.of(
+            "wrapped_fail_by_box_error",
+            IPROTO_ERR_UNKNOWN,
+            Arrays.asList(
+                Arrays.asList("ClientError", "/app/server.lua", "wrapped failure", 0L, 0L),
+                Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L))));
   }
 
   private static Stream<Arguments> dataForTestCallWithPushHandler() {
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     return Stream.of(
         Arguments.of(
             "echo_with_push",
@@ -939,20 +822,11 @@ public class IProtoClientTest extends BaseTest {
             Arrays.asList(
                 ValueFactory.newArray(
                     ValueFactory.newArray(
-                        ValueFactory.newString("push1"),
-                        ValueFactory.newString("out of band")
-                    )
-                ),
+                        ValueFactory.newString("push1"), ValueFactory.newString("out of band"))),
                 ValueFactory.newArray(
                     ValueFactory.newArray(
-                        ValueFactory.newString("push2"),
-                        ValueFactory.newString("out of band")
-                    )
-                )
-            )
-        ),
-        Arguments.of("echo", args, Collections.emptyList())
-    );
+                        ValueFactory.newString("push2"), ValueFactory.newString("out of band"))))),
+        Arguments.of("echo", args, Collections.emptyList()));
   }
 
   @BeforeEach
@@ -976,21 +850,21 @@ public class IProtoClientTest extends BaseTest {
         tuple,
         ValueFactory.newArray(
             ValueFactory.newString((String) stored.get(0)),
-            ValueFactory.newString((String) stored.get(1))
-        )
-    );
+            ValueFactory.newString((String) stored.get(1))));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestSelect")
-  public void testSelect(String toPrepare,
+  public void testSelect(
+      String toPrepare,
       ArrayValue key,
       ArrayValue expected,
       Integer space,
       Integer index,
       Integer limit,
       Integer offset,
-      BoxIterator iterator) throws Exception {
+      BoxIterator iterator)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1002,14 +876,16 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestSelect")
-  public void testRawSelect(String toPrepare,
+  public void testRawSelect(
+      String toPrepare,
       ArrayValue key,
       ArrayValue expected,
       Integer space,
       Integer index,
       Integer limit,
       Integer offset,
-      BoxIterator iterator) throws Exception {
+      BoxIterator iterator)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1023,7 +899,8 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestSelectWithSpaceAndIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testSelectWithSpaceAndIndexNames(String toPrepare,
+  public void testSelectWithSpaceAndIndexNames(
+      String toPrepare,
       ArrayValue key,
       ArrayValue expected,
       Integer space,
@@ -1032,39 +909,48 @@ public class IProtoClientTest extends BaseTest {
       String indexName,
       Integer limit,
       Integer offset,
-      BoxIterator iterator) throws Exception {
+      BoxIterator iterator)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
 
-    IProtoMessage message = client.select(space,
-        spaceName,
-        index,
-        indexName,
-        rawKey,
-        limit,
-        offset,
-        iterator,
-        false,
-        null,
-        null,
-        DEFAULT_REQUEST_OPTS).get();
+    IProtoMessage message =
+        client
+            .select(
+                space,
+                spaceName,
+                index,
+                indexName,
+                rawKey,
+                limit,
+                offset,
+                iterator,
+                false,
+                null,
+                null,
+                DEFAULT_REQUEST_OPTS)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(expected, message.getBodyArrayValue(IPROTO_DATA));
 
-    message = client.select(space,
-        spaceName,
-        index,
-        indexName,
-        key,
-        limit,
-        offset,
-        iterator,
-        false,
-        null,
-        null,
-        DEFAULT_REQUEST_OPTS).get();
+    message =
+        client
+            .select(
+                space,
+                spaceName,
+                index,
+                indexName,
+                key,
+                limit,
+                offset,
+                iterator,
+                false,
+                null,
+                null,
+                DEFAULT_REQUEST_OPTS)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 5);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
@@ -1072,8 +958,7 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestInsertAndReplace")
-  public void testInsert(Integer space, ArrayValue tuple, String check)
-      throws Exception {
+  public void testInsert(Integer space, ArrayValue tuple, String check) throws Exception {
 
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1100,8 +985,8 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestInsertAndReplaceWithSpaceAndeIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testInsertWithSpaceAndIndexNames(Integer space, String spaceName, ArrayValue tuple, String check)
-      throws Exception {
+  public void testInsertWithSpaceAndIndexNames(
+      Integer space, String spaceName, ArrayValue tuple, String check) throws Exception {
 
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1148,8 +1033,8 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestInsertAndReplaceWithSpaceAndeIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testReplaceWithSpaceAndIndexNames(Integer space, String spaceName, ArrayValue tuple, String check)
-      throws Exception {
+  public void testReplaceWithSpaceAndIndexNames(
+      Integer space, String spaceName, ArrayValue tuple, String check) throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawTuple = ArrayValueToBytes(tuple);
@@ -1168,13 +1053,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestUpdate")
-  public void testUpdate(String toPrepare,
+  public void testUpdate(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue key,
       ArrayValue operations,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1187,13 +1074,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestUpdate")
-  public void testRawUpdate(String toPrepare,
+  public void testRawUpdate(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue key,
       ArrayValue operations,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1209,7 +1098,8 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestUpdateWithSpaceAndIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testUpdateWithSpaceAndIndexNames(String toPrepare,
+  public void testUpdateWithSpaceAndIndexNames(
+      String toPrepare,
       Integer space,
       String spaceName,
       Integer index,
@@ -1217,31 +1107,26 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue key,
       ArrayValue operations,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
     byte[] rawOperations = ArrayValueToBytes(operations);
-    IProtoMessage message = client.update(space,
-        spaceName,
-        index,
-        indexName,
-        rawKey,
-        rawOperations,
-        DEFAULT_REQUEST_OPTS).get();
+    IProtoMessage message =
+        client
+            .update(space, spaceName, index, indexName, rawKey, rawOperations, DEFAULT_REQUEST_OPTS)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
     checkTuple(check, expected.get(0).asArrayValue());
 
-    message = client.update(space,
-        spaceName,
-        index,
-        indexName,
-        key,
-        operations,
-        DEFAULT_REQUEST_OPTS).get();
+    message =
+        client
+            .update(space, spaceName, index, indexName, key, operations, DEFAULT_REQUEST_OPTS)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 5);
     data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
@@ -1250,13 +1135,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestDelete")
-  public void testDelete(String toPrepare,
+  public void testDelete(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue key,
       ArrayValue expected,
       String check,
-      boolean useTupleExtension) throws Exception {
+      boolean useTupleExtension)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1270,13 +1157,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestDelete")
-  public void testRawDelete(String toPrepare,
+  public void testRawDelete(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue key,
       ArrayValue expected,
       String check,
-      boolean useTupleExtension) throws Exception {
+      boolean useTupleExtension)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1292,19 +1181,22 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestDeleteWithSpaceAndIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testDeleteWithSpaceAndIndexNames(String toPrepare,
+  public void testDeleteWithSpaceAndIndexNames(
+      String toPrepare,
       Integer space,
       String spaceName,
       Integer index,
       String indexName,
       ArrayValue key,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
-    IProtoMessage message = client.delete(space, spaceName, index, indexName, rawKey, DEFAULT_REQUEST_OPTS).get();
+    IProtoMessage message =
+        client.delete(space, spaceName, index, indexName, rawKey, DEFAULT_REQUEST_OPTS).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
@@ -1322,13 +1214,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestUpsert")
-  public void testUpsert(String toPrepare,
+  public void testUpsert(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue toInsert,
       ArrayValue toUpdate,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1340,13 +1234,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestUpsert")
-  public void testRawUpsert(String toPrepare,
+  public void testRawUpsert(
+      String toPrepare,
       Integer space,
       Integer index,
       ArrayValue toInsert,
       ArrayValue toUpdate,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
@@ -1361,35 +1257,31 @@ public class IProtoClientTest extends BaseTest {
   @ParameterizedTest
   @MethodSource("dataForTestUpsertWithSpaceAndIndexNames")
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
-  public void testUpsertWithSpaceAndIndexNames(String toPrepare,
+  public void testUpsertWithSpaceAndIndexNames(
+      String toPrepare,
       Integer space,
       String spaceName,
       Integer index,
       ArrayValue toInsert,
       ArrayValue toUpdate,
       ArrayValue expected,
-      String check) throws Exception {
+      String check)
+      throws Exception {
     tt.executeCommand(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawToInsert = ArrayValueToBytes(toInsert);
     byte[] rawToUpdate = ArrayValueToBytes(toUpdate);
-    IProtoMessage message = client.upsert(space,
-        spaceName,
-        index,
-        rawToInsert,
-        rawToUpdate,
-        DEFAULT_REQUEST_OPTS).get();
+    IProtoMessage message =
+        client
+            .upsert(space, spaceName, index, rawToInsert, rawToUpdate, DEFAULT_REQUEST_OPTS)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(0, message.getBodyArrayValue(IPROTO_DATA).size());
     checkTuple(check, expected);
 
-    message = client.upsert(space,
-        spaceName,
-        index,
-        toInsert,
-        toUpdate,
-        DEFAULT_REQUEST_OPTS).get();
+    message =
+        client.upsert(space, spaceName, index, toInsert, toUpdate, DEFAULT_REQUEST_OPTS).get();
     checkMessageHeader(message, IPROTO_OK, 5);
     assertEquals(0, message.getBodyArrayValue(IPROTO_DATA).size());
     checkTuple(check, expected);
@@ -1400,10 +1292,8 @@ public class IProtoClientTest extends BaseTest {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
 
-    ArrayValue tuple = ValueFactory.newArray(
-        ValueFactory.newString("key_f"),
-        ValueFactory.newString("value_f")
-    );
+    ArrayValue tuple =
+        ValueFactory.newArray(ValueFactory.newString("key_f"), ValueFactory.newString("value_f"));
     List<ArrayValue> messages = new ArrayList<>();
     Consumer<IProtoMessage> consumer = m -> messages.add(m.getBodyArrayValue(IPROTO_DATA));
     IProtoMessage message;
@@ -1419,77 +1309,60 @@ public class IProtoClientTest extends BaseTest {
     data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(ValueFactory.newArray(tuple), decodeTuple(client, data));
 
-    message = client.update(
-        spaceBId,
-        null,
-        0,
-        null,
-        ValueFactory.newArray(ValueFactory.newString("key_f")),
-        ValueFactory.newArray(
-            ValueFactory.newArray(
-                ValueFactory.newString("="),
-                ValueFactory.newInteger(1),
-                ValueFactory.newString("value_g")
-            )
-        ),
-        opts
-    ).get();
+    message =
+        client
+            .update(
+                spaceBId,
+                null,
+                0,
+                null,
+                ValueFactory.newArray(ValueFactory.newString("key_f")),
+                ValueFactory.newArray(
+                    ValueFactory.newArray(
+                        ValueFactory.newString("="),
+                        ValueFactory.newInteger(1),
+                        ValueFactory.newString("value_g"))),
+                opts)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 6);
     data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(
         ValueFactory.newArray(
             ValueFactory.newArray(
-                ValueFactory.newString("key_f"),
-                ValueFactory.newString("value_g")
-            )
-        ),
-        decodeTuple(client, data)
-    );
+                ValueFactory.newString("key_f"), ValueFactory.newString("value_g"))),
+        decodeTuple(client, data));
 
-    message = client.delete(
-        spaceBId,
-        null,
-        0,
-        null,
-        ValueFactory.newArray(ValueFactory.newString("key_f")),
-        opts
-    ).get();
+    message =
+        client
+            .delete(
+                spaceBId,
+                null,
+                0,
+                null,
+                ValueFactory.newArray(ValueFactory.newString("key_f")),
+                opts)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 7);
     data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(
         ValueFactory.newArray(
             ValueFactory.newArray(
-                ValueFactory.newString("key_f"),
-                ValueFactory.newString("value_g")
-            )
-        ),
-        decodeTuple(client, data)
-    );
+                ValueFactory.newString("key_f"), ValueFactory.newString("value_g"))),
+        decodeTuple(client, data));
 
     assertEquals(
         Arrays.asList(
             ValueFactory.newArray(ValueFactory.newNil()),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_f"),
-                    ValueFactory.newString("value_f")
-                )
-            ),
+                    ValueFactory.newString("key_f"), ValueFactory.newString("value_f"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_f"),
-                    ValueFactory.newString("value_f")
-                )
-            ),
+                    ValueFactory.newString("key_f"), ValueFactory.newString("value_f"))),
             ValueFactory.newArray(
                 ValueFactory.newArray(
-                    ValueFactory.newString("key_f"),
-                    ValueFactory.newString("value_g")
-                )
-            )
-        ),
-        messages
-    );
+                    ValueFactory.newString("key_f"), ValueFactory.newString("value_g")))),
+        messages);
   }
 
   @Test
@@ -1504,11 +1377,11 @@ public class IProtoClientTest extends BaseTest {
   public void testWhenEvalWithGuestRoleThenThrowBoxError() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
 
-    CompletableFuture<IProtoResponse> response = client.eval("return box.info.version", ValueFactory.emptyArray());
+    CompletableFuture<IProtoResponse> response =
+        client.eval("return box.info.version", ValueFactory.emptyArray());
 
-    Throwable throwable = findRootCause(
-        Assertions.assertThrows(CompletionException.class, response::join)
-    );
+    Throwable throwable =
+        findRootCause(Assertions.assertThrows(CompletionException.class, response::join));
 
     Assertions.assertEquals(BoxError.class, throwable.getClass());
   }
@@ -1525,10 +1398,10 @@ public class IProtoClientTest extends BaseTest {
 
     BoxError boxError = (BoxError) rootCause;
 
-    List<String> ERROR_MESSAGES = Arrays.asList(
-        "Incorrect password supplied for user 'user_a'",
-        "User not found or supplied credentials are invalid"
-    );
+    List<String> ERROR_MESSAGES =
+        Arrays.asList(
+            "Incorrect password supplied for user 'user_a'",
+            "User not found or supplied credentials are invalid");
 
     assertEquals(IPROTO_ERR_CREDS_MISMATCH, boxError.getErrorCode());
     assertEquals(1, boxError.getTarantoolStack().size());
@@ -1590,10 +1463,10 @@ public class IProtoClientTest extends BaseTest {
     IProtoClient client = createClientAndConnect(address, true);
     assertDoesNotThrow(() -> client.authorize("user_d", "secret_d").join());
 
-    Exception ex = assertThrows(
-        CompletionException.class,
-        () -> client.eval("return 1 + 1", ValueFactory.emptyArray()).join()
-    );
+    Exception ex =
+        assertThrows(
+            CompletionException.class,
+            () -> client.eval("return 1 + 1", ValueFactory.emptyArray()).join());
 
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
@@ -1643,8 +1516,9 @@ public class IProtoClientTest extends BaseTest {
   public void testId() throws Exception {
     Set<IProtoFeature> iprotoFeature = EnumSet.allOf(IProtoFeature.class);
 
-    IProtoClient client = new IProtoClientImpl(
-        factory, factory.getTimerService(), DEFAULT_WATCHER_OPTS, null, null, true);
+    IProtoClient client =
+        new IProtoClientImpl(
+            factory, factory.getTimerService(), DEFAULT_WATCHER_OPTS, null, null, true);
     assertEquals(iprotoFeature, client.getClientFeatures());
     assertEquals(7, client.getClientProtocolVersion());
 
@@ -1659,7 +1533,9 @@ public class IProtoClientTest extends BaseTest {
     ex = assertThrows(CompletionException.class, client::getServerProtocolVersion).getCause();
     assertEquals("Call connect before getting server details", ex.getMessage());
 
-    client.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    client
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     if (tarantoolVersion != '3') {
       iprotoFeature = EnumSet.range(STREAMS, PAGINATION);
@@ -1670,9 +1546,7 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEval")
-  public void testEval(String expression,
-      ArrayValue args,
-      ArrayValue expected) throws Exception {
+  public void testEval(String expression, ArrayValue args, ArrayValue expected) throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.eval(expression, args).get();
@@ -1682,9 +1556,8 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEval")
-  public void testRawEval(String expression,
-      ArrayValue args,
-      ArrayValue expected) throws Exception {
+  public void testRawEval(String expression, ArrayValue args, ArrayValue expected)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawArgs = ArrayValueToBytes(args);
@@ -1722,19 +1595,19 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEvalWithPushHandler")
-  public void testEvalWithPushHandler(String expression,
-      ArrayValue args,
-      List<ArrayValue> expected) throws Exception {
+  public void testEvalWithPushHandler(String expression, ArrayValue args, List<ArrayValue> expected)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     List<ArrayValue> messages = new ArrayList<>();
-    IProtoMessage message = client.eval(
-        expression,
-        args,
-        IProtoRequestOpts
-            .empty()
-            .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA)))
-    ).get();
+    IProtoMessage message =
+        client
+            .eval(
+                expression,
+                args,
+                IProtoRequestOpts.empty()
+                    .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA))))
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
     assertEquals(expected, messages);
@@ -1742,21 +1615,21 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEvalWithPushHandler")
-  public void testRawEvalWithPushHandler(String expression,
-      ArrayValue args,
-      List<ArrayValue> expected) throws Exception {
+  public void testRawEvalWithPushHandler(
+      String expression, ArrayValue args, List<ArrayValue> expected) throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     List<ArrayValue> messages = new ArrayList<>();
     byte[] rawArgs = ArrayValueToBytes(args);
-    IProtoMessage message = client.eval(
-        expression,
-        rawArgs,
-        null,
-        IProtoRequestOpts
-            .empty()
-            .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA)))
-    ).get();
+    IProtoMessage message =
+        client
+            .eval(
+                expression,
+                rawArgs,
+                null,
+                IProtoRequestOpts.empty()
+                    .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA))))
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
     assertEquals(expected, messages);
@@ -1767,10 +1640,8 @@ public class IProtoClientTest extends BaseTest {
   public void testCall(String function) throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     IProtoMessage message = client.call(function, args).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
@@ -1781,10 +1652,8 @@ public class IProtoClientTest extends BaseTest {
   public void testRawCall(String function) throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     byte[] rawArgs = ArrayValueToBytes(args);
     IProtoMessage message = client.call(function, rawArgs).get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -1795,21 +1664,18 @@ public class IProtoClientTest extends BaseTest {
   public void testCallTimeout() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", args, opts);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertEquals(TimeoutException.class, cause.getClass());
     assertEquals(
-        "Request timeout: " +
-            "IProtoCall(syncId = 4, function = slow_echo, args = [\"one\",1]); " +
-            "timeout = 1000ms",
-        cause.getMessage()
-    );
+        "Request timeout: "
+            + "IProtoCall(syncId = 4, function = slow_echo, args = [\"one\",1]); "
+            + "timeout = 1000ms",
+        cause.getMessage());
   }
 
   @Test
@@ -1818,21 +1684,18 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     Map<Long, IProtoResponse> ignoredPackets = new HashMap<>();
     client.onIgnoredPacket(packet -> ignoredPackets.put(packet.getSyncId(), packet));
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", args, opts);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertEquals(TimeoutException.class, cause.getClass());
     assertEquals(
-        "Request timeout: " +
-            "IProtoCall(syncId = 4, function = slow_echo, args = [\"one\",1]); " +
-            "timeout = 1000ms",
-        cause.getMessage()
-    );
+        "Request timeout: "
+            + "IProtoCall(syncId = 4, function = slow_echo, args = [\"one\",1]); "
+            + "timeout = 1000ms",
+        cause.getMessage());
     assertEquals(0, ignoredPackets.size());
     Thread.sleep(600);
     assertEquals(1, ignoredPackets.size());
@@ -1845,10 +1708,8 @@ public class IProtoClientTest extends BaseTest {
   public void testRawCallTimeout() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     byte[] rawArgs = ArrayValueToBytes(args);
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", rawArgs, null, opts);
@@ -1861,10 +1722,8 @@ public class IProtoClientTest extends BaseTest {
   public void testCallNoTimeout() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
     IProtoMessage message = client.call("nonslow_echo", args, opts).get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -1875,25 +1734,19 @@ public class IProtoClientTest extends BaseTest {
   public void testRawCallNoTimeout() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     byte[] rawArgs = ArrayValueToBytes(args);
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
-    IProtoMessage message = client.call(
-        "nonslow_echo",
-        rawArgs,
-        null,
-        opts
-    ).get();
+    IProtoMessage message = client.call("nonslow_echo", rawArgs, null, opts).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestCallError")
-  public void testCallError(String function, Integer errorCode, List<List<Object>> stack) throws Exception {
+  public void testCallError(String function, Integer errorCode, List<List<Object>> stack)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue args = ValueFactory.emptyArray();
@@ -1917,7 +1770,8 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestCallError")
-  public void testRawCallError(String function, Integer errorCode, List<List<Object>> stack) throws Exception {
+  public void testRawCallError(String function, Integer errorCode, List<List<Object>> stack)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue args = ValueFactory.emptyArray();
@@ -1942,19 +1796,19 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestCallWithPushHandler")
-  public void testCallWithPushHadler(String function,
-      ArrayValue args,
-      List<ArrayValue> expected) throws Exception {
+  public void testCallWithPushHadler(String function, ArrayValue args, List<ArrayValue> expected)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     List<ArrayValue> messages = new ArrayList<>();
-    IProtoMessage message = client.call(
-        function,
-        args,
-        IProtoRequestOpts
-            .empty()
-            .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA)))
-    ).get();
+    IProtoMessage message =
+        client
+            .call(
+                function,
+                args,
+                IProtoRequestOpts.empty()
+                    .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA))))
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
     assertEquals(expected, messages);
@@ -1962,21 +1816,21 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestCallWithPushHandler")
-  public void testRawCallWithPushHadler(String function,
-      ArrayValue args,
-      List<ArrayValue> expected) throws Exception {
+  public void testRawCallWithPushHadler(String function, ArrayValue args, List<ArrayValue> expected)
+      throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     List<ArrayValue> messages = new ArrayList<>();
     byte[] rawArgs = ArrayValueToBytes(args);
-    IProtoMessage message = client.call(
-        function,
-        rawArgs,
-        null,
-        IProtoRequestOpts
-            .empty()
-            .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA)))
-    ).get();
+    IProtoMessage message =
+        client
+            .call(
+                function,
+                rawArgs,
+                null,
+                IProtoRequestOpts.empty()
+                    .withPushHandler(m -> messages.add(m.getBodyArrayValue(IPROTO_DATA))))
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
     assertEquals(expected, messages);
@@ -1991,15 +1845,14 @@ public class IProtoClientTest extends BaseTest {
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
     assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
-    assertTrue(rootCause.getMessage().matches(
-        "BoxError\\{" +
-            "code=36, " +
-            "message='Space 'unknown_space' does not exist', " +
-            "stack=\\[" +
-            "BoxErrorStackItem\\{type='ClientError', line=[0-9]*, file='[./a-z]*', " +
-            "message='Space 'unknown_space' does not exist', errno=0, code=36, details=null}" +
-            "]}"
-    ));
+    assertTrue(
+        rootCause
+            .getMessage()
+            .matches(
+                "BoxError\\{code=36, message='Space 'unknown_space' does not exist', "
+                    + "stack=\\[BoxErrorStackItem\\{type='ClientError', line=[0-9]*,"
+                    + " file='[./a-z]*', message='Space 'unknown_space' does not exist', errno=0,"
+                    + " code=36, details=null}]}"));
   }
 
   @Test
@@ -2007,16 +1860,14 @@ public class IProtoClientTest extends BaseTest {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue emptyArrayValue = ValueFactory.newArray();
-    CompletableFuture<IProtoResponse> future = client.execute(
-        "select * from \"unknown_space\";",
-        emptyArrayValue,
-        emptyArrayValue
-    );
+    CompletableFuture<IProtoResponse> future =
+        client.execute("select * from \"unknown_space\";", emptyArrayValue, emptyArrayValue);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
     assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
-    assertEquals("Space 'unknown_space' does not exist", ((BoxError) rootCause).getTarantoolMessage());
+    assertEquals(
+        "Space 'unknown_space' does not exist", ((BoxError) rootCause).getTarantoolMessage());
   }
 
   @Test
@@ -2025,24 +1876,20 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     byte[] emptyRawArray = ArrayValueToBytes(emptyArrayValue);
-    CompletableFuture<IProtoResponse> future = client.execute(
-        "select * from \"unknown_space\";",
-        emptyRawArray,
-        emptyRawArray
-    );
+    CompletableFuture<IProtoResponse> future =
+        client.execute("select * from \"unknown_space\";", emptyRawArray, emptyRawArray);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
     assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
-    assertTrue(rootCause.getMessage().matches(
-        "BoxError\\{" +
-            "code=36, " +
-            "message='Space 'unknown_space' does not exist', " +
-            "stack=\\[" +
-            "BoxErrorStackItem\\{type='ClientError', line=[0-9]*, file='[./a-z]*', " +
-            "message='Space 'unknown_space' does not exist', errno=0, code=36, details=null}" +
-            "]}"
-    ));
+    assertTrue(
+        rootCause
+            .getMessage()
+            .matches(
+                "BoxError\\{code=36, message='Space 'unknown_space' does not exist', "
+                    + "stack=\\[BoxErrorStackItem\\{type='ClientError', line=[0-9]*,"
+                    + " file='[./a-z]*', message='Space 'unknown_space' does not exist', errno=0,"
+                    + " code=36, details=null}]}"));
   }
 
   @Test
@@ -2051,19 +1898,17 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
 
-    IProtoMessage message = client.prepare("select \"id\", \"value\" from seqscan \"space_a\";").get();
+    IProtoMessage message =
+        client.prepare("select \"id\", \"value\" from seqscan \"space_a\";").get();
     checkMessageHeader(message, IPROTO_OK, 4);
     IntegerValue statementId = message.getBodyIntegerValue(IPROTO_STMT_ID);
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     message = client.execute(statementId.asLong(), emptyArrayValue, emptyArrayValue).get();
     checkMessageHeader(message, IPROTO_OK, 5);
-    ArrayValue expectedValue = ValueFactory.newArray(
+    ArrayValue expectedValue =
         ValueFactory.newArray(
-            ValueFactory.newString("key"),
-            ValueFactory.newString("value")
-        )
-    );
+            ValueFactory.newArray(ValueFactory.newString("key"), ValueFactory.newString("value")));
     assertEquals(expectedValue, message.getBodyArrayValue(IPROTO_DATA));
   }
 
@@ -2074,18 +1919,17 @@ public class IProtoClientTest extends BaseTest {
     tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
-    IProtoMessage message = client.execute(
-        "select \"id\", \"value\" from seqscan \"space_a\";",
-        emptyArrayValue,
-        emptyArrayValue
-    ).get();
+    IProtoMessage message =
+        client
+            .execute(
+                "select \"id\", \"value\" from seqscan \"space_a\";",
+                emptyArrayValue,
+                emptyArrayValue)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
-    ArrayValue expectedValue = ValueFactory.newArray(
+    ArrayValue expectedValue =
         ValueFactory.newArray(
-            ValueFactory.newString("key"),
-            ValueFactory.newString("value")
-        )
-    );
+            ValueFactory.newArray(ValueFactory.newString("key"), ValueFactory.newString("value")));
     assertEquals(expectedValue, message.getBodyArrayValue(IPROTO_DATA));
   }
 
@@ -2096,18 +1940,17 @@ public class IProtoClientTest extends BaseTest {
     tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
-    IProtoMessage message = client.execute(
-        "select \"id\", \"value\" from seqscan \"space_a\";",
-        emptyArrayValue,
-        emptyArrayValue
-    ).get();
+    IProtoMessage message =
+        client
+            .execute(
+                "select \"id\", \"value\" from seqscan \"space_a\";",
+                emptyArrayValue,
+                emptyArrayValue)
+            .get();
     checkMessageHeader(message, IPROTO_OK, 4);
-    ArrayValue expectedValue = ValueFactory.newArray(
+    ArrayValue expectedValue =
         ValueFactory.newArray(
-            ValueFactory.newString("key"),
-            ValueFactory.newString("value")
-        )
-    );
+            ValueFactory.newArray(ValueFactory.newString("key"), ValueFactory.newString("value")));
     assertEquals(expectedValue, message.getBodyArrayValue(IPROTO_DATA));
   }
 
@@ -2117,16 +1960,10 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
 
-    ArrayValue sqlBind = ValueFactory.newArray(
-        ValueFactory.newInteger(1),
-        ValueFactory.newString("a")
-    );
+    ArrayValue sqlBind =
+        ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
     ArrayValue options = ValueFactory.newArray();
-    IProtoMessage message = client.execute(
-        "VALUES (?, ?);",
-        sqlBind,
-        options
-    ).get();
+    IProtoMessage message = client.execute("VALUES (?, ?);", sqlBind, options).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue expectedValue = ValueFactory.newArray(sqlBind);
     assertEquals(expectedValue, message.getBodyArrayValue(IPROTO_DATA));
@@ -2138,18 +1975,12 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
 
-    ArrayValue sqlBind = ValueFactory.newArray(
-        ValueFactory.newInteger(1),
-        ValueFactory.newString("a")
-    );
+    ArrayValue sqlBind =
+        ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
     ArrayValue options = ValueFactory.newArray();
     byte[] rawSqlBind = ArrayValueToBytes(sqlBind);
     byte[] rawOptions = ArrayValueToBytes(options);
-    IProtoMessage message = client.execute(
-        "VALUES (?, ?);",
-        rawSqlBind,
-        rawOptions
-    ).get();
+    IProtoMessage message = client.execute("VALUES (?, ?);", rawSqlBind, rawOptions).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue expectedValue = ValueFactory.newArray(sqlBind);
     assertEquals(expectedValue, message.getBodyArrayValue(IPROTO_DATA));
@@ -2165,10 +1996,8 @@ public class IProtoClientTest extends BaseTest {
     checkMessageHeader(message, IPROTO_OK, 4);
     IntegerValue statementId = message.getBodyIntegerValue(IPROTO_STMT_ID);
 
-    ArrayValue sqlBind = ValueFactory.newArray(
-        ValueFactory.newInteger(1),
-        ValueFactory.newString("a")
-    );
+    ArrayValue sqlBind =
+        ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
     ArrayValue options = ValueFactory.newArray();
     message = client.execute(statementId.asLong(), sqlBind, options).get();
     checkMessageHeader(message, IPROTO_OK, 5);
@@ -2186,10 +2015,8 @@ public class IProtoClientTest extends BaseTest {
     checkMessageHeader(message, IPROTO_OK, 4);
     IntegerValue statementId = message.getBodyIntegerValue(IPROTO_STMT_ID);
 
-    ArrayValue sqlBind = ValueFactory.newArray(
-        ValueFactory.newInteger(1),
-        ValueFactory.newString("a")
-    );
+    ArrayValue sqlBind =
+        ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
     ArrayValue options = ValueFactory.newArray();
     byte[] rawSqlBind = ArrayValueToBytes(sqlBind);
     byte[] rawOptions = ArrayValueToBytes(options);
@@ -2204,30 +2031,41 @@ public class IProtoClientTest extends BaseTest {
   public void testDMLTupleExtension() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    assertTrue(client.hasTupleExtension(), "Client and server should support the feature DML_TUPLE_EXTENSION");
+    assertTrue(
+        client.hasTupleExtension(),
+        "Client and server should support the feature DML_TUPLE_EXTENSION");
 
     tt.executeCommand("return box.space.space_a:insert({'key1', 'value1'})");
 
-    IProtoMessage message = client.select(
-        spaceAId,
-        0,
-        ValueFactory.newArray(ValueFactory.newString("key1")),
-        1,
-        0,
-        BoxIterator.EQ
-    ).get();
+    IProtoMessage message =
+        client
+            .select(
+                spaceAId,
+                0,
+                ValueFactory.newArray(ValueFactory.newString("key1")),
+                1,
+                0,
+                BoxIterator.EQ)
+            .get();
 
     Map<Value, Value> format = message.getBodyMapValue(IPROTO_TUPLE_FORMATS).map();
-    HashMap<Value, Value> keyMap = new HashMap<Value, Value>() {{
-      put(ValueFactory.newString("name"), ValueFactory.newString("id"));
-      put(ValueFactory.newString("type"), ValueFactory.newString("string"));
-    }};
-    Map<Value, Value> valueMap = new HashMap<Value, Value>() {{
-      put(ValueFactory.newString("type"), ValueFactory.newString("string"));
-      put(ValueFactory.newString("name"), ValueFactory.newString("value"));
-      put(ValueFactory.newString("is_nullable"), ValueFactory.newBoolean(true));
-    }};
-    ArrayValue expectedFormat = ValueFactory.newArray(ValueFactory.newMap(keyMap), ValueFactory.newMap(valueMap));
+    HashMap<Value, Value> keyMap =
+        new HashMap<Value, Value>() {
+          {
+            put(ValueFactory.newString("name"), ValueFactory.newString("id"));
+            put(ValueFactory.newString("type"), ValueFactory.newString("string"));
+          }
+        };
+    Map<Value, Value> valueMap =
+        new HashMap<Value, Value>() {
+          {
+            put(ValueFactory.newString("type"), ValueFactory.newString("string"));
+            put(ValueFactory.newString("name"), ValueFactory.newString("value"));
+            put(ValueFactory.newString("is_nullable"), ValueFactory.newBoolean(true));
+          }
+        };
+    ArrayValue expectedFormat =
+        ValueFactory.newArray(ValueFactory.newMap(keyMap), ValueFactory.newMap(valueMap));
 
     assertEquals(expectedFormat, format.get(format.keySet().iterator().next()).asArrayValue());
   }

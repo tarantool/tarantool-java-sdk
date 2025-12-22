@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -53,7 +53,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
   protected ParcelableHelper parcelableHelper;
   protected ReflectionHelper reflectionHelper;
 
-  protected SeparatedPackageObjectRule(RuleFactory ruleFactory,
+  protected SeparatedPackageObjectRule(
+      RuleFactory ruleFactory,
       ParcelableHelper parcelableHelper,
       ReflectionHelper reflectionHelper) {
     super(ruleFactory, parcelableHelper, reflectionHelper);
@@ -64,12 +65,14 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
   /**
    * Applies this schema rule to take the required code generation steps.
-   * <p>
-   * When this rule is applied for schemas of type object, the properties of the schema are used to generate a new Java
-   * class and determine its characteristics. See other implementers of {@link Rule} for details.
+   *
+   * <p>When this rule is applied for schemas of type object, the properties of the schema are used
+   * to generate a new Java class and determine its characteristics. See other implementers of
+   * {@link Rule} for details.
    */
   @Override
-  public JType apply(String nodeName, JsonNode node, JsonNode parent, JPackage _package, Schema schema) {
+  public JType apply(
+      String nodeName, JsonNode node, JsonNode parent, JPackage _package, Schema schema) {
     JType superType = reflectionHelper.getSuperType(nodeName, node, _package, schema);
     if (superType.isPrimitive() || reflectionHelper.isFinal(superType)) {
       return superType;
@@ -77,7 +80,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
     JDefinedClass jclass;
     try {
-      jclass = createClass(nodeName, node, parent == null ? _package : _package.subPackage(nodeName));
+      jclass =
+          createClass(nodeName, node, parent == null ? _package : _package.subPackage(nodeName));
     } catch (ClassAlreadyExistsException e) {
       return e.getExistingClass();
     }
@@ -91,7 +95,9 @@ public class SeparatedPackageObjectRule extends ObjectRule {
     }
 
     if (node.has("description")) {
-      ruleFactory.getDescriptionRule().apply(nodeName, node.get("description"), node, jclass, schema);
+      ruleFactory
+          .getDescriptionRule()
+          .apply(nodeName, node.get("description"), node, jclass, schema);
     }
 
     if (node.has("$comment")) {
@@ -99,8 +105,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
     }
 
     // Creates the class definition for the builder
-    if (ruleFactory.getGenerationConfig().isGenerateBuilders() && ruleFactory.getGenerationConfig()
-        .isUseInnerClassBuilders()) {
+    if (ruleFactory.getGenerationConfig().isGenerateBuilders()
+        && ruleFactory.getGenerationConfig().isUseInnerClassBuilders()) {
       ruleFactory.getBuilderRule().apply(nodeName, node, parent, jclass, schema);
     }
 
@@ -110,12 +116,18 @@ public class SeparatedPackageObjectRule extends ObjectRule {
       addInterfaces(jclass, node.get("javaInterfaces"));
     }
 
-    ruleFactory.getAdditionalPropertiesRule().apply(nodeName, node.get("additionalProperties"), node, jclass, schema);
+    ruleFactory
+        .getAdditionalPropertiesRule()
+        .apply(nodeName, node.get("additionalProperties"), node, jclass, schema);
 
-    ruleFactory.getDynamicPropertiesRule().apply(nodeName, node.get("properties"), node, jclass, schema);
+    ruleFactory
+        .getDynamicPropertiesRule()
+        .apply(nodeName, node.get("properties"), node, jclass, schema);
 
     if (node.has("required")) {
-      ruleFactory.getRequiredArrayRule().apply(nodeName, node.get("required"), node, jclass, schema);
+      ruleFactory
+          .getRequiredArrayRule()
+          .apply(nodeName, node.get("required"), node, jclass, schema);
     }
 
     if (ruleFactory.getGenerationConfig().isIncludeGeneratedAnnotation()) {
@@ -160,18 +172,18 @@ public class SeparatedPackageObjectRule extends ObjectRule {
     }
   }
 
-
   /**
    * Creates a new Java class that will be generated.
    *
    * @param nodeName the node name which may be used to dictate the new class name
-   * @param node     the node representing the schema that caused the need for a new class. This node may include a
-   *                 'javaType' property which if present will override the fully qualified name of the newly generated
-   *                 class.
+   * @param node the node representing the schema that caused the need for a new class. This node
+   *     may include a 'javaType' property which if present will override the fully qualified name
+   *     of the newly generated class.
    * @param _package the package which may contain a new class after this method call
    * @return a reference to a newly created class
-   * @throws ClassAlreadyExistsException if the given arguments cause an attempt to create a class that already exists,
-   *                                     either on the classpath or in the current map of classes to be generated.
+   * @throws ClassAlreadyExistsException if the given arguments cause an attempt to create a class
+   *     that already exists, either on the classpath or in the current map of classes to be
+   *     generated.
    */
   private JDefinedClass createClass(String nodeName, JsonNode node, JPackage _package)
       throws ClassAlreadyExistsException {
@@ -188,9 +200,13 @@ public class SeparatedPackageObjectRule extends ObjectRule {
           throw new ClassAlreadyExistsException(primitiveType(fqn, _package.owner()));
         }
 
-        JClass existingClass = resolveType(_package,
-            fqn + (node.get("existingJavaType").asText().contains("<") ? "<" + substringAfter(
-                node.get("existingJavaType").asText(), "<") : ""));
+        JClass existingClass =
+            resolveType(
+                _package,
+                fqn
+                    + (node.get("existingJavaType").asText().contains("<")
+                        ? "<" + substringAfter(node.get("existingJavaType").asText(), "<")
+                        : ""));
         throw new ClassAlreadyExistsException(existingClass);
       }
 
@@ -201,23 +217,30 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
         if (isPrimitive(fqn, _package.owner())) {
           throw new GenerationException(
-              "javaType cannot refer to a primitive type (" + fqn + "), did you mean to use existingJavaType?");
+              "javaType cannot refer to a primitive type ("
+                  + fqn
+                  + "), did you mean to use existingJavaType?");
         }
 
         if (fqn.contains("<")) {
           throw new GenerationException(
-              "javaType does not support generic args (" + fqn + "), did you mean to use existingJavaType?");
+              "javaType does not support generic args ("
+                  + fqn
+                  + "), did you mean to use existingJavaType?");
         }
 
         int index = fqn.lastIndexOf(".") + 1;
-        if (index == 0) { //Actually not a fully qualified name
+        if (index == 0) { // Actually not a fully qualified name
           fqn = _package.name() + "." + fqn;
           index = fqn.lastIndexOf(".") + 1;
         }
 
         if (index >= 0 && index < fqn.length()) {
-          fqn = fqn.substring(0, index) + ruleFactory.getGenerationConfig().getClassNamePrefix() + fqn.substring(index)
-              + ruleFactory.getGenerationConfig().getClassNameSuffix();
+          fqn =
+              fqn.substring(0, index)
+                  + ruleFactory.getGenerationConfig().getClassNamePrefix()
+                  + fqn.substring(index)
+                  + ruleFactory.getGenerationConfig().getClassNameSuffix();
         }
 
         if (usePolymorphicDeserialization) {
@@ -227,7 +250,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
         }
         ruleFactory.getLogger().debug("Adding " + newType.fullName());
       } else {
-        final String className = ruleFactory.getNameHelper().getUniqueClassName(nodeName, node, _package);
+        final String className =
+            ruleFactory.getNameHelper().getUniqueClassName(nodeName, node, _package);
         if (usePolymorphicDeserialization) {
           newType = _package._class(JMod.PUBLIC, className, ClassType.CLASS);
         } else {
@@ -248,7 +272,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
   private void addToString(JDefinedClass jclass) {
     Map<String, JFieldVar> fields = jclass.fields();
     JMethod toString = jclass.method(JMod.PUBLIC, String.class, "toString");
-    Set<String> excludes = new HashSet<>(Arrays.asList(ruleFactory.getGenerationConfig().getToStringExcludes()));
+    Set<String> excludes =
+        new HashSet<>(Arrays.asList(ruleFactory.getGenerationConfig().getToStringExcludes()));
 
     JBlock body = toString.body();
 
@@ -258,48 +283,72 @@ public class SeparatedPackageObjectRule extends ObjectRule {
     JVar sb = body.decl(stringBuilderClass, "sb", JExpr._new(stringBuilderClass));
 
     // Write the header, e.g.: example.domain.MyClass@85e382a7[
-    body.add(sb
-        .invoke("append").arg(jclass.dotclass().invoke("getName"))
-        .invoke("append").arg(JExpr.lit('@'))
-        .invoke("append").arg(
-            jclass.owner().ref(Integer.class).staticInvoke("toHexString").arg(
-                jclass.owner().ref(System.class).staticInvoke("identityHashCode").arg(JExpr._this())))
-        .invoke("append").arg(JExpr.lit('[')));
+    body.add(
+        sb.invoke("append")
+            .arg(jclass.dotclass().invoke("getName"))
+            .invoke("append")
+            .arg(JExpr.lit('@'))
+            .invoke("append")
+            .arg(
+                jclass
+                    .owner()
+                    .ref(Integer.class)
+                    .staticInvoke("toHexString")
+                    .arg(
+                        jclass
+                            .owner()
+                            .ref(System.class)
+                            .staticInvoke("identityHashCode")
+                            .arg(JExpr._this())))
+            .invoke("append")
+            .arg(JExpr.lit('[')));
 
     // If this has a parent class, include its toString()
     if (!jclass._extends().fullName().equals(Object.class.getName())) {
       JVar baseLength = body.decl(jclass.owner().INT, "baseLength", sb.invoke("length"));
-      JVar superString = body.decl(jclass.owner().ref(String.class), "superString", JExpr._super().invoke("toString"));
+      JVar superString =
+          body.decl(
+              jclass.owner().ref(String.class), "superString", JExpr._super().invoke("toString"));
 
       JBlock superToStringBlock = body._if(superString.ne(JExpr._null()))._then();
 
       // If super.toString() is in the Clazz@2ee6529d[field=10] format, extract the fields
       // from the wrapper
-      JVar contentStart = superToStringBlock.decl(jclass.owner().INT, "contentStart",
-          superString.invoke("indexOf").arg(JExpr.lit('[')));
-      JVar contentEnd = superToStringBlock.decl(jclass.owner().INT, "contentEnd",
-          superString.invoke("lastIndexOf").arg(JExpr.lit(']')));
+      JVar contentStart =
+          superToStringBlock.decl(
+              jclass.owner().INT,
+              "contentStart",
+              superString.invoke("indexOf").arg(JExpr.lit('[')));
+      JVar contentEnd =
+          superToStringBlock.decl(
+              jclass.owner().INT,
+              "contentEnd",
+              superString.invoke("lastIndexOf").arg(JExpr.lit(']')));
 
-      JConditional superToStringInnerConditional = superToStringBlock._if(
-          contentStart.gte(JExpr.lit(0)).cand(contentEnd.gt(contentStart)));
+      JConditional superToStringInnerConditional =
+          superToStringBlock._if(contentStart.gte(JExpr.lit(0)).cand(contentEnd.gt(contentStart)));
 
-      superToStringInnerConditional._then().add(
-          sb.invoke("append")
-              .arg(superString)
-              .arg(contentStart.plus(JExpr.lit(1)))
-              .arg(contentEnd));
+      superToStringInnerConditional
+          ._then()
+          .add(
+              sb.invoke("append")
+                  .arg(superString)
+                  .arg(contentStart.plus(JExpr.lit(1)))
+                  .arg(contentEnd));
 
       // Otherwise, just append super.toString()
       superToStringInnerConditional._else().add(sb.invoke("append").arg(superString));
 
       // Append a comma if needed
       body._if(sb.invoke("length").gt(baseLength))
-          ._then().add(sb.invoke("append").arg(JExpr.lit(',')));
+          ._then()
+          .add(sb.invoke("append").arg(JExpr.lit(',')));
     }
 
     // For each included instance field, add to the StringBuilder in the field=value format
     for (JFieldVar fieldVar : fields.values()) {
-      if (excludes.contains(fieldVar.name()) || (fieldVar.mods().getValue() & JMod.STATIC) == JMod.STATIC) {
+      if (excludes.contains(fieldVar.name())
+          || (fieldVar.mods().getValue() & JMod.STATIC) == JMod.STATIC) {
         continue;
       }
 
@@ -315,38 +364,52 @@ public class SeparatedPackageObjectRule extends ObjectRule {
         }
 
         // Leverage Arrays.toString()
-        body.add(sb.invoke("append")
-            .arg(JOp.cond(
-                JExpr.refthis(fieldVar.name()).eq(JExpr._null()),
-                JExpr.lit("<null>"),
-                jclass.owner().ref(Arrays.class).staticInvoke("toString")
-                    .arg(JExpr.refthis(fieldVar.name()))
-                    .invoke("replace").arg(JExpr.lit('[')).arg(JExpr.lit('{'))
-                    .invoke("replace").arg(JExpr.lit(']')).arg(JExpr.lit('}'))
-                    .invoke("replace").arg(JExpr.lit(", ")).arg(JExpr.lit(",")))));
+        body.add(
+            sb.invoke("append")
+                .arg(
+                    JOp.cond(
+                        JExpr.refthis(fieldVar.name()).eq(JExpr._null()),
+                        JExpr.lit("<null>"),
+                        jclass
+                            .owner()
+                            .ref(Arrays.class)
+                            .staticInvoke("toString")
+                            .arg(JExpr.refthis(fieldVar.name()))
+                            .invoke("replace")
+                            .arg(JExpr.lit('['))
+                            .arg(JExpr.lit('{'))
+                            .invoke("replace")
+                            .arg(JExpr.lit(']'))
+                            .arg(JExpr.lit('}'))
+                            .invoke("replace")
+                            .arg(JExpr.lit(", "))
+                            .arg(JExpr.lit(",")))));
       } else {
-        body.add(sb.invoke("append")
-            .arg(JOp.cond(
-                JExpr.refthis(fieldVar.name()).eq(JExpr._null()),
-                JExpr.lit("<null>"),
-                JExpr.refthis(fieldVar.name()))));
+        body.add(
+            sb.invoke("append")
+                .arg(
+                    JOp.cond(
+                        JExpr.refthis(fieldVar.name()).eq(JExpr._null()),
+                        JExpr.lit("<null>"),
+                        JExpr.refthis(fieldVar.name()))));
       }
 
       body.add(sb.invoke("append").arg(JExpr.lit(',')));
     }
 
     // Add the trailer
-    JConditional trailerConditional = body._if(
-        sb.invoke("charAt").arg(sb.invoke("length").minus(JExpr.lit(1)))
-            .eq(JExpr.lit(',')));
+    JConditional trailerConditional =
+        body._if(
+            sb.invoke("charAt").arg(sb.invoke("length").minus(JExpr.lit(1))).eq(JExpr.lit(',')));
 
-    trailerConditional._then().add(
-        sb.invoke("setCharAt")
-            .arg(sb.invoke("length").minus(JExpr.lit(1)))
-            .arg(JExpr.lit(']')));
+    trailerConditional
+        ._then()
+        .add(
+            sb.invoke("setCharAt")
+                .arg(sb.invoke("length").minus(JExpr.lit(1)))
+                .arg(JExpr.lit(']')));
 
-    trailerConditional._else().add(
-        sb.invoke("append").arg(JExpr.lit(']')));
+    trailerConditional._else().add(sb.invoke("append").arg(JExpr.lit(']')));
 
     body._return(sb.invoke("toString"));
 
@@ -354,7 +417,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
   }
 
   private void addHashCode(JDefinedClass jclass, JsonNode node) {
-    Map<String, JFieldVar> fields = removeFieldsExcludedFromEqualsAndHashCode(jclass.fields(), node);
+    Map<String, JFieldVar> fields =
+        removeFieldsExcludedFromEqualsAndHashCode(jclass.fields(), node);
 
     JMethod hashCode = jclass.method(JMod.PUBLIC, int.class, "hashCode");
     JBlock body = hashCode.body();
@@ -379,8 +443,7 @@ public class SeparatedPackageObjectRule extends ObjectRule {
         } else if ("double".equals(fieldVar.type().name())) {
           JClass doubleClass = jclass.owner().ref(Double.class);
           JExpression longField = doubleClass.staticInvoke("doubleToLongBits").arg(fieldRef);
-          fieldHash = JExpr.cast(jclass.owner().INT,
-              longField.xor(longField.shrz(JExpr.lit(32))));
+          fieldHash = JExpr.cast(jclass.owner().INT, longField.xor(longField.shrz(JExpr.lit(32))));
         } else if ("float".equals(fieldVar.type().name())) {
           fieldHash = jclass.owner().ref(Float.class).staticInvoke("floatToIntBits").arg(fieldRef);
         } else {
@@ -408,8 +471,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
     hashCode.annotate(Override.class);
   }
 
-  private Map<String, JFieldVar> removeFieldsExcludedFromEqualsAndHashCode(Map<String, JFieldVar> fields,
-      JsonNode node) {
+  private Map<String, JFieldVar> removeFieldsExcludedFromEqualsAndHashCode(
+      Map<String, JFieldVar> fields, JsonNode node) {
     Map<String, JFieldVar> filteredFields = new HashMap<>(fields);
 
     JsonNode properties = node.get("properties");
@@ -422,18 +485,22 @@ public class SeparatedPackageObjectRule extends ObjectRule {
           String excludedPropertyName = iterator.next().asText();
           JsonNode excludedPropertyNode = properties.get(excludedPropertyName);
           filteredFields.remove(
-              ruleFactory.getNameHelper().getPropertyName(excludedPropertyName, excludedPropertyNode));
+              ruleFactory
+                  .getNameHelper()
+                  .getPropertyName(excludedPropertyName, excludedPropertyNode));
         }
       }
 
-      for (Iterator<Map.Entry<String, JsonNode>> iterator = properties.fields(); iterator.hasNext(); ) {
+      for (Iterator<Map.Entry<String, JsonNode>> iterator = properties.fields();
+          iterator.hasNext(); ) {
         Map.Entry<String, JsonNode> entry = iterator.next();
         String propertyName = entry.getKey();
         JsonNode propertyNode = entry.getValue();
 
-        if (propertyNode.has("excludedFromEqualsAndHashCode") &&
-            propertyNode.get("excludedFromEqualsAndHashCode").asBoolean()) {
-          filteredFields.remove(ruleFactory.getNameHelper().getPropertyName(propertyName, propertyNode));
+        if (propertyNode.has("excludedFromEqualsAndHashCode")
+            && propertyNode.get("excludedFromEqualsAndHashCode").asBoolean()) {
+          filteredFields.remove(
+              ruleFactory.getNameHelper().getPropertyName(propertyName, propertyNode));
         }
       }
     }
@@ -442,7 +509,8 @@ public class SeparatedPackageObjectRule extends ObjectRule {
   }
 
   private void addEquals(JDefinedClass jclass, JsonNode node) {
-    Map<String, JFieldVar> fields = removeFieldsExcludedFromEqualsAndHashCode(jclass.fields(), node);
+    Map<String, JFieldVar> fields =
+        removeFieldsExcludedFromEqualsAndHashCode(jclass.fields(), node);
 
     JMethod equals = jclass.method(JMod.PUBLIC, boolean.class, "equals");
     JVar otherObject = equals.param(Object.class, "other");
@@ -474,12 +542,18 @@ public class SeparatedPackageObjectRule extends ObjectRule {
       if (fieldVar.type().isPrimitive()) {
         if ("double".equals(fieldVar.type().name())) {
           JClass doubleClass = jclass.owner().ref(Double.class);
-          fieldEquals = doubleClass.staticInvoke("doubleToLongBits").arg(thisFieldRef).eq(
-              doubleClass.staticInvoke("doubleToLongBits").arg(otherFieldRef));
+          fieldEquals =
+              doubleClass
+                  .staticInvoke("doubleToLongBits")
+                  .arg(thisFieldRef)
+                  .eq(doubleClass.staticInvoke("doubleToLongBits").arg(otherFieldRef));
         } else if ("float".equals(fieldVar.type().name())) {
           JClass floatClass = jclass.owner().ref(Float.class);
-          fieldEquals = floatClass.staticInvoke("floatToIntBits").arg(thisFieldRef).eq(
-              floatClass.staticInvoke("floatToIntBits").arg(otherFieldRef));
+          fieldEquals =
+              floatClass
+                  .staticInvoke("floatToIntBits")
+                  .arg(thisFieldRef)
+                  .eq(floatClass.staticInvoke("floatToIntBits").arg(otherFieldRef));
         } else {
           fieldEquals = thisFieldRef.eq(otherFieldRef);
         }
@@ -488,11 +562,21 @@ public class SeparatedPackageObjectRule extends ObjectRule {
           throw new UnsupportedOperationException("Only primitive arrays are supported");
         }
 
-        fieldEquals = jclass.owner().ref(Arrays.class).staticInvoke("equals").arg(thisFieldRef).arg(otherFieldRef);
+        fieldEquals =
+            jclass
+                .owner()
+                .ref(Arrays.class)
+                .staticInvoke("equals")
+                .arg(thisFieldRef)
+                .arg(otherFieldRef);
       } else {
-        fieldEquals = thisFieldRef.eq(otherFieldRef).cor(
-            thisFieldRef.ne(JExpr._null())
-                .cand(thisFieldRef.invoke("equals").arg(otherFieldRef)));
+        fieldEquals =
+            thisFieldRef
+                .eq(otherFieldRef)
+                .cor(
+                    thisFieldRef
+                        .ne(JExpr._null())
+                        .cand(thisFieldRef.invoke("equals").arg(otherFieldRef)));
       }
 
       // Chain the equality of this field with the previous comparisons
@@ -514,9 +598,9 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
     AnnotationStyle annotationStyle = ruleFactory.getGenerationConfig().getAnnotationStyle();
 
-    if (annotationStyle == AnnotationStyle.JACKSON
-        || annotationStyle == AnnotationStyle.JACKSON2) {
-      return ruleFactory.getGenerationConfig().isIncludeTypeInfo() || node.has("deserializationClassProperty");
+    if (annotationStyle == AnnotationStyle.JACKSON || annotationStyle == AnnotationStyle.JACKSON2) {
+      return ruleFactory.getGenerationConfig().isIncludeTypeInfo()
+          || node.has("deserializationClassProperty");
     }
 
     return false;

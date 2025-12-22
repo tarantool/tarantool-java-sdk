@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -49,7 +49,8 @@ public interface GenericPaginationMethods<T, ID> {
 
   Window<T> findFirst5ByIsMarried(Boolean isMarried, ScrollPosition scrollPosition);
 
-  Window<T> findFirst10ByIsMarriedGreaterThanEqual(Boolean isMarried, ScrollPosition scrollPosition);
+  Window<T> findFirst10ByIsMarriedGreaterThanEqual(
+      Boolean isMarried, ScrollPosition scrollPosition);
 
   List<T> findAll(Sort sort);
 

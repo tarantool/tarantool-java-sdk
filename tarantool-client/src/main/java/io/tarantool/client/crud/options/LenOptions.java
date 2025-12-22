@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -16,21 +16,30 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 
 /**
- * <p> The class implements options for the CRUD operation
- * <a href="https://github.com/tarantool/crud#len"> len()</a>.</p>
- * <p>The following options are available:</p>
- * <p>Common options:</p>
+ * The class implements options for the CRUD operation <a
+ * href="https://github.com/tarantool/crud#len">len()</a>.
+ *
+ * <p>The following options are available:
+ *
+ * <p>Common options:
+ *
  * <ul>
- *     <li>{@link #timeout}.</li>
- *     <li>{@link #streamId}.</li>
+ *   <li>{@link #timeout}.
+ *   <li>{@link #streamId}.
  * </ul>
- * <p>Crud options:</p>
+ *
+ * <p>Crud options:
+ *
  * <ul>
- *     <li>{@value TIMEOUT}.</li>
- *     <li>{@value VSHARD_ROUTER}.</li>
+ *   <li>{@value TIMEOUT}.
+ *   <li>{@value VSHARD_ROUTER}.
  * </ul>
- * <p>Examples:</p>
- * <blockquote><pre>{@code
+ *
+ * <p>Examples:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -47,8 +56,13 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *  // Returns 1
  *  int len = space.len(option).get();
  *
- * }</pre></blockquote>
- * <blockquote><pre>{@code
+ * }</pre>
+ *
+ * </blockquote>
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 2>>
  *
  * TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -63,7 +77,9 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *
  *  // Returns 1
  *  int len = space.len(options).get();
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -75,52 +91,55 @@ public class LenOptions implements CrudOptions {
   private static final Logger LOGGER = LoggerFactory.getLogger(LenOptions.class);
 
   /**
-   * <p>{@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master
-   * discovery timeout (in milliseconds).</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * router to Tarantool instance and the time when the answer will come from Tarantool instance to router.</p>
+   * {@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master discovery
+   * timeout (in milliseconds).
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the router to Tarantool instance and the time when the answer will come from
+   * Tarantool instance to router.
    */
   private static final String TIMEOUT = "timeout";
 
   /**
-   * <p>Cartridge vshard group name. Set this parameter if your space is not a part of
-   * the default vshard cluster.</p>
+   * Cartridge vshard group name. Set this parameter if your space is not a part of the default
+   * vshard cluster.
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
-  /**
-   * <p>Default value for {@link #timeout}.</p>
-   */
+  /** Default value for {@link #timeout}. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * connector to Tarantool and the time when the answer will come from Tarantool to connector.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the connector to Tarantool and the time when the answer will come from Tarantool
+   * to connector.
    */
   private final Long timeout;
 
   /**
-   * <p> Stream id for count operation.</p>
-   * <p> Default value: {@code null}.</p>
+   * Stream id for count operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: {@code null}.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
-  /**
-   * <p>A map containing the correspondence between option names and their meanings.</p>
-   */
+  /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> crudOptions;
 
   /**
-   * <p>Creates a {@link LenOptions} object with the given parameters.</p>
+   * Creates a {@link LenOptions} object with the given parameters.
    *
-   * @param timeout  {@link #timeout}
+   * @param timeout {@link #timeout}
    * @param streamId {@link #streamId}
-   * @param options  {@link #crudOptions}
+   * @param options {@link #crudOptions}
    * @see LenOptions
    */
   public LenOptions(Long timeout, Long streamId, Map<String, Object> options) {
@@ -131,7 +150,7 @@ public class LenOptions implements CrudOptions {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link LenOptions.Builder} object
    */
@@ -140,7 +159,7 @@ public class LenOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of timeout option.</p>
+   * Returns value of timeout option.
    *
    * @return {@link #timeout} value.
    */
@@ -150,7 +169,7 @@ public class LenOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of stream id option.</p>
+   * Returns value of stream id option.
    *
    * @return {@link #streamId} value.
    */
@@ -160,7 +179,7 @@ public class LenOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns an immutable option map for the count operation.</p>
+   * Returns an immutable option map for the count operation.
    *
    * @return {@link Map} object.
    */
@@ -170,29 +189,23 @@ public class LenOptions implements CrudOptions {
   }
 
   /**
-   * <p>Builder class for {@link LenOptions}.</p>
+   * Builder class for {@link LenOptions}.
    *
    * @see LenOptions
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link LenOptions#crudOptions}.</p>
-     */
+    /** See also: {@link LenOptions#crudOptions}. */
     private final Map<String, Object> options = new HashMap<>();
 
-    /**
-     * <p>See also: {@link LenOptions#timeout}.</p>
-     */
+    /** See also: {@link LenOptions#timeout}. */
     private long timeout = DEFAULT_TIMEOUT;
 
-    /**
-     * <p>See also: {@link LenOptions#streamId}.</p>
-     */
+    /** See also: {@link LenOptions#streamId}. */
     private Long streamId;
 
     /**
-     * <p>Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.</p>
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
      *
      * @param timeout value of timeout option.
      * @return {@link LenOptions.Builder} object.
@@ -209,7 +222,7 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.
      *
      * @param streamId value of stream id option
      * @return {@link LenOptions.Builder} object
@@ -226,7 +239,7 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.</p>
+     * Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.
      *
      * @param timeout value of {@link #TIMEOUT} option
      * @return {@link LenOptions.Builder} object
@@ -239,9 +252,10 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Adds options by name into {@link #options} map. Name parameter should not be equal {@code null}.</p>
+     * Adds options by name into {@link #options} map. Name parameter should not be equal {@code
+     * null}.
      *
-     * @param name  name of option
+     * @param name name of option
      * @param value value of option
      * @see LenOptions
      * @see LenOptions.Builder
@@ -255,9 +269,9 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #VSHARD_ROUTER} option.</p>
+     * Sets value of {@link #VSHARD_ROUTER} option.
      *
-     * @param vshardRouter value of {@link  #VSHARD_ROUTER} option
+     * @param vshardRouter value of {@link #VSHARD_ROUTER} option
      * @return {@link LenOptions.Builder}
      * @see #VSHARD_ROUTER
      * @see LenOptions
@@ -268,9 +282,9 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets options by name and value. OptionName parameter should not be equal {@code null}.</p>
+     * Sets options by name and value. OptionName parameter should not be equal {@code null}.
      *
-     * @param optionName  name of option
+     * @param optionName name of option
      * @param optionValue value of option
      * @return {@link LenOptions.Builder}
      * @see LenOptions
@@ -281,7 +295,7 @@ public class LenOptions implements CrudOptions {
     }
 
     /**
-     * <p>Builds object of {@link LenOptions} class.</p>
+     * Builds object of {@link LenOptions} class.
      *
      * @return {@link LenOptions} object
      * @see LenOptions

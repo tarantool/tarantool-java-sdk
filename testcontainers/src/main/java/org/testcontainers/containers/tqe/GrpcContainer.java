@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -15,13 +15,12 @@ import java.util.Set;
 import org.testcontainers.containers.Container;
 import org.testcontainers.lifecycle.Startable;
 
-public interface GrpcContainer<SELF extends GrpcContainer<SELF>> extends Container<SELF>, Startable {
+public interface GrpcContainer<SELF extends GrpcContainer<SELF>>
+    extends Container<SELF>, Startable {
 
   Path DEFAULT_TQE_DATA_DIR = Paths.get("/", "var", "lib", "tarantool");
 
-  /**
-   * Returns roles of grpc instance
-   */
+  /** Returns roles of grpc instance */
   Set<GrpcRole> roles();
 
   /**
@@ -32,8 +31,9 @@ public interface GrpcContainer<SELF extends GrpcContainer<SELF>> extends Contain
   String node();
 
   /**
-   * Stops container without save mount data. After calling this method, the container instance can't be restarted
-   * (method {@code Container::start()} must throw exception). <b><i>Note:</i></b> method must be idempotent.
+   * Stops container without save mount data. After calling this method, the container instance
+   * can't be restarted (method {@code Container::start()} must throw exception).
+   * <b><i>Note:</i></b> method must be idempotent.
    */
   @Override
   void stop();
@@ -46,11 +46,8 @@ public interface GrpcContainer<SELF extends GrpcContainer<SELF>> extends Contain
 
   InetSocketAddress coreAddress(String customHost);
 
-  /**
-   * Enum of grpc node roles.
-   */
+  /** Enum of grpc node roles. */
   enum GrpcRole {
-
     CONSUMER("consumer"),
 
     PUBLISHER("publisher");

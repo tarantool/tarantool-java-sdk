@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,10 +23,7 @@ public class Greeting {
   private final UUID instanceUUID;
   private final byte[] salt;
 
-  protected Greeting(String version,
-      String protocolType,
-      UUID instanceUUID,
-      byte[] salt) {
+  protected Greeting(String version, String protocolType, UUID instanceUUID, byte[] salt) {
     this.version = version;
     this.protocolType = protocolType;
     this.instanceUUID = instanceUUID;
@@ -76,7 +73,6 @@ public class Greeting {
         chunks[1],
         BINARY_PROTOCOL,
         instanceUUID,
-        Base64.getDecoder().decode(new String(salt).trim())
-    );
+        Base64.getDecoder().decode(new String(salt).trim()));
   }
 }

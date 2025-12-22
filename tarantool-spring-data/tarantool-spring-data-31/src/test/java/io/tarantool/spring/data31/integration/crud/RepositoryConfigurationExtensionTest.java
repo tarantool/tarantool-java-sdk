@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -49,7 +49,8 @@ class RepositoryConfigurationExtensionTest extends BaseIntegrationTest {
 
   @Test
   void testGetDefaultKeyValueTemplateRef() {
-    assertEquals(DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF, defaultExtension.getDefaultKeyValueTemplateRef());
+    assertEquals(
+        DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF, defaultExtension.getDefaultKeyValueTemplateRef());
   }
 
   @Test
@@ -62,23 +63,21 @@ class RepositoryConfigurationExtensionTest extends BaseIntegrationTest {
 
   @Test
   void testRegisterBeansForRootWithCustomClientConfigShouldThrows() {
-    final Throwable throwable = assertThrows(IllegalArgumentException.class,
-        () -> new AnnotationConfigApplicationContext(BoxNonSupportConfig.class));
+    final Throwable throwable =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new AnnotationConfigApplicationContext(BoxNonSupportConfig.class));
 
     final String exceptionMessage = "The Box client is not yet supported.";
     assertEquals(exceptionMessage, throwable.getMessage());
   }
 
   private static TarantoolCrudClientBuilder getCrudClientSettings() {
-    return TarantoolFactory.crud()
-        .withHost(getHost())
-        .withPort(getPort());
+    return TarantoolFactory.crud().withHost(getHost()).withPort(getPort());
   }
 
   private static TarantoolBoxClientBuilder getBoxClientSettings() {
-    return TarantoolFactory.box()
-        .withHost(getHost())
-        .withPort(getPort());
+    return TarantoolFactory.box().withHost(getHost()).withPort(getPort());
   }
 
   @EnableTarantoolRepositories

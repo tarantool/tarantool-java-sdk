@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,7 +21,8 @@ public class CustomRuleFactory extends RuleFactory {
     super();
   }
 
-  public CustomRuleFactory(GenerationConfig config, Jackson2Annotator jackson2Annotator, SchemaStore schemaStore) {
+  public CustomRuleFactory(
+      GenerationConfig config, Jackson2Annotator jackson2Annotator, SchemaStore schemaStore) {
     super(config, jackson2Annotator, schemaStore);
   }
 

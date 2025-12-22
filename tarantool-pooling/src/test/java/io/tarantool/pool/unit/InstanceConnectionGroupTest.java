@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -42,13 +42,14 @@ class InstanceConnectionGroupTest {
     int size = 2;
     IProtoAuth.AuthType type = IProtoAuth.AuthType.PAP_SHA256;
 
-    final InstanceConnectionGroup group = InstanceConnectionGroup.builder()
-        .withTag(tag)
-        .withUser(user)
-        .withPort(defaultPort)
-        .withSize(size)
-        .withAuthType(type)
-        .build();
+    final InstanceConnectionGroup group =
+        InstanceConnectionGroup.builder()
+            .withTag(tag)
+            .withUser(user)
+            .withPort(defaultPort)
+            .withSize(size)
+            .withAuthType(type)
+            .build();
 
     assertEquals(new InetSocketAddress(defaultHost, defaultPort), group.getAddress());
     assertEquals(tag, group.getTag());
@@ -66,7 +67,8 @@ class InstanceConnectionGroupTest {
     int defaultPort = 3301;
     String defaultUser = "guest";
 
-    final InstanceConnectionGroup group = InstanceConnectionGroup.builder().withUser(defaultUser).build();
+    final InstanceConnectionGroup group =
+        InstanceConnectionGroup.builder().withUser(defaultUser).build();
 
     assertEquals(new InetSocketAddress(defaultHost, defaultPort), group.getAddress());
     assertEquals("guest:localhost:3301", group.getTag());
@@ -85,11 +87,12 @@ class InstanceConnectionGroupTest {
     String emptyUser = "";
     String emptyPassword = null;
 
-    final InstanceConnectionGroup group = InstanceConnectionGroup.builder()
-        .withUser(emptyUser)
-        .withHost(emptyHost)
-        .withPassword(emptyPassword)
-        .build();
+    final InstanceConnectionGroup group =
+        InstanceConnectionGroup.builder()
+            .withUser(emptyUser)
+            .withHost(emptyHost)
+            .withPassword(emptyPassword)
+            .build();
 
     assertEquals(new InetSocketAddress("localhost", defaultPort), group.getAddress());
     assertEquals("guest:localhost:3301", group.getTag());

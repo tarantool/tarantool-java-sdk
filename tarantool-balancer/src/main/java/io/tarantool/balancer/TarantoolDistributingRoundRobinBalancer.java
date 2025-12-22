@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,7 +18,8 @@ import io.tarantool.pool.IProtoClientPool;
 
 public class TarantoolDistributingRoundRobinBalancer implements TarantoolBalancer {
 
-  private static final Logger log = LoggerFactory.getLogger(TarantoolDistributingRoundRobinBalancer.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(TarantoolDistributingRoundRobinBalancer.class);
   private final IProtoClientPool pool;
   private final int[] tagsIndices;
   private final int[] groupSizes;
@@ -60,13 +61,14 @@ public class TarantoolDistributingRoundRobinBalancer implements TarantoolBalance
         continue;
       }
       return clientFuture
-          .handle((connect, exc) -> {
-            if (exc != null) {
-              log.warn("taking {}:{} failed", tag, connectionIndex, exc);
-              return getNext();
-            }
-            return CompletableFuture.completedFuture(connect);
-          })
+          .handle(
+              (connect, exc) -> {
+                if (exc != null) {
+                  log.warn("taking {}:{} failed", tag, connectionIndex, exc);
+                  return getNext();
+                }
+                return CompletableFuture.completedFuture(connect);
+              })
           .thenCompose(x -> x);
     }
     CompletableFuture<IProtoClient> future = new CompletableFuture<>();

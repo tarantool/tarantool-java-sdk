@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -47,10 +47,8 @@ public class TarantoolCrudClientWithRetryTest {
     private final long delay;
     private int attempts;
 
-    public OperationsRepeater(Supplier<CompletableFuture<T>> operation,
-        long delay,
-        int attempts,
-        Timer timer) {
+    public OperationsRepeater(
+        Supplier<CompletableFuture<T>> operation, long delay, int attempts, Timer timer) {
       this.operation = operation;
       this.future = new CompletableFuture<>();
       this.timer = timer;
@@ -66,37 +64,36 @@ public class TarantoolCrudClientWithRetryTest {
     private void execute() {
       operation
           .get()
-          .whenComplete((result, exc) -> {
-            if (exc == null) {
-              future.complete(result);
-              return;
-            }
+          .whenComplete(
+              (result, exc) -> {
+                if (exc == null) {
+                  future.complete(result);
+                  return;
+                }
 
-            // also here we can analyze exception
-            if (--attempts == 0) {
-              future.completeExceptionally(exc);
-              return;
-            }
+                // also here we can analyze exception
+                if (--attempts == 0) {
+                  future.completeExceptionally(exc);
+                  return;
+                }
 
-            timer.newTimeout(
-                (handler) -> execute(),
-                delay,
-                TimeUnit.MILLISECONDS
-            );
-          });
+                timer.newTimeout((handler) -> execute(), delay, TimeUnit.MILLISECONDS);
+              });
     }
   }
 
   private static final TarantoolCartridgeContainer tt =
       new TarantoolCartridgeContainer(
-          "Dockerfile",
-          System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "") + "cartridge",
-          "cartridge/instances.yml",
-          "cartridge/replicasets.yml",
-          org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
+              "Dockerfile",
+              System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "")
+                  + "cartridge",
+              "cartridge/instances.yml",
+              "cartridge/replicasets.yml",
+              org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
           .withStartupTimeout(Duration.ofMinutes(5))
-          .withLogConsumer(new Slf4jLogConsumer(
-              LoggerFactory.getLogger(TarantoolCrudClientWithRetryTest.class)));
+          .withLogConsumer(
+              new Slf4jLogConsumer(
+                  LoggerFactory.getLogger(TarantoolCrudClientWithRetryTest.class)));
 
   private static TarantoolCrudClient client;
   private static final Person personInstance = new Person(1, true, "Roman");
@@ -106,12 +103,13 @@ public class TarantoolCrudClientWithRetryTest {
   public static void setUp() throws Exception {
     if (isCartridgeAvailable()) {
       tt.start();
-      client = TarantoolFactory.crud()
-          .withHost(tt.getHost())
-          .withPort(tt.getPort())
-          .withUser("admin")
-          .withPassword("secret-cluster-cookie")
-          .build();
+      client =
+          TarantoolFactory.crud()
+              .withHost(tt.getHost())
+              .withPort(tt.getPort())
+              .withUser("admin")
+              .withPassword("secret-cluster-cookie")
+              .build();
     }
   }
 
@@ -128,39 +126,33 @@ public class TarantoolCrudClientWithRetryTest {
   }
 
   @Test
-  @EnabledIfEnvironmentVariable(
-      named = "TARANTOOL_VERSION",
-      matches = "2.*")
+  @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "2.*")
   public void testSuccessRetry() throws Exception {
     TarantoolCrudSpace person = client.space("person");
-    OperationsRepeater<Person> repeater = new OperationsRepeater<>(
-        () -> person.insert(personInstance, Person.class).thenApply(Tuple::get),
-        1000,
-        3,
-        timerService
-    );
+    OperationsRepeater<Person> repeater =
+        new OperationsRepeater<>(
+            () -> person.insert(personInstance, Person.class).thenApply(Tuple::get),
+            1000,
+            3,
+            timerService);
 
     assertDoesNotThrow(() -> repeater.run().join());
 
     client.call("crud_aux.unwrap_api").get();
     assertEquals(
-        personInstance,
-        person.get(Collections.singletonList(1), Person.class).join().get()
-    );
+        personInstance, person.get(Collections.singletonList(1), Person.class).join().get());
   }
 
   @Test
-  @EnabledIfEnvironmentVariable(
-      named = "TARANTOOL_VERSION",
-      matches = "2.*")
+  @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "2.*")
   public void testFailedRetry() {
     TarantoolCrudSpace person = client.space("person");
-    OperationsRepeater<Person> repeater = new OperationsRepeater<>(
-        () -> person.insert(personInstance, Person.class).thenApply(Tuple::get),
-        1000,
-        2,
-        timerService
-    );
+    OperationsRepeater<Person> repeater =
+        new OperationsRepeater<>(
+            () -> person.insert(personInstance, Person.class).thenApply(Tuple::get),
+            1000,
+            2,
+            timerService);
 
     Throwable ex = assertThrows(CompletionException.class, () -> repeater.run().join());
     assertEquals(BoxError.class, ex.getCause().getClass());

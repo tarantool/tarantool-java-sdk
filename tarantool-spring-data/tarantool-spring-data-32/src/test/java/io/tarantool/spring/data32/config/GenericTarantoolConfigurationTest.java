@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -27,8 +27,7 @@ public abstract class GenericTarantoolConfigurationTest implements ApplicationCo
 
   protected ApplicationContext applicationContext;
 
-  @Autowired
-  protected TarantoolProperties properties;
+  @Autowired protected TarantoolProperties properties;
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -37,12 +36,14 @@ public abstract class GenericTarantoolConfigurationTest implements ApplicationCo
 
   @BeforeAll
   static void beforeAll() throws IOException {
-    testProperties = TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
+    testProperties =
+        TarantoolTestSupport.writeTestPropertiesYaml(Constants.DEFAULT_PROPERTY_FILE_NAME);
   }
 
   @AfterAll
   static void afterAll() throws IOException {
-    Files.deleteIfExists(TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(Constants.DEFAULT_PROPERTY_FILE_NAME));
+    Files.deleteIfExists(
+        TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(
+            Constants.DEFAULT_PROPERTY_FILE_NAME));
   }
 }
-

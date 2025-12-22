@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -25,41 +25,40 @@ public class BaseTarantoolJacksonMapping {
 
   public static final MessagePackFactory mpFactory = new MessagePackFactory();
 
-  public static final ObjectMapper objectMapper = new ObjectMapper(mpFactory)
-      .registerModule(DatetimeExtensionModule.INSTANCE)
-      .registerModule(DecimalExtensionModule.INSTANCE)
-      .registerModule(IntervalExtensionModule.INSTANCE)
-      .registerModule(TupleExtensionModule.INSTANCE)
-      .registerModule(UUIDExtensionModule.INSTANCE)
-      .registerModule(UniversalExtensionModule.INSTANCE);
+  public static final ObjectMapper objectMapper =
+      new ObjectMapper(mpFactory)
+          .registerModule(DatetimeExtensionModule.INSTANCE)
+          .registerModule(DecimalExtensionModule.INSTANCE)
+          .registerModule(IntervalExtensionModule.INSTANCE)
+          .registerModule(TupleExtensionModule.INSTANCE)
+          .registerModule(UUIDExtensionModule.INSTANCE)
+          .registerModule(UniversalExtensionModule.INSTANCE);
   public static final TypeFactory typeFactory = objectMapper.getTypeFactory();
   public static final CollectionType LIST_TUPLE =
       typeFactory.constructCollectionType(List.class, Tuple.class);
   public static final CollectionType LIST_TUPLE_LIST =
       typeFactory.constructCollectionType(
-          List.class,
-          typeFactory.constructParametricType(Tuple.class, List.class)
-      );
-  public static final ObjectMapper objectMapperWithMessagePackKeySerializer = new ObjectMapper(mpFactory)
-      .registerModule(DatetimeExtensionModule.INSTANCE)
-      .registerModule(DecimalExtensionModule.INSTANCE)
-      .registerModule(IntervalExtensionModule.INSTANCE)
-      .registerModule(TupleExtensionModule.INSTANCE)
-      .registerModule(UUIDExtensionModule.INSTANCE)
-      .registerModule(UniversalExtensionModule.INSTANCE)
-      .registerModule(FormatsModule.INSTANCE);
+          List.class, typeFactory.constructParametricType(Tuple.class, List.class));
+  public static final ObjectMapper objectMapperWithMessagePackKeySerializer =
+      new ObjectMapper(mpFactory)
+          .registerModule(DatetimeExtensionModule.INSTANCE)
+          .registerModule(DecimalExtensionModule.INSTANCE)
+          .registerModule(IntervalExtensionModule.INSTANCE)
+          .registerModule(TupleExtensionModule.INSTANCE)
+          .registerModule(UUIDExtensionModule.INSTANCE)
+          .registerModule(UniversalExtensionModule.INSTANCE)
+          .registerModule(FormatsModule.INSTANCE);
   public static final MessagePackFactory innerMpFactory =
-      new MessagePackFactory()
-          .setReuseResourceInParser(false)
-          .setReuseResourceInGenerator(false);
+      new MessagePackFactory().setReuseResourceInParser(false).setReuseResourceInGenerator(false);
 
-  public static final ObjectMapper innerObjectMapper = new ObjectMapper(innerMpFactory)
-      .registerModule(DecimalExtensionModule.INSTANCE)
-      .registerModule(UUIDExtensionModule.INSTANCE)
-      .registerModule(DatetimeExtensionModule.INSTANCE)
-      .registerModule(IntervalExtensionModule.INSTANCE)
-      .registerModule(TupleExtensionModule.INSTANCE)
-      .registerModule(UniversalExtensionModule.INSTANCE);
+  public static final ObjectMapper innerObjectMapper =
+      new ObjectMapper(innerMpFactory)
+          .registerModule(DecimalExtensionModule.INSTANCE)
+          .registerModule(UUIDExtensionModule.INSTANCE)
+          .registerModule(DatetimeExtensionModule.INSTANCE)
+          .registerModule(IntervalExtensionModule.INSTANCE)
+          .registerModule(TupleExtensionModule.INSTANCE)
+          .registerModule(UniversalExtensionModule.INSTANCE);
 
   public static Object readData(IProtoResponse response) {
     return readValue(response.getByteBodyValue(IPROTO_DATA));
@@ -75,8 +74,7 @@ public class BaseTarantoolJacksonMapping {
           byteBodyValueWrapper.getPacket(),
           byteBodyValueWrapper.getOffset(),
           byteBodyValueWrapper.getValueLength(),
-          Object.class
-      );
+          Object.class);
     } catch (IOException e) {
       throw new JacksonMappingException(e);
     }
@@ -96,8 +94,7 @@ public class BaseTarantoolJacksonMapping {
           byteBodyValueWrapper.getPacket(),
           byteBodyValueWrapper.getOffset(),
           byteBodyValueWrapper.getValueLength(),
-          entity
-      );
+          entity);
     } catch (IOException e) {
       throw new JacksonMappingException(e);
     }
@@ -111,14 +108,14 @@ public class BaseTarantoolJacksonMapping {
     return readValue(response.getByteBodyValue(IPROTO_EVENT_DATA), entity);
   }
 
-  public static <T> T readValue(ByteBodyValueWrapper byteBodyValueWrapper, TypeReference<T> entity) {
+  public static <T> T readValue(
+      ByteBodyValueWrapper byteBodyValueWrapper, TypeReference<T> entity) {
     try {
       return objectMapper.readValue(
           byteBodyValueWrapper.getPacket(),
           byteBodyValueWrapper.getOffset(),
           byteBodyValueWrapper.getValueLength(),
-          entity
-      );
+          entity);
     } catch (IOException e) {
       throw new JacksonMappingException(e);
     }
@@ -134,8 +131,7 @@ public class BaseTarantoolJacksonMapping {
           byteBodyValueWrapper.getPacket(),
           byteBodyValueWrapper.getOffset(),
           byteBodyValueWrapper.getValueLength(),
-          entity
-      );
+          entity);
     } catch (IOException e) {
       throw new JacksonMappingException(e);
     }
@@ -147,8 +143,7 @@ public class BaseTarantoolJacksonMapping {
           byteBodyValueWrapper.getPacket(),
           byteBodyValueWrapper.getOffset(),
           byteBodyValueWrapper.getValueLength(),
-          entity
-      );
+          entity);
     } catch (IOException e) {
       throw new JacksonMappingException(e);
     }
@@ -179,50 +174,43 @@ public class BaseTarantoolJacksonMapping {
   }
 
   /**
-   * <p>The method allows to create a single parameterized type from those specified in the input arguments.</p>
+   * The method allows to create a single parameterized type from those specified in the input
+   * arguments.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <T>          type of {@code internalType}
-   * @param <E>          type of {@code externalType}
+   * @param <T> type of {@code internalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   public static <T, E> JavaType wrapIntoType(Class<E> externalType, TypeReference<T> internalType) {
-    return wrapIntoType(
-        externalType,
-        objectMapper.constructType(internalType)
-    );
+    return wrapIntoType(externalType, objectMapper.constructType(internalType));
   }
 
   /**
-   * <p> Same as {@link #wrapIntoType(Class, TypeReference)}.</p>
+   * Same as {@link #wrapIntoType(Class, TypeReference)}.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <T>          type of {@code internalType}
-   * @param <E>          type of {@code externalType}
+   * @param <T> type of {@code internalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   public static <T, E> JavaType wrapIntoType(Class<E> externalType, Class<T> internalType) {
-    return wrapIntoType(
-        externalType,
-        typeFactory.constructType(internalType)
-    );
+    return wrapIntoType(externalType, typeFactory.constructType(internalType));
   }
 
   /**
-   * <p>The method allows to create a single parameterized type from those specified in the input arguments.</p>
+   * The method allows to create a single parameterized type from those specified in the input
+   * arguments.
    *
    * @param externalType a type that will be parameterized by the {@code internalType} type
    * @param internalType type with which the type {@code externalType} will be parameterized
-   * @param <E>          type of {@code externalType}
+   * @param <E> type of {@code externalType}
    * @return {@link JavaType} parameterized type
    */
   public static <E> JavaType wrapIntoType(Class<E> externalType, JavaType internalType) {
-    return typeFactory.constructParametricType(
-        externalType,
-        internalType
-    );
+    return typeFactory.constructParametricType(externalType, internalType);
   }
 
   public static <T> JavaType wrapIntoList(TypeReference<T> internalType) {
@@ -250,14 +238,38 @@ public class BaseTarantoolJacksonMapping {
   }
 
   /**
-   * <p>The method extracts tuple from the returned list with single tuple. If the list is empty or null,
-   * then null will be returned.</p>
+   * The method extracts tuple from the returned list with single tuple. If the list is empty or
+   * null, then null will be returned.
    *
    * @param multiReturnResultList the result of operations as a list of tuples
    * @return a tuple as list of Java objects or null
    * @throws JacksonMappingException if for some reason a list with many tuples is returned
    */
-  static public Tuple<List<?>> getFirstOrNullForReturnAsList(List<Tuple<List<?>>> multiReturnResultList)
+  public static Tuple<List<?>> getFirstOrNullForReturnAsList(
+      List<Tuple<List<?>>> multiReturnResultList) throws JacksonMappingException {
+    if (multiReturnResultList == null || multiReturnResultList.isEmpty()) {
+      return null;
+    }
+
+    if (multiReturnResultList.size() == 1) {
+      return multiReturnResultList.get(0);
+    }
+
+    throw new JacksonMappingException(
+        "This method should return one tuple or null, but it returned "
+            + multiReturnResultList.size());
+  }
+
+  /**
+   * The method extracts tuple from the returned list with single tuple. If the list is empty or
+   * null, then null will be returned.
+   *
+   * @param multiReturnResultList the result of operations as a list of tuples
+   * @param <T> data type of the tuple representation (custom type)
+   * @return a tuple as custom type or null
+   * @throws JacksonMappingException if for some reason a list with many tuples is returned
+   */
+  public static <T> T getFirstOrNullForReturnAsClass(List<T> multiReturnResultList)
       throws JacksonMappingException {
     if (multiReturnResultList == null || multiReturnResultList.isEmpty()) {
       return null;
@@ -267,29 +279,8 @@ public class BaseTarantoolJacksonMapping {
       return multiReturnResultList.get(0);
     }
 
-    throw new JacksonMappingException("This method should return one tuple or null, but it returned "
-        + multiReturnResultList.size());
-  }
-
-  /**
-   * <p>The method extracts tuple from the returned list with single tuple. If the list is empty or null,
-   * then null will be returned.</p>
-   *
-   * @param multiReturnResultList the result of operations as a list of tuples
-   * @param <T>                   data type of the tuple representation (custom type)
-   * @return a tuple as custom type or null
-   * @throws JacksonMappingException if for some reason a list with many tuples is returned
-   */
-  static public <T> T getFirstOrNullForReturnAsClass(List<T> multiReturnResultList) throws JacksonMappingException {
-    if (multiReturnResultList == null || multiReturnResultList.isEmpty()) {
-      return null;
-    }
-
-    if (multiReturnResultList.size() == 1) {
-      return multiReturnResultList.get(0);
-    }
-
-    throw new JacksonMappingException("This method should return one tuple or null, but it returned "
-        + multiReturnResultList.size());
+    throw new JacksonMappingException(
+        "This method should return one tuple or null, but it returned "
+            + multiReturnResultList.size());
   }
 }

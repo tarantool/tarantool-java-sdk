@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -32,8 +32,7 @@ import io.tarantool.spring.data27.utils.TarantoolTestSupport;
 @Timeout(5)
 public class TarantoolEmptyPropertiesTest {
 
-  @Autowired
-  private TarantoolProperties springParsedProperties;
+  @Autowired private TarantoolProperties springParsedProperties;
 
   @BeforeAll
   static void beforeAll() throws IOException {

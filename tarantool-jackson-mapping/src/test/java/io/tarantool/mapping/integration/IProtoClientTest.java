@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -62,11 +62,12 @@ import io.tarantool.mapping.entities.TestEntity;
 @Testcontainers
 public class IProtoClientTest extends BaseTest {
 
-  final static Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
+  static final Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
+
   @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP)
-      .withLogConsumer(new Slf4jLogConsumer(log));
+  private static final TarantoolContainer tt =
+      new TarantoolContainer().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
+
   public static final String ECHO_EXPRESSION = "return ...";
   public static final String YEAR = "2022";
   public static final String MONTH = "07";
@@ -79,8 +80,10 @@ public class IProtoClientTest extends BaseTest {
   public static final String MSK_OFFSET = "+03:00";
   public static final String T_2022_08_30_05 =
       String.format("%s-%s-%sT%s:%s:%s", YEAR, MONTH, DAY, HOUR, MINUTES, SECONDS);
-  public static final String T_2022_08_30_05_000000123 = String.format("%s.%s", T_2022_08_30_05, NANOSECONDS);
-  public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.parse(T_2022_08_30_05_000000123);
+  public static final String T_2022_08_30_05_000000123 =
+      String.format("%s.%s", T_2022_08_30_05, NANOSECONDS);
+  public static final LocalDateTime LOCAL_DATE_TIME =
+      LocalDateTime.parse(T_2022_08_30_05_000000123);
   public static final long EPOCH_SECOND = LOCAL_DATE_TIME.toEpochSecond(ZoneOffset.UTC);
   private static int spaceTestId;
   private static InetSocketAddress address;
@@ -98,24 +101,30 @@ public class IProtoClientTest extends BaseTest {
   }
 
   public static Stream<Arguments> dataForTestInsertAndSelect() {
-    return Stream.of(Arguments.of(ValueFactory.newArray(ValueFactory.newString("testkey")),
+    return Stream.of(
+        Arguments.of(
+            ValueFactory.newArray(ValueFactory.newString("testkey")),
             new ArrayList<>(Collections.emptyList()),
             spaceTestId,
             0,
             1,
             0,
             BoxIterator.EQ),
-        Arguments.of(ValueFactory.newArray(ValueFactory.newString("key_a")),
-            new ArrayList<>(Collections.singletonList(new TestEntity("key_a".toCharArray(),
-                "value_a"))),
+        Arguments.of(
+            ValueFactory.newArray(ValueFactory.newString("key_a")),
+            new ArrayList<>(
+                Collections.singletonList(new TestEntity("key_a".toCharArray(), "value_a"))),
             spaceTestId,
             0,
             1,
             0,
             BoxIterator.EQ),
-        Arguments.of(ValueFactory.newArray(ValueFactory.newString("key_a")),
-            new ArrayList<>(Arrays.asList(new TestEntity("key_a".toCharArray(), "value_a"),
-                new TestEntity("key_b".toCharArray(), "value_b"))),
+        Arguments.of(
+            ValueFactory.newArray(ValueFactory.newString("key_a")),
+            new ArrayList<>(
+                Arrays.asList(
+                    new TestEntity("key_a".toCharArray(), "value_a"),
+                    new TestEntity("key_b".toCharArray(), "value_b"))),
             spaceTestId,
             0,
             2,
@@ -125,13 +134,15 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestInsertAndSelect")
-  public void testInsertAndSelect(ArrayValue key,
+  public void testInsertAndSelect(
+      ArrayValue key,
       List<TestEntity> input,
       Integer space,
       Integer index,
       Integer limit,
       Integer offset,
-      BoxIterator iterator) throws Exception {
+      BoxIterator iterator)
+      throws Exception {
     IProtoClient client = getClientAndConnect();
     List<Tuple<TestEntity>> tuples;
     for (TestEntity entity : input) {
@@ -180,18 +191,42 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of(null, Integer.class),
         /* containers */
         Arguments.of(new ArrayList<>(), List.class),
-        Arguments.of(new ArrayList<>(Arrays.asList(1, "a", null, true, new HashMap<Object, Object>() {{
-          put("nestedArray", new ArrayList<>(Arrays.asList(1, "a", null, true)));
-        }})), List.class),
+        Arguments.of(
+            new ArrayList<>(
+                Arrays.asList(
+                    1,
+                    "a",
+                    null,
+                    true,
+                    new HashMap<Object, Object>() {
+                      {
+                        put("nestedArray", new ArrayList<>(Arrays.asList(1, "a", null, true)));
+                      }
+                    })),
+            List.class),
         Arguments.of(new HashMap<>(), Map.class),
-        Arguments.of(new HashMap<Object, Object>() {{
-          put("a", 1);
-          put("b", "3");
-          put("99", true);
-          put("nestedArray", new ArrayList<>(Arrays.asList(1, "a", null, true, new HashMap<Object, Object>() {{
-            put("hello", "world");
-          }})));
-        }}, Map.class),
+        Arguments.of(
+            new HashMap<Object, Object>() {
+              {
+                put("a", 1);
+                put("b", "3");
+                put("99", true);
+                put(
+                    "nestedArray",
+                    new ArrayList<>(
+                        Arrays.asList(
+                            1,
+                            "a",
+                            null,
+                            true,
+                            new HashMap<Object, Object>() {
+                              {
+                                put("hello", "world");
+                              }
+                            })));
+              }
+            },
+            Map.class),
         /* decimal */
         Arguments.of(BigDecimal.ZERO, BigDecimal.class),
         Arguments.of(BigDecimal.ONE, BigDecimal.class),
@@ -226,20 +261,26 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of(UUID.randomUUID(), UUID.class),
         /* datetime */
         Arguments.of(Instant.ofEpochSecond(EPOCH_SECOND), Instant.class),
-        Arguments.of(Instant.ofEpochSecond(EPOCH_SECOND, Integer.parseInt(NANOSECONDS)), Instant.class),
+        Arguments.of(
+            Instant.ofEpochSecond(EPOCH_SECOND, Integer.parseInt(NANOSECONDS)), Instant.class),
         Arguments.of(LOCAL_DATE_TIME.atZone(ZoneId.of(EUROPE_MOSCOW)).toInstant(), Instant.class),
-        Arguments.of(LocalDateTime.parse(T_2022_08_30_05).atZone(ZoneOffset.UTC), ZonedDateTime.class),
+        Arguments.of(
+            LocalDateTime.parse(T_2022_08_30_05).atZone(ZoneOffset.UTC), ZonedDateTime.class),
         Arguments.of(LOCAL_DATE_TIME.atZone(ZoneOffset.UTC), ZonedDateTime.class),
         Arguments.of(LOCAL_DATE_TIME.atZone(ZoneId.of(EUROPE_MOSCOW)), ZonedDateTime.class),
         Arguments.of(LOCAL_DATE_TIME.atZone(ZoneOffset.of(MSK_OFFSET)), ZonedDateTime.class),
         Arguments.of(LOCAL_DATE_TIME.atOffset(ZoneOffset.of(MSK_OFFSET)), OffsetDateTime.class),
         Arguments.of(LOCAL_DATE_TIME, LocalDateTime.class),
-        Arguments.of(LocalDate.of(Integer.parseInt(YEAR), Integer.parseInt(MONTH), Integer.parseInt(DAY)),
+        Arguments.of(
+            LocalDate.of(Integer.parseInt(YEAR), Integer.parseInt(MONTH), Integer.parseInt(DAY)),
             LocalDate.class),
-        Arguments.of(LocalTime.of(Integer.parseInt(HOUR),
-            Integer.parseInt(MINUTES),
-            Integer.parseInt(SECONDS),
-            Integer.parseInt(NANOSECONDS)), LocalTime.class),
+        Arguments.of(
+            LocalTime.of(
+                Integer.parseInt(HOUR),
+                Integer.parseInt(MINUTES),
+                Integer.parseInt(SECONDS),
+                Integer.parseInt(NANOSECONDS)),
+            LocalTime.class),
         Arguments.of(new Interval().setYear(1).setMonth(200).setDay(-77), Interval.class),
         // blocked by https://github.com/tarantool/tarantool/issues/8887
         // Arguments.of(
@@ -274,9 +315,13 @@ public class IProtoClientTest extends BaseTest {
   public <T> void testAllBasicTypes(T object, Class<T> expectedClass) throws Exception {
     IProtoClient client = getClientAndConnect();
     IProtoResponse evalResponse =
-        client.eval(ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object))).get();
+        client
+            .eval(
+                ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object)))
+            .get();
 
-    T parsedResponse = TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
+    T parsedResponse =
+        TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
     assertEquals(object, parsedResponse);
   }
 
@@ -289,16 +334,15 @@ public class IProtoClientTest extends BaseTest {
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestNilWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return nil", null, Integer.class),
+    return Stream.of(
+        Arguments.of("return nil", null, Integer.class),
         Arguments.of("return box.NULL", null, Integer.class),
         Arguments.of("return {1, box.NULL, 3}", Arrays.asList(1, null, 3), List.class),
         Arguments.of("return {1, [3] = 3}", Arrays.asList(1, null, 3), List.class));
@@ -306,21 +350,21 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestNilWithDifferentTargetTypes")
-  public <T> void testNilWithDifferentTargetTypes(String evalString, T object, Class<T> targetType) throws Exception {
+  public <T> void testNilWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
+      throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestBooleanWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return true", true, Boolean.class),
+    return Stream.of(
+        Arguments.of("return true", true, Boolean.class),
         Arguments.of("return require('ffi').new('bool', true)", true, Boolean.class),
         Arguments.of("return false", false, Boolean.class),
         Arguments.of("return require('ffi').new('bool', false)", false, Boolean.class));
@@ -328,19 +372,17 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestBooleanWithDifferentTargetTypes")
-  public <T> void testBooleanWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testBooleanWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestUnsignedWithDifferentTargetTypes() {
     return Stream.of(
@@ -520,7 +562,8 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return 99999999999999LL", 99999999999999.0, Double.class),
         Arguments.of("return 99999999999999LL", 99999999999999.0f, Float.class),
         /* unsigned long long */
-        Arguments.of("return 99999999999999ULL", new BigInteger("99999999999999"), BigInteger.class),
+        Arguments.of(
+            "return 99999999999999ULL", new BigInteger("99999999999999"), BigInteger.class),
         Arguments.of("return 99999999999999ULL", 99999999999999L, Long.class),
         Arguments.of("return 99999999999999ULL", 99999999999999.0, Double.class),
         Arguments.of("return 99999999999999ULL", 99999999999999.0f, Float.class),
@@ -532,46 +575,61 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return 100000000000000", 100000000000000.0f, Float.class),
         /* long long */
         Arguments.of("return 100000000000000LL", 100000000000000L, null),
-        Arguments.of("return 100000000000000LL", new BigInteger("100000000000000"), BigInteger.class),
+        Arguments.of(
+            "return 100000000000000LL", new BigInteger("100000000000000"), BigInteger.class),
         Arguments.of("return 100000000000000LL", 100000000000000L, Long.class),
         Arguments.of("return 100000000000000LL", 100000000000000.0, Double.class),
         Arguments.of("return 100000000000000LL", 100000000000000.0f, Float.class),
         /* unsigned long long */
         Arguments.of("return 100000000000000ULL", 100000000000000L, null),
-        Arguments.of("return 100000000000000ULL", new BigInteger("100000000000000"), BigInteger.class),
+        Arguments.of(
+            "return 100000000000000ULL", new BigInteger("100000000000000"), BigInteger.class),
         Arguments.of("return 100000000000000ULL", 100000000000000L, Long.class),
         Arguments.of("return 100000000000000ULL", 100000000000000.0, Double.class),
         Arguments.of("return 100000000000000ULL", 100000000000000.0f, Float.class),
         /* long long */
         Arguments.of("return 9223372036854775807LL", 9223372036854775807L, null),
-        Arguments.of("return 9223372036854775807LL", new BigInteger("9223372036854775807"), BigInteger.class),
+        Arguments.of(
+            "return 9223372036854775807LL",
+            new BigInteger("9223372036854775807"),
+            BigInteger.class),
         Arguments.of("return 9223372036854775807LL", 9223372036854775807L, Long.class),
         Arguments.of("return 9223372036854775807LL", 9223372036854775807.0, Double.class),
         Arguments.of("return 9223372036854775807LL", 9223372036854775807.0f, Float.class),
         /* unsigned long long */
         Arguments.of("return 9223372036854775807ULL", 9223372036854775807L, null),
-        Arguments.of("return 9223372036854775807ULL", new BigInteger("9223372036854775807"), BigInteger.class),
+        Arguments.of(
+            "return 9223372036854775807ULL",
+            new BigInteger("9223372036854775807"),
+            BigInteger.class),
         Arguments.of("return 9223372036854775807ULL", 9223372036854775807L, Long.class),
         Arguments.of("return 9223372036854775807ULL", 9223372036854775807.0, Double.class),
         Arguments.of("return 9223372036854775807ULL", 9223372036854775807.0f, Float.class),
-
-        Arguments.of("return 9223372036854775808ULL", new BigInteger("9223372036854775808"), BigInteger.class),
+        Arguments.of(
+            "return 9223372036854775808ULL",
+            new BigInteger("9223372036854775808"),
+            BigInteger.class),
         Arguments.of("return 9223372036854775808ULL", 9223372036854775808.0, Double.class),
         Arguments.of("return 9223372036854775808ULL", 9223372036854775808.0f, Float.class),
-
-        Arguments.of("return 9223372036854775809ULL", new BigInteger("9223372036854775809"), BigInteger.class),
+        Arguments.of(
+            "return 9223372036854775809ULL",
+            new BigInteger("9223372036854775809"),
+            BigInteger.class),
         Arguments.of("return 9223372036854775809ULL", 9223372036854775809.0, Double.class),
         Arguments.of("return 9223372036854775809ULL", 9223372036854775809.0f, Float.class),
-
-        Arguments.of("return 18446744073709551614ULL", new BigInteger("18446744073709551614"), BigInteger.class),
+        Arguments.of(
+            "return 18446744073709551614ULL",
+            new BigInteger("18446744073709551614"),
+            BigInteger.class),
         Arguments.of("return 18446744073709551614ULL", 18446744073709551614.0, Double.class),
         Arguments.of("return 18446744073709551614ULL", 18446744073709551614.0f, Float.class),
-
-        Arguments.of("return 18446744073709551615ULL", new BigInteger("18446744073709551615"), BigInteger.class),
+        Arguments.of(
+            "return 18446744073709551615ULL",
+            new BigInteger("18446744073709551615"),
+            BigInteger.class),
         Arguments.of("return 18446744073709551615ULL", 18446744073709551615.0, Double.class),
         Arguments.of("return 18446744073709551615ULL", 18446744073709551615.0f, Float.class),
         Arguments.of("return 18446744073709551615ULL", 18446744073709551615.0f, Float.class),
-
         Arguments.of("return -1ULL", new BigInteger("18446744073709551615"), BigInteger.class),
         Arguments.of("return -1ULL", 18446744073709551615.0, Double.class),
         Arguments.of("return -1ULL", 18446744073709551615.0f, Float.class),
@@ -580,19 +638,17 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestUnsignedWithDifferentTargetTypes")
-  public <T> void testUnsignedWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testUnsignedWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestSignedWithDifferentTargetTypes() {
     return Stream.of(
@@ -670,31 +726,40 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return -99999999999999", -99999999999999.0f, Float.class),
         /* long long */
         Arguments.of("return -99999999999999LL", -99999999999999L, null),
-        Arguments.of("return -99999999999999LL", new BigInteger("-99999999999999"), BigInteger.class),
+        Arguments.of(
+            "return -99999999999999LL", new BigInteger("-99999999999999"), BigInteger.class),
         Arguments.of("return -99999999999999LL", -99999999999999L, Long.class),
         Arguments.of("return -99999999999999LL", -99999999999999.0, Double.class),
         Arguments.of("return -99999999999999LL", -99999999999999.0f, Float.class),
         /* number */
         Arguments.of("return -100000000000000", -100000000000000L, null),
-        Arguments.of("return -100000000000000", new BigInteger("-100000000000000"), BigInteger.class),
+        Arguments.of(
+            "return -100000000000000", new BigInteger("-100000000000000"), BigInteger.class),
         Arguments.of("return -100000000000000", -100000000000000L, Long.class),
         Arguments.of("return -100000000000000", -100000000000000.0, Double.class),
         Arguments.of("return -100000000000000", -100000000000000.0f, Float.class),
         /* long long */
         Arguments.of("return -100000000000000LL", -100000000000000L, null),
-        Arguments.of("return -100000000000000LL", new BigInteger("-100000000000000"), BigInteger.class),
+        Arguments.of(
+            "return -100000000000000LL", new BigInteger("-100000000000000"), BigInteger.class),
         Arguments.of("return -100000000000000LL", -100000000000000L, Long.class),
         Arguments.of("return -100000000000000LL", -100000000000000.0, Double.class),
         Arguments.of("return -100000000000000LL", -100000000000000.0f, Float.class),
         /* number */
         Arguments.of("return -9223372036854775808", -9223372036854775808L, null),
-        Arguments.of("return -9223372036854775808", new BigInteger("-9223372036854775808"), BigInteger.class),
+        Arguments.of(
+            "return -9223372036854775808",
+            new BigInteger("-9223372036854775808"),
+            BigInteger.class),
         Arguments.of("return -9223372036854775808", -9223372036854775808L, Long.class),
         Arguments.of("return -9223372036854775808", -9223372036854775808.0, Double.class),
         Arguments.of("return -9223372036854775808", -9223372036854775808.0f, Float.class),
         /* long long */
         Arguments.of("return -9223372036854775808LL", -9223372036854775808L, null),
-        Arguments.of("return -9223372036854775808LL", new BigInteger("-9223372036854775808"), BigInteger.class),
+        Arguments.of(
+            "return -9223372036854775808LL",
+            new BigInteger("-9223372036854775808"),
+            BigInteger.class),
         Arguments.of("return -9223372036854775808LL", -9223372036854775808L, Long.class),
         Arguments.of("return -9223372036854775808LL", -9223372036854775808.0, Double.class),
         Arguments.of("return -9223372036854775808LL", -9223372036854775808.0f, Float.class));
@@ -702,22 +767,21 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestSignedWithDifferentTargetTypes")
-  public <T> void testSignedWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testSignedWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestDoubleWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return -1.1", -1.1, null),
+    return Stream.of(
+        Arguments.of("return -1.1", -1.1, null),
         Arguments.of("return -1.1", new BigInteger("-1"), BigInteger.class),
         Arguments.of("return -1.1", -1L, Long.class),
         Arguments.of("return -1.1", -1, Integer.class),
@@ -725,33 +789,31 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return -1.1", (byte) -1, Byte.class),
         Arguments.of("return -1.1", -1.1, Double.class),
         Arguments.of("return -1.1", -1.1f, Float.class),
-
         Arguments.of("return require('ffi').new('float', 123456)", 123456.0, null),
-        Arguments.of("return require('ffi').new('float', 123456)",
+        Arguments.of(
+            "return require('ffi').new('float', 123456)",
             new BigInteger("123456"),
             BigInteger.class),
         Arguments.of("return require('ffi').new('float', 123456)", 123456L, Long.class),
         Arguments.of("return require('ffi').new('float', 123456)", 123456, Integer.class),
         Arguments.of("return require('ffi').new('float', 123456)", 123456.0, Double.class),
         Arguments.of("return require('ffi').new('float', 123456)", 123456f, Float.class),
-
         Arguments.of("return require('ffi').new('double', 123456)", 123456.0, null),
-        Arguments.of("return require('ffi').new('double', 123456)",
+        Arguments.of(
+            "return require('ffi').new('double', 123456)",
             new BigInteger("123456"),
             BigInteger.class),
         Arguments.of("return require('ffi').new('double', 123456)", 123456L, Long.class),
         Arguments.of("return require('ffi').new('double', 123456)", 123456, Integer.class),
         Arguments.of("return require('ffi').new('double', 123456)", 123456.0, Double.class),
         Arguments.of("return require('ffi').new('double', 123456)", 123456f, Float.class),
-
         Arguments.of("return require('ffi').new('float', 12.121)", 12.121000289916992, null),
-        Arguments.of("return require('ffi').new('float', 12.121)", 12.121000289916992, Double.class),
+        Arguments.of(
+            "return require('ffi').new('float', 12.121)", 12.121000289916992, Double.class),
         Arguments.of("return require('ffi').new('float', 12.121)", 12.121f, Float.class),
-
         Arguments.of("return require('ffi').new('double', 12.121)", 12.121, null),
         Arguments.of("return require('ffi').new('double', 12.121)", 12.121, Double.class),
         Arguments.of("return require('ffi').new('double', 12.121)", 12.121f, Float.class),
-
         Arguments.of("return 3.1415926535898", 3.1415926535898, null),
         Arguments.of("return 3.1415926535898", new BigInteger("3"), BigInteger.class),
         Arguments.of("return 3.1415926535898", 3L, Long.class),
@@ -760,7 +822,6 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return 3.1415926535898", (byte) 3, Byte.class),
         Arguments.of("return 3.1415926535898", 3.1415926535898, Double.class),
         Arguments.of("return 3.1415926535898", 3.1415926535898f, Float.class),
-
         Arguments.of("return -3.1415926535898", -3.1415926535898, null),
         Arguments.of("return -3.1415926535898", new BigInteger("-3"), BigInteger.class),
         Arguments.of("return -3.1415926535898", -3L, Long.class),
@@ -769,51 +830,52 @@ public class IProtoClientTest extends BaseTest {
         Arguments.of("return -3.1415926535898", (byte) -3, Byte.class),
         Arguments.of("return -3.1415926535898", -3.1415926535898, Double.class),
         Arguments.of("return -3.1415926535898", -3.1415926535898f, Float.class),
-
         Arguments.of("return 1e100", 1e100, null),
-        Arguments.of("return 1e100",
-            new BigInteger("1" + StringUtils.repeat("0", 100)),
-            BigInteger.class),
+        Arguments.of(
+            "return 1e100", new BigInteger("1" + StringUtils.repeat("0", 100)), BigInteger.class),
         Arguments.of("return 1e100", 1e100, Double.class));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestDoubleWithDifferentTargetTypes")
-  public <T> void testDoubleWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testDoubleWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestDecimalWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return require('decimal').new(1)", new BigDecimal(1), null),
+    return Stream.of(
+        Arguments.of("return require('decimal').new(1)", new BigDecimal(1), null),
         Arguments.of("return require('decimal').new(1)", new BigDecimal(1), BigDecimal.class),
-        Arguments.of("return require('decimal').new('1234567891234567890.0987654321987654321')",
+        Arguments.of(
+            "return require('decimal').new('1234567891234567890.0987654321987654321')",
             new BigDecimal("1234567891234567890.0987654321987654321"),
             BigDecimal.class),
-        Arguments.of("return require('decimal').new('1234567891234567890.0987654321987654321')",
+        Arguments.of(
+            "return require('decimal').new('1234567891234567890.0987654321987654321')",
             new BigDecimal("1234567891234567890.0987654321987654321"),
             BigDecimal.class),
-        Arguments.of("return require('decimal').new('1' .. string.rep('0', 37))",
+        Arguments.of(
+            "return require('decimal').new('1' .. string.rep('0', 37))",
             new BigDecimal("1" + StringUtils.repeat("0", 37)),
             BigDecimal.class),
-        Arguments.of("return require('decimal').new('0.' .. string.rep('0', 37) .. '1')",
+        Arguments.of(
+            "return require('decimal').new('0.' .. string.rep('0', 37) .. '1')",
             new BigDecimal("0." + StringUtils.repeat("0", 37) + "1"),
             BigDecimal.class));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestDecimalWithDifferentTargetTypes")
-  public <T> void testDecimalWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testDecimalWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
@@ -836,25 +898,26 @@ public class IProtoClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestDecimalWithDifferentENotation")
-  public <T> void testDecimalWithDifferentENotation(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testDecimalWithDifferentENotation(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestUUIDWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return require('uuid').fromstr('E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4')",
+    return Stream.of(
+        Arguments.of(
+            "return require('uuid').fromstr('E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4')",
             UUID.fromString("E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4"),
             null),
-        Arguments.of("return require('uuid').fromstr('E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4')",
+        Arguments.of(
+            "return require('uuid').fromstr('E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4')",
             UUID.fromString("E5EF0FEF-FB4F-4098-A7C4-2358CD896BD4"),
             UUID.class));
   }
@@ -867,155 +930,186 @@ public class IProtoClientTest extends BaseTest {
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestDatetimeWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .atZone(ZoneOffset.UTC), null),
-        Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .toInstant(ZoneOffset.UTC), Instant.class),
-        Arguments.of("return require('datetime').new({year = -5879609})",
+    return Stream.of(
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).atZone(ZoneOffset.UTC),
+            null),
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+            Instant.class),
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
             LocalDateTime.of(-5879609, 1, 1, 0, 0),
             LocalDateTime.class),
-        Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .toLocalDate(), LocalDate.class),
-        Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .toLocalTime(), LocalTime.class),
-        Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .atZone(ZoneOffset.UTC), ZonedDateTime.class),
-        Arguments.of("return require('datetime').new({year = -5879609})",
-            LocalDateTime.of(-5879609, 1, 1, 0, 0)
-                .atOffset(ZoneOffset.UTC), OffsetDateTime.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
-            LocalDateTime.of(5879611, 1, 1, 0, 0)
-                .toInstant(ZoneOffset.UTC), Instant.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).toLocalDate(),
+            LocalDate.class),
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).toLocalTime(),
+            LocalTime.class),
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).atZone(ZoneOffset.UTC),
+            ZonedDateTime.class),
+        Arguments.of(
+            "return require('datetime').new({year = -5879609})",
+            LocalDateTime.of(-5879609, 1, 1, 0, 0).atOffset(ZoneOffset.UTC),
+            OffsetDateTime.class),
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
+            LocalDateTime.of(5879611, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+            Instant.class),
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
             LocalDateTime.of(5879611, 1, 1, 0, 0),
             LocalDateTime.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
-            LocalDateTime.of(5879611, 1, 1, 0, 0)
-                .toLocalDate(), LocalDate.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
-            LocalDateTime.of(5879611, 1, 1, 0, 0)
-                .toLocalTime(), LocalTime.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
-            LocalDateTime.of(5879611, 1, 1, 0, 0)
-                .atZone(ZoneOffset.UTC), ZonedDateTime.class),
-        Arguments.of("return require('datetime').new({year = 5879611})",
-            LocalDateTime.of(5879611, 1, 1, 0, 0)
-                .atOffset(ZoneOffset.UTC), OffsetDateTime.class));
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
+            LocalDateTime.of(5879611, 1, 1, 0, 0).toLocalDate(),
+            LocalDate.class),
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
+            LocalDateTime.of(5879611, 1, 1, 0, 0).toLocalTime(),
+            LocalTime.class),
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
+            LocalDateTime.of(5879611, 1, 1, 0, 0).atZone(ZoneOffset.UTC),
+            ZonedDateTime.class),
+        Arguments.of(
+            "return require('datetime').new({year = 5879611})",
+            LocalDateTime.of(5879611, 1, 1, 0, 0).atOffset(ZoneOffset.UTC),
+            OffsetDateTime.class));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestDatetimeWithDifferentTargetTypes")
-  public <T> void testDatetimeWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testDatetimeWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   public static Stream<Arguments> dataForTestIntervalWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return require('datetime').interval.new({" +
-            "year=1, month=2, week=3, day=4, hour=5, min=6, sec=7, nsec=8, adjust = 'last'})",
-        new Interval().setYear(1)
-            .setMonth(2)
-            .setWeek(3)
-            .setDay(4)
-            .setHour(5)
-            .setMin(6)
-            .setSec(7)
-            .setNsec(8)
-            .setAdjust(Adjust.LastAdjust),
-        null));
+    return Stream.of(
+        Arguments.of(
+            "return require('datetime').interval.new({"
+                + "year=1, month=2, week=3, day=4, hour=5, min=6, sec=7, nsec=8, adjust = 'last'})",
+            new Interval()
+                .setYear(1)
+                .setMonth(2)
+                .setWeek(3)
+                .setDay(4)
+                .setHour(5)
+                .setMin(6)
+                .setSec(7)
+                .setNsec(8)
+                .setAdjust(Adjust.LastAdjust),
+            null));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestIntervalWithDifferentTargetTypes")
-  public <T> void testIntervalWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testIntervalWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   /**
-   * refs:
-   * <a href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
-   * type-details
-   * </a>
-   * <a href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
-   * serializer_test.lua
-   * </a>
+   * refs: <a
+   * href="https://www.tarantool.io/en/doc/latest/concepts/data_model/value_store/#field-type-details">
+   * type-details </a> <a
+   * href="https://github.com/tarantool/tarantool/blob/master/test/app-tap/lua/serializer_test.lua">
+   * serializer_test.lua </a>
    */
   public static Stream<Arguments> dataForTestStringWithDifferentTargetTypes() {
-    return Stream.of(Arguments.of("return ''", "", null),
+    return Stream.of(
+        Arguments.of("return ''", "", null),
         Arguments.of("return ''", "", String.class),
         Arguments.of("return 'Кудыкины горы'", "Кудыкины горы", null),
         Arguments.of("return 'Кудыкины горы'", "Кудыкины горы", String.class),
         Arguments.of("return '$a\t $'", "$a\t $", null),
         Arguments.of("return '$a\t $'", "$a\t $", String.class),
-        Arguments.of("return string.rep('x', 33)",
-            StringUtils.repeat("x", 33), null),
-        Arguments.of("return string.rep('x', 33)",
-            StringUtils.repeat("x", 33), String.class));
+        Arguments.of("return string.rep('x', 33)", StringUtils.repeat("x", 33), null),
+        Arguments.of("return string.rep('x', 33)", StringUtils.repeat("x", 33), String.class));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestStringWithDifferentTargetTypes")
-  public <T> void testStringWithDifferentTargetTypes(String evalString, T object, Class<T> targetType)
-      throws Exception {
+  public <T> void testStringWithDifferentTargetTypes(
+      String evalString, T object, Class<T> targetType) throws Exception {
     testResultFromTarantool(evalString, object, targetType);
   }
 
   public static Stream<Arguments> dataForTestStringToByteArray() {
-    return Stream.of(Arguments.of("string", byte[].class, (Function<byte[], String>) String::new),
+    return Stream.of(
+        Arguments.of("string", byte[].class, (Function<byte[], String>) String::new),
         Arguments.of("string", char[].class, (Function<char[], String>) String::new));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestStringToByteArray")
-  public <T> void testStringToByteArray(T object, Class<T> expectedClass, Function caster) throws Exception {
+  public <T> void testStringToByteArray(T object, Class<T> expectedClass, Function caster)
+      throws Exception {
     IProtoClient client = getClientAndConnect();
     IProtoResponse evalResponse =
-        client.eval(ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object))).get();
+        client
+            .eval(
+                ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object)))
+            .get();
 
-    T parsedResponse = TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
+    T parsedResponse =
+        TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
     assertEquals(object, caster.apply(parsedResponse));
   }
 
   public static Stream<Arguments> dataForTestMapWithNonStringKeys() {
-    return Stream.of(Arguments.of(new HashMap<Object, Object>() {{
-      put(99, true);
-    }}, new TypeReference<List<Map<Integer, Boolean>>>() {}));
+    return Stream.of(
+        Arguments.of(
+            new HashMap<Object, Object>() {
+              {
+                put(99, true);
+              }
+            },
+            new TypeReference<List<Map<Integer, Boolean>>>() {}));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestMapWithNonStringKeys")
-  public <T> void testMapWithNonStringKeys(T object, TypeReference<List<T>> expectedClass) throws Exception {
+  public <T> void testMapWithNonStringKeys(T object, TypeReference<List<T>> expectedClass)
+      throws Exception {
     IProtoClient client = getClientAndConnect();
     IProtoResponse evalResponse =
-        client.eval(ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object))).get();
+        client
+            .eval(
+                ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object)))
+            .get();
 
-    T parsedResponse = TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
+    T parsedResponse =
+        TarantoolJacksonMapping.readResponse(evalResponse, expectedClass).get().get(0);
     assertEquals(object, parsedResponse);
   }
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    client
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     return client;
   }
 
-  private <T> void testResultFromTarantool(String evalString, T object, Class<T> targetType) throws Exception {
+  private <T> void testResultFromTarantool(String evalString, T object, Class<T> targetType)
+      throws Exception {
     IProtoClient client = getClientAndConnect();
     IProtoResponse evalResponse = client.eval(evalString, ValueFactory.emptyArray()).get();
 
@@ -1025,40 +1119,47 @@ public class IProtoClientTest extends BaseTest {
     } else {
       parsedResponse = TarantoolJacksonMapping.readResponse(evalResponse, targetType).get().get(0);
     }
-    assertEquals(object, parsedResponse, String.format("object=%s targetType=%s", object, targetType));
+    assertEquals(
+        object, parsedResponse, String.format("object=%s targetType=%s", object, targetType));
   }
 
   private List<TestEntity> getTupleData(List<Tuple<TestEntity>> tuples) {
     return tuples.stream().map(Tuple::get).collect(Collectors.toList());
   }
 
-  @DisabledIfEnvironmentVariable(
-      named = "TARANTOOL_VERSION",
-      matches = "2.*")
+  @DisabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "2.*")
   @Test
   public void testVarbinary() throws Exception {
     IProtoClient client = getClientAndConnect();
     byte[] object = "string".getBytes();
     IProtoResponse evalResponse =
-        client.eval(ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object)))
+        client
+            .eval(
+                ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object)))
             .get();
 
-    assertTrue(Arrays.equals(object, (byte[]) TarantoolJacksonMapping.readResponse(evalResponse).get().get(0)));
-    assertTrue(Arrays.equals(object, TarantoolJacksonMapping.readResponse(evalResponse, byte[].class).get().get(0)));
+    assertTrue(
+        Arrays.equals(
+            object, (byte[]) TarantoolJacksonMapping.readResponse(evalResponse).get().get(0)));
+    assertTrue(
+        Arrays.equals(
+            object, TarantoolJacksonMapping.readResponse(evalResponse, byte[].class).get().get(0)));
   }
 
-  @EnabledIfEnvironmentVariable(
-      named = "TARANTOOL_VERSION",
-      matches = "2.*")
+  @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "2.*")
   @Test
   public void testVarbinaryInAndStringFrom() throws Exception {
     IProtoClient client = getClientAndConnect();
     String object = "string";
     IProtoResponse evalResponse =
-        client.eval(ECHO_EXPRESSION, TarantoolJacksonMapping.toValue(Collections.singletonList(object.getBytes())))
+        client
+            .eval(
+                ECHO_EXPRESSION,
+                TarantoolJacksonMapping.toValue(Collections.singletonList(object.getBytes())))
             .get();
 
-    String parsedResponse = TarantoolJacksonMapping.readResponse(evalResponse, String.class).get().get(0);
+    String parsedResponse =
+        TarantoolJacksonMapping.readResponse(evalResponse, String.class).get().get(0);
     assertEquals(object, parsedResponse);
   }
 }

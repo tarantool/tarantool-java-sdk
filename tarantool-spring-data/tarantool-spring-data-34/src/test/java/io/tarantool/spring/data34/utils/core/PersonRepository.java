@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,5 +12,7 @@ import io.tarantool.spring.data34.utils.entity.Person;
 import io.tarantool.spring.data34.utils.fragments.core.ReplaceManyFragment;
 
 public interface PersonRepository
-    extends PagingAndSortingRepository<Person, Integer>, GenericRepositoryMethods<Person, Integer>,
-    GenericPaginationMethods<Person, Integer>, ReplaceManyFragment<Person> {}
+    extends PagingAndSortingRepository<Person, Integer>,
+        GenericRepositoryMethods<Person, Integer>,
+        GenericPaginationMethods<Person, Integer>,
+        ReplaceManyFragment<Person> {}

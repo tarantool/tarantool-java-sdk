@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,16 +28,16 @@ class TarantoolPageImpl<T> extends TarantoolChunk<T> implements Page<T> {
   private final long total;
 
   /**
-   * Creates a new {@link TarantoolPageImpl} with empty content. This will result in the created {@link Page} being
-   * identical to the entire {@link List}.
+   * Creates a new {@link TarantoolPageImpl} with empty content. This will result in the created
+   * {@link Page} being identical to the entire {@link List}.
    */
   public TarantoolPageImpl() {
     this(Collections.emptyList(), Pageable.unpaged(), 0L);
   }
 
   /**
-   * Creates a new {@link TarantoolPageImpl} with the given content. This will result in the created {@link Page} being
-   * identical to the entire {@link List}.
+   * Creates a new {@link TarantoolPageImpl} with the given content. This will result in the created
+   * {@link Page} being identical to the entire {@link List}.
    *
    * @param content must not be {@literal null}.
    */
@@ -48,21 +48,23 @@ class TarantoolPageImpl<T> extends TarantoolChunk<T> implements Page<T> {
   /**
    * Constructor of {@link TarantoolPageImpl}.
    *
-   * @param content  the content of this page, must not be {@literal null}.
+   * @param content the content of this page, must not be {@literal null}.
    * @param pageable the paging information, must not be {@literal null}.
-   * @param total    the total amount of items available. The total might be adapted considering the length of the
-   *                 content given, if it is going to be the content of the last page. This is in place to mitigate
-   *                 inconsistencies.
+   * @param total the total amount of items available. The total might be adapted considering the
+   *     length of the content given, if it is going to be the content of the last page. This is in
+   *     place to mitigate inconsistencies.
    */
   public TarantoolPageImpl(List<T> content, Pageable pageable, long total) {
 
     super(content, pageable);
 
-    this.total = pageable.toOptional()
-        .filter(it -> !content.isEmpty())
-        .filter(it -> it.getOffset() + it.getPageSize() > total)
-        .map(it -> it.getOffset() + content.size())
-        .orElse(total);
+    this.total =
+        pageable
+            .toOptional()
+            .filter(it -> !content.isEmpty())
+            .filter(it -> it.getOffset() + it.getPageSize() > total)
+            .map(it -> it.getOffset() + content.size())
+            .orElse(total);
   }
 
   @Override
@@ -99,7 +101,8 @@ class TarantoolPageImpl<T> extends TarantoolChunk<T> implements Page<T> {
 
     String contentType = canGetContentType ? content.get(0).getClass().getName() : "UNKNOWN";
 
-    return String.format("Page %s of %d containing %s instances", getNumber() + 1, getTotalPages(), contentType);
+    return String.format(
+        "Page %s of %d containing %s instances", getNumber() + 1, getTotalPages(), contentType);
   }
 
   @Override

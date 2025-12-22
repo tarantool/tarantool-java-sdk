@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -40,139 +40,128 @@ import io.tarantool.pool.InstanceConnectionGroup;
 import io.tarantool.pool.PoolEventListener;
 import io.tarantool.pool.TripleConsumer;
 
-/**
- * <p> A specific builder for {@link TarantoolBoxClientImpl} class.</p>
- */
+/** A specific builder for {@link TarantoolBoxClientImpl} class. */
 public class TarantoolBoxClientBuilder {
 
-  /**
-   * <p>Default netty network channel settings.</p>
-   */
-  private final Map<ChannelOption<?>, Object> options = new HashMap<>(DEFAULT_NETTY_CHANNEL_OPTIONS);
+  /** Default netty network channel settings. */
+  private final Map<ChannelOption<?>, Object> options =
+      new HashMap<>(DEFAULT_NETTY_CHANNEL_OPTIONS);
 
-  /**
-   * <p>Host name of Tarantool instance.</p>
-   */
+  /** Host name of Tarantool instance. */
   private String host = DEFAULT_HOST;
 
-  /**
-   * <p>Host port.</p>
-   */
+  /** Host port. */
   private int port = DEFAULT_PORT;
 
-  /**
-   * <p>Name of user which should be used for authorizing this connection.</p>
-   */
+  /** Name of user which should be used for authorizing this connection. */
   private String user = DEFAULT_BOX_USERNAME;
 
-  /**
-   * <p>Password for {@link #user}.</p>
-   */
+  /** Password for {@link #user}. */
   private String password = null;
 
   /**
-   * <p>List of connection groups. {@link InstanceConnectionGroup} is a list of N
-   * connections to one node.</p>
+   * List of connection groups. {@link InstanceConnectionGroup} is a list of N connections to one
+   * node.
    *
    * @see InstanceConnectionGroup
    */
   private List<InstanceConnectionGroup> groups;
 
   /**
-   * <p>Number of threads provided by netty to serve connections.</p>
-   * <p><i><b>Default</b></i>: 0.</p>
+   * Number of threads provided by netty to serve connections.
+   *
+   * <p><i><b>Default</b></i>: 0.
    *
    * @see MultiThreadIoEventLoopGroup
    */
   private int nThreads = DEFAULT_CONNECTION_THREADS_NUMBER;
 
-  /**
-   * <p>Timer that serves timeouts of requests sent to Tarantool.</p>
-   */
+  /** Timer that serves timeouts of requests sent to Tarantool. */
   private ManagedResource<Timer> timerResource;
 
   /**
-   * <p>If {@code true}, then use {@link io.tarantool.schema.TarantoolSchemaFetcher}.</p>
-   * <p><i><b>Default</b></i>: {@code true}.</p>
+   * If {@code true}, then use {@link io.tarantool.schema.TarantoolSchemaFetcher}.
+   *
+   * <p><i><b>Default</b></i>: {@code true}.
    */
   private boolean fetchSchema = DEFAULT_FETCH_SCHEMA;
 
   /**
-   * <p>If {@code false}, then client can raise exception on getting old schema version.</p>
-   * Using it on storage replicaset you need to ignore the errors because replicaset should have the same schema version
-   * eventually. You have to use external schema fetcher if you want to use client for different situation. Or wait for
-   * <a href="https://github.com/tarantool/tarantool-java-ee/issues/428">#428</a> be completed.
+   * If {@code false}, then client can raise exception on getting old schema version. Using it on
+   * storage replicaset you need to ignore the errors because replicaset should have the same schema
+   * version eventually. You have to use external schema fetcher if you want to use client for
+   * different situation. Or wait for <a
+   * href="https://github.com/tarantool/tarantool-java-ee/issues/428">#428</a> be completed.
    *
-   * <p><i><b>Default</b></i>: {@code true}.</p>
+   * <p><i><b>Default</b></i>: {@code true}.
    */
   private boolean ignoreOldSchemaVersion = DEFAULT_IGNORE_OLD_SCHEMA_VERSION;
 
   /**
-   * <p>If {@code true}, then
-   * <a href="https://www.tarantool.io/en/doc/latest/dev_guide/internals/iproto/graceful_shutdown/">graceful
-   * shutdown</a> protocol is used.</p>
-   * <p><i><b>Default</b></i>: {@code true}.</p>
+   * If {@code true}, then <a
+   * href="https://www.tarantool.io/en/doc/latest/dev_guide/internals/iproto/graceful_shutdown/">graceful
+   * shutdown</a> protocol is used.
+   *
+   * <p><i><b>Default</b></i>: {@code true}.
    */
   private boolean gracefulShutdown = DEFAULT_GRACEFUL_SHUTDOWN;
 
-  /**
-   * <p>Default type of {@link TarantoolBalancer} used in client.</p>
-   */
+  /** Default type of {@link TarantoolBalancer} used in client. */
   private Class<? extends TarantoolBalancer> balancerClass = DEFAULT_BALANCER_CLASS;
 
   /**
-   * <p>If specified, heartbeat facility will be run with the passed {@link HeartbeatOpts options}.</p>
-   * <p><i><b>Default</b></i>: {@code null}.</p>
+   * If specified, heartbeat facility will be run with the passed {@link HeartbeatOpts options}.
+   *
+   * <p><i><b>Default</b></i>: {@code null}.
    */
   private HeartbeatOpts heartbeatOpts = null;
 
   /**
-   * <p>If specified, watchers facility use passed {@link WatcherOptions options}.</p>
-   * <p><i><b>Default</b></i>: {@code null}.</p>
+   * If specified, watchers facility use passed {@link WatcherOptions options}.
+   *
+   * <p><i><b>Default</b></i>: {@code null}.
    */
   private WatcherOptions watcherOpts = null;
 
   /**
-   * <p>Connect timeout.</p>
-   * <p><i><b>Default</b></i>: {@code 3000L}.</p>
+   * Connect timeout.
+   *
+   * <p><i><b>Default</b></i>: {@code 3000L}.
    */
   private long connectTimeout = DEFAULT_CONNECTION_TIMEOUT;
 
   /**
-   * <p>Time after which reconnect occurs.</p>
-   * <p><i><b>Default</b></i>: {@code 1000L}.</p>
+   * Time after which reconnect occurs.
+   *
+   * <p><i><b>Default</b></i>: {@code 1000L}.
    */
   private long reconnectAfter = DEFAULT_RECONNECT_AFTER;
 
   /**
    * Micrometer registry that hold set of collections of metrics.
-   * <p>
-   * See for details:
-   * <a href="https://micrometer.io/docs/concepts#_registry">micrometer.io/docs/concepts#_registry</a>
    *
-   * <p><i><b>Default</b></i>: {@code null}.</p>
+   * <p>See for details: <a
+   * href="https://micrometer.io/docs/concepts#_registry">micrometer.io/docs/concepts#_registry</a>
+   *
+   * <p><i><b>Default</b></i>: {@code null}.
    */
   private MeterRegistry metricsRegistry;
 
   /**
-   * <p>Handler for ignored IProto-packets.
-   * <p><i><b>Default</b></i>: {@code null}.</p>
+   * Handler for ignored IProto-packets.
+   *
+   * <p><i><b>Default</b></i>: {@code null}.
    */
   private TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler;
 
-  /**
-   * SslContext with settings for establishing SSL/TLS connection between Tarantool
-   */
+  /** SslContext with settings for establishing SSL/TLS connection between Tarantool */
   private SslContext sslContext;
 
-  /**
-   * Optional listener for pool events.
-   */
+  /** Optional listener for pool events. */
   private PoolEventListener poolEventListener;
 
-
   /**
-   * <p>Getter for {@link #options}.</p>
+   * Getter for {@link #options}.
    *
    * @return {@link Map}.
    */
@@ -181,7 +170,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #host}.</p>
+   * Getter for {@link #host}.
    *
    * @return {@link String}.
    */
@@ -190,7 +179,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #port}.</p>
+   * Getter for {@link #port}.
    *
    * @return {@link Integer}.
    */
@@ -199,7 +188,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #user}.</p>
+   * Getter for {@link #user}.
    *
    * @return {@link String}.
    */
@@ -207,9 +196,8 @@ public class TarantoolBoxClientBuilder {
     return user;
   }
 
-
   /**
-   * <p>Getter for {@link #password}.</p>
+   * Getter for {@link #password}.
    *
    * @return {@link String}.
    */
@@ -218,7 +206,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #groups}.</p>
+   * Getter for {@link #groups}.
    *
    * @return {@link List}.
    */
@@ -227,7 +215,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #nThreads}.</p>
+   * Getter for {@link #nThreads}.
    *
    * @return {@link Integer}.
    */
@@ -236,7 +224,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #timerResource}.</p>
+   * Getter for {@link #timerResource}.
    *
    * @return {@link Timer}.
    */
@@ -245,7 +233,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #fetchSchema}.</p>
+   * Getter for {@link #fetchSchema}.
    *
    * @return {@link Boolean}.
    */
@@ -254,7 +242,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #ignoreOldSchemaVersion}.</p>
+   * Getter for {@link #ignoreOldSchemaVersion}.
    *
    * @return {@link Boolean}.
    */
@@ -263,7 +251,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #gracefulShutdown}.</p>
+   * Getter for {@link #gracefulShutdown}.
    *
    * @return {@link Boolean}.
    */
@@ -272,7 +260,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #balancerClass}.</p>
+   * Getter for {@link #balancerClass}.
    *
    * @return {@link Class}.
    */
@@ -281,7 +269,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #heartbeatOpts}.</p>
+   * Getter for {@link #heartbeatOpts}.
    *
    * @return {@link HeartbeatOpts}.
    */
@@ -290,7 +278,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #watcherOpts}.</p>
+   * Getter for {@link #watcherOpts}.
    *
    * @return {@link WatcherOptions}.
    */
@@ -299,7 +287,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #connectTimeout}.</p>
+   * Getter for {@link #connectTimeout}.
    *
    * @return {@link Long}.
    */
@@ -308,7 +296,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #reconnectAfter}.</p>
+   * Getter for {@link #reconnectAfter}.
    *
    * @return {@link Long}.
    */
@@ -317,7 +305,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #metricsRegistry}.</p>
+   * Getter for {@link #metricsRegistry}.
    *
    * @return {@link MeterRegistry}.
    */
@@ -326,7 +314,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #ignoredPacketsHandler}.</p>
+   * Getter for {@link #ignoredPacketsHandler}.
    *
    * @return {@link TripleConsumer}.
    */
@@ -335,7 +323,7 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Getter for {@link #sslContext}.</p>
+   * Getter for {@link #sslContext}.
    *
    * @return {@link SslContext}.
    */
@@ -344,11 +332,13 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #groups} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #groups}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #groups} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #groups} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * InstanceConnectionGroup group = InstanceConnectionGroup.builder()
    *                                                        .withHost("hostName")
    *                                                        .withPort(port)
@@ -362,7 +352,9 @@ public class TarantoolBoxClientBuilder {
    *                                                .withGroups(Collections.singletonList(group))
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param groups see {@link #groups} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -373,16 +365,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #host} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #host}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #host} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #host} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withHost("localhost")
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param host see {@link #host} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -396,16 +392,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #port} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #port}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #port} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #port} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withPort(3302)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param port see {@link #port} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -416,16 +416,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #user} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #user}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #user} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #user} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withUser("userName")
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param user see {@link #user} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -436,16 +440,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #password} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #password}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #password} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #password} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withPassword("password")
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param password see {@link #password} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -456,21 +464,25 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #options} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #options}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #options} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #options} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withChannelOption(ChannelOption.TCP_NODELAY, false)
    *                                                .withChannelOption(ChannelOption.SO_REUSEADDR, false)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
    *
-   * @param key   see {@link ChannelOption} enum option.
+   * </blockquote>
+   *
+   * @param key see {@link ChannelOption} enum option.
    * @param value value for {@link ChannelOption} enum option.
-   * @param <T>   return entity
+   * @param <T> return entity
    * @return {@link TarantoolBoxClient} object.
    * @throws IllegalArgumentException when {@code key == null or value == null}.
    */
@@ -483,27 +495,32 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p>Similar to {@link #withChannelOption(ChannelOption, Object)}, but adds a map of options.</p>
+   * Similar to {@link #withChannelOption(ChannelOption, Object)}, but adds a map of options.
    *
    * @param channelOptions map of options to add.
    * @return {@link TarantoolBoxClientBuilder} object.
    */
-  public TarantoolBoxClientBuilder withChannelOptions(Map<ChannelOption<?>, Object> channelOptions) {
+  public TarantoolBoxClientBuilder withChannelOptions(
+      Map<ChannelOption<?>, Object> channelOptions) {
     this.options.putAll(channelOptions);
     return this;
   }
 
   /**
-   * <p> Sets the {@link #nThreads} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #nThreads}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #nThreads} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #nThreads} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withNThreads(4)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param nThreads see {@link #nThreads} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -514,16 +531,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #timerResource} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified timer
+   * Sets the {@link #timerResource} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified timer
    * parameter:
-   * <blockquote><pre>{@code
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withTimerService(new HashedWheelTimer())
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param timerService see {@link #timerResource} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -537,16 +558,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #fetchSchema} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #fetchSchema}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #fetchSchema} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #fetchSchema} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withFetchSchema(false)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param fetchSchema see {@link #fetchSchema} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -557,16 +582,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #ignoreOldSchemaVersion} parameter when constructing an instance of a builder
-   * class to false. The following example creates a {@link TarantoolBoxClientImpl} that will raise exception on getting
-   * packet with old schema version.
-   * <blockquote><pre>{@code
+   * Sets the {@link #ignoreOldSchemaVersion} parameter when constructing an instance of a builder
+   * class to false. The following example creates a {@link TarantoolBoxClientImpl} that will raise
+   * exception on getting packet with old schema version.
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .enableOldSchemaVersionCheck()
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @return {@link TarantoolBoxClientBuilder} object.
    */
@@ -576,16 +605,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #gracefulShutdown} parameter when constructing an instance of a builder
-   * class to {@code false}. The following example creates a {@link TarantoolBoxClientImpl} object with disabled
-   * {@link #gracefulShutdown} protocol:
-   * <blockquote><pre>{@code
+   * Sets the {@link #gracefulShutdown} parameter when constructing an instance of a builder class
+   * to {@code false}. The following example creates a {@link TarantoolBoxClientImpl} object with
+   * disabled {@link #gracefulShutdown} protocol:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .disableGracefulShutdown()
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @return {@link TarantoolBoxClientBuilder} object.
    */
@@ -595,21 +628,26 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #balancerClass} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified
-   * {@link #balancerClass} parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #balancerClass} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #balancerClass} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withBalancerClass(TarantoolDistributingRoundRobinBalancer.class)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param balancerClass see {@link #balancerClass} field.
    * @return {@link TarantoolBoxClientBuilder} object.
    */
-  public TarantoolBoxClientBuilder withBalancerClass(Class<? extends TarantoolBalancer> balancerClass) {
+  public TarantoolBoxClientBuilder withBalancerClass(
+      Class<? extends TarantoolBalancer> balancerClass) {
     if (balancerClass == null) {
       throw new IllegalArgumentException("BalancerClass key can't be null");
     }
@@ -618,16 +656,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #heartbeatOpts} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified
-   * {@link #heartbeatOpts} parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #heartbeatOpts} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #heartbeatOpts} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withHeartbeat(HeartbeatOpts.getDefault())
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param opts see {@link #heartbeatOpts} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -638,16 +680,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #watcherOpts} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link #watcherOpts}
-   * parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #watcherOpts} parameter when constructing an instance of a builder class. The
+   * following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #watcherOpts} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withWatcherOptions(WatcherOptions.builder().build())
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param opts see {@link #watcherOpts} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -658,16 +704,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #connectTimeout} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified
-   * {@link #connectTimeout} parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #connectTimeout} parameter when constructing an instance of a builder class.
+   * The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #connectTimeout} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withConnectTimeout(1_000L)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param timeout see {@link #connectTimeout} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -678,16 +728,20 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Sets the {@link #reconnectAfter} parameter when constructing an instance of a builder
-   * class. The following example creates a {@link TarantoolBoxClientImpl} object with a specified
-   * {@link #reconnectAfter} parameter:
-   * <blockquote><pre>{@code
+   * Sets the {@link #reconnectAfter} parameter when constructing an instance of a builder class.
+   * The following example creates a {@link TarantoolBoxClientImpl} object with a specified {@link
+   * #reconnectAfter} parameter:
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient = TarantoolFactory.box()
    *                                                .withReconnectAfter(1_000L)
    *                                                .build();
    *
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param after see {@link #reconnectAfter} field.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -699,9 +753,9 @@ public class TarantoolBoxClientBuilder {
 
   /**
    * Set micrometer metricsRegistry. It can be used by {@link TarantoolFactory}.
-   * <p>
-   * See for details:
-   * <a href="https://micrometer.io/docs/concepts#_registry">micrometer.io/docs/concepts#_registry</a>
+   *
+   * <p>See for details: <a
+   * href="https://micrometer.io/docs/concepts#_registry">micrometer.io/docs/concepts#_registry</a>
    *
    * @param metricsRegistry micrometer metrics registry
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -713,13 +767,15 @@ public class TarantoolBoxClientBuilder {
 
   /**
    * Handler for processing packets.
-   * <p>
-   * This handler accepts tag, index of connection in pool, where packet was ignored and the packet (instance of
-   * {@link io.tarantool.core.protocol.IProtoResponse}). For example it is required to log all such packets to make
-   * analyse what is a problem with some connection from some group.
    *
-   * <blockquote><pre>{@code
+   * <p>This handler accepts tag, index of connection in pool, where packet was ignored and the
+   * packet (instance of {@link io.tarantool.core.protocol.IProtoResponse}). For example it is
+   * required to log all such packets to make analyse what is a problem with some connection from
+   * some group.
    *
+   * <blockquote>
+   *
+   * <pre>{@code
    * TarantoolBoxClient boxClient =
    *      TarantoolFactory.box()
    *                      .withIgnoredPacketsHandler((tag, index, packet) -> {
@@ -729,7 +785,9 @@ public class TarantoolBoxClientBuilder {
    *                              tag,
    *                              packet);
    *      }).build();
-   * }</pre></blockquote>
+   * }</pre>
+   *
+   * </blockquote>
    *
    * @param handler instance of handler.
    * @return {@link TarantoolBoxClientBuilder} object.
@@ -763,28 +821,32 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
-   * <p> Builds specific {@link TarantoolBoxClient} class instance with parameters.</p>
+   * Builds specific {@link TarantoolBoxClient} class instance with parameters.
    *
    * @return {@link TarantoolBoxClient} object.
    * @throws Exception exception
    */
   public TarantoolBoxClient build() throws Exception {
     if (groups == null) {
-      groups = Collections.singletonList(InstanceConnectionGroup.builder()
-          .withHost(host)
-          .withPort(port)
-          .withSize(DEFAULT_CONNECTION_NUMBER)
-          .withTag(DEFAULT_TAG)
-          .withUser(user)
-          .withPassword(password)
-          .build());
+      groups =
+          Collections.singletonList(
+              InstanceConnectionGroup.builder()
+                  .withHost(host)
+                  .withPort(port)
+                  .withSize(DEFAULT_CONNECTION_NUMBER)
+                  .withTag(DEFAULT_TAG)
+                  .withUser(user)
+                  .withPassword(password)
+                  .build());
     }
 
-    ManagedResource<Timer> actualTimerResource = timerResource == null
-        ? ManagedResource.owned(new HashedWheelTimer(), Timer::stop)
-        : timerResource;
+    ManagedResource<Timer> actualTimerResource =
+        timerResource == null
+            ? ManagedResource.owned(new HashedWheelTimer(), Timer::stop)
+            : timerResource;
 
-    return new TarantoolBoxClientImpl(groups,
+    return new TarantoolBoxClientImpl(
+        groups,
         options,
         nThreads,
         actualTimerResource,

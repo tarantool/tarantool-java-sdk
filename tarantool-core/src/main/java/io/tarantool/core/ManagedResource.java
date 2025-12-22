@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,8 +10,8 @@ import java.util.function.Consumer;
 
 /**
  * Wrapper around a resource that remembers how to release it.
- * <p>
- * Lets the creator decide if a resource is owned (and therefore closed) or external.
+ *
+ * <p>Lets the creator decide if a resource is owned (and therefore closed) or external.
  *
  * @param <T> type of resource
  */
@@ -29,18 +29,19 @@ public final class ManagedResource<T> implements AutoCloseable {
    *
    * @param resource resource instance
    * @param releaser action that releases the resource
-   * @param <T>      type of resource
+   * @param <T> type of resource
    * @return managed resource instance
    */
   public static <T> ManagedResource<T> owned(T resource, Consumer<T> releaser) {
-    return new ManagedResource<>(resource, Objects.requireNonNull(releaser, "releaser must not be null"));
+    return new ManagedResource<>(
+        resource, Objects.requireNonNull(releaser, "releaser must not be null"));
   }
 
   /**
    * Creates a managed resource that is owned by someone else and therefore will not be closed here.
    *
    * @param resource resource instance
-   * @param <T>      type of resource
+   * @param <T> type of resource
    * @return managed resource instance
    */
   public static <T> ManagedResource<T> external(T resource) {

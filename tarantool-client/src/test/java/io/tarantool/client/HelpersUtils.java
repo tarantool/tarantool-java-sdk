@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,16 +10,15 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 import io.tarantool.balancer.exceptions.NoAvailableClientsException;
-import io.tarantool.mapping.crud.CrudException;
 import io.tarantool.core.connection.exceptions.ConnectionClosedException;
 import io.tarantool.core.connection.exceptions.ConnectionException;
 import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.core.exceptions.ShutdownException;
+import io.tarantool.mapping.crud.CrudException;
 
 public final class HelpersUtils {
 
-  private HelpersUtils() {
-  }
+  private HelpersUtils() {}
 
   public static Integer DEFAULT_RETRYING_ATTEMPTS = 5;
   public static Integer DEFAULT_RETRYING_DELAY = 100;
@@ -57,26 +56,28 @@ public final class HelpersUtils {
       } catch (CompletionException exception) {
         Throwable causeException = exception.getCause();
 
-        if (causeException instanceof IllegalStateException ||
-            causeException instanceof ConnectionClosedException) {
+        if (causeException instanceof IllegalStateException
+            || causeException instanceof ConnectionClosedException) {
           String message = causeException.getMessage();
-          if (message.equals("Connection closed by shutdown") ||
-              message.equals("Connection closed by server") ||
-              message.equals("Connection closed by client")) {
+          if (message.equals("Connection closed by shutdown")
+              || message.equals("Connection closed by server")
+              || message.equals("Connection closed by client")) {
             needToRetry = true;
           }
-        } else if (causeException instanceof ShutdownException &&
-            causeException.getMessage().equals("Request finished by shutdown")) {
+        } else if (causeException instanceof ShutdownException
+            && causeException.getMessage().equals("Request finished by shutdown")) {
           needToRetry = true;
-        } else if (causeException instanceof BoxError &&
-            (exception.getMessage().contains("variable 'crud' is not declared") ||
-                exception.getMessage().contains("attempt to index field 'space' (a nil value)"))) {
+        } else if (causeException instanceof BoxError
+            && (exception.getMessage().contains("variable 'crud' is not declared")
+                || exception
+                    .getMessage()
+                    .contains("attempt to index field 'space' (a nil value)"))) {
           needToRetry = true;
-        } else if (causeException instanceof TimeoutException &&
-            causeException.getMessage().contains("Request timeout: IProtoEval")) {
+        } else if (causeException instanceof TimeoutException
+            && causeException.getMessage().contains("Request timeout: IProtoEval")) {
           needToRetry = true;
-        } else if (causeException instanceof ConnectionException &&
-            causeException.getMessage().contains("Failed to send IProto message")) {
+        } else if (causeException instanceof ConnectionException
+            && causeException.getMessage().contains("Failed to send IProto message")) {
           needToRetry = true;
         } else if (causeException instanceof NoAvailableClientsException) {
           needToRetry = true;

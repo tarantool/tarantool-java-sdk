@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -43,8 +43,7 @@ public class DecimalExtensionModule {
     INSTANCE.addDeserializer(BigDecimal.class, new BigDecimalDeserializer(BigDecimal.class));
   }
 
-  private DecimalExtensionModule() {
-  }
+  private DecimalExtensionModule() {}
 
   public static class BigDecimalSerializer extends StdSerializer<BigDecimal> {
 
@@ -53,7 +52,8 @@ public class DecimalExtensionModule {
     }
 
     @Override
-    public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       int scale = value.scale();
       if (scale > DECIMAL_MAX_DIGITS || scale < -DECIMAL_MAX_DIGITS) {
         throw new IOException(GREATER_DECIMAL_MAX_DIGITS_ERR);
@@ -104,11 +104,12 @@ public class DecimalExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DECIMAL) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append("Unexpected extension type (0x")
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for BigDecimal object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append("Unexpected extension type (0x")
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for BigDecimal object")
+                .toString());
       }
 
       return deserialize(ext);
@@ -155,10 +156,11 @@ public class DecimalExtensionModule {
       char digit = (char) ((data[len - 1] & 0xF0) >>> 4);
       if (digit > 9) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new IOException(sb.delete(0, sb.length())
-            .append(INVALID_DIGIT_AT_POSITION)
-            .append(digitsNum - 1)
-            .toString());
+        throw new IOException(
+            sb.delete(0, sb.length())
+                .append(INVALID_DIGIT_AT_POSITION)
+                .append(digitsNum - 1)
+                .toString());
       }
       char[] digits = new char[digitsNum];
       int pos = 2 * (len - i) - 1;
@@ -168,19 +170,18 @@ public class DecimalExtensionModule {
         digit = (char) (data[j] & 0x0F);
         if (digit > 9) {
           StringBuilder sb = threadLocalStringBuilder.get();
-          throw new IOException(sb.delete(0, sb.length())
-              .append(INVALID_DIGIT_AT_POSITION)
-              .append(pos)
-              .toString());
+          throw new IOException(
+              sb.delete(0, sb.length()).append(INVALID_DIGIT_AT_POSITION).append(pos).toString());
         }
         digits[pos--] = Character.forDigit(digit, 10);
         digit = (char) ((data[j] & 0xF0) >>> 4);
         if (digit > 9) {
           StringBuilder sb = threadLocalStringBuilder.get();
-          throw new IOException(sb.delete(0, sb.length())
-              .append(INVALID_DIGIT_AT_POSITION)
-              .append(pos - 1)
-              .toString());
+          throw new IOException(
+              sb.delete(0, sb.length())
+                  .append(INVALID_DIGIT_AT_POSITION)
+                  .append(pos - 1)
+                  .toString());
         }
         digits[pos--] = Character.forDigit(digit, 10);
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -49,12 +49,14 @@ import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 
 /**
- * <p>This class is an implementation of the {@link TDGConfigurator} interface, using configuration files as the basis
- * for configuring the TDG cluster. Implementation allows to pass configuration directory, which has configuration files
- * like {@code topology.yml}, {@code vshard_groups.yml}, {@code config.yml}, {@code model.avsc} etc.</p>
+ * This class is an implementation of the {@link TDGConfigurator} interface, using configuration
+ * files as the basis for configuring the TDG cluster. Implementation allows to pass configuration
+ * directory, which has configuration files like {@code topology.yml}, {@code vshard_groups.yml},
+ * {@code config.yml}, {@code model.avsc} etc.
+ *
  * <p><b><i>Note:</i></b> TDG supports the following configuration directory hierarchy:
- * <pre>
- * {@code
+ *
+ * <pre>{@code
  * +- <root_config_folder>/
  * |  +-  topology.yml // (required)
  * |  +-  model.avsc // (not required)
@@ -62,7 +64,7 @@ import org.testcontainers.utility.DockerImageName;
  * |  +-  vshard_groups.yml // (not required)
  * |  +-  src/ // (not required)
  * |  |   \-  ...
- * }</pre></p>
+ * }</pre>
  */
 public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
@@ -77,10 +79,12 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TDGFileConfigurator.class);
 
-  private static final String DEFAULT_ASSEMBLY_QUERY = "mutation boot ($replicasets: [EditReplicasetInput!]) { "
-      + "cluster { edit_topology(replicasets: $replicasets) { replicasets { uuid } } } }";
+  private static final String DEFAULT_ASSEMBLY_QUERY =
+      "mutation boot ($replicasets: [EditReplicasetInput!]) { "
+          + "cluster { edit_topology(replicasets: $replicasets) { replicasets { uuid } } } }";
 
-  private static final String DEFAULT_BOOTSTRAP_QUERY = "{\"query\": \"mutation { bootstrap_vshard }\"}";
+  private static final String DEFAULT_BOOTSTRAP_QUERY =
+      "{\"query\": \"mutation { bootstrap_vshard }\"}";
 
   private static final String DEFAULT_GRAPHQL_ENDPOINT = "/admin/api";
 
@@ -118,23 +122,27 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
   static {
     YAML_MAPPER = new YAMLMapper();
-    YAML_MAPPER.enable(SerializationFeature.INDENT_OUTPUT)
+    YAML_MAPPER
+        .enable(SerializationFeature.INDENT_OUTPUT)
         .setSerializationInclusion(Include.NON_NULL)
         .setSerializationInclusion(Include.NON_EMPTY);
 
     JSON_MAPPER = new ObjectMapper();
-    JSON_MAPPER.enable(SerializationFeature.INDENT_OUTPUT)
+    JSON_MAPPER
+        .enable(SerializationFeature.INDENT_OUTPUT)
         .setSerializationInclusion(Include.NON_NULL)
         .setSerializationInclusion(Include.NON_EMPTY);
   }
 
-  public TDGFileConfigurator(Path rootConfigPath, DockerImageName tdgImageName, String clusterName) {
+  public TDGFileConfigurator(
+      Path rootConfigPath, DockerImageName tdgImageName, String clusterName) {
     this.rootConfigPath = rootConfigPath;
 
     final Path topologyFilePath = rootConfigPath.resolve(DEFAULT_TOPOLOGY_FILE_NAME);
     if (!topologyFilePath.toFile().exists() || topologyFilePath.toFile().isDirectory()) {
-      throw new IllegalArgumentException("Topology file does not exist or is a directory. Please check your topology "
-          + "file in root configuration directory.");
+      throw new IllegalArgumentException(
+          "Topology file does not exist or is a directory. Please check your topology "
+              + "file in root configuration directory.");
     }
     this.configFilePath = rootConfigPath.resolve(DEFAULT_CONFIG_FILE_NAME);
     this.clusterName = clusterName;
@@ -151,14 +159,16 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
   @Override
   public Map.Entry<String, TDGContainer<?>> core() {
-    final Optional<TDGNodeInfo> coreOpt = this.nodes.stream()
-        .filter(info -> info.hasRole("core"))
-        .findAny();
+    final Optional<TDGNodeInfo> coreOpt =
+        this.nodes.stream().filter(info -> info.hasRole("core")).findAny();
     if (!coreOpt.isPresent()) {
       throw new RuntimeException(
-          String.format("The cluster [cluster name='%s'] must have a node with the 'core' role.", this.clusterName));
+          String.format(
+              "The cluster [cluster name='%s'] must have a node with the 'core' role.",
+              this.clusterName));
     }
-    return new AbstractMap.SimpleEntry<>(coreOpt.get().getContainer().node(), coreOpt.get().getContainer());
+    return new AbstractMap.SimpleEntry<>(
+        coreOpt.get().getContainer().node(), coreOpt.get().getContainer());
   }
 
   @Override
@@ -170,18 +180,25 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
   @Override
   public synchronized void configure() {
     if (this.configured) {
-      LOGGER.warn("Cluster [cluster name='{}'] is already configured. Skipping...", this.clusterName);
+      LOGGER.warn(
+          "Cluster [cluster name='{}'] is already configured. Skipping...", this.clusterName);
       return;
     }
 
     final TDGContainer<?> core = core().getValue();
-    LOGGER.info("'Assembling' step of cluster[cluster name='{}'] configuration is starting...", this.clusterName);
+    LOGGER.info(
+        "'Assembling' step of cluster[cluster name='{}'] configuration is starting...",
+        this.clusterName);
     assembly(core);
 
-    LOGGER.info("'Bootstrapping' step of cluster[cluster name='{}'] configuration is starting...", this.clusterName);
+    LOGGER.info(
+        "'Bootstrapping' step of cluster[cluster name='{}'] configuration is starting...",
+        this.clusterName);
     bootstrap(core);
 
-    LOGGER.info("'Configuring' step of cluster[cluster name='{}'] configuration is starting...", this.clusterName);
+    LOGGER.info(
+        "'Configuring' step of cluster[cluster name='{}'] configuration is starting...",
+        this.clusterName);
     zipAndSendConfiguration(core);
 
     this.configured = true;
@@ -194,33 +211,38 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
   }
 
   /**
-   * Applies assembly of TDG cluster, sending topology to  container (node) that has a {@code core} role via graphql
-   * mutation.
+   * Applies assembly of TDG cluster, sending topology to container (node) that has a {@code core}
+   * role via graphql mutation.
    *
    * @param core container that has a {@code core} role.
    */
   public void assembly(TDGContainer<?> core) {
     try {
-      this.httpClient.execute(createHttpPost(this.assemblyQuery, core), response -> {
-        final String responseAsString = EntityUtils.toString(response.getEntity());
-        if (response.getCode() != HttpStatus.SC_OK || responseAsString.contains("exceptions")) {
-          LOGGER.error("Failed to execute TDG assembly cluster: \n{}", responseAsString);
-          throw new ContainerLaunchException("TDG assembly request failed. See logs for details.");
-        }
-        LOGGER.info("TDG assembly request succeeded: {}", responseAsString);
-        return null;
-      });
+      this.httpClient.execute(
+          createHttpPost(this.assemblyQuery, core),
+          response -> {
+            final String responseAsString = EntityUtils.toString(response.getEntity());
+            if (response.getCode() != HttpStatus.SC_OK || responseAsString.contains("exceptions")) {
+              LOGGER.error("Failed to execute TDG assembly cluster: \n{}", responseAsString);
+              throw new ContainerLaunchException(
+                  "TDG assembly request failed. See logs for details.");
+            }
+            LOGGER.info("TDG assembly request succeeded: {}", responseAsString);
+            return null;
+          });
     } catch (Exception e) {
       throw new ContainerLaunchException(e.getMessage(), e);
     }
   }
 
   /**
-   * <p>Compresses and sends configuration directory to container that has a {@code core} role.</p>
-   * <p><b><i>Note:</i></b> implementations must use compression with {@code ZIP} format.</p>
+   * Compresses and sends configuration directory to container that has a {@code core} role.
+   *
+   * <p><b><i>Note:</i></b> implementations must use compression with {@code ZIP} format.
+   *
    * <p><b><i>Note:</i></b> TDG supports the following configuration directory hierarchy:
-   * <pre>
-   * {@code
+   *
+   * <pre>{@code
    * +- <your_config_folder>/
    * |  +-  model.avsc
    * |  +-  config.yml
@@ -228,15 +250,17 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
    * |  +-  vshard_groups.yml
    * |  +-  src/
    * |  |   \-  ...
-   * }</pre></p>
+   * }</pre>
    *
    * @param core container that has a {@code core} role.
-   * @see <a href="https://www.tarantool.io/ru/tdg/latest/reference/config/">Tarantool Data Grid documentation</a>
+   * @see <a href="https://www.tarantool.io/ru/tdg/latest/reference/config/">Tarantool Data Grid
+   *     documentation</a>
    */
   public void zipAndSendConfiguration(TDGContainer<?> core) {
     if (!this.configFilePath.toFile().exists() || this.configFilePath.toFile().isDirectory()) {
       LOGGER.warn(
-          "Configuration file '{}' does not exist or is a directory. Skipping zip and send configuration...",
+          "Configuration file '{}' does not exist or is a directory. Skipping zip and send"
+              + " configuration...",
           this.configFilePath.toFile());
       return;
     }
@@ -249,18 +273,22 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
       final String address = HttpHost.unsecure(core.httpMappedAddress()) + DEFAULT_CONFIG_ENDPOINT;
       final HttpPut httpPut = new HttpPut(address);
-      final FileEntity entity = new FileEntity(tmpZipConfig.toFile(), ContentType.APPLICATION_OCTET_STREAM);
+      final FileEntity entity =
+          new FileEntity(tmpZipConfig.toFile(), ContentType.APPLICATION_OCTET_STREAM);
       httpPut.setEntity(entity);
 
-      this.httpClient.execute(httpPut, response -> {
-        final String responseAsString = EntityUtils.toString(response.getEntity());
-        if (response.getCode() != HttpStatus.SC_OK || responseAsString.contains("exceptions")) {
-          LOGGER.error("Failed to upload TDG cluster configuration: \n{}", responseAsString);
-          throw new ContainerLaunchException("TDG cluster configuration upload failed. See logs for details.");
-        }
-        LOGGER.info("TDG cluster configuration upload succeeded: {}", responseAsString);
-        return null;
-      });
+      this.httpClient.execute(
+          httpPut,
+          response -> {
+            final String responseAsString = EntityUtils.toString(response.getEntity());
+            if (response.getCode() != HttpStatus.SC_OK || responseAsString.contains("exceptions")) {
+              LOGGER.error("Failed to upload TDG cluster configuration: \n{}", responseAsString);
+              throw new ContainerLaunchException(
+                  "TDG cluster configuration upload failed. See logs for details.");
+            }
+            LOGGER.info("TDG cluster configuration upload succeeded: {}", responseAsString);
+            return null;
+          });
     } catch (Exception e) {
       throw new ContainerLaunchException(e.getMessage(), e);
     } finally {
@@ -279,16 +307,20 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
    */
   public void bootstrap(TDGContainer<?> core) {
     try {
-      this.httpClient.execute(createHttpPost(DEFAULT_BOOTSTRAP_QUERY, core), response -> {
-        final String responseAsString = EntityUtils.toString(response.getEntity());
-        if (response.getCode() != HttpStatus.SC_OK || responseAsString.contains("exceptions")
-            || responseAsString.contains("errors")) {
-          LOGGER.error("Failed to execute TDG bootstrap cluster: \n{}", responseAsString);
-          throw new ContainerLaunchException("TDG bootstrap request failed. See logs for details.");
-        }
-        LOGGER.info("TDG bootstrap request succeeded: {}", responseAsString);
-        return null;
-      });
+      this.httpClient.execute(
+          createHttpPost(DEFAULT_BOOTSTRAP_QUERY, core),
+          response -> {
+            final String responseAsString = EntityUtils.toString(response.getEntity());
+            if (response.getCode() != HttpStatus.SC_OK
+                || responseAsString.contains("exceptions")
+                || responseAsString.contains("errors")) {
+              LOGGER.error("Failed to execute TDG bootstrap cluster: \n{}", responseAsString);
+              throw new ContainerLaunchException(
+                  "TDG bootstrap request failed. See logs for details.");
+            }
+            LOGGER.info("TDG bootstrap request succeeded: {}", responseAsString);
+            return null;
+          });
     } catch (Exception e) {
       throw new ContainerLaunchException(e.getMessage(), e);
     }
@@ -317,17 +349,17 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
     return httpPost;
   }
 
-  private static Set<TDGNodeInfo> resolveContainersInfo(Path topologyFilePath, DockerImageName imageName,
-      String clusterName, Network network) {
+  private static Set<TDGNodeInfo> resolveContainersInfo(
+      Path topologyFilePath, DockerImageName imageName, String clusterName, Network network) {
     try {
       final Topology topology = YAML_MAPPER.readValue(topologyFilePath.toFile(), Topology.class);
-      final Map<UUID, List<String>> serversByReplicasetUuid = topology.getServers().values().stream()
-          .filter(s -> !s.getDisabled())
-          .collect(Collectors.groupingBy(
-                  Server::getReplicasetUuid,
-                  Collectors.mapping(Server::getUri, Collectors.toList())
-              )
-          );
+      final Map<UUID, List<String>> serversByReplicasetUuid =
+          topology.getServers().values().stream()
+              .filter(s -> !s.getDisabled())
+              .collect(
+                  Collectors.groupingBy(
+                      Server::getReplicasetUuid,
+                      Collectors.mapping(Server::getUri, Collectors.toList())));
 
       final Set<TDGNodeInfo> containers = new HashSet<>();
       for (Entry<UUID, Replicaset> entry : topology.getReplicasets().entrySet()) {
@@ -336,7 +368,9 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
           throw new IllegalStateException("Can't find server for replicaset " + entry.getKey());
         }
         for (String uri : uris) {
-          containers.add(new TDGNodeInfo(entry.getValue(), entry.getKey(), uri, clusterName, imageName, network));
+          containers.add(
+              new TDGNodeInfo(
+                  entry.getValue(), entry.getKey(), uri, clusterName, imageName, network));
         }
       }
       return containers;
@@ -345,7 +379,8 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
     }
   }
 
-  //TODO переписать через pojo или использования graphql client с предгенерацией классов https://netflix.github.io/dgs/advanced/java-client/
+  // TODO переписать через pojo или использования graphql client с предгенерацией классов
+  // https://netflix.github.io/dgs/advanced/java-client/
   private String getAssemblyRequest(Path topologyFilePath) {
     try {
       final Topology topology = YAML_MAPPER.readValue(topologyFilePath.toFile(), Topology.class);
@@ -354,25 +389,37 @@ public class TDGFileConfigurator implements TDGConfigurator, AutoCloseable {
 
       final Map<String, Object> variables = new HashMap<>();
       final List<Object> replicasets = new ArrayList<>();
-      topology.getReplicasets().forEach((uuid, rs) -> {
-        final Map<String, Object> replicaset = new HashMap<>();
-        replicaset.put("alias", rs.getAlias());
-        replicaset.put("roles",
-            rs.getRoles().entrySet().stream().filter(Entry::getValue).map(Entry::getKey).collect(Collectors.toList()));
-        replicaset.put("uuid", uuid);
-        final List<Object> joinServers = new ArrayList<>();
-        topology.getServers().entrySet().stream().filter(e ->
-            !e.getValue().getDisabled()).forEach((e) -> {
-          if (Objects.equals(uuid, e.getValue().getReplicasetUuid())) {
-            joinServers.add(new HashMap<String, Object>() {{
-              put("uri", e.getValue().getUri());
-              put("uuid", e.getKey());
-            }});
-          }
-        });
-        replicaset.put("join_servers", joinServers);
-        replicasets.add(replicaset);
-      });
+      topology
+          .getReplicasets()
+          .forEach(
+              (uuid, rs) -> {
+                final Map<String, Object> replicaset = new HashMap<>();
+                replicaset.put("alias", rs.getAlias());
+                replicaset.put(
+                    "roles",
+                    rs.getRoles().entrySet().stream()
+                        .filter(Entry::getValue)
+                        .map(Entry::getKey)
+                        .collect(Collectors.toList()));
+                replicaset.put("uuid", uuid);
+                final List<Object> joinServers = new ArrayList<>();
+                topology.getServers().entrySet().stream()
+                    .filter(e -> !e.getValue().getDisabled())
+                    .forEach(
+                        (e) -> {
+                          if (Objects.equals(uuid, e.getValue().getReplicasetUuid())) {
+                            joinServers.add(
+                                new HashMap<String, Object>() {
+                                  {
+                                    put("uri", e.getValue().getUri());
+                                    put("uuid", e.getKey());
+                                  }
+                                });
+                          }
+                        });
+                replicaset.put("join_servers", joinServers);
+                replicasets.add(replicaset);
+              });
       variables.put("replicasets", replicasets);
       request.put("variables", variables);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,7 +13,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.testcontainers.containers.tcm.config.ClusterConfig.StorageConnection;
 import org.testcontainers.containers.tcm.config.ClusterConfig.TarantoolConnection;
-
 
 public class TCMConfig {
 
@@ -39,7 +38,9 @@ public class TCMConfig {
   private final InitialSettings initialSettings;
 
   @JsonCreator
-  TCMConfig(@JsonProperty("http") Http http, @JsonProperty("storage") Storage storage,
+  TCMConfig(
+      @JsonProperty("http") Http http,
+      @JsonProperty("storage") Storage storage,
       @JsonProperty("security") Security security,
       @JsonProperty("cluster") Cluster cluster,
       @JsonProperty("initial-settings") InitialSettings initialSettings) {
@@ -106,19 +107,23 @@ public class TCMConfig {
       final Storage storage = new Storage(ETCD_NAME, storageEtcd);
       final Security security = new Security("secret");
 
-      final Etcd storageConnectionEtcd =
-          new Etcd(DEFAULT_TDB_PREFIX, null, null, etcdEndpoints);
+      final Etcd storageConnectionEtcd = new Etcd(DEFAULT_TDB_PREFIX, null, null, etcdEndpoints);
 
-      final StorageConnection storageConnection = new StorageConnection(ETCD_NAME, storageConnectionEtcd);
+      final StorageConnection storageConnection =
+          new StorageConnection(ETCD_NAME, storageConnectionEtcd);
 
-      final TarantoolConnection tarantoolConnection = new TarantoolConnection(this.tarantoolUsername,
-          this.tarantoolPassword);
+      final TarantoolConnection tarantoolConnection =
+          new TarantoolConnection(this.tarantoolUsername, this.tarantoolPassword);
 
-      final ClusterConfig clusterConfig = new ClusterConfig("TDB test cluster",
-          UUID.fromString("00000000-0000-0000-0000-000000000000"), storageConnection,
-          tarantoolConnection);
+      final ClusterConfig clusterConfig =
+          new ClusterConfig(
+              "TDB test cluster",
+              UUID.fromString("00000000-0000-0000-0000-000000000000"),
+              storageConnection,
+              tarantoolConnection);
 
-      final InitialSettings initialSettings = new InitialSettings(Collections.singletonList(clusterConfig));
+      final InitialSettings initialSettings =
+          new InitialSettings(Collections.singletonList(clusterConfig));
       final Cluster cluster = new Cluster("/app/tarantooldb/tt");
 
       return new TCMConfig(httpSettings, storage, security, cluster, initialSettings);

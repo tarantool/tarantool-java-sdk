@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -57,27 +57,29 @@ public class DatetimeExtensionModule {
     INSTANCE.addSerializer(Instant.class, new InstantSerializer(Instant.class));
     INSTANCE.addDeserializer(Instant.class, new InstantDeserializer(Instant.class));
     INSTANCE.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(ZonedDateTime.class));
-    INSTANCE.addDeserializer(ZonedDateTime.class, new ZonedDateTimeDeserializer(ZonedDateTime.class));
-    INSTANCE.addSerializer(OffsetDateTime.class, new OffsetDateTimeSerializer(OffsetDateTime.class));
-    INSTANCE.addDeserializer(OffsetDateTime.class, new OffsetDateTimeDeserializer(OffsetDateTime.class));
+    INSTANCE.addDeserializer(
+        ZonedDateTime.class, new ZonedDateTimeDeserializer(ZonedDateTime.class));
+    INSTANCE.addSerializer(
+        OffsetDateTime.class, new OffsetDateTimeSerializer(OffsetDateTime.class));
+    INSTANCE.addDeserializer(
+        OffsetDateTime.class, new OffsetDateTimeDeserializer(OffsetDateTime.class));
     INSTANCE.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(LocalDateTime.class));
-    INSTANCE.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(LocalDateTime.class));
+    INSTANCE.addDeserializer(
+        LocalDateTime.class, new LocalDateTimeDeserializer(LocalDateTime.class));
     INSTANCE.addSerializer(LocalDate.class, new LocalDateSerializer(LocalDate.class));
     INSTANCE.addDeserializer(LocalDate.class, new LocalDateDeserializer(LocalDate.class));
     INSTANCE.addSerializer(LocalTime.class, new LocalTimeSerializer(LocalTime.class));
     INSTANCE.addDeserializer(LocalTime.class, new LocalTimeDeserializer(LocalTime.class));
   }
 
-  private DatetimeExtensionModule() {
-  }
+  private DatetimeExtensionModule() {}
 
-  private static MessagePackExtensionType marshallDatetime(long seconds,
-      int nano,
-      short tzOffset,
-      short tzIndex) {
-    boolean hasOptionalFields = (nano != DEFAULT_NANOS) ||
-        (tzOffset != DEFAULT_TIMEZONE_OFFSET) ||
-        (tzIndex != DEFAULT_TIMEZONE_INDEX);
+  private static MessagePackExtensionType marshallDatetime(
+      long seconds, int nano, short tzOffset, short tzIndex) {
+    boolean hasOptionalFields =
+        (nano != DEFAULT_NANOS)
+            || (tzOffset != DEFAULT_TIMEZONE_OFFSET)
+            || (tzIndex != DEFAULT_TIMEZONE_INDEX);
     int size = (hasOptionalFields) ? MP_DATETIME_SIZE_16_BYTES : MP_DATETIME_SIZE_8_BYTES;
 
     ByteBuffer buffer = ByteBuffer.wrap(new byte[size]).order(ByteOrder.LITTLE_ENDIAN);
@@ -92,7 +94,9 @@ public class DatetimeExtensionModule {
   }
 
   private static String getZone(short tzIndex) {
-    return (tzIndex == DEFAULT_TIMEZONE_INDEX) ? null : TarantoolTimezones.indexToTimezone.get(tzIndex);
+    return (tzIndex == DEFAULT_TIMEZONE_INDEX)
+        ? null
+        : TarantoolTimezones.indexToTimezone.get(tzIndex);
   }
 
   public static class InstantSerializer extends StdSerializer<Instant> {
@@ -102,15 +106,14 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       gen.writeObject(
           marshallDatetime(
               value.getEpochSecond(),
               value.getNano(),
               DEFAULT_TIMEZONE_OFFSET,
-              DEFAULT_TIMEZONE_INDEX
-          )
-      );
+              DEFAULT_TIMEZONE_INDEX));
     }
   }
 
@@ -125,11 +128,12 @@ public class DatetimeExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for Instant object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for Instant object")
+                .toString());
       }
 
       byte[] data = ext.getData();
@@ -153,7 +157,8 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(ZonedDateTime value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       long seconds = value.toEpochSecond();
       int nano = value.getNano();
       short tzOffset = (short) (value.getOffset().getTotalSeconds() / SECONDS_PER_MINUTE);
@@ -177,11 +182,12 @@ public class DatetimeExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for ZonedDateTime object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for ZonedDateTime object")
+                .toString());
       }
 
       return deserialize(ext);
@@ -208,7 +214,8 @@ public class DatetimeExtensionModule {
       if (zone != null) {
         return ZonedDateTime.ofInstant(instant, ZoneId.of(zone));
       }
-      return ZonedDateTime.ofInstant(instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
+      return ZonedDateTime.ofInstant(
+          instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
     }
   }
 
@@ -219,7 +226,8 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(OffsetDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(OffsetDateTime value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       long seconds = value.toEpochSecond();
       int nano = value.getNano();
       short tzOffset = (short) (value.getOffset().getTotalSeconds() / SECONDS_PER_MINUTE);
@@ -234,15 +242,17 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public OffsetDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public OffsetDateTime deserialize(JsonParser p, DeserializationContext ctxt)
+        throws IOException {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for OffsetDateTime object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for OffsetDateTime object")
+                .toString());
       }
 
       byte[] data = ext.getData();
@@ -264,7 +274,8 @@ public class DatetimeExtensionModule {
       if (zone != null) {
         return OffsetDateTime.ofInstant(instant, ZoneId.of(zone));
       }
-      return OffsetDateTime.ofInstant(instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
+      return OffsetDateTime.ofInstant(
+          instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
     }
   }
 
@@ -275,15 +286,14 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       gen.writeObject(
           marshallDatetime(
-            value.toEpochSecond(ZoneOffset.UTC),
-            value.getNano(),
-            DEFAULT_TIMEZONE_OFFSET,
-            DEFAULT_TIMEZONE_INDEX
-          )
-      );
+              value.toEpochSecond(ZoneOffset.UTC),
+              value.getNano(),
+              DEFAULT_TIMEZONE_OFFSET,
+              DEFAULT_TIMEZONE_INDEX));
     }
   }
 
@@ -298,11 +308,12 @@ public class DatetimeExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for LocalDateTime object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for LocalDateTime object")
+                .toString());
       }
 
       byte[] data = ext.getData();
@@ -324,7 +335,8 @@ public class DatetimeExtensionModule {
       if (zone != null) {
         return LocalDateTime.ofInstant(instant, ZoneId.of(zone));
       }
-      return LocalDateTime.ofInstant(instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
+      return LocalDateTime.ofInstant(
+          instant, ZoneOffset.ofTotalSeconds(tzOffset * SECONDS_PER_MINUTE));
     }
   }
 
@@ -335,15 +347,14 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(LocalDate value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       gen.writeObject(
           marshallDatetime(
               value.toEpochDay() * SECONDS_PER_DAY,
               DEFAULT_NANOS,
               DEFAULT_TIMEZONE_OFFSET,
-              DEFAULT_TIMEZONE_INDEX
-          )
-      );
+              DEFAULT_TIMEZONE_INDEX));
     }
   }
 
@@ -358,11 +369,12 @@ public class DatetimeExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for LocalDate object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for LocalDate object")
+                .toString());
       }
 
       byte[] data = ext.getData();
@@ -388,15 +400,14 @@ public class DatetimeExtensionModule {
     }
 
     @Override
-    public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(LocalTime value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       gen.writeObject(
           marshallDatetime(
               value.toSecondOfDay(),
               value.getNano(),
               DEFAULT_TIMEZONE_OFFSET,
-              DEFAULT_TIMEZONE_INDEX
-          )
-      );
+              DEFAULT_TIMEZONE_INDEX));
     }
   }
 
@@ -411,11 +422,12 @@ public class DatetimeExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_DATETIME) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append(UNEXPECTED_EXTENSION_TYPE)
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for LocalTime object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append(UNEXPECTED_EXTENSION_TYPE)
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for LocalTime object")
+                .toString());
       }
 
       byte[] data = ext.getData();

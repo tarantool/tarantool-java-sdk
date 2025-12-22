@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,7 +11,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.Timer;
-
 
 public class ConnectionFactory {
 
@@ -31,25 +30,18 @@ public class ConnectionFactory {
   }
 
   public Connection create() {
-    return new ConnectionImpl(
-        this.bootstrap.clone(),
-        sslContext,
-        timerService,
-        null
-    );
+    return new ConnectionImpl(this.bootstrap.clone(), sslContext, timerService, null);
   }
 
   public Connection create(
       FlushConsolidationHandler flushConsolidationHandler,
-      BiConsumer<Connection, Throwable> idleTimeoutHandler
-  ) {
+      BiConsumer<Connection, Throwable> idleTimeoutHandler) {
     return new ConnectionImpl(
         this.bootstrap.clone(),
         sslContext,
         timerService,
         flushConsolidationHandler,
-        idleTimeoutHandler
-    );
+        idleTimeoutHandler);
   }
 
   public Timer getTimerService() {

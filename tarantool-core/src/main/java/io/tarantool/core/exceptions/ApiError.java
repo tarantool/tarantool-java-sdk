@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.core.exceptions;
 
 public enum ApiError {
-  FSM_RUN_ONCE_ALREADY_CALLED("IProtoStateMachine.runOnce() is called before, cannot be called again"),
+  FSM_RUN_ONCE_ALREADY_CALLED(
+      "IProtoStateMachine.runOnce() is called before, cannot be called again"),
   SHUTDOWN_REQUEST_FINISHED("Request finished by shutdown");
 
   private final String message;

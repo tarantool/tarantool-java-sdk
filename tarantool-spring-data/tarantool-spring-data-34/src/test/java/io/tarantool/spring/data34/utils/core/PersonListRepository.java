@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,5 +11,4 @@ import io.tarantool.spring.data.utils.GenericListRepositoryMethods;
 import io.tarantool.spring.data34.utils.entity.Person;
 
 public interface PersonListRepository
-    extends ListCrudRepository<Person, Integer>,
-    GenericListRepositoryMethods<Person, Integer> {}
+    extends ListCrudRepository<Person, Integer>, GenericListRepositoryMethods<Person, Integer> {}

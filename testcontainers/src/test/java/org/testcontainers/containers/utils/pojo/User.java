@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package org.testcontainers.containers.utils.pojo;
-
 
 import java.util.Objects;
 

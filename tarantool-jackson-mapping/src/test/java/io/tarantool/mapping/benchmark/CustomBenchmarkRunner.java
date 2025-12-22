@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -49,8 +49,9 @@ public class CustomBenchmarkRunner {
           .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
   protected static final Timer timerService = new HashedWheelTimer();
   protected static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
-  final static Logger log = LoggerFactory.getLogger(CustomBenchmarkRunner.class);
-  public static final byte[] STUB_ARGS = TarantoolJacksonMapping.toValue(Arrays.asList("1", "2", 3));
+  static final Logger log = LoggerFactory.getLogger(CustomBenchmarkRunner.class);
+  public static final byte[] STUB_ARGS =
+      TarantoolJacksonMapping.toValue(Arrays.asList("1", "2", 3));
   private static long lastRps = 0;
   private static int clientIdx = 0;
   private static final String host;
@@ -63,15 +64,18 @@ public class CustomBenchmarkRunner {
     port = Integer.parseInt(env.getOrDefault("TARANTOOL_PORT", "3301"));
   }
 
-  private static void createClients(Integer connections) throws ExecutionException, InterruptedException {
+  private static void createClients(Integer connections)
+      throws ExecutionException, InterruptedException {
     log.debug("Attempting connect to Tarantool");
 
     clients = new ArrayList<>();
     for (int i = 0; i < connections; i++) {
       IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-      client.connect(new InetSocketAddress(host, port), 3_000)
+      client
+          .connect(new InetSocketAddress(host, port), 3_000)
           .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
-      log.debug("Successfully connected to Tarantool, version = {}",
+      log.debug(
+          "Successfully connected to Tarantool, version = {}",
           client.eval("return _TARANTOOL", ValueFactory.emptyArray()).get());
       clients.add(client);
     }
@@ -86,9 +90,10 @@ public class CustomBenchmarkRunner {
     List<Integer> connectionsAmount = Arrays.asList(1, 2, 4, 8, 16);
 
     int durationInSeconds = 60;
-    List<BiFunction<Integer, Integer, Boolean>> tests = Collections.singletonList(
-        (connections, nanos) -> simpleCallAndJacksonMapping(connections, nanos, durationInSeconds)
-    );
+    List<BiFunction<Integer, Integer, Boolean>> tests =
+        Collections.singletonList(
+            (connections, nanos) ->
+                simpleCallAndJacksonMapping(connections, nanos, durationInSeconds));
 
     for (BiFunction<Integer, Integer, Boolean> test : tests) {
       for (Integer connections : connectionsAmount) {
@@ -111,25 +116,33 @@ public class CustomBenchmarkRunner {
   }
 
   private static void closeClients() {
-    clients.forEach((c) -> {
-      try {
-        c.close();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
+    clients.forEach(
+        (c) -> {
+          try {
+            c.close();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
     clients.clear();
   }
 
-  public static Boolean simpleCallAndJacksonMapping(int connections, Integer delay, Integer duration) {
+  public static Boolean simpleCallAndJacksonMapping(
+      int connections, Integer delay, Integer duration) {
     String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
-    return runRequestsWithDelay(methodName, connections, delay, duration,
-        () -> getClient(connections).eval("return return_one_tuple()",
-                STUB_ARGS,
-                null,
-                IProtoRequestOpts.empty()
-                    .withRequestTimeout(2_000))
-            .thenApply(TarantoolJacksonMapping::readResponse));
+    return runRequestsWithDelay(
+        methodName,
+        connections,
+        delay,
+        duration,
+        () ->
+            getClient(connections)
+                .eval(
+                    "return return_one_tuple()",
+                    STUB_ARGS,
+                    null,
+                    IProtoRequestOpts.empty().withRequestTimeout(2_000))
+                .thenApply(TarantoolJacksonMapping::readResponse));
   }
 
   private static IProtoClient getClient(int connections) {
@@ -139,8 +152,12 @@ public class CustomBenchmarkRunner {
     return clients.get(clientIdx++);
   }
 
-  private static boolean runRequestsWithDelay(String methodName, int connections, Integer delay,
-      Integer duration, Supplier<CompletableFuture> supplier) {
+  private static boolean runRequestsWithDelay(
+      String methodName,
+      int connections,
+      Integer delay,
+      Integer duration,
+      Supplier<CompletableFuture> supplier) {
 
     AtomicInteger counter = new AtomicInteger();
     AtomicBoolean errorHappened = new AtomicBoolean(false);
@@ -148,40 +165,60 @@ public class CustomBenchmarkRunner {
     long start = Instant.now().getEpochSecond();
     Thread thread = startClientThread(delay, supplier, counter, errorHappened);
 
-    return controlLoop(connections, delay, duration, methodName, counter, errorHappened, start, thread);
+    return controlLoop(
+        connections, delay, duration, methodName, counter, errorHappened, start, thread);
   }
 
-  private static Thread startClientThread(Integer delay, Supplier<CompletableFuture> supplier, AtomicInteger counter,
+  private static Thread startClientThread(
+      Integer delay,
+      Supplier<CompletableFuture> supplier,
+      AtomicInteger counter,
       AtomicBoolean errorHappened) {
-    Thread thread = new Thread(() -> {
-      while (true) {
-        if (errorHappened.get()) {
-          break;
-        }
-        long dstart = System.nanoTime();
-        supplier.get().whenComplete((r, ex) -> {
-          if (ex != null) {
-            log.info(ex.toString());
-            errorHappened.set(true);
-          }
-          counter.getAndIncrement();
-        });
-        if (Thread.currentThread().isInterrupted()) {
-          break;
-        }
-        waitDelay(dstart, delay);
-      }
-    });
+    Thread thread =
+        new Thread(
+            () -> {
+              while (true) {
+                if (errorHappened.get()) {
+                  break;
+                }
+                long dstart = System.nanoTime();
+                supplier
+                    .get()
+                    .whenComplete(
+                        (r, ex) -> {
+                          if (ex != null) {
+                            log.info(ex.toString());
+                            errorHappened.set(true);
+                          }
+                          counter.getAndIncrement();
+                        });
+                if (Thread.currentThread().isInterrupted()) {
+                  break;
+                }
+                waitDelay(dstart, delay);
+              }
+            });
     thread.setName("client_thread");
     thread.start();
     return thread;
   }
 
-  private static boolean controlLoop(int connections, Integer delay, Integer duration, String methodName,
-      AtomicInteger counter, AtomicBoolean errorHappened, long start, Thread thread) {
+  private static boolean controlLoop(
+      int connections,
+      Integer delay,
+      Integer duration,
+      String methodName,
+      AtomicInteger counter,
+      AtomicBoolean errorHappened,
+      long start,
+      Thread thread) {
     while (true) {
       if (errorHappened.get()) {
-        log.info("error - {}(connections = {}, delay = {}, duration = {})", methodName, connections, delay,
+        log.info(
+            "error - {}(connections = {}, delay = {}, duration = {})",
+            methodName,
+            connections,
+            delay,
             duration);
         thread.interrupt();
         lastRps = 0;
@@ -197,15 +234,24 @@ public class CustomBenchmarkRunner {
         long rps = counter.get() / gap;
         log.debug("{}, intermediate RPS: {}", methodName, rps);
         if (errorHappened.get() || counter.get() == 0) {
-          log.info("error - {}(connections = {}, delay = {}, duration = {})", methodName, connections,
-              delay, duration);
+          log.info(
+              "error - {}(connections = {}, delay = {}, duration = {})",
+              methodName,
+              connections,
+              delay,
+              duration);
           thread.interrupt();
           lastRps = 0;
           return true;
         }
         if (gap > duration) {
-          log.info("success - {}(connections = {}, delay = {}, duration = {})" + ", RPS: {}", methodName,
-              connections, delay, duration, rps);
+          log.info(
+              "success - {}(connections = {}, delay = {}, duration = {})" + ", RPS: {}",
+              methodName,
+              connections,
+              delay,
+              duration,
+              rps);
           thread.interrupt();
           if (lastRps > rps) {
             lastRps = 0;

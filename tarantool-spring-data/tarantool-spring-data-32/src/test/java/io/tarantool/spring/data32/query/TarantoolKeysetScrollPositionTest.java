@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -48,8 +48,7 @@ class TarantoolKeysetScrollPositionTest {
 
   static Stream<Executable> dataForTestTarantoolScrollPositionCreateThrows() {
     return Stream.of(
-        () -> TarantoolScrollPosition.forward(null),
-        () -> TarantoolScrollPosition.backward(null));
+        () -> TarantoolScrollPosition.forward(null), () -> TarantoolScrollPosition.backward(null));
   }
 
   @ParameterizedTest
@@ -60,11 +59,12 @@ class TarantoolKeysetScrollPositionTest {
 
   static Stream<Arguments> dataForTestEqualsAndHashCode() {
 
-    List<ScrollPosition> equalScrollPositionsWithKey = Arrays.asList(
-        TarantoolScrollPosition.forward(INDEX_KEY),
-        TarantoolScrollPosition.forward(INDEX_KEY));
+    List<ScrollPosition> equalScrollPositionsWithKey =
+        Arrays.asList(
+            TarantoolScrollPosition.forward(INDEX_KEY), TarantoolScrollPosition.forward(INDEX_KEY));
 
-    TarantoolScrollPosition notEqualScrollPosition = TarantoolScrollPosition.forward(INDEX_KEY_WITH_NULL_VALUE);
+    TarantoolScrollPosition notEqualScrollPosition =
+        TarantoolScrollPosition.forward(INDEX_KEY_WITH_NULL_VALUE);
 
     final int ITERATION_COUNT = 100;
 
@@ -75,7 +75,9 @@ class TarantoolKeysetScrollPositionTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEqualsAndHashCode")
-  void testEqualsAndHashCode(List<ScrollPosition> scrollPositions, ScrollPosition notEqualScrollPosition,
+  void testEqualsAndHashCode(
+      List<ScrollPosition> scrollPositions,
+      ScrollPosition notEqualScrollPosition,
       int iterationCount) {
     for (int i = 0; i < iterationCount; i++) {
       for (ScrollPosition scrollPosition : scrollPositions) {
@@ -96,50 +98,22 @@ class TarantoolKeysetScrollPositionTest {
     var complexIndex = Pair.of("pk", Arrays.asList(1, UUID.randomUUID()));
     Object nonNullCursor = Arrays.asList(1, 2, 3, 4);
     return Stream.of(
+        Arguments.of(TarantoolScrollPosition.backward(INDEX_KEY), false),
+        Arguments.of(TarantoolScrollPosition.forward(INDEX_KEY), false),
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null), false),
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, null), false),
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, nonNullCursor), false),
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, nonNullCursor), false),
+        Arguments.of(TarantoolScrollPosition.backward(startingIndex), true),
+        Arguments.of(TarantoolScrollPosition.forward(startingIndex), true),
+        Arguments.of(new TarantoolKeysetScrollPosition(startingIndex, FORWARD, null), true),
+        Arguments.of(new TarantoolKeysetScrollPosition(startingIndex, BACKWARD, null), true),
         Arguments.of(
-            TarantoolScrollPosition.backward(INDEX_KEY),
-            false),
+            new TarantoolKeysetScrollPosition(startingIndex, FORWARD, nonNullCursor), false),
         Arguments.of(
-            TarantoolScrollPosition.forward(INDEX_KEY),
-            false),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null),
-            false),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, null),
-            false),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, nonNullCursor),
-            false),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, nonNullCursor),
-            false),
-
-        Arguments.of(
-            TarantoolScrollPosition.backward(startingIndex),
-            true),
-        Arguments.of(
-            TarantoolScrollPosition.forward(startingIndex),
-            true),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(startingIndex, FORWARD, null),
-            true),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(startingIndex, BACKWARD, null),
-            true),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(startingIndex, FORWARD, nonNullCursor),
-            false),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(startingIndex, BACKWARD, nonNullCursor),
-            false),
-
-        Arguments.of(
-            TarantoolScrollPosition.backward(complexIndex),
-            false),
-        Arguments.of(
-            TarantoolScrollPosition.forward(complexIndex),
-            false));
+            new TarantoolKeysetScrollPosition(startingIndex, BACKWARD, nonNullCursor), false),
+        Arguments.of(TarantoolScrollPosition.backward(complexIndex), false),
+        Arguments.of(TarantoolScrollPosition.forward(complexIndex), false));
   }
 
   @ParameterizedTest
@@ -151,12 +125,8 @@ class TarantoolKeysetScrollPositionTest {
   static Stream<Arguments> dataForTestGetCursor() {
     var cursor = String.valueOf(2);
     return Stream.of(
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null),
-            null),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, cursor),
-            cursor));
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null), null),
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, cursor), cursor));
   }
 
   @ParameterizedTest
@@ -167,33 +137,28 @@ class TarantoolKeysetScrollPositionTest {
 
   static Stream<Arguments> dataForTestGetKeyIndex() {
     return Stream.of(
-        Arguments.of(
-            TarantoolScrollPosition.forward(INDEX_KEY),
-            INDEX_KEY),
-        Arguments.of(
-            TarantoolScrollPosition.backward(INDEX_KEY),
-            INDEX_KEY));
+        Arguments.of(TarantoolScrollPosition.forward(INDEX_KEY), INDEX_KEY),
+        Arguments.of(TarantoolScrollPosition.backward(INDEX_KEY), INDEX_KEY));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestGetKeyIndex")
-  void testGetKeyIndex(TarantoolKeysetScrollPosition scrollPosition, Pair<String, ?> expectedIndexKey) {
+  void testGetKeyIndex(
+      TarantoolKeysetScrollPosition scrollPosition, Pair<String, ?> expectedIndexKey) {
     assertEquals(expectedIndexKey, scrollPosition.getIndexKey());
   }
 
   static Stream<Arguments> dataForTestGetDirection() {
     return Stream.of(
+        Arguments.of(new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null), FORWARD),
         Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, FORWARD, null),
-            FORWARD),
-        Arguments.of(
-            new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, String.valueOf(2)),
-            BACKWARD));
+            new TarantoolKeysetScrollPosition(INDEX_KEY, BACKWARD, String.valueOf(2)), BACKWARD));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestGetDirection")
-  void testGetDirection(TarantoolKeysetScrollPosition scrollPosition, PaginationDirection expectedDirection) {
+  void testGetDirection(
+      TarantoolKeysetScrollPosition scrollPosition, PaginationDirection expectedDirection) {
     assertEquals(expectedDirection, scrollPosition.getDirection());
   }
 
@@ -212,18 +177,18 @@ class TarantoolKeysetScrollPositionTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestReverse")
-  void testGetReverse(TarantoolScrollPosition scrollPosition, TarantoolKeysetScrollPosition expectedReversedPosition) {
+  void testGetReverse(
+      TarantoolScrollPosition scrollPosition,
+      TarantoolKeysetScrollPosition expectedReversedPosition) {
     assertEquals(expectedReversedPosition, scrollPosition.reverse());
   }
 
   static Stream<Arguments> dataForTestIsScrollsBackward() {
     return Stream.of(
         Arguments.of(
-            TarantoolScrollPosition.forward(Pair.of("pk", Collections.emptyList())),
-            false),
+            TarantoolScrollPosition.forward(Pair.of("pk", Collections.emptyList())), false),
         Arguments.of(
-            TarantoolScrollPosition.backward(Pair.of("pk", Collections.emptyList())),
-            true));
+            TarantoolScrollPosition.backward(Pair.of("pk", Collections.emptyList())), true));
   }
 
   @ParameterizedTest

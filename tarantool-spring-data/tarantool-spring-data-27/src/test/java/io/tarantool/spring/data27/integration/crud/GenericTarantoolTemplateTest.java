@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -52,13 +52,14 @@ import io.tarantool.spring.data27.utils.entity.Person;
 
 abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
-  @Autowired
-  protected TarantoolTemplate tarantoolTemplate;
+  @Autowired protected TarantoolTemplate tarantoolTemplate;
 
   @Test
   void testGetAllOf() {
     final Throwable throwable =
-        assertThrows(UncategorizedKeyValueException.class, () -> tarantoolTemplate.findAll(Person.class)).getCause();
+        assertThrows(
+                UncategorizedKeyValueException.class, () -> tarantoolTemplate.findAll(Person.class))
+            .getCause();
 
     assertEquals(UnsupportedOperationException.class, throwable.getClass());
     assertEquals(POTENTIAL_PERFORMANCE_ISSUES_EXCEPTION_MESSAGE, throwable.getMessage());
@@ -70,11 +71,17 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPerson compositeKeyPerson = generateComplexPersons(1).get(0);
 
     Function<TarantoolCrudClient, ?> selectActionForSimpleKeyPerson =
-        (client) -> unwrapTuples(client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
+        (client) ->
+            unwrapTuples(
+                client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
 
     Function<TarantoolCrudClient, List<?>> selectActionForComplexKeyPerson =
-        (client) -> unwrapTuples(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList(),
-            ComplexPerson.class).join());
+        (client) ->
+            unwrapTuples(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList(), ComplexPerson.class)
+                    .join());
 
     return Stream.of(
         Arguments.of(
@@ -89,7 +96,9 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForInsert")
-  void testKVTemplateInsert(Object result, Function<KeyValueTemplate, Object> callingMethod,
+  void testKVTemplateInsert(
+      Object result,
+      Function<KeyValueTemplate, Object> callingMethod,
       Function<TarantoolCrudClient, List<?>> selectAction) {
     final int SIZE = 1;
     assertEquals(result, callingMethod.apply(tarantoolTemplate));
@@ -105,15 +114,21 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPerson compositeKeyPerson = generateComplexPersons(1).get(0);
 
     Integer simpleKey = simpleKeyPerson.getId();
-    CompositePersonKey compositeKey = new CompositePersonKey(compositeKeyPerson.getId(),
-        compositeKeyPerson.getSecondId());
+    CompositePersonKey compositeKey =
+        new CompositePersonKey(compositeKeyPerson.getId(), compositeKeyPerson.getSecondId());
 
     Function<TarantoolCrudClient, ?> selectActionForSimpleKeyPerson =
-        (client) -> unwrapTuples(client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
+        (client) ->
+            unwrapTuples(
+                client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
 
     Function<TarantoolCrudClient, List<?>> selectActionForComplexKeyPerson =
-        (client) -> unwrapTuples(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList(),
-            ComplexPerson.class).join());
+        (client) ->
+            unwrapTuples(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList(), ComplexPerson.class)
+                    .join());
 
     return Stream.of(
         Arguments.of(
@@ -122,13 +137,16 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
             selectActionForSimpleKeyPerson),
         Arguments.of(
             compositeKeyPerson,
-            (Function<KeyValueTemplate, Object>) (kv) -> kv.insert(compositeKey, compositeKeyPerson),
+            (Function<KeyValueTemplate, Object>)
+                (kv) -> kv.insert(compositeKey, compositeKeyPerson),
             selectActionForComplexKeyPerson));
   }
 
   @ParameterizedTest
   @MethodSource("dataForInsertById")
-  void testKVTemplateInsertById(Object result, Function<KeyValueTemplate, Object> callingMethod,
+  void testKVTemplateInsertById(
+      Object result,
+      Function<KeyValueTemplate, Object> callingMethod,
       Function<TarantoolCrudClient, List<?>> selectAction) {
     final int SIZE = 1;
     assertEquals(result, callingMethod.apply(tarantoolTemplate));
@@ -144,22 +162,35 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPerson compositeKeyPerson = generateComplexPersons(1).get(0);
 
     Function<TarantoolCrudClient, ?> selectActionForSimpleKeyPerson =
-        (client) -> unwrapTuples(client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
+        (client) ->
+            unwrapTuples(
+                client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
 
     Function<TarantoolCrudClient, List<?>> selectActionForComplexKeyPerson =
-        (client) -> unwrapTuples(
-            client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList(), ComplexPerson.class).join());
+        (client) ->
+            unwrapTuples(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList(), ComplexPerson.class)
+                    .join());
 
-    Consumer<TarantoolCrudClient> prepareActionForSimpleKeyPerson = (client) -> {
-      Person insertedPerson = client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
-      assertEquals(simpleKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> prepareActionForSimpleKeyPerson =
+        (client) -> {
+          Person insertedPerson =
+              client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
+          assertEquals(simpleKeyPerson, insertedPerson);
+        };
 
-    Consumer<TarantoolCrudClient> prepareActionForCompositeKeyPerson = (client) -> {
-      ComplexPerson insertedPerson =
-          client.space(COMPLEX_PERSON_SPACE).insert(compositeKeyPerson, ComplexPerson.class).join().get();
-      assertEquals(compositeKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> prepareActionForCompositeKeyPerson =
+        (client) -> {
+          ComplexPerson insertedPerson =
+              client
+                  .space(COMPLEX_PERSON_SPACE)
+                  .insert(compositeKeyPerson, ComplexPerson.class)
+                  .join()
+                  .get();
+          assertEquals(compositeKeyPerson, insertedPerson);
+        };
 
     return Stream.of(
         Arguments.of(
@@ -176,7 +207,9 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForUpdate")
-  void testKVTemplateUpdate(Consumer<TarantoolCrudClient> prepareAction, Object result,
+  void testKVTemplateUpdate(
+      Consumer<TarantoolCrudClient> prepareAction,
+      Object result,
       Function<KeyValueTemplate, Object> callingMethod,
       Function<TarantoolCrudClient, List<?>> selectAction) {
     prepareAction.accept(client);
@@ -195,26 +228,39 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPerson compositeKeyPerson = generateComplexPersons(1).get(0);
 
     Integer simpleKey = simpleKeyPerson.getId();
-    CompositePersonKey compositeKey = new CompositePersonKey(compositeKeyPerson.getId(),
-        compositeKeyPerson.getSecondId());
+    CompositePersonKey compositeKey =
+        new CompositePersonKey(compositeKeyPerson.getId(), compositeKeyPerson.getSecondId());
 
     Function<TarantoolCrudClient, ?> selectActionForSimpleKeyPerson =
-        (client) -> unwrapTuples(client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
+        (client) ->
+            unwrapTuples(
+                client.space(PERSON_SPACE).select(Collections.emptyList(), Person.class).join());
 
     Function<TarantoolCrudClient, List<?>> selectActionForComplexKeyPerson =
-        (client) -> unwrapTuples(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList(),
-            ComplexPerson.class).join());
+        (client) ->
+            unwrapTuples(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList(), ComplexPerson.class)
+                    .join());
 
-    Consumer<TarantoolCrudClient> prepareActionForSimpleKeyPerson = (client) -> {
-      Person insertedPerson = client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
-      assertEquals(simpleKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> prepareActionForSimpleKeyPerson =
+        (client) -> {
+          Person insertedPerson =
+              client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
+          assertEquals(simpleKeyPerson, insertedPerson);
+        };
 
-    Consumer<TarantoolCrudClient> prepareActionForCompositeKeyPerson = (client) -> {
-      ComplexPerson insertedPerson =
-          client.space(COMPLEX_PERSON_SPACE).insert(compositeKeyPerson, ComplexPerson.class).join().get();
-      assertEquals(compositeKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> prepareActionForCompositeKeyPerson =
+        (client) -> {
+          ComplexPerson insertedPerson =
+              client
+                  .space(COMPLEX_PERSON_SPACE)
+                  .insert(compositeKeyPerson, ComplexPerson.class)
+                  .join()
+                  .get();
+          assertEquals(compositeKeyPerson, insertedPerson);
+        };
 
     return Stream.of(
         Arguments.of(
@@ -225,13 +271,16 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
         Arguments.of(
             prepareActionForCompositeKeyPerson,
             compositeKeyPerson,
-            (Function<KeyValueTemplate, Object>) (kv) -> kv.update(compositeKey, compositeKeyPerson),
+            (Function<KeyValueTemplate, Object>)
+                (kv) -> kv.update(compositeKey, compositeKeyPerson),
             selectActionForComplexKeyPerson));
   }
 
   @ParameterizedTest
   @MethodSource("dataForUpdateById")
-  void testKVTemplateUpdateById(Consumer<TarantoolCrudClient> prepareAction, Object result,
+  void testKVTemplateUpdateById(
+      Consumer<TarantoolCrudClient> prepareAction,
+      Object result,
       Function<KeyValueTemplate, Object> callingMethod,
       Function<TarantoolCrudClient, List<?>> selectAction) {
     prepareAction.accept(client);
@@ -250,10 +299,17 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     Runnable compositeKeyPrepareAction = () -> generateComplexPersons(PERSONS_COUNT);
 
     Consumer<TarantoolCrudClient> simpleKeyFinalAction =
-        (client) -> assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
 
     Consumer<TarantoolCrudClient> compositeKeyFinalAction =
-        (client) -> assertTrue(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList())
+                    .join()
+                    .isEmpty());
 
     return Stream.of(
         Arguments.of(
@@ -268,7 +324,9 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForDelete")
-  void testKVTemplateDelete(Runnable prepareAction, Consumer<KeyValueTemplate> callingMethod,
+  void testKVTemplateDelete(
+      Runnable prepareAction,
+      Consumer<KeyValueTemplate> callingMethod,
       Consumer<TarantoolCrudClient> finalAction) {
     prepareAction.run();
     callingMethod.accept(tarantoolTemplate);
@@ -280,22 +338,36 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     Person simpleKeyPerson = new Person(0, true, "0");
     ComplexPerson compositeKeyPerson = new ComplexPerson(0, UUID.randomUUID(), true, "0");
 
-    Consumer<TarantoolCrudClient> simpleKeyPrepareAction = (client) -> {
-      Person insertedPerson = client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
-      assertEquals(simpleKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> simpleKeyPrepareAction =
+        (client) -> {
+          Person insertedPerson =
+              client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
+          assertEquals(simpleKeyPerson, insertedPerson);
+        };
 
-    Consumer<TarantoolCrudClient> compositeKeyPrepareAction = (client) -> {
-      ComplexPerson insertedPerson =
-          client.space(COMPLEX_PERSON_SPACE).insert(compositeKeyPerson, ComplexPerson.class).join().get();
-      assertEquals(compositeKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> compositeKeyPrepareAction =
+        (client) -> {
+          ComplexPerson insertedPerson =
+              client
+                  .space(COMPLEX_PERSON_SPACE)
+                  .insert(compositeKeyPerson, ComplexPerson.class)
+                  .join()
+                  .get();
+          assertEquals(compositeKeyPerson, insertedPerson);
+        };
 
     Consumer<TarantoolCrudClient> simpleKeyFinalAction =
-        (client) -> assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
 
     Consumer<TarantoolCrudClient> compositeKeyFinalAction =
-        (client) -> assertTrue(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList())
+                    .join()
+                    .isEmpty());
 
     return Stream.of(
         Arguments.of(
@@ -310,7 +382,8 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForDeleteEntities")
-  void testKVTemplateDeleteEntities(Consumer<TarantoolCrudClient> prepareAction,
+  void testKVTemplateDeleteEntities(
+      Consumer<TarantoolCrudClient> prepareAction,
       Consumer<KeyValueTemplate> callingMethod,
       Consumer<TarantoolCrudClient> finalAction) {
     prepareAction.accept(client);
@@ -324,25 +397,39 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPerson compositeKeyPerson = new ComplexPerson(0, UUID.randomUUID(), true, "0");
 
     Integer simpleKey = simpleKeyPerson.getId();
-    CompositePersonKey compositeKey = new CompositePersonKey(compositeKeyPerson.getId(),
-        compositeKeyPerson.getSecondId());
+    CompositePersonKey compositeKey =
+        new CompositePersonKey(compositeKeyPerson.getId(), compositeKeyPerson.getSecondId());
 
-    Consumer<TarantoolCrudClient> simpleKeyPrepareAction = (client) -> {
-      Person insertedPerson = client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
-      assertEquals(simpleKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> simpleKeyPrepareAction =
+        (client) -> {
+          Person insertedPerson =
+              client.space(PERSON_SPACE).insert(simpleKeyPerson, Person.class).join().get();
+          assertEquals(simpleKeyPerson, insertedPerson);
+        };
 
-    Consumer<TarantoolCrudClient> compositeKeyPrepareAction = (client) -> {
-      ComplexPerson insertedPerson =
-          client.space(COMPLEX_PERSON_SPACE).insert(compositeKeyPerson, ComplexPerson.class).join().get();
-      assertEquals(compositeKeyPerson, insertedPerson);
-    };
+    Consumer<TarantoolCrudClient> compositeKeyPrepareAction =
+        (client) -> {
+          ComplexPerson insertedPerson =
+              client
+                  .space(COMPLEX_PERSON_SPACE)
+                  .insert(compositeKeyPerson, ComplexPerson.class)
+                  .join()
+                  .get();
+          assertEquals(compositeKeyPerson, insertedPerson);
+        };
 
     Consumer<TarantoolCrudClient> simpleKeyFinalAction =
-        (client) -> assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(client.space(PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
 
     Consumer<TarantoolCrudClient> compositeKeyFinalAction =
-        (client) -> assertTrue(client.space(COMPLEX_PERSON_SPACE).select(Collections.emptyList()).join().isEmpty());
+        (client) ->
+            assertTrue(
+                client
+                    .space(COMPLEX_PERSON_SPACE)
+                    .select(Collections.emptyList())
+                    .join()
+                    .isEmpty());
 
     return Stream.of(
         Arguments.of(
@@ -357,7 +444,8 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForDeleteEntitiesById")
-  void testKVTemplateDeleteEntitiesById(Consumer<TarantoolCrudClient> prepareAction,
+  void testKVTemplateDeleteEntitiesById(
+      Consumer<TarantoolCrudClient> prepareAction,
       Consumer<KeyValueTemplate> callingMethod,
       Consumer<TarantoolCrudClient> finalAction) {
     prepareAction.accept(client);
@@ -386,7 +474,8 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
 
   @ParameterizedTest
   @MethodSource("dataForCount")
-  void testCount(long expectedCount,
+  void testCount(
+      long expectedCount,
       Consumer<TarantoolCrudClient> prepareAction,
       Function<KeyValueTemplate, Long> callingMethod) {
     prepareAction.accept(client);
@@ -398,10 +487,13 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPersonWithJsonFormatVariantPK complexPersonWithJsonFormatVariantPK =
         new ComplexPersonWithJsonFormatVariantPK(0, UUID.randomUUID(), null, "0");
 
-    assertEquals(complexPersonWithJsonFormatVariantPK, tarantoolTemplate.insert(complexPersonWithJsonFormatVariantPK));
+    assertEquals(
+        complexPersonWithJsonFormatVariantPK,
+        tarantoolTemplate.insert(complexPersonWithJsonFormatVariantPK));
 
     CompositePersonKeyWithJsonFormat key =
-        new CompositePersonKeyWithJsonFormat(complexPersonWithJsonFormatVariantPK.getId(),
+        new CompositePersonKeyWithJsonFormat(
+            complexPersonWithJsonFormatVariantPK.getId(),
             complexPersonWithJsonFormatVariantPK.getSecondId());
     Optional<ComplexPersonWithJsonFormatVariantPK> foundPerson =
         tarantoolTemplate.findById(key, ComplexPersonWithJsonFormatVariantPK.class);
@@ -414,8 +506,11 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     ComplexPersonWithIncorrectPK complexPersonWithIncorrectPK =
         new ComplexPersonWithIncorrectPK(0, UUID.randomUUID(), null, "0");
 
-    Throwable exception = assertThrows(UncategorizedKeyValueException.class,
-        () -> tarantoolTemplate.insert(complexPersonWithIncorrectPK)).getRootCause();
+    Throwable exception =
+        assertThrows(
+                UncategorizedKeyValueException.class,
+                () -> tarantoolTemplate.insert(complexPersonWithIncorrectPK))
+            .getRootCause();
     assertInstanceOf(CrudException.class, exception);
   }
 
@@ -442,10 +537,11 @@ abstract class GenericTarantoolTemplateTest extends CrudConfigurations {
     final List<ComplexPerson> tuples = generateComplexPersons(tuplesCount);
 
     for (final ComplexPerson tuple : tuples) {
-      futures.add(CompletableFuture.supplyAsync(() -> this.tarantoolTemplate.insert(tuple), executor));
+      futures.add(
+          CompletableFuture.supplyAsync(() -> this.tarantoolTemplate.insert(tuple), executor));
     }
 
-    CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
 
     for (int i = 0; i < tuplesCount; i++) {
       assertEquals(tuples.get(i), futures.get(i).join());

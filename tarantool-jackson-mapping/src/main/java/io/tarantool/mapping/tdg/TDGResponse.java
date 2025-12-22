@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,7 +21,8 @@ public final class TDGResponse<T> {
   private final TarantoolSlashErrors error;
 
   @JsonCreator
-  public TDGResponse(@JsonProperty("response") T data, @JsonProperty("error") TarantoolSlashErrors error) {
+  public TDGResponse(
+      @JsonProperty("response") T data, @JsonProperty("error") TarantoolSlashErrors error) {
     this.data = data;
     this.error = error;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,7 +10,8 @@ import org.springframework.data.support.IsNewStrategy;
 import org.springframework.util.Assert;
 
 /**
- * Strategy class for entity with composite key to determine whether a given entity is to be considered new.
+ * Strategy class for entity with composite key to determine whether a given entity is to be
+ * considered new.
  */
 public class PersistentCompositeIdIsNewStrategy implements IsNewStrategy {
 
@@ -27,7 +28,8 @@ public class PersistentCompositeIdIsNewStrategy implements IsNewStrategy {
   }
 
   /**
-   * Create a new {@link PersistentCompositeIdIsNewStrategy} to only consider the identifier of the given entity.
+   * Create a new {@link PersistentCompositeIdIsNewStrategy} to only consider the identifier of the
+   * given entity.
    *
    * @param entity must not be {@literal null}.
    * @return strategy to determine whether entity is new or not
@@ -37,8 +39,8 @@ public class PersistentCompositeIdIsNewStrategy implements IsNewStrategy {
   }
 
   /**
-   * Create a new {@link PersistentCompositeIdIsNewStrategy} to consider version properties before falling back to the
-   * identifier.
+   * Create a new {@link PersistentCompositeIdIsNewStrategy} to consider version properties before
+   * falling back to the identifier.
    *
    * @param entity must not be {@literal null}.
    * @return strategy to determine whether entity is new or not
@@ -48,7 +50,8 @@ public class PersistentCompositeIdIsNewStrategy implements IsNewStrategy {
   }
 
   /**
-   * Determine whether the current domain entity type object is new. Currently stub and always returns false.
+   * Determine whether the current domain entity type object is new. Currently stub and always
+   * returns false.
    *
    * @param entity must not be {@literal null}.
    * @return result of the question of entity is new or not

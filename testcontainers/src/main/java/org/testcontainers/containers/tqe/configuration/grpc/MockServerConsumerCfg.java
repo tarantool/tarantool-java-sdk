@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -26,8 +26,7 @@ public class MockServerConsumerCfg {
 
   @JsonCreator
   public MockServerConsumerCfg(
-      @JsonProperty("batch_size") Long batchSize,
-      @JsonProperty("sleep_time") String sleepTime) {
+      @JsonProperty("batch_size") Long batchSize, @JsonProperty("sleep_time") String sleepTime) {
     this.batchSize = batchSize;
     this.sleepTime = sleepTime;
   }

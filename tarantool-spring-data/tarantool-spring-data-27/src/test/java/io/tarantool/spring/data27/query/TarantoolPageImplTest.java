@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -37,7 +37,8 @@ class TarantoolPageImplTest {
   private static final int DEFAULT_PAGE_NUMBER_PER_TEST_CLASS = 0;
 
   private static final Pageable FIRST_PAGE_PAGEABLE_PER_TEST_CLASS =
-      new TarantoolPageRequest<>(DEFAULT_PAGE_NUMBER_PER_TEST_CLASS, DEFAULT_PAGE_SIZE_PER_TEST_CLASS, null);
+      new TarantoolPageRequest<>(
+          DEFAULT_PAGE_NUMBER_PER_TEST_CLASS, DEFAULT_PAGE_SIZE_PER_TEST_CLASS, null);
 
   private static final long MULTIPLIER = 2L;
 
@@ -45,17 +46,20 @@ class TarantoolPageImplTest {
       (pageSize, operator) -> {
         switch (operator) {
           // pageSize > totalPageCount
-          case ">": {
-            return pageSize / MULTIPLIER;
-          }
+          case ">":
+            {
+              return pageSize / MULTIPLIER;
+            }
           // pageSize < totalPageCount
-          case "<": {
-            return MULTIPLIER * pageSize;
-          }
+          case "<":
+            {
+              return MULTIPLIER * pageSize;
+            }
           // pageSize == totalPageCount
-          case "==": {
-            return Long.valueOf(pageSize);
-          }
+          case "==":
+            {
+              return Long.valueOf(pageSize);
+            }
           default:
             throw new IllegalArgumentException("The passed option isn't supported");
         }
@@ -74,14 +78,8 @@ class TarantoolPageImplTest {
             new TarantoolPageImpl<>(PERSONS, pageable, personsSize),
             PERSONS.size() / DEFAULT_PAGE_SIZE_PER_TEST_CLASS,
             personsSize),
-        Arguments.of(
-            new TarantoolPageImpl<>(PERSONS),
-            1,
-            personsSize),
-        Arguments.of(
-            new TarantoolPageImpl<>(),
-            1,
-            0L));
+        Arguments.of(new TarantoolPageImpl<>(PERSONS), 1, personsSize),
+        Arguments.of(new TarantoolPageImpl<>(), 1, 0L));
   }
 
   @ParameterizedTest
@@ -94,74 +92,76 @@ class TarantoolPageImplTest {
   static Stream<Arguments> dataForTestGetTotalPages() {
     return Stream.of(
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
             1),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
             MULTIPLIER),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
             1),
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 Pageable.unpaged(),
                 GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, ">")),
             1),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 Pageable.unpaged(),
                 GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "<")),
             1),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 Pageable.unpaged(),
                 GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "==")),
             1),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
             PERSONS.size() / FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
             MULTIPLIER),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
             1),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
-                Pageable.unpaged(),
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, ">")),
+            new TarantoolPageImpl<>(
+                PERSONS, Pageable.unpaged(), GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, ">")),
             0),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
-                Pageable.unpaged(),
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "<")),
+            new TarantoolPageImpl<>(
+                PERSONS, Pageable.unpaged(), GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "<")),
             0),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
-                Pageable.unpaged(),
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "==")),
+            new TarantoolPageImpl<>(
+                PERSONS, Pageable.unpaged(), GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(0, "==")),
             0));
   }
 
@@ -223,59 +223,67 @@ class TarantoolPageImplTest {
     Pageable dummyPageable = new DummyTarantoolPageRequest();
 
     return Stream.of(
+        Arguments.of(null, null, "Content must not be null"),
+        Arguments.of(Collections.emptyList(), null, "Pageable must not be null"),
         Arguments.of(
-            null, null,
-            "Content must not be null"),
-        Arguments.of(
-            Collections.emptyList(), null,
-            "Pageable must not be null"),
-        Arguments.of(
-            Collections.emptyList(), dummyPageable,
+            Collections.emptyList(),
+            dummyPageable,
             "Pageable must be TarantoolPageable<T> or Unpaged type"));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestConstructorsThrowsIllegalArgumentException")
-  void testConstructors_throws_IllegalArgumentException(List content, Pageable pageable, String errorMsg) {
-    assertThrows(IllegalArgumentException.class, () -> new TarantoolPageImpl<>(content, pageable, 0L), errorMsg);
+  void testConstructors_throws_IllegalArgumentException(
+      List content, Pageable pageable, String errorMsg) {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new TarantoolPageImpl<>(content, pageable, 0L),
+        errorMsg);
   }
 
   static Stream<Arguments> dataForTestGetTotalElements() {
     return Stream.of(
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
             FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize() / MULTIPLIER),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
             FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize() * MULTIPLIER),
-
         Arguments.of(
-            new TarantoolPageImpl<>(EMPTY_CONTENT,
+            new TarantoolPageImpl<>(
+                EMPTY_CONTENT,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
             FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), ">")),
             PERSONS.size()),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "<")),
             FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize() * MULTIPLIER),
-
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS,
+            new TarantoolPageImpl<>(
+                PERSONS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
+                GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE.apply(
+                    FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize(), "==")),
             FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()));
   }
 
@@ -289,15 +297,21 @@ class TarantoolPageImplTest {
     return Stream.of(
         Arguments.of(
             false,
-            new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize())),
         Arguments.of(
             true,
-            new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
                 MULTIPLIER * FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize())),
         Arguments.of(
             false,
-            new TarantoolPageImpl<>(PERSONS, Pageable.unpaged(),
+            new TarantoolPageImpl<>(
+                PERSONS,
+                Pageable.unpaged(),
                 MULTIPLIER * FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize())));
   }
 
@@ -317,7 +331,9 @@ class TarantoolPageImplTest {
     List<String> exceptedNames = PERSONS.stream().map(Person::getName).collect(Collectors.toList());
     return Stream.of(
         Arguments.of(
-            new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
                 FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
             exceptedNames,
             (Function<Person, String>) Person::getName));
@@ -331,18 +347,28 @@ class TarantoolPageImplTest {
   }
 
   static Stream<Arguments> dataForTestEqualsAndHashCode() {
-    List<Page<Person>> equalPages = Arrays.asList(
-        new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-            FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
-        new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-            FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
-        new TarantoolPageImpl<>(PERSONS, FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
-            FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()));
+    List<Page<Person>> equalPages =
+        Arrays.asList(
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()),
+            new TarantoolPageImpl<>(
+                PERSONS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS,
+                FIRST_PAGE_PAGEABLE_PER_TEST_CLASS.getPageSize()));
 
     final int ITERATION_COUNT = 100;
 
     return Stream.of(
-        Arguments.of(equalPages, new TarantoolPageImpl<>(EMPTY_CONTENT, Pageable.unpaged(), 150), ITERATION_COUNT),
+        Arguments.of(
+            equalPages,
+            new TarantoolPageImpl<>(EMPTY_CONTENT, Pageable.unpaged(), 150),
+            ITERATION_COUNT),
         Arguments.of(equalPages, null, ITERATION_COUNT));
   }
 

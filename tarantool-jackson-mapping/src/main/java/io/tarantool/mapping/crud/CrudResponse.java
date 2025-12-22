@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -14,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.tarantool.mapping.Field;
 
 /**
- * <p> The class is designed to deserialize and present the response as Java objects for CRUD operations.</p>
+ * The class is designed to deserialize and present the response as Java objects for CRUD
+ * operations.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -23,32 +24,27 @@ import io.tarantool.mapping.Field;
 @JsonFormat(shape = JsonFormat.Shape.ARRAY)
 public class CrudResponse<T> {
 
-  /**
-   * <p>{@link CrudData} object returned from Tarantool.</p>
-   */
+  /** {@link CrudData} object returned from Tarantool. */
   private final CrudData<T> response;
 
-  /**
-   * <p>{@link CrudError} object returned from Tarantool.</p>
-   */
+  /** {@link CrudError} object returned from Tarantool. */
   private final CrudError error;
 
   /**
-   * <p>Creates a {@link CrudResponse} object with the given parameters.</p>
+   * Creates a {@link CrudResponse} object with the given parameters.
    *
    * @param response {@link CrudData} object
-   * @param error    {@link CrudError} object
+   * @param error {@link CrudError} object
    */
   @JsonCreator
   public CrudResponse(
-      @JsonProperty("response") CrudData<T> response,
-      @JsonProperty("error") CrudError error) {
+      @JsonProperty("response") CrudData<T> response, @JsonProperty("error") CrudError error) {
     this.response = response;
     this.error = error;
   }
 
   /**
-   * <p>Returns data rows.</p>
+   * Returns data rows.
    *
    * @return {@link CrudData#rows} value.
    * @throws CrudException when {@code error != null}
@@ -63,9 +59,8 @@ public class CrudResponse<T> {
     return response.getRows();
   }
 
-
   /**
-   * <p>Returns metadata fields.</p>
+   * Returns metadata fields.
    *
    * @return a list of {@link Field} objects representing the metadata.
    * @throws CrudException when {@code error != null}
@@ -79,9 +74,6 @@ public class CrudResponse<T> {
 
   @Override
   public String toString() {
-    return "CrudResponse{" +
-        "response=" + response +
-        ", error=" + error +
-        '}';
+    return "CrudResponse{" + "response=" + response + ", error=" + error + '}';
   }
 }

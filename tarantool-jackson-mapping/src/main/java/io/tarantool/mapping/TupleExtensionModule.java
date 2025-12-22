@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.mapping;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,9 +25,7 @@ import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.jackson.dataformat.MessagePackExtensionType;
-import org.msgpack.value.ValueFactory;
 
-import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_INTERVAL;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_TUPLE;
 import io.tarantool.core.protocol.ByteBodyValueWrapper;
 
@@ -45,8 +42,7 @@ public class TupleExtensionModule {
     INSTANCE.addDeserializer(Tuple.class, new TupleDeserializer());
   }
 
-  public TupleExtensionModule() {
-  }
+  public TupleExtensionModule() {}
 
   public static class TupleSerializer extends StdSerializer<Tuple> {
 
@@ -55,23 +51,20 @@ public class TupleExtensionModule {
     }
 
     @Override
-    public void serialize(Tuple tuple, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Tuple tuple, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
       try (MessageBufferPacker packer = MessagePack.newDefaultBufferPacker()) {
         packer.packLong(tuple.getFormatId());
 
-        packer.addPayload(
-            TarantoolJacksonMapping.toValueAux(
-                tuple.get()
-            )
-        );
+        packer.addPayload(TarantoolJacksonMapping.toValueAux(tuple.get()));
 
         gen.writeObject(new MessagePackExtensionType(IPROTO_EXT_TUPLE, packer.toByteArray()));
       }
     }
   }
 
-  public static class TupleDeserializer extends JsonDeserializer<Tuple<?>> implements TarantoolDeserializer<Tuple<?>>,
-      ContextualDeserializer {
+  public static class TupleDeserializer extends JsonDeserializer<Tuple<?>>
+      implements TarantoolDeserializer<Tuple<?>>, ContextualDeserializer {
 
     private JavaType valueType;
 
@@ -84,7 +77,8 @@ public class TupleExtensionModule {
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+    public JsonDeserializer<?> createContextual(
+        DeserializationContext ctxt, BeanProperty property) {
       List<JavaType> parameters = ctxt.getContextualType().getBindings().getTypeParameters();
       JavaType type = JAVA_TYPE_OBJECT;
       if (!parameters.isEmpty()) {
@@ -101,11 +95,12 @@ public class TupleExtensionModule {
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       if (ext.getType() != IPROTO_EXT_TUPLE) {
         StringBuilder sb = threadLocalStringBuilder.get();
-        throw new JacksonMappingException(sb.delete(0, sb.length())
-            .append("Unexpected extension type (0x")
-            .append(Utils.byteToHex(ext.getType()))
-            .append(") for TUPLE object")
-            .toString());
+        throw new JacksonMappingException(
+            sb.delete(0, sb.length())
+                .append("Unexpected extension type (0x")
+                .append(Utils.byteToHex(ext.getType()))
+                .append(") for TUPLE object")
+                .toString());
       }
 
       return deserialize(ext);
@@ -120,12 +115,9 @@ public class TupleExtensionModule {
         int read = (int) unpacker.getTotalReadBytes();
         return new Tuple(
             TarantoolJacksonMapping.readValueAux(
-                new ByteBodyValueWrapper(data, read, data.length - read),
-                valueType
-            ),
+                new ByteBodyValueWrapper(data, read, data.length - read), valueType),
             formatId,
-            Collections.emptyList()
-        );
+            Collections.emptyList());
       }
     }
   }

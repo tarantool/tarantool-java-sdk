@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -14,21 +14,23 @@ import static io.tarantool.spring.data.TarantoolBeanNames.DEFAULT_TARANTOOL_CRUD
 import static io.tarantool.spring.data.TarantoolBeanNames.DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF;
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.factory.TarantoolCrudClientBuilder;
-import io.tarantool.spring.data31.TarantoolCrudKeyValueAdapter;
 import io.tarantool.spring.data.config.BaseTarantoolCrudConfiguration;
+import io.tarantool.spring.data31.TarantoolCrudKeyValueAdapter;
 import io.tarantool.spring.data31.config.properties.TarantoolProperties;
 
 @Configuration(proxyBeanMethods = false)
 public class TarantoolCrudConfiguration extends BaseTarantoolCrudConfiguration {
 
-  public TarantoolCrudConfiguration(ObjectProvider<TarantoolProperties> properties,
+  public TarantoolCrudConfiguration(
+      ObjectProvider<TarantoolProperties> properties,
       ObjectProvider<TarantoolCrudClientBuilder> tarantoolClientConfiguration) {
     super(properties.getIfAvailable(), tarantoolClientConfiguration.getIfAvailable());
   }
 
   @Bean(name = DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF)
   @ConditionalOnMissingBean(TarantoolCrudKeyValueAdapter.class)
-  public TarantoolCrudKeyValueAdapter tarantoolCrudKeyValueAdapter(TarantoolCrudClient tarantoolCrudClient) {
+  public TarantoolCrudKeyValueAdapter tarantoolCrudKeyValueAdapter(
+      TarantoolCrudClient tarantoolCrudClient) {
     return new TarantoolCrudKeyValueAdapter(tarantoolCrudClient);
   }
 

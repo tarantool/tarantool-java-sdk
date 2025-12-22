@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,20 +12,15 @@ package io.tarantool.spring.data.query;
  */
 public enum PaginationDirection {
 
-  /**
-   * Move forward through pages (from first to last).
-   */
+  /** Move forward through pages (from first to last). */
   FORWARD(1),
 
-  /**
-   * Move backward through pages (from last to first).
-   */
+  /** Move backward through pages (from last to first). */
   BACKWARD(-1);
 
-
   /**
-   * Multiplier that is used to indicate the direction of pagination in
-   * {@link io.tarantool.client.crud.options.SelectOptions.Builder#withFirst(int)}.
+   * Multiplier that is used to indicate the direction of pagination in {@link
+   * io.tarantool.client.crud.options.SelectOptions.Builder#withFirst(int)}.
    */
   private final int multiplier;
 

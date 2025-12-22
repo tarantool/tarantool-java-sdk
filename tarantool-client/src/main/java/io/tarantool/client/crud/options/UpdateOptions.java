@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,25 +18,34 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 
 /**
- * <p> The class implements options for the CRUD operation
- * <a href="https://github.com/tarantool/crud#update"> update()</a>.</p>
- * <p>The following options are available:</p>
- * <p>Common options:</p>
+ * The class implements options for the CRUD operation <a
+ * href="https://github.com/tarantool/crud#update">update()</a>.
+ *
+ * <p>The following options are available:
+ *
+ * <p>Common options:
+ *
  * <ul>
- *     <li>{@link #timeout}.</li>
- *     <li>{@link #streamId}.</li>
+ *   <li>{@link #timeout}.
+ *   <li>{@link #streamId}.
  * </ul>
- * <p>Crud options:</p>
+ *
+ * <p>Crud options:
+ *
  * <ul>
- *     <li>{@value NO_RETURN}.</li>
- *     <li>{@value BUCKET_ID}.</li>
- *     <li>{@value TIMEOUT}.</li>
- *     <li>{@value FIELDS}.</li>
- *     <li>{@value VSHARD_ROUTER}.</li>
- *     <li>{@value FETCH_LATEST_METADATA}.</li>
+ *   <li>{@value NO_RETURN}.
+ *   <li>{@value BUCKET_ID}.
+ *   <li>{@value TIMEOUT}.
+ *   <li>{@value FIELDS}.
+ *   <li>{@value VSHARD_ROUTER}.
+ *   <li>{@value FETCH_LATEST_METADATA}.
  * </ul>
- * <p>Examples:</p>
- * <blockquote><pre>{@code
+ *
+ * <p>Examples:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -55,8 +64,13 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *  // Updates tuple (id = 1, isMarried = true, name = "Vanya") to (id = 1, isMarried = true, name = "Petya")
  *  // Returns a tuple with the fields defined in update option
  *  List<?> res = space.update(Collections.singletonList(1), Arrays.asList("=", "name", "Petya"), option);
- * }</pre></blockquote>
- * <blockquote><pre>{@code
+ * }</pre>
+ *
+ * </blockquote>
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 2>>
  *
  * TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -73,7 +87,9 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *  // Updates tuple (id = 1, isMarried = true, name = "Vanya") to (id = 1, isMarried = true, name = "Petya")
  *  // Returns a tuple with the fields defined in update option (1, "Petya")
  *  List<?> res = space.update(Collections.singletonList(1), Arrays.asList("=", "name", "Petya"), option);
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -85,74 +101,74 @@ public class UpdateOptions implements CrudOptions {
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOptions.class);
 
   /**
-   * <p>{@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master
-   * discovery timeout (in milliseconds).</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * router to Tarantool instance and the time when the answer will come from Tarantool instance to router.</p>
+   * {@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master discovery
+   * timeout (in milliseconds).
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the router to Tarantool instance and the time when the answer will come from
+   * Tarantool instance to router.
    */
   private static final String TIMEOUT = "timeout";
 
-  /**
-   * <p>Bucket ID.</p>
-   */
+  /** Bucket ID. */
   private static final String BUCKET_ID = "bucket_id";
 
-  /**
-   * <p>Field names for getting only a subset of fields.</p>
-   */
+  /** Field names for getting only a subset of fields. */
   private static final String FIELDS = "fields";
 
   /**
-   * <p>Cartridge vshard group name. Set this parameter if your space is not a part of
-   * the default vshard cluster.</p>
+   * Cartridge vshard group name. Set this parameter if your space is not a part of the default
+   * vshard cluster.
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
   /**
-   * <p>Suppress successfully processed tuple (first return value is nil (null)). <tt>False</tt> by default.</p>
+   * Suppress successfully processed tuple (first return value is nil (null)). <tt>False</tt> by
+   * default.
    */
   private static final String NO_RETURN = "noreturn";
 
   /**
-   * <p>Guarantees the up-to-date metadata (space format) in first return value, otherwise it may not take into
-   * account the latest migration of the data format. Performance overhead is up to 15%. <tt>False</tt> by default
-   * .</p>
+   * Guarantees the up-to-date metadata (space format) in first return value, otherwise it may not
+   * take into account the latest migration of the data format. Performance overhead is up to 15%.
+   * <tt>False</tt> by default .
    */
   private static final String FETCH_LATEST_METADATA = "fetch_latest_metadata";
 
-  /**
-   * <p>Default value for {@link #timeout}.</p>
-   */
+  /** Default value for {@link #timeout}. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * connector to Tarantool and the time when the answer will come from Tarantool to connector.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the connector to Tarantool and the time when the answer will come from Tarantool
+   * to connector.
    */
   private final Long timeout;
 
   /**
-   * <p> Stream id for count operation.</p>
-   * <p> Default value: {@code null}.</p>
+   * Stream id for count operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: {@code null}.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
-  /**
-   * <p>A map containing the correspondence between option names and their meanings.</p>
-   */
+  /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> crudOptions;
 
   /**
-   * <p>Creates a {@link UpdateOptions} object with the given parameters.</p>
+   * Creates a {@link UpdateOptions} object with the given parameters.
    *
-   * @param timeout  {@link #timeout}
+   * @param timeout {@link #timeout}
    * @param streamId {@link #streamId}
-   * @param options  {@link #crudOptions}
+   * @param options {@link #crudOptions}
    * @see UpdateOptions
    */
   public UpdateOptions(Long timeout, Long streamId, Map<String, Object> options) {
@@ -163,7 +179,7 @@ public class UpdateOptions implements CrudOptions {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link UpdateOptions.Builder} object
    */
@@ -172,7 +188,7 @@ public class UpdateOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of timeout option.</p>
+   * Returns value of timeout option.
    *
    * @return {@link #timeout} value.
    */
@@ -182,7 +198,7 @@ public class UpdateOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of stream id option.</p>
+   * Returns value of stream id option.
    *
    * @return {@link #streamId} value.
    */
@@ -192,7 +208,7 @@ public class UpdateOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns an immutable option map for the count operation.</p>
+   * Returns an immutable option map for the count operation.
    *
    * @return {@link Map} object.
    */
@@ -202,29 +218,23 @@ public class UpdateOptions implements CrudOptions {
   }
 
   /**
-   * <p>Builder class for {@link UpdateOptions}.</p>
+   * Builder class for {@link UpdateOptions}.
    *
    * @see UpdateOptions
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link UpdateOptions#crudOptions}.</p>
-     */
+    /** See also: {@link UpdateOptions#crudOptions}. */
     private final Map<String, Object> options = new HashMap<>();
 
-    /**
-     * <p>See also: {@link UpdateOptions#timeout}.</p>
-     */
+    /** See also: {@link UpdateOptions#timeout}. */
     private long timeout = DEFAULT_TIMEOUT;
 
-    /**
-     * <p>See also: {@link UpdateOptions#streamId}.</p>
-     */
+    /** See also: {@link UpdateOptions#streamId}. */
     private Long streamId;
 
     /**
-     * <p>Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.</p>
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
      *
      * @param timeout value of timeout option.
      * @return {@link UpdateOptions.Builder} object.
@@ -241,7 +251,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.
      *
      * @param streamId value of stream id option
      * @return {@link UpdateOptions.Builder} object
@@ -258,7 +268,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.</p>
+     * Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.
      *
      * @param timeout value of {@link #TIMEOUT} option
      * @return {@link UpdateOptions.Builder} object
@@ -271,9 +281,10 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Adds options by name into {@link #options} map. Name parameter should not be equal {@code null}.</p>
+     * Adds options by name into {@link #options} map. Name parameter should not be equal {@code
+     * null}.
      *
-     * @param name  name of option
+     * @param name name of option
      * @param value value of option
      * @see UpdateOptions
      * @see UpdateOptions.Builder
@@ -287,7 +298,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.
      *
      * @param bucketId value of {@link #BUCKET_ID} option
      * @return {@link UpdateOptions.Builder} object
@@ -303,7 +314,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.</p>
+     * Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.
      *
      * @param fields value of {@link #FIELDS} option
      * @return {@link UpdateOptions.Builder} object
@@ -316,7 +327,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.</p>
+     * Sets value of {@link #FIELDS} option. Fields parameter should not be equal null.
      *
      * @param fields value of {@link #FIELDS} option
      * @return {@link UpdateOptions.Builder} object
@@ -329,7 +340,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #NO_RETURN} to <tt>true</tt>.</p>
+     * Sets value of {@link #NO_RETURN} to <tt>true</tt>.
      *
      * @return {@link UpdateOptions.Builder} object
      * @see #NO_RETURN
@@ -341,9 +352,9 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #VSHARD_ROUTER} option.</p>
+     * Sets value of {@link #VSHARD_ROUTER} option.
      *
-     * @param vshardRouter value of {@link  #VSHARD_ROUTER} option
+     * @param vshardRouter value of {@link #VSHARD_ROUTER} option
      * @return {@link UpdateOptions.Builder}
      * @see #VSHARD_ROUTER
      * @see UpdateOptions
@@ -354,7 +365,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FETCH_LATEST_METADATA} to <tt>true</tt>.</p>
+     * Sets value of {@link #FETCH_LATEST_METADATA} to <tt>true</tt>.
      *
      * @return {@link UpdateOptions.Builder} object
      * @see #FETCH_LATEST_METADATA
@@ -366,9 +377,9 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets options by name and value. OptionName parameter should not be equal {@code null}.</p>
+     * Sets options by name and value. OptionName parameter should not be equal {@code null}.
      *
-     * @param optionName  name of option
+     * @param optionName name of option
      * @param optionValue value of option
      * @return {@link UpdateOptions.Builder}
      * @see UpdateOptions
@@ -379,7 +390,7 @@ public class UpdateOptions implements CrudOptions {
     }
 
     /**
-     * <p>Builds object of {@link UpdateOptions} class.</p>
+     * Builds object of {@link UpdateOptions} class.
      *
      * @return {@link UpdateOptions} object
      * @see UpdateOptions

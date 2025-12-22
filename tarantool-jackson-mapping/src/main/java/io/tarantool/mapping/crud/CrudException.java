@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -8,7 +8,7 @@ package io.tarantool.mapping.crud;
 import io.tarantool.mapping.slash.errors.TarantoolSlashErrorsException;
 
 /**
- * <p>The base class of exceptions when working with the crud.</p>
+ * The base class of exceptions when working with the crud.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -16,7 +16,7 @@ import io.tarantool.mapping.slash.errors.TarantoolSlashErrorsException;
 public class CrudException extends TarantoolSlashErrorsException {
 
   /**
-   * <p>Creates a {@link CrudException} object with the given parameters.</p>
+   * Creates a {@link CrudException} object with the given parameters.
    *
    * @param reason {@link CrudError} object
    */

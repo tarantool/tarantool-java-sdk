@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -42,10 +42,7 @@ public class IProtoPing extends IProtoBaseRequest {
   public String toString() {
     if (this.stringBuilder == null) {
       this.stringBuilder = new StringBuilder();
-      this.stringBuilder
-          .append("IProtoPing(syncId = ")
-          .append(getSyncId())
-          .append(")");
+      this.stringBuilder.append("IProtoPing(syncId = ").append(getSyncId()).append(")");
     }
     return this.stringBuilder.toString();
   }

@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.spring.data.utils;
-
 
 import java.util.Map;
 import java.util.Objects;
@@ -13,7 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Analogue of the {@code Pair} class in Spring Data, but allowing {@code null} values for the second element.
+ * Analogue of the {@code Pair} class in Spring Data, but allowing {@code null} values for the
+ * second element.
  *
  * @param <S>
  * @param <T>
@@ -35,7 +35,7 @@ public final class Pair<S, T> {
   /**
    * Creates a new {@link Pair} for the given elements.
    *
-   * @param first  must not be {@literal null}.
+   * @param first must not be {@literal null}.
    * @param second can be {@literal null}.
    * @return {@link Pair} instance.
    */
@@ -64,7 +64,7 @@ public final class Pair<S, T> {
   /**
    * A collector to create a {@link Map} from a {@link Stream} of {@link Pair}s.
    *
-   * @return {@link  Collector} instance.
+   * @return {@link Collector} instance.
    */
   public static <S, T> Collector<Pair<S, T>, ?, Map<S, T>> toMap() {
     return Collectors.toMap(Pair::getFirst, Pair::getSecond);

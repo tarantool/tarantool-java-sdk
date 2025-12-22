@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -30,16 +30,15 @@ public class TarantoolCriteria {
     this.conditions.add(index, condition);
   }
 
-  /**
-   * Quickly resets all {@link TarantoolCriteria} settings.
-   */
+  /** Quickly resets all {@link TarantoolCriteria} settings. */
   public void clear() {
     this.conditions.clear();
     this.selectOptionsBuilder.withFirst(SelectOptions.DEFAULT_LIMIT);
   }
 
   /**
-   * Sets the FIRST parameter if the {@code find<First/Top>By<EntityField>(...)} method is specified.
+   * Sets the FIRST parameter if the {@code find<First/Top>By<EntityField>(...)} method is
+   * specified.
    *
    * @param rows linit from method declaration
    */

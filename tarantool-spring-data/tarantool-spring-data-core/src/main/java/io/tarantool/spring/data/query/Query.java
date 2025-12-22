@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,17 +10,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Query Annotation do define Tarantool call or eval method
- */
+/** Query Annotation do define Tarantool call or eval method */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Query {
 
   /**
-   * Specify the function name or eval string to invoke on the Tarantool instance, for example `my_query_function` or
-   * `box.space.test:select` or `return my_query_function(1)`(if {@link Query#mode()} specified as EVAL). If this
-   * annotation is specified, the method name will not be parsed into a query.
+   * Specify the function name or eval string to invoke on the Tarantool instance, for example
+   * `my_query_function` or `box.space.test:select` or `return my_query_function(1)`(if {@link
+   * Query#mode()} specified as EVAL). If this annotation is specified, the method name will not be
+   * parsed into a query.
    *
    * @return the callable function name or eval string
    */

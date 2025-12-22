@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -51,9 +51,7 @@ import io.tarantool.pool.exceptions.PoolClosedException;
 @Testcontainers
 public class TarantoolClientTest extends BaseTest {
 
-  @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
   private static TarantoolClient client;
   private static char tarantoolVersion;
   private static Integer serverVersion;
@@ -98,12 +96,10 @@ public class TarantoolClientTest extends BaseTest {
     assertEquals(Collections.singletonList(2008L), output);
 
     // with expected TypeReference
-    output = client.call("return_number", new TypeReference<List<Integer>>() {
-    }).join().get();
+    output = client.call("return_number", new TypeReference<List<Integer>>() {}).join().get();
     assertEquals(Collections.singletonList(2008), output);
 
-    output = client.call("return_number", new TypeReference<List<Long>>() {
-    }).join().get();
+    output = client.call("return_number", new TypeReference<List<Long>>() {}).join().get();
     assertEquals(Collections.singletonList(2008L), output);
   }
 
@@ -122,49 +118,59 @@ public class TarantoolClientTest extends BaseTest {
     assertEquals(Collections.singletonList(new Person(1, true, "IvanB")), output);
 
     // with expected TypeReference
-    output = client.call("echo_with_wrapping", input, new TypeReference<List<Person>>() {
-    }).join().get();
+    output =
+        client.call("echo_with_wrapping", input, new TypeReference<List<Person>>() {}).join().get();
     assertEquals(Collections.singletonList(new Person(1, true, "IvanB")), output);
 
-    output = client.call("echo", input, new TypeReference<Person>() {
-    }).join().get();
+    output = client.call("echo", input, new TypeReference<Person>() {}).join().get();
     assertEquals(new Person(1, true, "IvanB"), output);
   }
 
   @Test
   public void testCallWithArgsAndOpts() {
     List<?> input = Arrays.asList(2, null, "IvanD");
-    Object output = client.call(
-        "echo_with_wrapping",
-        input,
-        BaseOptions.builder().withTimeout(100).build()
-    ).join().get();
+    Object output =
+        client
+            .call("echo_with_wrapping", input, BaseOptions.builder().withTimeout(100).build())
+            .join()
+            .get();
     assertEquals(Collections.singletonList(input), output);
 
     // with expectedClass
-    output = client.call(
-        "echo_with_wrapping",
-        input,
-        BaseOptions.builder().withTimeout(100).build(),
-        Person.class
-    ).join().get();
+    output =
+        client
+            .call(
+                "echo_with_wrapping",
+                input,
+                BaseOptions.builder().withTimeout(100).build(),
+                Person.class)
+            .join()
+            .get();
     assertEquals(Collections.singletonList(new Person(2, null, "IvanD")), output);
 
     // with expected TypeReference
-    output = client.call(
-        "echo_with_wrapping",
-        input,
-        null, BaseOptions.builder().withTimeout(100).build(),
-        new TypeReference<List<Person>>() {}
-    ).join().get();
+    output =
+        client
+            .call(
+                "echo_with_wrapping",
+                input,
+                null,
+                BaseOptions.builder().withTimeout(100).build(),
+                new TypeReference<List<Person>>() {})
+            .join()
+            .get();
     assertEquals(Collections.singletonList(new Person(2, null, "IvanD")), output);
 
-    output = client.call(
-        "echo",
-        input,
-        null, BaseOptions.builder().withTimeout(100).build(),
-        new TypeReference<Person>() {}
-    ).join().get();
+    output =
+        client
+            .call(
+                "echo",
+                input,
+                null,
+                BaseOptions.builder().withTimeout(100).build(),
+                new TypeReference<Person>() {})
+            .join()
+            .get();
     assertEquals(new Person(2, null, "IvanD"), output);
   }
 
@@ -181,12 +187,10 @@ public class TarantoolClientTest extends BaseTest {
     assertEquals(Collections.singletonList(2008L), output);
 
     // with expected TypeReference
-    output = client.eval("return 2008", new TypeReference<List<Integer>>() {
-    }).join().get();
+    output = client.eval("return 2008", new TypeReference<List<Integer>>() {}).join().get();
     assertEquals(Collections.singletonList(2008), output);
 
-    output = client.eval("return 2008", new TypeReference<List<Long>>() {
-    }).join().get();
+    output = client.eval("return 2008", new TypeReference<List<Long>>() {}).join().get();
     assertEquals(Collections.singletonList(2008L), output);
   }
 
@@ -202,45 +206,58 @@ public class TarantoolClientTest extends BaseTest {
     assertEquals(Collections.singletonList(new Person(1, true, "IvanB")), output);
 
     // with expected TypeReference
-    output = client.eval("return {...}", input, new TypeReference<List<Person>>() {
-    }).join().get();
+    output = client.eval("return {...}", input, new TypeReference<List<Person>>() {}).join().get();
     assertEquals(Collections.singletonList(new Person(1, true, "IvanB")), output);
 
-    output = client.eval("return ...", input, new TypeReference<Person>() {
-    }).join().get();
+    output = client.eval("return ...", input, new TypeReference<Person>() {}).join().get();
     assertEquals(new Person(1, true, "IvanB"), output);
 
-    output = client.eval("return ...", input, new TypeReference<List<?>>() {
-    }).join().get();
+    output = client.eval("return ...", input, new TypeReference<List<?>>() {}).join().get();
     assertEquals(input, output);
   }
 
   @Test
   public void testEvalWithArgsAndOpts() {
     List<?> input = Arrays.asList(2, null, "IvanD");
-    Object output = client.eval("return {...}", input, BaseOptions.builder().withTimeout(100).build()).join().get();
+    Object output =
+        client
+            .eval("return {...}", input, BaseOptions.builder().withTimeout(100).build())
+            .join()
+            .get();
     assertEquals(Collections.singletonList(input), output);
 
     // with expectedClass
-    output = client.eval("return {...}", input, BaseOptions.builder().withTimeout(100).build(), Person.class)
-        .join().get();
+    output =
+        client
+            .eval(
+                "return {...}", input, BaseOptions.builder().withTimeout(100).build(), Person.class)
+            .join()
+            .get();
     assertEquals(Collections.singletonList(new Person(2, null, "IvanD")), output);
 
     // with expected TypeReference
-    output = client.eval(
-        "return {...}",
-        input,
-        null, BaseOptions.builder().withTimeout(100).build(),
-        new TypeReference<List<Person>>() {}
-    ).join().get();
+    output =
+        client
+            .eval(
+                "return {...}",
+                input,
+                null,
+                BaseOptions.builder().withTimeout(100).build(),
+                new TypeReference<List<Person>>() {})
+            .join()
+            .get();
     assertEquals(Collections.singletonList(new Person(2, null, "IvanD")), output);
 
-    output = client.eval(
-        "return ...",
-        input,
-        null, BaseOptions.builder().withTimeout(100).build(),
-        new TypeReference<Person>() {}
-    ).join().get();
+    output =
+        client
+            .eval(
+                "return ...",
+                input,
+                null,
+                BaseOptions.builder().withTimeout(100).build(),
+                new TypeReference<Person>() {})
+            .join()
+            .get();
     assertEquals(new Person(2, null, "IvanD"), output);
   }
 
@@ -248,28 +265,38 @@ public class TarantoolClientTest extends BaseTest {
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
   public void testEvalArgsTupleExt() {
     Person person = new Person(3, false, "Kolya");
-    HashMap<Integer, List<io.tarantool.mapping.Field>> formats = new HashMap<Integer, List<io.tarantool.mapping.Field>>() {{
-      put(1, Arrays.asList(
-          new io.tarantool.mapping.Field().setName("id").setType("integer"),
-          new io.tarantool.mapping.Field().setName("is_married").setType("boolean"),
-          new io.tarantool.mapping.Field().setName("name").setType("string")
-      ));
-    }};
+    HashMap<Integer, List<io.tarantool.mapping.Field>> formats =
+        new HashMap<Integer, List<io.tarantool.mapping.Field>>() {
+          {
+            put(
+                1,
+                Arrays.asList(
+                    new io.tarantool.mapping.Field().setName("id").setType("integer"),
+                    new io.tarantool.mapping.Field().setName("is_married").setType("boolean"),
+                    new io.tarantool.mapping.Field().setName("name").setType("string")));
+          }
+        };
     List<Tuple<Person>> input = Collections.singletonList(new Tuple<>(person, 1));
-    TarantoolResponse<List<Object>> result = client.eval(
-        "return (...):tomap()",
-        input,
-        formats, BaseOptions.builder().build(),
-        new TypeReference<List<Object>>() {}
-    ).join();
-    HashMap<String, Object> expected = new HashMap<String, Object>() {{
-      put("1", 3);
-      put("2", false);
-      put("3", "Kolya");
-      put("is_married", false);
-      put("name", "Kolya");
-      put("id", 3);
-    }};
+    TarantoolResponse<List<Object>> result =
+        client
+            .eval(
+                "return (...):tomap()",
+                input,
+                formats,
+                BaseOptions.builder().build(),
+                new TypeReference<List<Object>>() {})
+            .join();
+    HashMap<String, Object> expected =
+        new HashMap<String, Object>() {
+          {
+            put("1", 3);
+            put("2", false);
+            put("3", "Kolya");
+            put("is_married", false);
+            put("name", "Kolya");
+            put("id", 3);
+          }
+        };
     assertEquals(Collections.singletonList(expected), result.get());
   }
 
@@ -277,28 +304,38 @@ public class TarantoolClientTest extends BaseTest {
   @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
   public void testCallArgsTupleExt() {
     Person person = new Person(3, false, "Kolya");
-    HashMap<Integer, List<io.tarantool.mapping.Field>> formats = new HashMap<Integer, List<io.tarantool.mapping.Field>>() {{
-      put(1, Arrays.asList(
-          new io.tarantool.mapping.Field().setName("id").setType("integer"),
-          new io.tarantool.mapping.Field().setName("is_married").setType("boolean"),
-          new io.tarantool.mapping.Field().setName("name").setType("string")
-      ));
-    }};
+    HashMap<Integer, List<io.tarantool.mapping.Field>> formats =
+        new HashMap<Integer, List<io.tarantool.mapping.Field>>() {
+          {
+            put(
+                1,
+                Arrays.asList(
+                    new io.tarantool.mapping.Field().setName("id").setType("integer"),
+                    new io.tarantool.mapping.Field().setName("is_married").setType("boolean"),
+                    new io.tarantool.mapping.Field().setName("name").setType("string")));
+          }
+        };
     List<Tuple<Person>> input = Collections.singletonList(new Tuple<>(person, 1));
-    TarantoolResponse<List<Object>> result = client.call(
-        "echo_to_map",
-        input,
-        formats, BaseOptions.builder().build(),
-        new TypeReference<List<Object>>() {}
-    ).join();
-    HashMap<String, Object> expected = new HashMap<String, Object>() {{
-      put("1", 3);
-      put("2", false);
-      put("3", "Kolya");
-      put("is_married", false);
-      put("name", "Kolya");
-      put("id", 3);
-    }};
+    TarantoolResponse<List<Object>> result =
+        client
+            .call(
+                "echo_to_map",
+                input,
+                formats,
+                BaseOptions.builder().build(),
+                new TypeReference<List<Object>>() {})
+            .join();
+    HashMap<String, Object> expected =
+        new HashMap<String, Object>() {
+          {
+            put("1", 3);
+            put("2", false);
+            put("3", "Kolya");
+            put("is_married", false);
+            put("name", "Kolya");
+            put("id", 3);
+          }
+        };
     assertEquals(Collections.singletonList(expected), result.get());
   }
 
@@ -346,8 +383,9 @@ public class TarantoolClientTest extends BaseTest {
     client.watch("string_event", value -> eventsKey1.add(value.get()), String.class);
     client.watch("secret_person", value -> eventsKey2.add(value.get()), Person.class);
 
-    client.eval("box.broadcast('string_event', 'myEvent'); " +
-        "box.broadcast('secret_person', {1, true, 'JohnWick'})");
+    client.eval(
+        "box.broadcast('string_event', 'myEvent'); "
+            + "box.broadcast('secret_person', {1, true, 'JohnWick'})");
     Thread.sleep(100);
 
     assertEquals(Collections.singletonList("myEvent"), eventsKey1);
@@ -358,16 +396,17 @@ public class TarantoolClientTest extends BaseTest {
   public void testWatchAndUnwatchWithTypeRefAsTargetType() throws InterruptedException {
     List<Map<String, List<Person>>> eventsKey = new ArrayList<>();
 
-    client.watch("mega_event", value -> eventsKey.add(value.get()), new TypeReference<Map<String, List<Person>>>() {});
+    client.watch(
+        "mega_event",
+        value -> eventsKey.add(value.get()),
+        new TypeReference<Map<String, List<Person>>>() {});
 
-    client.eval("box.broadcast('mega_event', { agents = {{1, true, 'Wick'}, {007, false, 'Bond'}} })");
+    client.eval(
+        "box.broadcast('mega_event', { agents = {{1, true, 'Wick'}, {007, false, 'Bond'}} })");
     Thread.sleep(100);
 
     HashMap<String, List<Person>> map = new HashMap<>();
-    map.put("agents", Arrays.asList(
-        new Person(1, true, "Wick"),
-        new Person(007, false, "Bond")
-    ));
+    map.put("agents", Arrays.asList(new Person(1, true, "Wick"), new Person(007, false, "Bond")));
     List<Map<String, List<Person>>> expected = Collections.singletonList(map);
     assertEquals(expected, eventsKey);
   }
@@ -375,10 +414,14 @@ public class TarantoolClientTest extends BaseTest {
   @Test
   public void testWatchOnce() throws InterruptedException {
     if (serverVersion < 6) {
-      CompletionException ex = assertThrows(CompletionException.class, () -> client.watchOnce("key1").join());
-      assertTrue(ex.getCause().getMessage().matches(
-          "Tarantool doesn't support watch once feature. Need iproto version >= 6, got [1-5]"
-      ));
+      CompletionException ex =
+          assertThrows(CompletionException.class, () -> client.watchOnce("key1").join());
+      assertTrue(
+          ex.getCause()
+              .getMessage()
+              .matches(
+                  "Tarantool doesn't support watch once feature. Need iproto version >= 6, got"
+                      + " [1-5]"));
       return;
     }
     assertEquals(0, client.watchOnce("k1").join().get().size());
@@ -386,37 +429,23 @@ public class TarantoolClientTest extends BaseTest {
 
     client.eval("box.broadcast('k1', 'myEvent'); box.broadcast('k2', {1, 2, 3})");
     Thread.sleep(100);
-    assertEquals(
-        Collections.singletonList("myEvent"),
-        client.watchOnce("k1").join().get()
-    );
+    assertEquals(Collections.singletonList("myEvent"), client.watchOnce("k1").join().get());
     assertArrayEquals(
-        "myEvent".toCharArray(),
-        client.watchOnce("k1", char[].class).join().get().get(0)
-    );
+        "myEvent".toCharArray(), client.watchOnce("k1", char[].class).join().get().get(0));
     assertEquals(
-        Collections.singletonList(Arrays.asList(1, 2, 3)),
-        client.watchOnce("k2").join().get()
-    );
+        Collections.singletonList(Arrays.asList(1, 2, 3)), client.watchOnce("k2").join().get());
     assertEquals(
         Collections.singletonList(new HashSet<>(Arrays.asList(1, 2, 3))),
-        client.watchOnce("k2", Set.class).join().get()
-    );
+        client.watchOnce("k2", Set.class).join().get());
     assertEquals(
         Collections.singletonList(Arrays.asList(1L, 2L, 3L)),
-        client.watchOnce("k2", new TypeReference<List<List<Long>>>() {}).join().get()
-    );
+        client.watchOnce("k2", new TypeReference<List<List<Long>>>() {}).join().get());
 
     client.eval("box.broadcast('k1', 1)");
     Thread.sleep(100);
+    assertEquals(Collections.singletonList(1), client.watchOnce("k1").join().get());
     assertEquals(
-        Collections.singletonList(1),
-        client.watchOnce("k1").join().get()
-    );
-    assertEquals(
-        Collections.singletonList(Arrays.asList(1, 2, 3)),
-        client.watchOnce("k2").join().get()
-    );
+        Collections.singletonList(Arrays.asList(1, 2, 3)), client.watchOnce("k2").join().get());
   }
 
   @Test
@@ -496,32 +525,35 @@ public class TarantoolClientTest extends BaseTest {
 
   @Test
   void testCloseConnectionFromFewThreads() throws Exception {
-    final TarantoolBoxClient testClient = TarantoolFactory.box()
-        .withUser(API_USER)
-        .withPassword(CREDS.get(API_USER))
-        .withHost(tt.getHost())
-        .withPort(tt.getPort())
-        .build();
+    final TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getPort())
+            .build();
 
     final ExecutorService pool = Executors.newFixedThreadPool(100);
     final int closeCount = 1_000_000;
     for (int i = 0; i < closeCount; i++) {
-      pool.execute(() -> {
-        assertDoesNotThrow(testClient::close);
-        assertTrue(testClient::isClosed);
-      });
+      pool.execute(
+          () -> {
+            assertDoesNotThrow(testClient::close);
+            assertTrue(testClient::isClosed);
+          });
     }
     assertTrue(testClient::isClosed);
   }
 
   @Test
   void testIdempotency() throws Exception {
-    final TarantoolBoxClient testClient = TarantoolFactory.box()
-        .withUser(API_USER)
-        .withPassword(CREDS.get(API_USER))
-        .withHost(tt.getHost())
-        .withPort(tt.getPort())
-        .build();
+    final TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getPort())
+            .build();
 
     final int closeCount = 100;
     for (int i = 0; i < closeCount; i++) {
@@ -534,12 +566,13 @@ public class TarantoolClientTest extends BaseTest {
   void testAutoCloseable() throws Exception {
     final TarantoolBoxSpace space;
     final Person person = new Person(0, true, "first");
-    try (final TarantoolBoxClient testClient = TarantoolFactory.box()
-        .withUser(API_USER)
-        .withPassword(CREDS.get(API_USER))
-        .withHost(tt.getHost())
-        .withPort(tt.getPort())
-        .build()) {
+    try (final TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getPort())
+            .build()) {
       space = testClient.space("person");
       assertEquals(person, space.insert(person, Person.class).join().get());
     }
@@ -549,12 +582,13 @@ public class TarantoolClientTest extends BaseTest {
   @Test
   void testAutoCloseableWithInvalidRequest() throws Exception {
     final TarantoolBoxSpace space;
-    try (final TarantoolBoxClient testClient = TarantoolFactory.box()
-        .withUser(API_USER)
-        .withPassword(CREDS.get(API_USER))
-        .withHost(tt.getHost())
-        .withPort(tt.getPort())
-        .build()) {
+    try (final TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getPort())
+            .build()) {
       space = testClient.space("person");
       final Person person = new Person(0, true, "first");
       assertEquals(person, space.insert(person, Person.class).join().get());

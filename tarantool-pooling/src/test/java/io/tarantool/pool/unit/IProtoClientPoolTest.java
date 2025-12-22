@@ -1,15 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.pool.unit;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +12,11 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -25,11 +24,11 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.tarantool.core.ManagedResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.tarantool.core.IProtoClient;
+import io.tarantool.core.ManagedResource;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.IProtoClientPoolImpl;
@@ -38,13 +37,14 @@ import io.tarantool.pool.exceptions.PoolClosedException;
 
 public class IProtoClientPoolTest {
 
-  protected static final Bootstrap bootstrap = new Bootstrap()
-      .group(new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()))
-      .channel(NioSocketChannel.class)
-      .option(ChannelOption.SO_REUSEADDR, true)
-      .option(ChannelOption.SO_KEEPALIVE, true)
-      .option(ChannelOption.TCP_NODELAY, true)
-      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+  protected static final Bootstrap bootstrap =
+      new Bootstrap()
+          .group(new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()))
+          .channel(NioSocketChannel.class)
+          .option(ChannelOption.SO_REUSEADDR, true)
+          .option(ChannelOption.SO_KEEPALIVE, true)
+          .option(ChannelOption.TCP_NODELAY, true)
+          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
 
   private ManagedResource<Timer> timerResource;
   protected ConnectionFactory factory;
@@ -102,20 +102,20 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testGetTagsReturnsCorrectTags() {
-    List<InstanceConnectionGroup> groups = Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(2)
-            .withTag("node-1")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3302)
-            .withSize(3)
-            .withTag("node-2")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(2)
+                .withTag("node-1")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3302)
+                .withSize(3)
+                .withTag("node-2")
+                .build());
 
     pool.setGroups(groups);
 
@@ -137,14 +137,14 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testPoolGetWithValidTagButInvalidIndex() {
-    List<InstanceConnectionGroup> groups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(2)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(2)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(groups);
 
@@ -154,14 +154,14 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testPoolGetWithValidParametersReturnsFuture() {
-    List<InstanceConnectionGroup> groups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(1)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(1)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(groups);
 
@@ -171,14 +171,14 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testForEachExecutesActionOnAllClients() {
-    List<InstanceConnectionGroup> groups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(2)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(2)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(groups);
 
@@ -197,14 +197,14 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testClosePool() throws Exception {
-    List<InstanceConnectionGroup> groups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(2)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(2)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(groups);
 
@@ -219,20 +219,20 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testSetGroupsWhenRemovingGroupEntirely() {
-    List<InstanceConnectionGroup> initialGroups = Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(3)
-            .withTag("node-1")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3302)
-            .withSize(2)
-            .withTag("node-2")
-            .build()
-    );
+    List<InstanceConnectionGroup> initialGroups =
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(3)
+                .withTag("node-1")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3302)
+                .withSize(2)
+                .withTag("node-2")
+                .build());
 
     pool.setGroups(initialGroups);
 
@@ -240,14 +240,14 @@ public class IProtoClientPoolTest {
     assertEquals(2, pool.getGroupSize("node-2"));
 
     // Remove one group entirely
-    List<InstanceConnectionGroup> reducedGroups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(3)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> reducedGroups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(3)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(reducedGroups);
 
@@ -257,25 +257,25 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testSetGroupsWithInvalidIndexAfterResize() {
-    List<InstanceConnectionGroup> initialGroups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(3)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> initialGroups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(3)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(initialGroups);
 
-    List<InstanceConnectionGroup> reducedGroups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(1)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> reducedGroups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(1)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(reducedGroups);
 
@@ -294,14 +294,14 @@ public class IProtoClientPoolTest {
     int[] sizes = {2, 5, 3, 1};
 
     for (int size : sizes) {
-      List<InstanceConnectionGroup> groups = Collections.singletonList(
-          InstanceConnectionGroup.builder()
-              .withHost(host)
-              .withPort(port)
-              .withSize(size)
-              .withTag(tag)
-              .build()
-      );
+      List<InstanceConnectionGroup> groups =
+          Collections.singletonList(
+              InstanceConnectionGroup.builder()
+                  .withHost(host)
+                  .withPort(port)
+                  .withSize(size)
+                  .withTag(tag)
+                  .build());
 
       pool.setGroups(groups);
       assertEquals(size, pool.getGroupSize(tag));
@@ -310,14 +310,14 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testSetGroupsWithEmptyListRemovesAllGroups() {
-    List<InstanceConnectionGroup> initialGroups = Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(2)
-            .withTag("node-1")
-            .build()
-    );
+    List<InstanceConnectionGroup> initialGroups =
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(2)
+                .withTag("node-1")
+                .build());
 
     pool.setGroups(initialGroups);
     assertEquals(1, pool.getTags().size());
@@ -330,20 +330,20 @@ public class IProtoClientPoolTest {
 
   @Test
   public void testAvailableConnectionsAfterSettingGroups() {
-    List<InstanceConnectionGroup> groups = Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3301)
-            .withSize(3)
-            .withTag("node-1")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost("localhost")
-            .withPort(3302)
-            .withSize(2)
-            .withTag("node-2")
-            .build()
-    );
+    List<InstanceConnectionGroup> groups =
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3301)
+                .withSize(3)
+                .withTag("node-1")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost("localhost")
+                .withPort(3302)
+                .withSize(2)
+                .withTag("node-2")
+                .build());
 
     pool.setGroups(groups);
 

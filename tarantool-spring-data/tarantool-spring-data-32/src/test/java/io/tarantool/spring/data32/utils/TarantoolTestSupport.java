@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -71,30 +71,30 @@ public class TarantoolTestSupport {
   private static final Yaml yaml;
 
   static {
-    representer = new Representer(new DumperOptions()) {
-      @Override
-      @Nullable
-      protected NodeTuple representJavaBeanProperty(Object javaBean,
-          Property property,
-          @Nullable Object propertyValue,
-          Tag customTag) {
-        if (propertyValue == null) {
-          return null;
-        } else {
-          return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
-        }
-      }
-    };
+    representer =
+        new Representer(new DumperOptions()) {
+          @Override
+          @Nullable
+          protected NodeTuple representJavaBeanProperty(
+              Object javaBean, Property property, @Nullable Object propertyValue, Tag customTag) {
+            if (propertyValue == null) {
+              return null;
+            } else {
+              return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+            }
+          }
+        };
     representer.addClassTag(TarantoolProperties.class, Tag.MAP);
     yaml = new Yaml(representer);
   }
 
-  public static TarantoolProperties writeTestPropertiesYaml(@NonNull final String fileName) throws IOException {
+  public static TarantoolProperties writeTestPropertiesYaml(@NonNull final String fileName)
+      throws IOException {
     return writeTestPropertiesYaml(fileName, createRandomProperty());
   }
 
-  public static TarantoolProperties writeTestPropertiesYaml(final String fileName, final TarantoolProperties properties)
-      throws IOException {
+  public static TarantoolProperties writeTestPropertiesYaml(
+      final String fileName, final TarantoolProperties properties) throws IOException {
     final File FILE = DEFAULT_TEST_PROPERTY_DIR.resolve(fileName).toFile().getAbsoluteFile();
 
     try (Writer writer = new FileWriter(FILE)) {
@@ -108,7 +108,8 @@ public class TarantoolTestSupport {
     }
   }
 
-  public static void writeTestEmptyPropertiesYaml(@NonNull final String fileName) throws IOException {
+  public static void writeTestEmptyPropertiesYaml(@NonNull final String fileName)
+      throws IOException {
     final File FILE = DEFAULT_TEST_PROPERTY_DIR.resolve(fileName).toFile().getAbsoluteFile();
     try (Writer writer = new FileWriter(FILE)) {
       yaml.dump(Collections.emptyMap(), writer);
@@ -134,7 +135,8 @@ public class TarantoolTestSupport {
     }
 
     if (result.getConnectionGroups() != null) {
-      for (PropertyInstanceConnectionGroup propertyInstanceConnectionGroup : result.getConnectionGroups()) {
+      for (PropertyInstanceConnectionGroup propertyInstanceConnectionGroup :
+          result.getConnectionGroups()) {
         if (propertyInstanceConnectionGroup.getAuthType() == null) {
           propertyInstanceConnectionGroup.setAuthType(DEFAULT_AUTH_TYPE);
         }
@@ -164,27 +166,34 @@ public class TarantoolTestSupport {
     final List<Boolean> booleanVar = Arrays.asList(true, false);
 
     PropertyHeartbeatOpts propertyHeartbeatOpts =
-        heartbeat(choiceOrNull(longVar), choiceOrNull(intVar), choiceOrNull(intVar), choiceOrNull(intVar));
+        heartbeat(
+            choiceOrNull(longVar),
+            choiceOrNull(intVar),
+            choiceOrNull(intVar),
+            choiceOrNull(intVar));
 
     PropertyFlushConsolidationHandler propertyFlushConsolidationHandler =
         choiceOrNull(flushConsolidation(choiceOrNull(intVar), choiceOrNull(booleanVar)));
 
     PropertyInstanceConnectionGroup propertyInstanceConnectionGroup =
-        choiceOrNull(connectionGroup(choiceOrNull("host"),
-            "password",
-            choiceOrNull(intVar),
-            choiceOrNull(intVar),
-            choiceOrNull("tag"),
-            "user",
-            choiceOrNull(Arrays.asList(IProtoAuth.AuthType.values())),
-            propertyFlushConsolidationHandler));
+        choiceOrNull(
+            connectionGroup(
+                choiceOrNull("host"),
+                "password",
+                choiceOrNull(intVar),
+                choiceOrNull(intVar),
+                choiceOrNull("tag"),
+                "user",
+                choiceOrNull(Arrays.asList(IProtoAuth.AuthType.values())),
+                propertyFlushConsolidationHandler));
     List<PropertyInstanceConnectionGroup> propertyInstanceConnectionGroups = null;
     if (propertyInstanceConnectionGroup != null) {
       propertyInstanceConnectionGroups = new ArrayList<>();
       propertyInstanceConnectionGroups.add(propertyInstanceConnectionGroup);
     }
 
-    return tarantoolProperties(choiceOrNull("host"),
+    return tarantoolProperties(
+        choiceOrNull("host"),
         choiceOrNull("password"),
         choiceOrNull(intVar),
         choiceOrNull("user"),
@@ -208,7 +217,8 @@ public class TarantoolTestSupport {
     return element;
   }
 
-  public static PropertyHeartbeatOpts heartbeat(@Nullable Long pingInterval,
+  public static PropertyHeartbeatOpts heartbeat(
+      @Nullable Long pingInterval,
       @Nullable Integer invalidationThreshold,
       @Nullable Integer windowSize,
       @Nullable Integer deathThreshold) {
@@ -231,15 +241,18 @@ public class TarantoolTestSupport {
   }
 
   public static PropertyFlushConsolidationHandler flushConsolidation(
-      @Nullable Integer explicitFlushAfterFlushes, @Nullable Boolean consolidateWhenNoReadInProgress) {
+      @Nullable Integer explicitFlushAfterFlushes,
+      @Nullable Boolean consolidateWhenNoReadInProgress) {
 
-    PropertyFlushConsolidationHandler propertyFlushConsolidationHandler = new PropertyFlushConsolidationHandler();
+    PropertyFlushConsolidationHandler propertyFlushConsolidationHandler =
+        new PropertyFlushConsolidationHandler();
     if (explicitFlushAfterFlushes != null) {
       propertyFlushConsolidationHandler.setExplicitFlushAfterFlushes(explicitFlushAfterFlushes);
     }
 
     if (consolidateWhenNoReadInProgress != null) {
-      propertyFlushConsolidationHandler.setConsolidateWhenNoReadInProgress(consolidateWhenNoReadInProgress);
+      propertyFlushConsolidationHandler.setConsolidateWhenNoReadInProgress(
+          consolidateWhenNoReadInProgress);
     }
     return propertyFlushConsolidationHandler;
   }
@@ -258,17 +271,18 @@ public class TarantoolTestSupport {
   }
 
   @NonNull
-  public static PropertyInstanceConnectionGroup connectionGroup(@Nullable String host,
+  public static PropertyInstanceConnectionGroup connectionGroup(
+      @Nullable String host,
       @Nullable String password,
       @Nullable Integer port,
       @Nullable Integer connectionNumber,
       @Nullable String tag,
       @Nullable String user,
       @Nullable IProtoAuth.AuthType type,
-      @Nullable
-      PropertyFlushConsolidationHandler propertyFlushConsolidationHandler) {
+      @Nullable PropertyFlushConsolidationHandler propertyFlushConsolidationHandler) {
 
-    PropertyInstanceConnectionGroup propertyInstanceConnectionGroup = new PropertyInstanceConnectionGroup();
+    PropertyInstanceConnectionGroup propertyInstanceConnectionGroup =
+        new PropertyInstanceConnectionGroup();
     propertyInstanceConnectionGroup.setHost(host);
     if (connectionNumber != null) {
       propertyInstanceConnectionGroup.setConnectionGroupSize(connectionNumber);
@@ -286,12 +300,12 @@ public class TarantoolTestSupport {
   }
 
   @NonNull
-  public static TarantoolProperties tarantoolProperties(@Nullable String host,
+  public static TarantoolProperties tarantoolProperties(
+      @Nullable String host,
       @Nullable String password,
       @Nullable Integer port,
       @Nullable String user,
-      @Nullable
-      List<PropertyInstanceConnectionGroup> propertyInstanceConnectionGroups,
+      @Nullable List<PropertyInstanceConnectionGroup> propertyInstanceConnectionGroups,
       @Nullable Integer eventLoopThreadsCount,
       @Nullable Boolean enableGracefulShutdown,
       @Nullable PropertyHeartbeatOpts propertyHeartbeatOptsOpts,
@@ -350,12 +364,14 @@ public class TarantoolTestSupport {
   public static List<ComplexPerson> generateComplexPersons(int count) {
     List<ComplexPerson> persons = new ArrayList<>();
     for (int i = 0; i < count; i++) {
-      persons.add(new ComplexPerson(i, UUID.randomUUID(), i % 3 == 0 ? null : i % 2 == 0, "User-" + i));
+      persons.add(
+          new ComplexPerson(i, UUID.randomUUID(), i % 3 == 0 ? null : i % 2 == 0, "User-" + i));
     }
     return persons;
   }
 
-  public static List<ComplexPerson> generateComplexPersons(int count, Consumer<ComplexPerson> actionAtPerson) {
+  public static List<ComplexPerson> generateComplexPersons(
+      int count, Consumer<ComplexPerson> actionAtPerson) {
     List<ComplexPerson> persons = generateComplexPersons(count);
     persons.forEach(actionAtPerson);
     return persons;
@@ -373,7 +389,8 @@ public class TarantoolTestSupport {
     return persons;
   }
 
-  public static List<Person> generateAndInsertPersons(int count, TarantoolCrudClient client, Consumer<Person> action) {
+  public static List<Person> generateAndInsertPersons(
+      int count, TarantoolCrudClient client, Consumer<Person> action) {
     final List<Person> persons = generatePersons(count, action);
     final TarantoolCrudSpace space = client.space(PERSON_SPACE);
 
@@ -385,11 +402,13 @@ public class TarantoolTestSupport {
     return persons;
   }
 
-  public static List<ComplexPerson> generateAndInsertComplexPersons(int count, TarantoolCrudClient client) {
+  public static List<ComplexPerson> generateAndInsertComplexPersons(
+      int count, TarantoolCrudClient client) {
     final List<ComplexPerson> persons = generateComplexPersons(count);
     final TarantoolCrudSpace space = client.space(COMPLEX_PERSON_SPACE);
 
-    List<Tuple<ComplexPerson>> insertedPersons = space.insertMany(persons, ComplexPerson.class).join().getRows();
+    List<Tuple<ComplexPerson>> insertedPersons =
+        space.insertMany(persons, ComplexPerson.class).join().getRows();
     insertedPersons.sort(Comparator.comparing((p) -> p.get().getId()));
 
     assertEquals(persons, unwrapTuples(insertedPersons));
@@ -397,13 +416,14 @@ public class TarantoolTestSupport {
     return persons;
   }
 
-  public static List<ComplexPerson> generateAndInsertComplexPersons(int count, TarantoolCrudClient client,
-      Consumer<ComplexPerson> action) {
+  public static List<ComplexPerson> generateAndInsertComplexPersons(
+      int count, TarantoolCrudClient client, Consumer<ComplexPerson> action) {
 
     final List<ComplexPerson> persons = generateComplexPersons(count, action);
     final TarantoolCrudSpace space = client.space(COMPLEX_PERSON_SPACE);
 
-    List<Tuple<ComplexPerson>> insertedPersons = space.insertMany(persons, ComplexPerson.class).join().getRows();
+    List<Tuple<ComplexPerson>> insertedPersons =
+        space.insertMany(persons, ComplexPerson.class).join().getRows();
     insertedPersons.sort(Comparator.comparing((p) -> p.get().getId()));
 
     assertEquals(persons, unwrapTuples(insertedPersons));

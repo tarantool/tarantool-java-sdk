@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.spring.data33.query;
-
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -14,25 +13,30 @@ import org.springframework.data.domain.Window;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
-
 /**
- * The class is a complete analogue of {@link org.springframework.data.support.WindowIterator} for Tarantool.
- * <p>Example of usage:</p>
- * <blockquote><pre>{@code
- *     TarantoolScrollPosition initialScrollPosition =
- *         TarantoolScrollPosition.forward(Pair.of("pk", Collections.emptyList()));
+ * The class is a complete analogue of {@link org.springframework.data.support.WindowIterator} for
+ * Tarantool.
  *
- *     TarantoolWindowIterator<Person> personIterator =
- *         TarantoolWindowIterator.of(scrollPosition -> repository.findFirst10ByAge(10, scrollPosition))
- *             .startingAt(initialScrollPosition);
+ * <p>Example of usage:
  *
- *     List<Person> result = new ArrayList<>();
+ * <blockquote>
  *
- *     while (personIterator.hasNext()) {
- *       result.add(personIterator.next());
- *     }
+ * <pre>{@code
+ * TarantoolScrollPosition initialScrollPosition =
+ *     TarantoolScrollPosition.forward(Pair.of("pk", Collections.emptyList()));
+ *
+ * TarantoolWindowIterator<Person> personIterator =
+ *     TarantoolWindowIterator.of(scrollPosition -> repository.findFirst10ByAge(10, scrollPosition))
+ *         .startingAt(initialScrollPosition);
+ *
+ * List<Person> result = new ArrayList<>();
+ *
+ * while (personIterator.hasNext()) {
+ *   result.add(personIterator.next());
  * }
- * </pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @param <T> domain class type.
  */
@@ -50,14 +54,16 @@ public class TarantoolWindowIterator<T> implements Iterator<T> {
    * Entrypoint to create a new {@link TarantoolWindowIterator} for the given windowFunction.
    *
    * @param windowFunction must not be {@literal null}.
-   * @param <T>            domain class type.
+   * @param <T> domain class type.
    * @return new instance of {@link TarantoolWindowIteratorBuilder}.
    */
-  public static <T> TarantoolWindowIteratorBuilder<T> of(Function<TarantoolScrollPosition, Window<T>> windowFunction) {
+  public static <T> TarantoolWindowIteratorBuilder<T> of(
+      Function<TarantoolScrollPosition, Window<T>> windowFunction) {
     return new TarantoolWindowIteratorBuilder<>(windowFunction);
   }
 
-  TarantoolWindowIterator(Function<TarantoolScrollPosition, Window<T>> windowFunction,
+  TarantoolWindowIterator(
+      Function<TarantoolScrollPosition, Window<T>> windowFunction,
       TarantoolScrollPosition position) {
 
     this.windowFunction = windowFunction;
@@ -112,9 +118,7 @@ public class TarantoolWindowIterator<T> implements Iterator<T> {
     return (TarantoolScrollPosition) window.positionAt(window.size() - 1);
   }
 
-  /**
-   * Builder API to construct a {@link TarantoolWindowIterator}.
-   */
+  /** Builder API to construct a {@link TarantoolWindowIterator}. */
   public static class TarantoolWindowIteratorBuilder<T> {
 
     private final Function<TarantoolScrollPosition, Window<T>> windowFunction;
@@ -130,7 +134,7 @@ public class TarantoolWindowIterator<T> implements Iterator<T> {
      * Create a {@link TarantoolWindowIterator} given {@link TarantoolScrollPosition}.
      *
      * @param position {@link TarantoolScrollPosition} instance. Must be not null.
-     * @return {@link  TarantoolWindowIterator} instance.
+     * @return {@link TarantoolWindowIterator} instance.
      */
     public TarantoolWindowIterator<T> startingAt(TarantoolScrollPosition position) {
 

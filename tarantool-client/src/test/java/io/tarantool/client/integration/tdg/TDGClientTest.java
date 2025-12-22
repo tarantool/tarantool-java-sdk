@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.client.integration.tdg;
 
-import  java.net.URISyntaxException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -37,8 +37,9 @@ import io.tarantool.mapping.slash.errors.TarantoolSlashErrorsException;
 
 class TDGClientTest {
 
-  private static final DockerImageName TDG_IMAGE = DockerImageName.parse(System.getenv().getOrDefault(
-      "TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
+  private static final DockerImageName TDG_IMAGE =
+      DockerImageName.parse(
+          System.getenv().getOrDefault("TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
 
   private static final Path ROOT_CONFIG_PATH;
 
@@ -49,12 +50,15 @@ class TDGClientTest {
 
   static {
     try {
-      ROOT_CONFIG_PATH = Paths.get(
-          Objects.requireNonNull(TDGClientTest.class.getClassLoader().getResource(
-              "tdg/test-cluster-configuration"
-          )).toURI()
-      );
-      configurator = new TDGFileConfigurator(ROOT_CONFIG_PATH, TDG_IMAGE, UUID.randomUUID().toString());
+      ROOT_CONFIG_PATH =
+          Paths.get(
+              Objects.requireNonNull(
+                      TDGClientTest.class
+                          .getClassLoader()
+                          .getResource("tdg/test-cluster-configuration"))
+                  .toURI());
+      configurator =
+          new TDGFileConfigurator(ROOT_CONFIG_PATH, TDG_IMAGE, UUID.randomUUID().toString());
       cluster = new TDGClusterImpl(configurator);
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
@@ -64,10 +68,11 @@ class TDGClientTest {
   @BeforeAll
   static void setUp() throws Exception {
     cluster.start();
-    client = TarantoolFactory.tdg()
-        .withHost(configurator.core().getValue().iprotoMappedAddress().getHostName())
-        .withPort(configurator.core().getValue().iprotoMappedAddress().getPort())
-        .build();
+    client =
+        TarantoolFactory.tdg()
+            .withHost(configurator.core().getValue().iprotoMappedAddress().getHostName())
+            .withPort(configurator.core().getValue().iprotoMappedAddress().getPort())
+            .build();
   }
 
   @AfterAll
@@ -76,7 +81,6 @@ class TDGClientTest {
     cluster.stop();
     configurator.close();
   }
-
 
   @AfterEach
   void after() {
@@ -87,24 +91,30 @@ class TDGClientTest {
   @Test
   void testSimpleOperations() {
     TarantoolDataGridSpace space = client.space("User");
-    HashMap<String, Object> tuple = new HashMap<String, Object>() {{
-      put("age", 1);
-      put("name", "a");
-    }};
+    HashMap<String, Object> tuple =
+        new HashMap<String, Object>() {
+          {
+            put("age", 1);
+            put("name", "a");
+          }
+        };
     Map<?, ?> putResult = space.put(tuple).join();
     Assertions.assertEquals(tuple, putResult);
 
     Assertions.assertEquals(tuple, space.get(1).join());
 
-    List<Map<?, ?>> updateResult = space.update(
-        Collections.singletonList(Arrays.asList("age", "==", 1)),
-        Collections.singletonList(Arrays.asList("set", "name", "artyom"))
-    ).join();
+    List<Map<?, ?>> updateResult =
+        space
+            .update(
+                Collections.singletonList(Arrays.asList("age", "==", 1)),
+                Collections.singletonList(Arrays.asList("set", "name", "artyom")))
+            .join();
 
     Assertions.assertEquals(1, updateResult.size());
     Assertions.assertEquals("artyom", updateResult.get(0).get("name"));
 
-    List<Map<?, ?>> deleteResult = space.delete(Collections.singletonList(Arrays.asList("age", "==", 1))).join();
+    List<Map<?, ?>> deleteResult =
+        space.delete(Collections.singletonList(Arrays.asList("age", "==", 1))).join();
     Assertions.assertEquals(1, deleteResult.size());
     Assertions.assertEquals("artyom", deleteResult.get(0).get("name"));
 
@@ -114,22 +124,26 @@ class TDGClientTest {
   @Test
   void testOptions() {
     TarantoolDataGridSpace space = client.space("User");
-    HashMap<String, Object> tuple = new HashMap<String, Object>() {{
-      put("age", 1);
-      put("name", "a");
-    }};
-    Map<?, ?> putResult = space.put(
-        tuple,
-        OnlyKeyValueOptions.builder()
-            .withOption("skip_result", true)
-            .build(),
-        Collections.emptyMap()
-    ).join();
+    HashMap<String, Object> tuple =
+        new HashMap<String, Object>() {
+          {
+            put("age", 1);
+            put("name", "a");
+          }
+        };
+    Map<?, ?> putResult =
+        space
+            .put(
+                tuple,
+                OnlyKeyValueOptions.builder().withOption("skip_result", true).build(),
+                Collections.emptyMap())
+            .join();
     Assertions.assertNull(putResult);
 
     Assertions.assertEquals(tuple, space.get(1).join());
 
-    List<Map<?, ?>> deleteResult = space.delete(Collections.singletonList(Arrays.asList("age", "==", 1))).join();
+    List<Map<?, ?>> deleteResult =
+        space.delete(Collections.singletonList(Arrays.asList("age", "==", 1))).join();
     Assertions.assertEquals(1, deleteResult.size());
 
     Assertions.assertNull(space.get(1).join());
@@ -138,18 +152,23 @@ class TDGClientTest {
   @Test
   void testSimpleOperationsWithPojoAsInput() {
     TarantoolDataGridSpace space = client.space("person");
-    HashMap<String, Object> tuple = new HashMap<String, Object>() {{
-      put("id", 1);
-      put("is_married", true);
-      put("name", "artyom");
-    }};
-    Map<?, ?> putResult = space.put(
-        PersonAsMap.builder()
-            .id((Integer) tuple.get("id"))
-            .isMarried((Boolean) tuple.get("is_married"))
-            .name((String) tuple.get("name"))
-            .build()
-    ).join();
+    HashMap<String, Object> tuple =
+        new HashMap<String, Object>() {
+          {
+            put("id", 1);
+            put("is_married", true);
+            put("name", "artyom");
+          }
+        };
+    Map<?, ?> putResult =
+        space
+            .put(
+                PersonAsMap.builder()
+                    .id((Integer) tuple.get("id"))
+                    .isMarried((Boolean) tuple.get("is_married"))
+                    .name((String) tuple.get("name"))
+                    .build())
+            .join();
 
     Assertions.assertEquals(tuple, putResult);
   }
@@ -157,66 +176,45 @@ class TDGClientTest {
   @Test
   void testFindAndCountOperations() {
     TarantoolDataGridSpace space = client.space("person");
-    space.put(
-        PersonAsMap.builder()
-            .id(1)
-            .isMarried(true)
-            .name("artyom")
-            .build()
-    ).join();
-    space.put(
-        PersonAsMap.builder()
-            .id(2)
-            .isMarried(false)
-            .name("kolya")
-            .build()
-    ).join();
-    space.put(
-        PersonAsMap.builder()
-            .id(3)
-            .isMarried(true)
-            .name("dima")
-            .build()
-    ).join();
+    space.put(PersonAsMap.builder().id(1).isMarried(true).name("artyom").build()).join();
+    space.put(PersonAsMap.builder().id(2).isMarried(false).name("kolya").build()).join();
+    space.put(PersonAsMap.builder().id(3).isMarried(true).name("dima").build()).join();
 
     Assertions.assertEquals(
-        2,
-        space.count(
-            Collections.singletonList(Arrays.asList("is_married", "==", true))
-        ).join()
-    );
+        2, space.count(Collections.singletonList(Arrays.asList("is_married", "==", true))).join());
 
     Assertions.assertEquals(
         Arrays.asList(
-            new HashMap<String, Object>(){{
-              put("cursor", "gaRzY2FukQE");
-              put("id", 1);
-              put("name", "artyom");
-              put("is_married", true);
-            }},
-            new HashMap<String, Object>(){{
-              put("cursor", "gaRzY2FukQM");
-              put("id", 3);
-              put("name", "dima");
-              put("is_married", true);
-            }}
-        ),
-        space.find(
-            Collections.singletonList(Arrays.asList("is_married", "==", true))
-        ).join()
-    );
+            new HashMap<String, Object>() {
+              {
+                put("cursor", "gaRzY2FukQE");
+                put("id", 1);
+                put("name", "artyom");
+                put("is_married", true);
+              }
+            },
+            new HashMap<String, Object>() {
+              {
+                put("cursor", "gaRzY2FukQM");
+                put("id", 3);
+                put("name", "dima");
+                put("is_married", true);
+              }
+            }),
+        space.find(Collections.singletonList(Arrays.asList("is_married", "==", true))).join());
   }
 
   @Test
   void testTDGThrowError() {
     TarantoolDataGridSpace space = client.space("NoSpace");
-    CompletionException ex = Assertions.assertThrows(
-        CompletionException.class,
-        () -> space.put(Collections.emptyMap()).join()
-    );
+    CompletionException ex =
+        Assertions.assertThrows(
+            CompletionException.class, () -> space.put(Collections.emptyMap()).join());
     Throwable cause = ex.getCause();
     Assertions.assertEquals(TarantoolSlashErrorsException.class, cause.getClass());
-    TarantoolSlashErrorsException tarantoolSlashErrorsException = (TarantoolSlashErrorsException) cause;
-    Assertions.assertEquals("Type \"NoSpace\" not found", tarantoolSlashErrorsException.getReason().getErr());
+    TarantoolSlashErrorsException tarantoolSlashErrorsException =
+        (TarantoolSlashErrorsException) cause;
+    Assertions.assertEquals(
+        "Type \"NoSpace\" not found", tarantoolSlashErrorsException.getReason().getErr());
   }
 }

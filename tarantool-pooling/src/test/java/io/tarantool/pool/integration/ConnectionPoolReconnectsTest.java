@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.tarantool.core.ManagedResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -28,6 +27,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.tarantool.core.IProtoClient;
+import io.tarantool.core.ManagedResource;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.IProtoClientPoolImpl;
@@ -40,9 +40,8 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
   private static final Logger log = LoggerFactory.getLogger(ConnectionPoolReconnectsTest.class);
 
   @Container
-  private TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP)
-      .withFixedExposedPort(3301, 3301);
+  private TarantoolContainer tt =
+      new TarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
 
   @BeforeEach
   public void setUp() {
@@ -52,18 +51,18 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
   @Test
   public void testReconnectAfterNodeFailure() throws Exception {
     MeterRegistry metricsRegistry = createMetricsRegistry();
-    ManagedResource<Timer> timerResource = ManagedResource.owned(new HashedWheelTimer(), Timer::stop);
+    ManagedResource<Timer> timerResource =
+        ManagedResource.owned(new HashedWheelTimer(), Timer::stop);
     ConnectionFactory factory = new ConnectionFactory(bootstrap, timerResource.get());
-    IProtoClientPool pool = new IProtoClientPoolImpl(
-        factory,
-        timerResource,
-        true, null, null, metricsRegistry
-    );
-    pool.setGroups(Collections.singletonList(InstanceConnectionGroup.builder()
-        .withHost(tt.getHost())
-        .withSize(count1)
-        .withTag("node-a")
-        .build()));
+    IProtoClientPool pool =
+        new IProtoClientPoolImpl(factory, timerResource, true, null, null, metricsRegistry);
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(tt.getHost())
+                .withSize(count1)
+                .withTag("node-a")
+                .build()));
     pool.setConnectTimeout(1_000L);
 
     assertTrue(pool.hasAvailableClients());
@@ -81,17 +80,21 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
 
     assertTrue(metricsRegistry.get("pool.reconnecting").gauge().value() > 0);
 
-    tt = new TarantoolContainer()
-        .withEnv(ENV_MAP)
-        .withFixedExposedPort(3301, 3301);
+    tt = new TarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
     tt.start();
 
-    waitFor("No available connects", Duration.ofMinutes(1), () -> assertTrue(pool.hasAvailableClients()));
-    waitFor("Not all connects established", Duration.ofMinutes(3), () -> {
-      for (int i = 0; i < count1; i++) {
-        assertNotNull(pool.get("node-a", i));
-      }
-    });
+    waitFor(
+        "No available connects",
+        Duration.ofMinutes(1),
+        () -> assertTrue(pool.hasAvailableClients()));
+    waitFor(
+        "Not all connects established",
+        Duration.ofMinutes(3),
+        () -> {
+          for (int i = 0; i < count1; i++) {
+            assertNotNull(pool.get("node-a", i));
+          }
+        });
 
     assertTrue(pingClients(clients));
     assertEquals(count1, getActiveConnectionsCount(tt));

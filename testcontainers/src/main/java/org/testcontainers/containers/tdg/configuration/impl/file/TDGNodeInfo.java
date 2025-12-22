@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,8 +22,13 @@ class TDGNodeInfo implements AutoCloseable {
 
   private final TDGContainer<?> container;
 
-  public TDGNodeInfo(Replicaset replicaset, UUID replicasetUuid, String nodeUri, String clusterName,
-      DockerImageName image, Network network) {
+  public TDGNodeInfo(
+      Replicaset replicaset,
+      UUID replicasetUuid,
+      String nodeUri,
+      String clusterName,
+      DockerImageName image,
+      Network network) {
     this.replicaset = replicaset;
     this.replicasetUuid = replicasetUuid;
     this.container = createNode(replicaset, nodeUri, clusterName, image, network);
@@ -37,8 +42,12 @@ class TDGNodeInfo implements AutoCloseable {
     return this.replicaset.hasRole(role);
   }
 
-  private static TDGContainer<?> createNode(Replicaset replicaset, String nodeUri, String clusterName,
-      DockerImageName image, Network network) {
+  private static TDGContainer<?> createNode(
+      Replicaset replicaset,
+      String nodeUri,
+      String clusterName,
+      DockerImageName image,
+      Network network) {
     final String hostname = nodeUri.split(":")[0];
 
     // <relicaset-alias>-<advertise-host>-<cluster-name>
@@ -58,9 +67,9 @@ class TDGNodeInfo implements AutoCloseable {
       return false;
     }
     TDGNodeInfo that = (TDGNodeInfo) o;
-    return Objects.equals(replicasetUuid, that.replicasetUuid) &&
-        Objects.equals(replicaset, that.replicaset) &&
-        Objects.equals(container, that.container);
+    return Objects.equals(replicasetUuid, that.replicasetUuid)
+        && Objects.equals(replicaset, that.replicaset)
+        && Objects.equals(container, that.container);
   }
 
   @Override

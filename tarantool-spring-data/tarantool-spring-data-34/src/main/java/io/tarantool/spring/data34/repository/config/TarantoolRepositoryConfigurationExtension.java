@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -20,7 +20,8 @@ import io.tarantool.spring.data34.config.TarantoolCrudConfiguration;
 import io.tarantool.spring.data34.core.TarantoolTemplate;
 import io.tarantool.spring.data34.core.mapping.TarantoolMappingContext;
 
-public class TarantoolRepositoryConfigurationExtension extends KeyValueRepositoryConfigurationExtension {
+public class TarantoolRepositoryConfigurationExtension
+    extends KeyValueRepositoryConfigurationExtension {
 
   /*
    * (non-Javadoc)
@@ -58,14 +59,17 @@ public class TarantoolRepositoryConfigurationExtension extends KeyValueRepositor
    *                          #registerBeansForRoot()
    */
   @Override
-  public void registerBeansForRoot(BeanDefinitionRegistry registry,
-      RepositoryConfigurationSource configurationSource) {
+  public void registerBeansForRoot(
+      BeanDefinitionRegistry registry, RepositoryConfigurationSource configurationSource) {
     // register a default set of beans based on the passed annotation attributes.
-    final ClientType clientTypeAttribute = configurationSource.getRequiredAttribute("clientType", ClientType.class);
+    final ClientType clientTypeAttribute =
+        configurationSource.getRequiredAttribute("clientType", ClientType.class);
 
     if (clientTypeAttribute == ClientType.CRUD) {
-      final String defaultCrudConfigurationBeanName = TarantoolCrudConfiguration.class.getCanonicalName();
-      registerIfNotAlreadyRegistered(() -> new RootBeanDefinition(TarantoolCrudConfiguration.class),
+      final String defaultCrudConfigurationBeanName =
+          TarantoolCrudConfiguration.class.getCanonicalName();
+      registerIfNotAlreadyRegistered(
+          () -> new RootBeanDefinition(TarantoolCrudConfiguration.class),
           registry,
           defaultCrudConfigurationBeanName,
           configurationSource);
@@ -76,26 +80,29 @@ public class TarantoolRepositoryConfigurationExtension extends KeyValueRepositor
 
     // remove KeyValueMappingContext to add TarantoolMappingContext
     registry.removeBeanDefinition(getMappingContextBeanRef());
-    registerIfNotAlreadyRegistered(() -> {
+    registerIfNotAlreadyRegistered(
+        () -> {
+          RootBeanDefinition definition = new RootBeanDefinition(TarantoolMappingContext.class);
+          definition.setSource(configurationSource.getSource());
 
-      RootBeanDefinition definition = new RootBeanDefinition(TarantoolMappingContext.class);
-      definition.setSource(configurationSource.getSource());
-
-      return definition;
-
-    }, registry, getMappingContextBeanRef(), configurationSource);
+          return definition;
+        },
+        registry,
+        getMappingContextBeanRef(),
+        configurationSource);
   }
 
   @Override
   protected AbstractBeanDefinition getDefaultKeyValueTemplateBeanDefinition(
       RepositoryConfigurationSource configurationSource) {
-    final RootBeanDefinition keyValueTemplateBeanDefinition = new RootBeanDefinition(TarantoolTemplate.class);
+    final RootBeanDefinition keyValueTemplateBeanDefinition =
+        new RootBeanDefinition(TarantoolTemplate.class);
 
     final ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
-    constructorArgumentValues.addIndexedArgumentValue(0, new RuntimeBeanReference(
-        DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF));
-    constructorArgumentValues.addIndexedArgumentValue(1, new RuntimeBeanReference(
-        getMappingContextBeanRef()));
+    constructorArgumentValues.addIndexedArgumentValue(
+        0, new RuntimeBeanReference(DEFAULT_TARANTOOL_CRUD_KEY_VALUE_ADAPTER_REF));
+    constructorArgumentValues.addIndexedArgumentValue(
+        1, new RuntimeBeanReference(getMappingContextBeanRef()));
 
     keyValueTemplateBeanDefinition.setConstructorArgumentValues(constructorArgumentValues);
     keyValueTemplateBeanDefinition.setSource(configurationSource);

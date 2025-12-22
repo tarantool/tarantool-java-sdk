@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 import org.testcontainers.containers.Container;
 import org.testcontainers.lifecycle.Startable;
 
-public interface TarantoolContainer<SELF extends TarantoolContainer<SELF>> extends Container<SELF>, Startable {
+public interface TarantoolContainer<SELF extends TarantoolContainer<SELF>>
+    extends Container<SELF>, Startable {
 
   Path DEFAULT_DATA_DIR = Paths.get("/", "data");
 
@@ -29,33 +30,21 @@ public interface TarantoolContainer<SELF extends TarantoolContainer<SELF>> exten
     start();
   }
 
-  /**
-   * Specify path to Tarantool config file.
-   */
+  /** Specify path to Tarantool config file. */
   TarantoolContainer<SELF> withConfigPath(Path configPath);
 
-  /**
-   * Specify path to Tarantool migrations directory.
-   */
+  /** Specify path to Tarantool migrations directory. */
   TarantoolContainer<SELF> withMigrationsPath(Path migrationsPath);
 
-  /**
-   * Get node name.
-   */
+  /** Get node name. */
   String node();
 
-  /**
-   * Get external address of node.
-   */
+  /** Get external address of node. */
   InetSocketAddress mappedAddress();
 
-  /**
-   * Get internal address of node.
-   */
+  /** Get internal address of node. */
   InetSocketAddress internalAddress();
 
-  /**
-   * Stop container without deleting data directory
-   */
+  /** Stop container without deleting data directory */
   void stopWithSafeMount();
 }

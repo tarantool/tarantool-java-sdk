@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,7 +23,8 @@ public class TarantoolClientQueueConfig {
   private final Map<String, Set<String>> connections;
 
   @JsonCreator
-  public TarantoolClientQueueConfig(@JsonProperty("connections") Map<String, Set<String>> connections) {
+  public TarantoolClientQueueConfig(
+      @JsonProperty("connections") Map<String, Set<String>> connections) {
     this.connections = connections;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -39,29 +39,27 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
   private static final int INVALID_PINGS = 2;
   private static final int DEATH_THRESHOLD = 4;
   private static final long RESTORE_TIMEOUT = (WINDOW_SIZE + 1) * (PING_INTERVAL + TIMER_ERROR_MS);
-  private static final HeartbeatOpts HEARTBEAT_OPTS = HeartbeatOpts
-      .getDefault()
-      .withPingInterval(PING_INTERVAL)
-      .withInvalidationThreshold(INVALID_PINGS)
-      .withWindowSize(WINDOW_SIZE)
-      .withDeathThreshold(DEATH_THRESHOLD);
-  private static final HeartbeatOpts CRUD_HEARTBEAT_OPTS = HeartbeatOpts
-      .getDefault()
-      .withPingInterval(PING_INTERVAL)
-      .withInvalidationThreshold(INVALID_PINGS)
-      .withWindowSize(WINDOW_SIZE)
-      .withDeathThreshold(DEATH_THRESHOLD)
-      .withCrudHealthCheck();
+  private static final HeartbeatOpts HEARTBEAT_OPTS =
+      HeartbeatOpts.getDefault()
+          .withPingInterval(PING_INTERVAL)
+          .withInvalidationThreshold(INVALID_PINGS)
+          .withWindowSize(WINDOW_SIZE)
+          .withDeathThreshold(DEATH_THRESHOLD);
+  private static final HeartbeatOpts CRUD_HEARTBEAT_OPTS =
+      HeartbeatOpts.getDefault()
+          .withPingInterval(PING_INTERVAL)
+          .withInvalidationThreshold(INVALID_PINGS)
+          .withWindowSize(WINDOW_SIZE)
+          .withDeathThreshold(DEATH_THRESHOLD)
+          .withCrudHealthCheck();
 
   @Container
-  private final TarantoolContainer tt1 = new TarantoolContainer()
-      .withEnv(ENV_MAP)
-      .withExposedPort(3305);
+  private final TarantoolContainer tt1 =
+      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
 
   @Container
-  private final TarantoolContainer tt2 = new TarantoolContainer()
-      .withEnv(ENV_MAP)
-      .withExposedPort(3305);
+  private final TarantoolContainer tt2 =
+      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
 
   @BeforeEach
   public void setUp() {
@@ -93,45 +91,54 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
     execLua(tt1, "lock_pipe(true)");
 
-    waitFor("Connections are still available", Duration.ofSeconds(10), () -> {
-      assertTrue(metricsRegistry.get("pool.heartbeat.success").counter().count() > 0);
-      assertTrue(metricsRegistry.get("pool.heartbeat.errors").counter().count() > 0);
-      assertEquals(count1, metricsRegistry.get("pool.invalidated").gauge().value());
-      assertEquals(count2, metricsRegistry.get("pool.available").gauge().value());
+    waitFor(
+        "Connections are still available",
+        Duration.ofSeconds(10),
+        () -> {
+          assertTrue(metricsRegistry.get("pool.heartbeat.success").counter().count() > 0);
+          assertTrue(metricsRegistry.get("pool.heartbeat.errors").counter().count() > 0);
+          assertEquals(count1, metricsRegistry.get("pool.invalidated").gauge().value());
+          assertEquals(count2, metricsRegistry.get("pool.available").gauge().value());
 
-      assertTrue(pool.hasAvailableClients());
+          assertTrue(pool.hasAvailableClients());
 
-      for (int i = 0; i < count1; i++) {
-        assertNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNotNull(pool.get("node-b", i));
-      }
-      assertEquals(count1, metricsRegistry.get("pool.request.unavail").counter().count());
-      assertEquals(count1 + 2 * count2, metricsRegistry.get("pool.request.success").counter().count());
+          for (int i = 0; i < count1; i++) {
+            assertNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNotNull(pool.get("node-b", i));
+          }
+          assertEquals(count1, metricsRegistry.get("pool.request.unavail").counter().count());
+          assertEquals(
+              count1 + 2 * count2, metricsRegistry.get("pool.request.success").counter().count());
 
-      assertEquals(count1, getActiveConnectionsCount(tt1));
-      assertEquals(count2, getActiveConnectionsCount(tt2));
-    });
+          assertEquals(count1, getActiveConnectionsCount(tt1));
+          assertEquals(count2, getActiveConnectionsCount(tt2));
+        });
 
     execLua(tt1, "lock_pipe(false)");
 
-    waitFor("Connections are still not restored", Duration.ofSeconds(10), () -> {
-      assertTrue(pool.hasAvailableClients());
-      assertEquals(count1 + count2, metricsRegistry.get("pool.available").gauge().value());
+    waitFor(
+        "Connections are still not restored",
+        Duration.ofSeconds(10),
+        () -> {
+          assertTrue(pool.hasAvailableClients());
+          assertEquals(count1 + count2, metricsRegistry.get("pool.available").gauge().value());
 
-      for (int i = 0; i < count1; i++) {
-        assertNotNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNotNull(pool.get("node-b", i));
-      }
-      assertEquals(2 * count1 + 3 * count2, metricsRegistry.get("pool.request.success").counter().count());
-      assertEquals(0, metricsRegistry.get("pool.invalidated").gauge().value());
+          for (int i = 0; i < count1; i++) {
+            assertNotNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNotNull(pool.get("node-b", i));
+          }
+          assertEquals(
+              2 * count1 + 3 * count2,
+              metricsRegistry.get("pool.request.success").counter().count());
+          assertEquals(0, metricsRegistry.get("pool.invalidated").gauge().value());
 
-      assertEquals(count1, getActiveConnectionsCount(tt1));
-      assertEquals(count2, getActiveConnectionsCount(tt2));
-    });
+          assertEquals(count1, getActiveConnectionsCount(tt1));
+          assertEquals(count2, getActiveConnectionsCount(tt2));
+        });
 
     pool.close();
   }
@@ -154,33 +161,39 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     execLua(tt1, "lock_pipe(true)");
     execLua(tt2, "lock_pipe(true)");
 
-    waitFor("Connections are still available", Duration.ofSeconds(10), () -> {
-      assertFalse(pool.hasAvailableClients());
+    waitFor(
+        "Connections are still available",
+        Duration.ofSeconds(10),
+        () -> {
+          assertFalse(pool.hasAvailableClients());
 
-      for (int i = 0; i < count1; i++) {
-        assertNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNull(pool.get("node-b", i));
-      }
+          for (int i = 0; i < count1; i++) {
+            assertNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNull(pool.get("node-b", i));
+          }
 
-      assertEquals(count1, getActiveConnectionsCount(tt1));
-      assertEquals(count2, getActiveConnectionsCount(tt2));
-    });
+          assertEquals(count1, getActiveConnectionsCount(tt1));
+          assertEquals(count2, getActiveConnectionsCount(tt2));
+        });
 
     execLua(tt1, "lock_pipe(false)");
     execLua(tt2, "lock_pipe(false)");
 
-    waitFor("Connections are still not restored", Duration.ofSeconds(10), () -> {
-      assertTrue(pool.hasAvailableClients());
+    waitFor(
+        "Connections are still not restored",
+        Duration.ofSeconds(10),
+        () -> {
+          assertTrue(pool.hasAvailableClients());
 
-      for (int i = 0; i < count1; i++) {
-        assertNotNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNotNull(pool.get("node-b", i));
-      }
-    });
+          for (int i = 0; i < count1; i++) {
+            assertNotNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNotNull(pool.get("node-b", i));
+          }
+        });
 
     assertEquals(count1, getActiveConnectionsCount(tt1));
     assertEquals(count2, getActiveConnectionsCount(tt2));
@@ -209,30 +222,36 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     execLua(tt1, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
     execLua(tt2, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
 
-    waitFor("Connections are still alive after breaking crud", Duration.ofSeconds(10), () -> {
-      assertFalse(pool.hasAvailableClients());
-      for (int i = 0; i < count1; i++) {
-        assertNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNull(pool.get("node-b", i));
-      }
-    });
+    waitFor(
+        "Connections are still alive after breaking crud",
+        Duration.ofSeconds(10),
+        () -> {
+          assertFalse(pool.hasAvailableClients());
+          for (int i = 0; i < count1; i++) {
+            assertNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNull(pool.get("node-b", i));
+          }
+        });
 
     execLua(tt1, "rawset(_G, 'crud', tmp_crud)");
     execLua(tt2, "rawset(_G, 'crud', tmp_crud)");
 
-    waitFor("Connections are still broken after fixing crud", Duration.ofSeconds(10), () -> {
-      assertTrue(pool.hasAvailableClients());
-      for (int i = 0; i < count1; i++) {
-        assertNotNull(pool.get("node-a", i));
-      }
-      for (int i = 0; i < count2; i++) {
-        assertNotNull(pool.get("node-b", i));
-      }
-      assertEquals(count1, getActiveConnectionsCount(tt1));
-      assertEquals(count2, getActiveConnectionsCount(tt2));
-    });
+    waitFor(
+        "Connections are still broken after fixing crud",
+        Duration.ofSeconds(10),
+        () -> {
+          assertTrue(pool.hasAvailableClients());
+          for (int i = 0; i < count1; i++) {
+            assertNotNull(pool.get("node-a", i));
+          }
+          for (int i = 0; i < count2; i++) {
+            assertNotNull(pool.get("node-b", i));
+          }
+          assertEquals(count1, getActiveConnectionsCount(tt1));
+          assertEquals(count2, getActiveConnectionsCount(tt2));
+        });
 
     pool.close();
   }
@@ -246,11 +265,12 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     List<IProtoClient> clientsA = getConnects(pool, "node-a", count1);
     List<IProtoClient> clientsB = getConnects(pool, "node-b", count2);
 
-    Runnable nodeAConnectsAreNotAvailable = () -> {
-      for (int i = 0; i < count1; i++) {
-        assertNull(pool.get("node-a", i));
-      }
-    };
+    Runnable nodeAConnectsAreNotAvailable =
+        () -> {
+          for (int i = 0; i < count1; i++) {
+            assertNull(pool.get("node-a", i));
+          }
+        };
 
     assertTrue(pingClients(clientsA));
     assertTrue(pingClients(clientsB));
@@ -275,7 +295,9 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
     log.info("check: A has no active connects");
-    waitFor("Not all connects to node A closed", Duration.ofMinutes(1),
+    waitFor(
+        "Not all connects to node A closed",
+        Duration.ofMinutes(1),
         () -> assertEquals(0, getActiveConnectionsCount(tt1)));
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
@@ -286,18 +308,23 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     // will be closes imediately
     log.info("check: A still has no active connects");
     waitFor("No connect for A is invalidated", Duration.ofMinutes(1), nodeAConnectsAreNotAvailable);
-    waitFor("Not all connects to node A closed", Duration.ofMinutes(1),
+    waitFor(
+        "Not all connects to node A closed",
+        Duration.ofMinutes(1),
         () -> assertEquals(0, getActiveConnectionsCount(tt1)));
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
     log.info("unlock pipe on A");
     execLua(tt1, "lock_pipe(false)");
 
-    waitFor("Not all connects to node A restored", Duration.ofMinutes(1), () -> {
-      for (int i = 0; i < count1; i++) {
-        assertNotNull(pool.get("node-a", i));
-      }
-    });
+    waitFor(
+        "Not all connects to node A restored",
+        Duration.ofMinutes(1),
+        () -> {
+          for (int i = 0; i < count1; i++) {
+            assertNotNull(pool.get("node-a", i));
+          }
+        });
     assertTrue(pool.hasAvailableClients());
 
     for (int i = 0; i < count2; i++) {

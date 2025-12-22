@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -37,14 +37,20 @@ public class TQEClusterImpl implements TQECluster {
     if (this.isClosed) {
       throw new IllegalStateException("Container is already closed. Please create new container");
     }
-    LOGGER.info("TQE cluster [name = {}, queue = {}, grpc = {}] is starting...", this.configurator.clusterName(),
-        this.queue().size(), this.grpc().size());
+    LOGGER.info(
+        "TQE cluster [name = {}, queue = {}, grpc = {}] is starting...",
+        this.configurator.clusterName(),
+        this.queue().size(),
+        this.grpc().size());
 
     startParallel(this.configurator.queue(), this.configurator);
     startParallel(this.configurator.grpc(), this.configurator);
     if (this.configurator.isConfigured()) {
-      LOGGER.warn("TQE cluster [name = {}, queue = {}, grpc = {}] already configured", this.configurator.clusterName(),
-          this.configurator.queue().size(), this.configurator.grpc().size());
+      LOGGER.warn(
+          "TQE cluster [name = {}, queue = {}, grpc = {}] already configured",
+          this.configurator.clusterName(),
+          this.configurator.queue().size(),
+          this.configurator.grpc().size());
       return;
     }
 
@@ -63,30 +69,34 @@ public class TQEClusterImpl implements TQECluster {
     }
   }
 
-  private static void startParallel(Map<String, ? extends Startable> containers, TQEConfigurator configurator) {
+  private static void startParallel(
+      Map<String, ? extends Startable> containers, TQEConfigurator configurator) {
 
     final Executor executor = Executors.newFixedThreadPool(containers.size());
     final List<CompletableFuture<?>> futures = new ArrayList<>(containers.size());
     final CopyOnWriteArrayList<Throwable> errors = new CopyOnWriteArrayList<>();
 
-    containers.forEach((name, c) -> futures.add(
-            CompletableFuture.runAsync(() -> {
-                  try {
-                    c.start();
-                  } catch (Exception e) {
-                    LOGGER.error("Error starting TQE container [container_name='{}']", name, e);
-                    errors.add(e);
-                  }
-                },
-                executor)
-        )
-    );
+    containers.forEach(
+        (name, c) ->
+            futures.add(
+                CompletableFuture.runAsync(
+                    () -> {
+                      try {
+                        c.start();
+                      } catch (Exception e) {
+                        LOGGER.error("Error starting TQE container [container_name='{}']", name, e);
+                        errors.add(e);
+                      }
+                    },
+                    executor)));
 
-    CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).join();
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
 
     if (!errors.isEmpty()) {
       throw new ContainerLaunchException(
-          "TQE cluster[cluster_name='" + configurator.clusterName() + "'] cannot start. See logs for details.");
+          "TQE cluster[cluster_name='"
+              + configurator.clusterName()
+              + "'] cannot start. See logs for details.");
     }
   }
 

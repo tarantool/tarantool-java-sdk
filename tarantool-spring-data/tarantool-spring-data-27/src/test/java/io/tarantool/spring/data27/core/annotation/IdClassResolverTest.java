@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,8 +24,9 @@ class IdClassResolverTest {
   @Test
   void testResolveIdClassTypeWithNullEntity() {
 
-    final IllegalArgumentException throwable = assertThrows(IllegalArgumentException.class,
-        () -> ID_CLASS_RESOLVER.resolveIdClassType(null));
+    final IllegalArgumentException throwable =
+        assertThrows(
+            IllegalArgumentException.class, () -> ID_CLASS_RESOLVER.resolveIdClassType(null));
     final String EXCEPTION_MESSAGE = "Type for IdClass must be not null!";
     assertEquals(EXCEPTION_MESSAGE, throwable.getMessage());
   }
@@ -37,13 +38,15 @@ class IdClassResolverTest {
 
   @Test
   void testResolveIdClassTypeWithEntityWithAnnotation() {
-    assertEquals(ID_CLASS_RESOLVER.resolveIdClassType(ComplexPerson.class), CompositePersonKey.class);
+    assertEquals(
+        ID_CLASS_RESOLVER.resolveIdClassType(ComplexPerson.class), CompositePersonKey.class);
   }
 
   @Test
   void testResolveIdClassTypeWithCrossAnnotation() {
     final IllegalArgumentException throwable =
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+            IllegalArgumentException.class,
             () -> ID_CLASS_RESOLVER.resolveIdClassType(EntityWithAnnotationAsIdClass.class));
 
     assertEquals(DefaultIdClassResolver.ANNOTATION_TYPE_EXCEPTION, throwable.getMessage());

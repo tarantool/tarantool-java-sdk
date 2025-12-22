@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -36,17 +36,16 @@ import io.tarantool.client.crud.options.SelectOptions;
 import io.tarantool.spring.data.query.PaginationDirection;
 
 /**
- * <p>
- * There is one instance for each query method defined for a repository, providing a query from the bind parameters.
- * </p>
+ * There is one instance for each query method defined for a repository, providing a query from the
+ * bind parameters.
  *
  * @author Artyom Dubinin
  */
 public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
 
   public static final String ILLEGAL_RETURN_TYPE_FOR_DELETE =
-      "Illegal returned type: %s. " +
-          "The operation 'deleteBy' accepts only 'long' and 'Collection' as the returned object type";
+      "Illegal returned type: %s. The operation 'deleteBy' accepts only 'long' and 'Collection' as"
+          + " the returned object type";
   public static final String QUERY_METHOD_S_NOT_SUPPORTED = "Query method '%s' not supported.";
   private final QueryMethod queryMethod;
   private final KeyValueOperations keyValueOperations;
@@ -64,16 +63,17 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   private int[] rearrangeIndex;
 
   /**
-   * <p>
-   * Create a {@link RepositoryQuery} implementation for each query method defined in a tarantool repository.
-   * </p>
+   * Create a {@link RepositoryQuery} implementation for each query method defined in a tarantool
+   * repository.
    *
-   * @param queryMethod               Method defined in Tarantool Repositories
+   * @param queryMethod Method defined in Tarantool Repositories
    * @param evaluationContextProvider Not used
-   * @param keyValueOperations        Interface to Tarantool
-   * @param queryCreator              Not used
+   * @param keyValueOperations Interface to Tarantool
+   * @param queryCreator Not used
    */
-  public TarantoolPartTreeQuery(QueryMethod queryMethod, QueryMethodEvaluationContextProvider evaluationContextProvider,
+  public TarantoolPartTreeQuery(
+      QueryMethod queryMethod,
+      QueryMethodEvaluationContextProvider evaluationContextProvider,
       KeyValueOperations keyValueOperations,
       Class<? extends AbstractQueryCreator<?, ?>> queryCreator) {
     super(queryMethod, evaluationContextProvider, keyValueOperations, queryCreator);
@@ -97,12 +97,9 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   }
 
   /**
-   * <p>
    * Execute this query instance, using any invocation parameters.
-   * </p>
-   * <p>
-   * Expecting {@code findBy...()}, {@code countBy...()} or {@code deleteBy...()}
-   * </p>
+   *
+   * <p>Expecting {@code findBy...()}, {@code countBy...()} or {@code deleteBy...()}
    *
    * @param parameters Any parameters
    * @return Query result
@@ -140,17 +137,19 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
       return this.executeSliceQuery(query, accessor);
     }
 
-    if (queryMethod.isCollectionQuery() || queryMethod.isQueryForEntity() || queryMethod.isStreamQuery()) {
+    if (queryMethod.isCollectionQuery()
+        || queryMethod.isQueryForEntity()
+        || queryMethod.isStreamQuery()) {
       return this.executeFindQuery(query);
     }
 
     throw new UnsupportedOperationException(
-        String.format(QUERY_METHOD_S_NOT_SUPPORTED, queryMethod.getName())
-    );
+        String.format(QUERY_METHOD_S_NOT_SUPPORTED, queryMethod.getName()));
   }
 
   /**
    * Execute a "delete" query, not really a query more of an operation.
+   *
    * <p>
    *
    * @param query The query to run
@@ -169,20 +168,16 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
     if (queryMethod.isCollectionQuery()) {
       return result;
     }
-    if (long.class.equals(returnType) ||
-        Long.class.equals(returnType)) {
+    if (long.class.equals(returnType) || Long.class.equals(returnType)) {
       return result.size();
     }
     throw new UnsupportedOperationException(
-        String.format(ILLEGAL_RETURN_TYPE_FOR_DELETE, returnType)
-    );
+        String.format(ILLEGAL_RETURN_TYPE_FOR_DELETE, returnType));
   }
 
   /**
-   * <p>
-   * Execute a retrieval query. The query engine will return this in an iterator, which may need conversion to a single
-   * domain entity or a stream.
-   * </p>
+   * Execute a retrieval query. The query engine will return this in an iterator, which may need
+   * conversion to a single domain entity or a stream.
    *
    * @param query The query to run
    * @return Query result
@@ -191,8 +186,10 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
 
     Iterable<?> resultSet = this.keyValueOperations.find(query, targetType);
 
-    if (!queryMethod.isCollectionQuery() && !queryMethod.isPageQuery() && !queryMethod.isSliceQuery() && !queryMethod
-        .isStreamQuery()) {
+    if (!queryMethod.isCollectionQuery()
+        && !queryMethod.isPageQuery()
+        && !queryMethod.isSliceQuery()
+        && !queryMethod.isStreamQuery()) {
       // Singleton result
       return resultSet.iterator().hasNext() ? resultSet.iterator().next() : null;
     }
@@ -219,19 +216,19 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   /**
    * Execute the slice request.
    *
-   * @param query    query
+   * @param query query
    * @param accessor accessor
    * @return slice selection result.
    */
-  private Object executePageQuery(final KeyValueQuery<?> query,
-      ParametersParameterAccessor accessor) {
+  private Object executePageQuery(
+      final KeyValueQuery<?> query, ParametersParameterAccessor accessor) {
 
     Pageable pageParams = accessor.getPageable();
     return doPageQuery(pageParams, query, this.keyValueOperations, targetType);
   }
 
-  private Object executeSliceQuery(final KeyValueQuery<?> query,
-      ParametersParameterAccessor accessor) {
+  private Object executeSliceQuery(
+      final KeyValueQuery<?> query, ParametersParameterAccessor accessor) {
 
     Pageable sliceParams = accessor.getPageable();
 
@@ -243,8 +240,9 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
 
     int pageSize = resultSliceParams.getPageSize();
 
-    List<?> content = doPaginationQuery(query, resultSliceParams, pageSize + 1, this.keyValueOperations,
-        targetType);
+    List<?> content =
+        doPaginationQuery(
+            query, resultSliceParams, pageSize + 1, this.keyValueOperations, targetType);
 
     if (content.isEmpty()) {
       return new TarantoolSliceImpl<>();
@@ -256,23 +254,23 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
     List<?> result = content;
     if (hasNext) {
       switch (paginationDirection) {
-        case FORWARD: {
-          result = content.subList(0, pageSize);
-          break;
-        }
-        case BACKWARD: {
-          result = content.subList(1, content.size());
-          break;
-        }
+        case FORWARD:
+          {
+            result = content.subList(0, pageSize);
+            break;
+          }
+        case BACKWARD:
+          {
+            result = content.subList(1, content.size());
+            break;
+          }
       }
     }
     return new TarantoolSliceImpl<>(result, resultSliceParams, hasNext);
   }
 
   /**
-   * <p>
    * Create the query from the bind parameters.
-   * </p>
    *
    * @return A ready-to-use query
    */
@@ -280,11 +278,11 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   protected KeyValueQuery<?> prepareQuery(ParametersParameterAccessor accessor) {
     KeyValueQuery<?> query = createQuery(accessor);
 
-     /*
-     If there is no limitation in the name of the method, we always put a
-     limit so that don't think about this in the engine, especially when distinguishing between a regular query and a
-     paginated query.
-     */
+    /*
+    If there is no limitation in the name of the method, we always put a
+    limit so that don't think about this in the engine, especially when distinguishing between a regular query and a
+    paginated query.
+    */
     if (!tree.isLimiting()) {
       query.setRows(SelectOptions.DEFAULT_LIMIT);
     }
@@ -297,37 +295,30 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   }
 
   /**
-   * <p>
    * Handle {@code @Param}.
-   * </p>
+   *
    * <OL>
-   * <li>
-   * <b>Without {@code @Param}</b>
-   * <p>
-   * Arguments to the call are assumed to follow the same sequence as cited in the method name.
-   * </p>
-   * <br>
-   * Eg.
-   * <pre>
+   *   <li><b>Without {@code @Param}</b>
+   *       <p>Arguments to the call are assumed to follow the same sequence as cited in the method
+   *       name. <br>
+   *       Eg.
+   *       <pre>
    *     findBy<U>One</U>And<U>Two</U>(String <U>one</U>, String <U>two</U>);
    *     </pre>
-   * </li>
-   * <li><b>With {@code @Param}</b>
-   * <p>
-   * Arguments to the call are use the {@code @Param} to match them against the fields.
-   * <p>
-   * Eg.
-   * <pre>
+   *   <li><b>With {@code @Param}</b>
+   *       <p>Arguments to the call are use the {@code @Param} to match them against the fields.
+   *       <p>Eg.
+   *       <pre>
    *   findBy<U>One</U>And<U>Two</U>(@Param("two") String <U>two</U>, @Param("one") String <U>one</U>);
    *   </pre>
-   * </li>
    * </ol>
    *
    * @param originalParameters Possibly empty
-   * @param partTree           Query tree to traverse
+   * @param partTree Query tree to traverse
    * @return Parameters in correct order
    */
-  private ParametersParameterAccessor prepareAccessor(final Object[] originalParameters, final PartTree partTree) {
+  private ParametersParameterAccessor prepareAccessor(
+      final Object[] originalParameters, final PartTree partTree) {
 
     if (!this.isRearrangeKnown) {
       this.prepareRearrange(partTree, this.queryMethod.getParameters().getBindableParameters());
@@ -350,19 +341,17 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
   }
 
   /**
-   * <p>
    * Determine if the arguments to the method need reordered.
-   * </p>
-   * <p>
-   * For searches such as {@code findBySomethingNotNull} there may be more parts than parameters needed to be bound to
-   * them.
-   * </p>
    *
-   * @param partTree           Query parts
+   * <p>For searches such as {@code findBySomethingNotNull} there may be more parts than parameters
+   * needed to be bound to them.
+   *
+   * @param partTree Query parts
    * @param bindableParameters Parameters expected
    */
   @SuppressWarnings("unchecked")
-  private void prepareRearrange(final PartTree partTree, final Parameters<?, ?> bindableParameters) {
+  private void prepareRearrange(
+      final PartTree partTree, final Parameters<?, ?> bindableParameters) {
 
     this.isRearrangeRequired = false;
     if (partTree == null || bindableParameters == null) {
@@ -376,7 +365,8 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
       queryParams.add(part.getProperty().getSegment());
     }
 
-    Iterator<Parameter> bindableParameterIterator = (Iterator<Parameter>) bindableParameters.iterator();
+    Iterator<Parameter> bindableParameterIterator =
+        (Iterator<Parameter>) bindableParameters.iterator();
     while (bindableParameterIterator.hasNext()) {
       Parameter parameter = bindableParameterIterator.next();
       parameter.getName().ifPresent(methodParams::add);

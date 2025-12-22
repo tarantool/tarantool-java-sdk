@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -56,7 +56,8 @@ public class IProtoSelect extends IProtoBaseRequest {
   private ArrayValue key;
   private byte[] rawKey;
 
-  public IProtoSelect(final Integer spaceId,
+  public IProtoSelect(
+      final Integer spaceId,
       final String spaceName,
       final Integer indexId,
       final String indexName,
@@ -83,7 +84,8 @@ public class IProtoSelect extends IProtoBaseRequest {
     this.afterMode = afterMode;
   }
 
-  public IProtoSelect(final Integer spaceId,
+  public IProtoSelect(
+      final Integer spaceId,
       final String spaceName,
       final Integer indexId,
       final String indexName,
@@ -139,45 +141,45 @@ public class IProtoSelect extends IProtoBaseRequest {
     }
 
     if (spaceId != null) {
-      packer.addPayload(RAW_IPROTO_SPACE_ID);  // key
-      packer.packInt(spaceId);                 // value
+      packer.addPayload(RAW_IPROTO_SPACE_ID); // key
+      packer.packInt(spaceId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_SPACE_NAME);  // key
+      packer.addPayload(RAW_IPROTO_SPACE_NAME); // key
       packer.packString(spaceName);
     }
 
     if (indexId != null) {
-      packer.addPayload(RAW_IPROTO_INDEX_ID);  // key
-      packer.packInt(indexId);                 // value
+      packer.addPayload(RAW_IPROTO_INDEX_ID); // key
+      packer.packInt(indexId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_INDEX_NAME);  // key
+      packer.addPayload(RAW_IPROTO_INDEX_NAME); // key
       packer.packString(indexName);
     }
 
-    packer.addPayload(RAW_IPROTO_LIMIT);  // key
-    packer.packInt(limit);                // value
+    packer.addPayload(RAW_IPROTO_LIMIT); // key
+    packer.packInt(limit); // value
 
-    packer.addPayload(RAW_IPROTO_OFFSET);  // key
-    packer.packInt(offset);                // value
+    packer.addPayload(RAW_IPROTO_OFFSET); // key
+    packer.packInt(offset); // value
 
-    packer.addPayload(RAW_IPROTO_ITERATOR);  // key
-    packer.packInt(iterator);                // value
+    packer.addPayload(RAW_IPROTO_ITERATOR); // key
+    packer.packInt(iterator); // value
 
     packer.addPayload(RAW_IPROTO_KEY); // key
-    packValue(packer, rawKey, key);    // value
+    packValue(packer, rawKey, key); // value
 
     if (fetchPosition) {
-      packer.addPayload(RAW_IPROTO_FETCH_POSITION);  // key
-      packer.packBoolean(true);                   // value
+      packer.addPayload(RAW_IPROTO_FETCH_POSITION); // key
+      packer.packBoolean(true); // value
     }
 
     if (after != null) {
       if (afterMode != null && afterMode.equals(SelectAfterMode.POSITION)) {
-        packer.addPayload(RAW_IPROTO_AFTER_POSITION);  // key
+        packer.addPayload(RAW_IPROTO_AFTER_POSITION); // key
       } else {
-        packer.addPayload(RAW_IPROTO_AFTER_TUPLE);  // key
+        packer.addPayload(RAW_IPROTO_AFTER_TUPLE); // key
       }
-      packer.addPayload(after);                       // value
+      packer.addPayload(after); // value
     }
 
     return getPacketFromBase(packer);

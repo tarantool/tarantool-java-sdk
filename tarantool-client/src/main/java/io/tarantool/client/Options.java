@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.client;
 
 /**
- * <p>Provides a contract for basic client options.</p>
+ * Provides a contract for basic client options.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -14,14 +14,14 @@ package io.tarantool.client;
 public interface Options {
 
   /**
-   * <p> Returns timeout of operation.</p>
+   * Returns timeout of operation.
    *
    * @return timeout value in milliseconds.
    */
   long getTimeout();
 
   /**
-   * <p> Returns stream id of operation.</p>
+   * Returns stream id of operation.
    *
    * @return null - if stream id is null, otherwise - stream id value.
    */

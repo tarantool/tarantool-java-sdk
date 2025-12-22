@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,24 +35,15 @@ import io.tarantool.core.connection.exceptions.IdleTimeoutException;
 import io.tarantool.core.protocol.IProtoMessage;
 import io.tarantool.core.protocol.IProtoResponse;
 
-
-/**
- * The type Connection.
- */
+/** The type Connection. */
 public class ConnectionImpl implements Connection {
 
   private enum CloseReason {
-    /**
-     * No reason close reason.
-     */
+    /** No reason close reason. */
     NO_REASON(ERR_CONNECT_FAILED),
-    /**
-     * Closed by client close reason.
-     */
+    /** Closed by client close reason. */
     CLOSED_BY_CLIENT(ERR_CLOSED_BY_CLIENT),
-    /**
-     * Closed by shutdown close reason.
-     */
+    /** Closed by shutdown close reason. */
     CLOSED_BY_SHUTDOWN(ERR_CLOSED_BY_SHUTDOWN);
 
     private final String message;
@@ -72,21 +63,13 @@ public class ConnectionImpl implements Connection {
   }
 
   private enum State {
-    /**
-     * Closed state.
-     */
+    /** Closed state. */
     CLOSED(ERR_NOT_CONNECTED),
-    /**
-     * Connecting state.
-     */
+    /** Connecting state. */
     CONNECTING(ERR_CONNECTING),
-    /**
-     * Waiting state.
-     */
+    /** Waiting state. */
     WAITING(ERR_WAITING),
-    /**
-     * Ready state.
-     */
+    /** Ready state. */
     READY(ERR_CONNECTED),
     CLOSING(ERR_CLOSING);
 
@@ -106,7 +89,8 @@ public class ConnectionImpl implements Connection {
     }
   }
 
-  private static final String ERR_CONNECT_FAILED = "Failed to connect to the Tarantool server at %s";
+  private static final String ERR_CONNECT_FAILED =
+      "Failed to connect to the Tarantool server at %s";
   private static final String ERR_CONNECTED = "Connection is established";
   private static final String ERR_CONNECTING = "Connection is establishing";
   private static final String ERR_CLOSING = "Connection is closing";
@@ -117,10 +101,8 @@ public class ConnectionImpl implements Connection {
   private static final String ERR_NOT_CONNECTED = "Connection is not established";
   private static final String ERR_SEND_FAILURE = "Failed to send IProto message: %s";
 
-  /**
-   * The constant log.
-   */
-  final static Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
+  /** The constant log. */
+  static final Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
 
   private final Bootstrap bootstrap;
   private final Timer timerService;
@@ -141,7 +123,7 @@ public class ConnectionImpl implements Connection {
   /**
    * Instantiates a new Connection.
    *
-   * @param bootstrap    the bootstrap
+   * @param bootstrap the bootstrap
    * @param timerService the timer service
    */
   protected ConnectionImpl(Bootstrap bootstrap, Timer timerService) {
@@ -151,9 +133,9 @@ public class ConnectionImpl implements Connection {
   /**
    * Instantiates a new Connection.
    *
-   * @param bootstrap                 the bootstrap
-   * @param sslContext                the ssl context
-   * @param timerService              the timer service
+   * @param bootstrap the bootstrap
+   * @param sslContext the ssl context
+   * @param timerService the timer service
    * @param flushConsolidationHandler the flush consolidation handler
    */
   protected ConnectionImpl(
@@ -161,17 +143,17 @@ public class ConnectionImpl implements Connection {
       SslContext sslContext,
       Timer timerService,
       FlushConsolidationHandler flushConsolidationHandler) {
-    this(bootstrap, sslContext, timerService, flushConsolidationHandler, (c, err) -> { });
+    this(bootstrap, sslContext, timerService, flushConsolidationHandler, (c, err) -> {});
   }
 
   /**
    * Instantiates a new Connection.
    *
-   * @param bootstrap                 the bootstrap
-   * @param sslContext                the ssl context
-   * @param timerService              the timer service
+   * @param bootstrap the bootstrap
+   * @param sslContext the ssl context
+   * @param timerService the timer service
    * @param flushConsolidationHandler the flush consolidation handler
-   * @param idleTimeoutConsumer       the consumer for errors of idle timeout
+   * @param idleTimeoutConsumer the consumer for errors of idle timeout
    */
   protected ConnectionImpl(
       Bootstrap bootstrap,
@@ -205,21 +187,23 @@ public class ConnectionImpl implements Connection {
 
       CompletableFuture<Greeting> promise = new CompletableFuture<>();
       scheduleGreetingTimeout(promise, timeoutMs);
-      connectPromise = promise
-          .thenApply(greeting -> {
-            cancelGreetingTimeout();
-            log.info("{} connected to {}", this, address);
-            this.greeting = greeting;
-            state.set(State.READY);
-            return greeting;
-          });
+      connectPromise =
+          promise.thenApply(
+              greeting -> {
+                cancelGreetingTimeout();
+                log.info("{} connected to {}", this, address);
+                this.greeting = greeting;
+                state.set(State.READY);
+                return greeting;
+              });
 
-      channel = bootstrap
-          .handler(getInitializer(promise, sslContext))
-          .remoteAddress(address)
-          .connect()
-          .addListener(onChannelConnect(promise, address))
-          .channel();
+      channel =
+          bootstrap
+              .handler(getInitializer(promise, sslContext))
+              .remoteAddress(address)
+              .connect()
+              .addListener(onChannelConnect(promise, address))
+              .channel();
     } else if (state.get() == State.CLOSING) {
       throw new IllegalStateException(state.get().getMessage());
     }
@@ -240,21 +224,20 @@ public class ConnectionImpl implements Connection {
     }
 
     CompletableFuture<Void> promise = new CompletableFuture<>();
-    channel.writeAndFlush(msg).addListener(f -> {
-      if (f.isSuccess()) {
-        log.debug("Message \"{}\" has been sent", msg);
-        completePromise(promise, null);
-        return;
-      }
+    channel
+        .writeAndFlush(msg)
+        .addListener(
+            f -> {
+              if (f.isSuccess()) {
+                log.debug("Message \"{}\" has been sent", msg);
+                completePromise(promise, null);
+                return;
+              }
 
-      failPromise(
-          promise,
-          new ConnectionException(
-              String.format(ERR_SEND_FAILURE, msg),
-              f.cause()
-          )
-      );
-    });
+              failPromise(
+                  promise,
+                  new ConnectionException(String.format(ERR_SEND_FAILURE, msg), f.cause()));
+            });
 
     return promise;
   }
@@ -295,7 +278,8 @@ public class ConnectionImpl implements Connection {
   }
 
   @Override
-  public Connection onClose(ConnectionCloseEvent event, BiConsumer<Connection, Throwable> callback) {
+  public Connection onClose(
+      ConnectionCloseEvent event, BiConsumer<Connection, Throwable> callback) {
     if (!closeListeners.containsKey(event)) {
       closeListeners.put(event, new ArrayList<>());
     }
@@ -326,13 +310,15 @@ public class ConnectionImpl implements Connection {
     return !this.channel.config().isAutoRead();
   }
 
-  private ConnectionChannelInitializer getInitializer(CompletableFuture<Greeting> promise, SslContext sslContext) {
-    ConnectionChannelInitializer.Builder initializerBuilder = new ConnectionChannelInitializer.Builder()
-        .withConnectPromise(promise)
-        .withMessageHandler(this::handleMessage)
-        .withFlushConsolidationHandler(flushConsolidationHandler)
-        .withCloseHandler(this::onChannelClose)
-        .withIdleTimeout(this.idleTimeout);
+  private ConnectionChannelInitializer getInitializer(
+      CompletableFuture<Greeting> promise, SslContext sslContext) {
+    ConnectionChannelInitializer.Builder initializerBuilder =
+        new ConnectionChannelInitializer.Builder()
+            .withConnectPromise(promise)
+            .withMessageHandler(this::handleMessage)
+            .withFlushConsolidationHandler(flushConsolidationHandler)
+            .withCloseHandler(this::onChannelClose)
+            .withIdleTimeout(this.idleTimeout);
 
     if (sslContext == null) {
       return initializerBuilder.build();
@@ -342,24 +328,21 @@ public class ConnectionImpl implements Connection {
   }
 
   /**
-   * This method returns callback for connectFuture to handle failures and exceptions which can occur during connection
-   * process.
+   * This method returns callback for connectFuture to handle failures and exceptions which can
+   * occur during connection process.
    *
    * @param promise greeting promise
    * @param address IP socket address
    * @return specified listener to the future
    */
-  private ChannelFutureListener onChannelConnect(CompletableFuture<Greeting> promise,
-      InetSocketAddress address) {
+  private ChannelFutureListener onChannelConnect(
+      CompletableFuture<Greeting> promise, InetSocketAddress address) {
     return f -> {
       if (!f.isSuccess()) {
         failPromise(
             promise,
             new ConnectionException(
-                String.format(closedBy.get().getMessage(), address),
-                f.cause()
-            )
-        );
+                String.format(closedBy.get().getMessage(), address), f.cause()));
         return;
       }
 
@@ -427,15 +410,19 @@ public class ConnectionImpl implements Connection {
     if (timeoutMs <= 0) {
       throw new IllegalStateException("Timeout must be greater than zero!");
     }
-    timeoutHandler = this.timerService.newTimeout(timeoutHandler -> {
-      if (promise.isDone()) {
-        return;
-      }
-      if (state.get() == State.CONNECTING || state.get() == State.WAITING) {
-        channel.pipeline().close();
-        promise.completeExceptionally(new TimeoutException("Connection timeout"));
-      }
-    }, timeoutMs, TimeUnit.MILLISECONDS);
+    timeoutHandler =
+        this.timerService.newTimeout(
+            timeoutHandler -> {
+              if (promise.isDone()) {
+                return;
+              }
+              if (state.get() == State.CONNECTING || state.get() == State.WAITING) {
+                channel.pipeline().close();
+                promise.completeExceptionally(new TimeoutException("Connection timeout"));
+              }
+            },
+            timeoutMs,
+            TimeUnit.MILLISECONDS);
   }
 
   private void cancelGreetingTimeout() {

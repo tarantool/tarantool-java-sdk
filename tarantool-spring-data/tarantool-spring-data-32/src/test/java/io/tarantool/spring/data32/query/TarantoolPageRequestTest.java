@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -46,7 +46,6 @@ class TarantoolPageRequestTest {
             Sort.unsorted(),
             null,
             FORWARD),
-
         Arguments.of(
             (Supplier<TarantoolPageable<GenericPerson<?>>>)
                 () -> new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR),
@@ -67,8 +66,13 @@ class TarantoolPageRequestTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestConstructors")
-  void testConstructors(Supplier<TarantoolPageable<GenericPerson<?>>> constructorGenerator,
-      int pageNumber, int size, Sort sort, GenericPerson<?> cursor, PaginationDirection direction) {
+  void testConstructors(
+      Supplier<TarantoolPageable<GenericPerson<?>>> constructorGenerator,
+      int pageNumber,
+      int size,
+      Sort sort,
+      GenericPerson<?> cursor,
+      PaginationDirection direction) {
     TarantoolPageable<GenericPerson<?>> pageable = constructorGenerator.get();
 
     assertEquals(size, pageable.getPageSize());
@@ -81,7 +85,8 @@ class TarantoolPageRequestTest {
   protected static Stream<Arguments> dataTestGetSort() {
     return Stream.of(
         Arguments.of(
-            (Supplier<TarantoolPageable<GenericPerson<?>>>) () -> new TarantoolPageRequest<>(PAGE_SIZE),
+            (Supplier<TarantoolPageable<GenericPerson<?>>>)
+                () -> new TarantoolPageRequest<>(PAGE_SIZE),
             Sort.unsorted()),
         Arguments.of(
             (Supplier<TarantoolPageable<GenericPerson<?>>>)
@@ -99,7 +104,8 @@ class TarantoolPageRequestTest {
   protected static Stream<Arguments> dataForTestGetTupleCursor() {
     return Stream.of(
         Arguments.of(
-            (Supplier<TarantoolPageable<GenericPerson<?>>>) () -> new TarantoolPageRequest<>(PAGE_SIZE),
+            (Supplier<TarantoolPageable<GenericPerson<?>>>)
+                () -> new TarantoolPageRequest<>(PAGE_SIZE),
             null),
         Arguments.of(
             (Supplier<TarantoolPageable<GenericPerson<?>>>)
@@ -109,23 +115,26 @@ class TarantoolPageRequestTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestGetTupleCursor")
-  void testGetTupleCursor(Supplier<TarantoolPageable<GenericPerson<?>>> constructorGenerator, GenericPerson<?> person) {
+  void testGetTupleCursor(
+      Supplier<TarantoolPageable<GenericPerson<?>>> constructorGenerator, GenericPerson<?> person) {
     TarantoolPageable<GenericPerson<?>> pageable = constructorGenerator.get();
     assertEquals(person, pageable.getTupleCursor());
   }
 
   protected static Stream<Arguments> dataForTestNext() {
-    final Person NEXT_CURSOR = new Person(CURSOR.getId() + PAGE_SIZE, CURSOR.getIsMarried(), CURSOR.getName());
+    final Person NEXT_CURSOR =
+        new Person(CURSOR.getId() + PAGE_SIZE, CURSOR.getIsMarried(), CURSOR.getName());
     return Stream.of(
         Arguments.of(
-            new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR),
-            CURSOR,
-            NEXT_CURSOR));
+            new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR), CURSOR, NEXT_CURSOR));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestNext")
-  void testNext(TarantoolPageable<GenericPerson<?>> pageable, GenericPerson<?> cursor, GenericPerson<?> nextCursor) {
+  void testNext(
+      TarantoolPageable<GenericPerson<?>> pageable,
+      GenericPerson<?> cursor,
+      GenericPerson<?> nextCursor) {
     assertEquals(cursor, pageable.getTupleCursor());
 
     TarantoolPageable<GenericPerson<?>> nextPageable = pageable.next(nextCursor);
@@ -145,17 +154,18 @@ class TarantoolPageRequestTest {
 
   protected static Stream<Arguments> dataTestGetPaginationDirection() {
     final Person PREV_CURSOR = new Person(CURSOR.getId(), CURSOR.getIsMarried(), CURSOR.getName());
-    final Person NEXT_CURSOR = new Person(PREV_CURSOR.getId() + PAGE_SIZE, CURSOR.getIsMarried(), CURSOR.getName());
+    final Person NEXT_CURSOR =
+        new Person(PREV_CURSOR.getId() + PAGE_SIZE, CURSOR.getIsMarried(), CURSOR.getName());
     return Stream.of(
         Arguments.of(
-            new TarantoolPageRequest<>(1, PAGE_SIZE, NEXT_CURSOR),
-            NEXT_CURSOR,
-            PREV_CURSOR));
+            new TarantoolPageRequest<>(1, PAGE_SIZE, NEXT_CURSOR), NEXT_CURSOR, PREV_CURSOR));
   }
 
   @ParameterizedTest
   @MethodSource("dataTestGetPaginationDirection")
-  void testGetPaginationDirection(TarantoolPageable<GenericPerson<?>> pageable, GenericPerson<?> nextCursor,
+  void testGetPaginationDirection(
+      TarantoolPageable<GenericPerson<?>> pageable,
+      GenericPerson<?> nextCursor,
       GenericPerson<?> prevCursor) {
 
     assertEquals(FORWARD, pageable.getPaginationDirection());
@@ -178,7 +188,8 @@ class TarantoolPageRequestTest {
 
   @ParameterizedTest
   @MethodSource("dataTestFirst")
-  void testFirst(TarantoolPageable<GenericPerson<?>> pageable,
+  void testFirst(
+      TarantoolPageable<GenericPerson<?>> pageable,
       TarantoolPageable<GenericPerson<?>> exceptedFirstPageable) {
     assertEquals(exceptedFirstPageable, pageable.first());
   }
@@ -199,7 +210,8 @@ class TarantoolPageRequestTest {
 
   @ParameterizedTest
   @MethodSource("dataTestPreviousOrFirst")
-  void testPreviousOrFirst(TarantoolPageable<GenericPerson<?>> pageable, GenericPerson<?> prevCursor) {
+  void testPreviousOrFirst(
+      TarantoolPageable<GenericPerson<?>> pageable, GenericPerson<?> prevCursor) {
 
     TarantoolPageable<GenericPerson<?>> prevPageable = pageable.previousOrFirst(prevCursor);
 
@@ -232,15 +244,14 @@ class TarantoolPageRequestTest {
             Arrays.asList(
                 new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR),
                 new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR),
-                new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR)
-            ),
-            new TarantoolPageRequest<>(PAGE_SIZE)
-        ));
+                new TarantoolPageRequest<>(PAGE_NUMBER, PAGE_SIZE, CURSOR)),
+            new TarantoolPageRequest<>(PAGE_SIZE)));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestEquals")
-  void testEquals(List<TarantoolPageable<GenericPerson<?>>> equalPageableList,
+  void testEquals(
+      List<TarantoolPageable<GenericPerson<?>>> equalPageableList,
       TarantoolPageable<GenericPerson<?>> notEqualPageable) {
 
     assertTrue(equalPageableList.size() > 0);
@@ -259,7 +270,8 @@ class TarantoolPageRequestTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEquals")
-  void testHashCode(List<TarantoolPageable<GenericPerson<?>>> equalPageableList,
+  void testHashCode(
+      List<TarantoolPageable<GenericPerson<?>>> equalPageableList,
       TarantoolPageable<GenericPerson<?>> notEqualPageable) {
 
     for (TarantoolPageable<GenericPerson<?>> pageable : equalPageableList) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -22,24 +22,25 @@ import io.tarantool.core.connection.Connection;
 import io.tarantool.core.connection.ConnectionCloseEvent;
 import io.tarantool.core.connection.exceptions.ConnectionClosedException;
 
-
 @Timeout(value = 5)
 @Testcontainers
 public class ConnectionCloseOnClientSideTest extends BaseTest {
 
-  @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
 
   @Test
   public void testConnectAndClose() throws Exception {
     Connection connection = factory.create();
     CompletableFuture<Boolean> closeFuture = new CompletableFuture<>();
-    connection.onClose(ConnectionCloseEvent.CLOSE_BY_CLIENT, (c, ex) -> {
-      closeFuture.completeExceptionally(ex);
-    });
+    connection.onClose(
+        ConnectionCloseEvent.CLOSE_BY_CLIENT,
+        (c, ex) -> {
+          closeFuture.completeExceptionally(ex);
+        });
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
-    connection.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    connection
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     Thread.sleep(500);
     connection.close();
     Exception ex = assertThrows(CompletionException.class, () -> closeFuture.join());
@@ -53,11 +54,15 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
   public void testConnectAndCloseShutdown() throws Exception {
     Connection connection = factory.create();
     CompletableFuture<Boolean> closeFuture = new CompletableFuture<>();
-    connection.onClose(ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, (c, ex) -> {
-      closeFuture.completeExceptionally(ex);
-    });
+    connection.onClose(
+        ConnectionCloseEvent.CLOSE_BY_SHUTDOWN,
+        (c, ex) -> {
+          closeFuture.completeExceptionally(ex);
+        });
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
-    connection.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    connection
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     Thread.sleep(500);
     connection.shutdownClose();
     Exception ex = assertThrows(CompletionException.class, () -> closeFuture.join());

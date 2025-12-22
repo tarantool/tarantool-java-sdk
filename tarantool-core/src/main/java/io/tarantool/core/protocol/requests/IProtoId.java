@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -39,16 +39,13 @@ public class IProtoId extends IProtoBaseRequest {
     preparePacker(packer);
     packer.addPayload(RAW_MAP_HEADER_WITH_TWO_ITEMS);
 
-    packer.addPayload(RAW_IPROTO_VERSION);  // key
-    packer.packInt(protocolVersion);       // value
+    packer.addPayload(RAW_IPROTO_VERSION); // key
+    packer.packInt(protocolVersion); // value
 
     packer.addPayload(RAW_IPROTO_FEATURES);
-    packer.packValue(ValueFactory.newArray(
-        features
-            .stream()
-            .map(ValueFactory::newInteger)
-            .collect(Collectors.toList())
-    ));
+    packer.packValue(
+        ValueFactory.newArray(
+            features.stream().map(ValueFactory::newInteger).collect(Collectors.toList())));
 
     return getPacketFromBase(packer);
   }
@@ -57,12 +54,10 @@ public class IProtoId extends IProtoBaseRequest {
   public MapValue getBody() {
     Map<Value, Value> map = new HashMap<>();
     map.put(MP_IPROTO_VERSION, ValueFactory.newInteger(protocolVersion));
-    map.put(MP_IPROTO_FEATURES, ValueFactory.newArray(
-        features
-            .stream()
-            .map(ValueFactory::newInteger)
-            .collect(Collectors.toList())
-    ));
+    map.put(
+        MP_IPROTO_FEATURES,
+        ValueFactory.newArray(
+            features.stream().map(ValueFactory::newInteger).collect(Collectors.toList())));
     return ValueFactory.newMap(map);
   }
 

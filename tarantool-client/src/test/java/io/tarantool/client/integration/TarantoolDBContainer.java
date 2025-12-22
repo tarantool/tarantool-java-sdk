@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,27 +23,36 @@ public class TarantoolDBContainer extends TarantoolCartridgeContainer {
     super(instancesFile, topologyConfigurationFile);
   }
 
-  public TarantoolDBContainer(String instancesFile, String topologyConfigurationFile, Map<String, String> buildArgs) {
+  public TarantoolDBContainer(
+      String instancesFile, String topologyConfigurationFile, Map<String, String> buildArgs) {
     super(instancesFile, topologyConfigurationFile, buildArgs);
   }
 
-  public TarantoolDBContainer(String dockerFile, String instancesFile, String topologyConfigurationFile) {
+  public TarantoolDBContainer(
+      String dockerFile, String instancesFile, String topologyConfigurationFile) {
     super(dockerFile, instancesFile, topologyConfigurationFile);
   }
 
-  public TarantoolDBContainer(String dockerFile,
+  public TarantoolDBContainer(
+      String dockerFile,
       String buildImageName,
       String instancesFile,
       String topologyConfigurationFile) {
     super(dockerFile, buildImageName, instancesFile, topologyConfigurationFile);
   }
 
-  public TarantoolDBContainer(String dockerFile,
+  public TarantoolDBContainer(
+      String dockerFile,
       String buildImageName,
       String instancesFile,
       String topologyConfigurationFile,
       String baseImage) {
-    super(dockerFile, buildImageName, instancesFile, topologyConfigurationFile, Arguments.get(baseImage, "enterprise"));
+    super(
+        dockerFile,
+        buildImageName,
+        instancesFile,
+        topologyConfigurationFile,
+        Arguments.get(baseImage, "enterprise"));
   }
 
   @Override
@@ -83,27 +92,29 @@ public class TarantoolDBContainer extends TarantoolCartridgeContainer {
 
   @Override
   protected boolean setupTopology() {
-    String fileType = topologyConfigurationFile
-        .substring(topologyConfigurationFile.lastIndexOf('.') + 1);
+    String fileType =
+        topologyConfigurationFile.substring(topologyConfigurationFile.lastIndexOf('.') + 1);
     if (fileType.equals("yml")) {
-      String replicasetsFileName = topologyConfigurationFile
-          .substring(topologyConfigurationFile.lastIndexOf('/') + 1);
-      String instancesFileName = instancesFile
-          .substring(instancesFile.lastIndexOf('/') + 1);
+      String replicasetsFileName =
+          topologyConfigurationFile.substring(topologyConfigurationFile.lastIndexOf('/') + 1);
+      String instancesFileName = instancesFile.substring(instancesFile.lastIndexOf('/') + 1);
       try {
-        ExecResult result = execInContainer(
-            "tt",
-            "cartridge",
-            "replicasets",
-            "setup",
-            "--run-dir=" + TARANTOOL_RUN_DIR,
-            "--file=" + replicasetsFileName,
-            "--cfg=" + instancesFileName,
-            "--bootstrap-vshard"
-        );
+        ExecResult result =
+            execInContainer(
+                "tt",
+                "cartridge",
+                "replicasets",
+                "setup",
+                "--run-dir=" + TARANTOOL_RUN_DIR,
+                "--file=" + replicasetsFileName,
+                "--cfg=" + instancesFileName,
+                "--bootstrap-vshard");
         if (result.getExitCode() != 0) {
-          throw new CartridgeTopologyException("Failed to change the app topology via tt CLI: "
-              + result.getStdout() + " " + result.getStderr());
+          throw new CartridgeTopologyException(
+              "Failed to change the app topology via tt CLI: "
+                  + result.getStdout()
+                  + " "
+                  + result.getStderr());
         }
       } catch (Exception e) {
         throw new CartridgeTopologyException(e);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,14 +11,11 @@ import org.springframework.data.keyvalue.core.query.KeyValueQuery;
 import io.tarantool.spring.data.query.TarantoolCriteria;
 
 /**
- * <p>
  * Provide a mechanism to convert the abstract query into the direct implementation in Tarantool.
- * </P>
  *
  * @author Artyom Dubinin
  */
-public class TarantoolCriteriaAccessor
-    implements CriteriaAccessor<TarantoolCriteria> {
+public class TarantoolCriteriaAccessor implements CriteriaAccessor<TarantoolCriteria> {
 
   /**
    * @param query in Spring form

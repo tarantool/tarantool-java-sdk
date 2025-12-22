@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -29,5 +29,4 @@ class TarantoolRepositoriesRegistrar extends RepositoryBeanDefinitionRegistrarSu
   protected RepositoryConfigurationExtension getExtension() {
     return new TarantoolRepositoryConfigurationExtension();
   }
-
 }

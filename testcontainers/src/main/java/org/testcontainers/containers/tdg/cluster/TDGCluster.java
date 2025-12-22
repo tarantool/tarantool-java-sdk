@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,15 +12,14 @@ import org.testcontainers.containers.tdg.TDGContainer;
 import org.testcontainers.lifecycle.Startable;
 
 /**
- * Represents the interface for classes that implement the {@code Tarantool Data Grid} cluster. Helps to manipulate
- * {@link TDGContainer}'s.
+ * Represents the interface for classes that implement the {@code Tarantool Data Grid} cluster.
+ * Helps to manipulate {@link TDGContainer}'s.
  */
 public interface TDGCluster extends Startable {
 
-  /**
-   * Stop cluster nodes with saving mount data and start them after delay.
-   */
-  default void restart(long delayBefore, TimeUnit unitBefore, long delayAfter, TimeUnit unitAfter) throws InterruptedException {
+  /** Stop cluster nodes with saving mount data and start them after delay. */
+  default void restart(long delayBefore, TimeUnit unitBefore, long delayAfter, TimeUnit unitAfter)
+      throws InterruptedException {
     nodes().values().parallelStream().forEach(TDGContainer::stopWithSafeMount);
 
     if (delayBefore > 0) {
@@ -34,13 +33,9 @@ public interface TDGCluster extends Startable {
     }
   }
 
-  /**
-   * Get cluster nodes.
-   */
+  /** Get cluster nodes. */
   Map<String, TDGContainer<?>> nodes();
 
-  /**
-   * Get cluster name.
-   */
+  /** Get cluster name. */
   String clusterName();
 }

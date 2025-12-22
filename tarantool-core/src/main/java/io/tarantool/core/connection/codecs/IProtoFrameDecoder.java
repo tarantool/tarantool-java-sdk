@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -38,7 +38,8 @@ public class IProtoFrameDecoder extends ReplayingDecoder<IProtoFrameDecoder.Deco
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
+  protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list)
+      throws Exception {
 
     switch (state()) {
       case LENGTH:

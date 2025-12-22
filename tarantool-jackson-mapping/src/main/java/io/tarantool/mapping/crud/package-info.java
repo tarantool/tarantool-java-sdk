@@ -1,5 +1,5 @@
 /**
- * <p>The package contains CRUD module classes.</p>
+ * The package contains CRUD module classes.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>

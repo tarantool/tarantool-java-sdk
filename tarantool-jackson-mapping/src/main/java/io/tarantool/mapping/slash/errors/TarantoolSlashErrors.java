@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -9,8 +9,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
- * <p>The class implements error that comes in response from Tarantool.</p>
- * <p>Special errors that use tarantool/errors library</p>.
+ * The class implements error that comes in response from Tarantool.
+ *
+ * <p>Special errors that use tarantool/errors library.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
@@ -20,45 +21,30 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TarantoolSlashErrors {
 
-  /**
-   * <p>Description of the error.</p>
-   */
+  /** Description of the error. */
   protected String err;
 
-  /**
-   * <p>Full description of the error.</p>
-   */
+  /** Full description of the error. */
   protected String str;
 
-  /**
-   * <p>Line number where the error occurred.</p>
-   */
+  /** Line number where the error occurred. */
   protected int line;
 
-  /**
-   * <p>Path to the file where the error occurred.</p>
-   */
+  /** Path to the file where the error occurred. */
   protected String file;
 
-  /**
-   * <p>Stack trace.</p>
-   */
+  /** Stack trace. */
   protected String stack;
 
-  /**
-   * <p>Name of error class.</p>
-   */
+  /** Name of error class. */
   @JsonSetter("class_name")
   protected String className;
 
-  /**
-   * <p>Creates a {@link TarantoolSlashErrors} object.</p>
-   */
-  public TarantoolSlashErrors() {
-  }
+  /** Creates a {@link TarantoolSlashErrors} object. */
+  public TarantoolSlashErrors() {}
 
   /**
-   * <p>Returns value of err field.</p>
+   * Returns value of err field.
    *
    * @return {@link #err} value.
    */
@@ -67,7 +53,7 @@ public class TarantoolSlashErrors {
   }
 
   /**
-   * <p>Returns value of str field.</p>
+   * Returns value of str field.
    *
    * @return {@link #str} value.
    */
@@ -76,7 +62,7 @@ public class TarantoolSlashErrors {
   }
 
   /**
-   * <p>Returns value of line field.</p>
+   * Returns value of line field.
    *
    * @return {@link #line} value.
    */
@@ -85,7 +71,7 @@ public class TarantoolSlashErrors {
   }
 
   /**
-   * <p>Returns value of file field.</p>
+   * Returns value of file field.
    *
    * @return {@link #file} value.
    */
@@ -94,7 +80,7 @@ public class TarantoolSlashErrors {
   }
 
   /**
-   * <p>Returns value of stack field.</p>
+   * Returns value of stack field.
    *
    * @return {@link #stack} value.
    */
@@ -103,7 +89,7 @@ public class TarantoolSlashErrors {
   }
 
   /**
-   * <p>Returns value of className field.</p>
+   * Returns value of className field.
    *
    * @return {@link #className} value.
    */
@@ -113,13 +99,24 @@ public class TarantoolSlashErrors {
 
   @Override
   public String toString() {
-    return "TarantoolSlashErrors{" +
-        "err='" + err + '\'' +
-        ", str='" + str + '\'' +
-        ", line=" + line +
-        ", file='" + file + '\'' +
-        ", stack='" + stack + '\'' +
-        ", className='" + className + '\'' +
-        '}';
+    return "TarantoolSlashErrors{"
+        + "err='"
+        + err
+        + '\''
+        + ", str='"
+        + str
+        + '\''
+        + ", line="
+        + line
+        + ", file='"
+        + file
+        + '\''
+        + ", stack='"
+        + stack
+        + '\''
+        + ", className='"
+        + className
+        + '\''
+        + '}';
   }
 }

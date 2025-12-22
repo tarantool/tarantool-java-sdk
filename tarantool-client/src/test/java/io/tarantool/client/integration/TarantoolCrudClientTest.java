@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -92,9 +92,12 @@ public class TarantoolCrudClientTest extends BaseTest {
   public static final String SECRET_CLUSTER_COOKIE = "secret-cluster-cookie";
   public static final String ADMIN = "admin";
   public static final int PERSON_COUNT = 1000;
-  public static final Map<String, Object> OPTIONS = new HashMap<String, Object>() {{
-    put("timeout", 2_000L);
-  }};
+  public static final Map<String, Object> OPTIONS =
+      new HashMap<String, Object>() {
+        {
+          put("timeout", 2_000L);
+        }
+      };
   public static final Person STUB_PERSON = new Person(0, true, String.valueOf(0));
   private static TarantoolCartridgeContainer cartridgeContainer;
   private static VshardClusterContainer vshardClusterContainer;
@@ -112,25 +115,27 @@ public class TarantoolCrudClientTest extends BaseTest {
   private static final Person personInstance = new Person(1, true, "Roman");
   private static List<List<Object>> triplets;
   private static final BaseOptions baseOptions = BaseOptions.builder().build();
-  private static final TypeReference<List<Tuple<Person>>> listPersonTypeRef = new TypeReference<List<Tuple<Person>>>() {};
+  private static final TypeReference<List<Tuple<Person>>> listPersonTypeRef =
+      new TypeReference<List<Tuple<Person>>>() {};
   private static final TypeReference<Person> personTypeRef = new TypeReference<Person>() {};
   private static final TypeReference<List<Tuple<List<?>>>> listListTypeRef =
       new TypeReference<List<Tuple<List<?>>>>() {};
   private static final TypeReference<List<?>> listTypeRef = new TypeReference<List<?>>() {};
   private static TarantoolCrudClient clientWithoutTupleExtensionEnabled;
 
-  private static final String dockerRegistry = System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "");
+  private static final String dockerRegistry =
+      System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "");
 
   @BeforeAll
   public static void setUp() throws Exception {
     if (!isCartridgeAvailable()) {
-      vshardClusterContainer = new VshardClusterContainer(
-          "vshard_cluster/Dockerfile",
-          dockerRegistry + "vshard-cluster-java",
-          "vshard_cluster/instances.yaml",
-          "vshard_cluster/config.yaml",
-          "tarantool/tarantool"
-      );
+      vshardClusterContainer =
+          new VshardClusterContainer(
+              "vshard_cluster/Dockerfile",
+              dockerRegistry + "vshard-cluster-java",
+              "vshard_cluster/instances.yaml",
+              "vshard_cluster/config.yaml",
+              "tarantool/tarantool");
 
       if (!vshardClusterContainer.isRunning()) {
         vshardClusterContainer.withPrivilegedMode(true);
@@ -138,67 +143,70 @@ public class TarantoolCrudClientTest extends BaseTest {
       }
       clusterContainer = vshardClusterContainer;
     } else {
-      cartridgeContainer = new TarantoolCartridgeContainer(
-          "Dockerfile",
-          dockerRegistry + "cartridge",
-          "cartridge/instances.yml",
-          "cartridge/replicasets.yml",
-          org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
-          .withStartupTimeout(Duration.ofMinutes(5))
-          .withLogConsumer(new Slf4jLogConsumer(
-              LoggerFactory.getLogger(TarantoolCrudClientTest.class)));
+      cartridgeContainer =
+          new TarantoolCartridgeContainer(
+                  "Dockerfile",
+                  dockerRegistry + "cartridge",
+                  "cartridge/instances.yml",
+                  "cartridge/replicasets.yml",
+                  org.testcontainers.containers.Arguments.get("tarantool/tarantool"))
+              .withStartupTimeout(Duration.ofMinutes(5))
+              .withLogConsumer(
+                  new Slf4jLogConsumer(LoggerFactory.getLogger(TarantoolCrudClientTest.class)));
       if (!cartridgeContainer.isRunning()) {
         cartridgeContainer.start();
       }
       clusterContainer = cartridgeContainer;
     }
-    List<InstanceConnectionGroup> routers = Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withPort(clusterContainer.getMappedPort(3301))
-            .withTag(ROUTER_1)
+    List<InstanceConnectionGroup> routers =
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withPort(clusterContainer.getMappedPort(3301))
+                .withTag(ROUTER_1)
+                .withUser(ADMIN)
+                .withPassword(SECRET_CLUSTER_COOKIE)
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withPort(clusterContainer.getMappedPort(3302))
+                .withTag(ROUTER_2)
+                .withUser(ADMIN)
+                .withPassword(SECRET_CLUSTER_COOKIE)
+                .build());
+    client =
+        TarantoolFactory.crud()
+            .withHost(clusterContainer.getHost())
+            .withPort(clusterContainer.getPort())
             .withUser(ADMIN)
             .withPassword(SECRET_CLUSTER_COOKIE)
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withPort(clusterContainer.getMappedPort(3302))
-            .withTag(ROUTER_2)
+            .enableTupleExtension()
+            .withIgnoredPacketsHandler(
+                (tag, index, packet) -> {
+                  synchronized (triplets) {
+                    triplets.add(Arrays.asList(tag, index, packet));
+                  }
+                })
+            .build();
+    clientWithoutTupleExtensionEnabled =
+        TarantoolFactory.crud()
+            .withHost(clusterContainer.getHost())
+            .withPort(clusterContainer.getPort())
             .withUser(ADMIN)
             .withPassword(SECRET_CLUSTER_COOKIE)
-            .build());
-    client = TarantoolFactory.crud()
-        .withHost(clusterContainer.getHost())
-        .withPort(clusterContainer.getPort())
-        .withUser(ADMIN)
-        .withPassword(SECRET_CLUSTER_COOKIE)
-        .enableTupleExtension()
-        .withIgnoredPacketsHandler((tag, index, packet) -> {
-          synchronized (triplets) {
-            triplets.add(Arrays.asList(tag, index, packet));
-          }
-        })
-        .build();
-    clientWithoutTupleExtensionEnabled = TarantoolFactory.crud()
-        .withHost(clusterContainer.getHost())
-        .withPort(clusterContainer.getPort())
-        .withUser(ADMIN)
-        .withPassword(SECRET_CLUSTER_COOKIE)
-        .build();
+            .build();
 
-    clientWithoutHeartbeats = TarantoolFactory.crud()
-        .withGroups(routers)
-        .build();
+    clientWithoutHeartbeats = TarantoolFactory.crud().withGroups(routers).build();
 
-    clientWithCrudHeartbeats = TarantoolFactory.crud()
-        .withGroups(routers)
-        .withHeartbeat(
-            HeartbeatOpts
-                .getDefault()
-                .withPingInterval(PING_INTERVAL)
-                .withInvalidationThreshold(INVALID_PINGS)
-                .withWindowSize(WINDOW_SIZE)
-                .withDeathThreshold(DEATH_THRESHOLD)
-                .withCrudHealthCheck())
-        .build();
+    clientWithCrudHeartbeats =
+        TarantoolFactory.crud()
+            .withGroups(routers)
+            .withHeartbeat(
+                HeartbeatOpts.getDefault()
+                    .withPingInterval(PING_INTERVAL)
+                    .withInvalidationThreshold(INVALID_PINGS)
+                    .withWindowSize(WINDOW_SIZE)
+                    .withDeathThreshold(DEATH_THRESHOLD)
+                    .withCrudHealthCheck())
+            .build();
   }
 
   @BeforeEach
@@ -213,13 +221,15 @@ public class TarantoolCrudClientTest extends BaseTest {
   public void testCallTimeoutWithIgnoredPacketsHandler() throws Exception {
     clusterContainer.executeCommand("return crud_aux.slow_api()");
     TarantoolCrudSpace person = client.space("person");
-    Options options = BaseOptions.builder()
-        .withTimeout(1_000L)
-        .build();
-    Exception ex = assertThrows(
-        CompletionException.class,
-        () -> person.select(options, new TypeReference<Person>() {}, Condition.create("==", "pk", 1)).join()
-    );
+    Options options = BaseOptions.builder().withTimeout(1_000L).build();
+    Exception ex =
+        assertThrows(
+            CompletionException.class,
+            () ->
+                person
+                    .select(
+                        options, new TypeReference<Person>() {}, Condition.create("==", "pk", 1))
+                    .join());
     Throwable cause = ex.getCause();
     assertEquals(TimeoutException.class, cause.getClass());
     Thread.sleep(600);
@@ -249,40 +259,54 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(2, pool.availableConnections());
 
     IProtoClient firstRouter = pool.get(ROUTER_1, 0).join();
-    firstRouter.eval(
-        "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)", ValueFactory.emptyArray()).join();
+    firstRouter
+        .eval("rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)", ValueFactory.emptyArray())
+        .join();
 
-    HelpersUtils.retry(100, 100, () -> {
-      CompletionException ex = assertThrows(CompletionException.class, () -> {
-        space.select(Collections.emptyList()).join();
-        space.select(Collections.emptyList()).join();
-      });
-      Throwable cause = ex.getCause();
-      assertInstanceOf(BoxError.class, cause);
-      assertTrue(cause.getMessage().contains("Procedure 'crud.select' is not defined"));
-      assertDoesNotThrow(() -> {
-        spaceWithHeartbeat.select(Collections.emptyList()).join();
-        spaceWithHeartbeat.select(Collections.emptyList()).join();
-      });
-    });
+    HelpersUtils.retry(
+        100,
+        100,
+        () -> {
+          CompletionException ex =
+              assertThrows(
+                  CompletionException.class,
+                  () -> {
+                    space.select(Collections.emptyList()).join();
+                    space.select(Collections.emptyList()).join();
+                  });
+          Throwable cause = ex.getCause();
+          assertInstanceOf(BoxError.class, cause);
+          assertTrue(cause.getMessage().contains("Procedure 'crud.select' is not defined"));
+          assertDoesNotThrow(
+              () -> {
+                spaceWithHeartbeat.select(Collections.emptyList()).join();
+                spaceWithHeartbeat.select(Collections.emptyList()).join();
+              });
+        });
     assertEquals(1, crudHeartbeatPool.availableConnections());
     assertEquals(2, pool.availableConnections());
 
-    firstRouter.eval(
-        "rawset(_G, 'crud', rawget(_G, 'tmp_crud'))", ValueFactory.emptyArray()).join();
+    firstRouter
+        .eval("rawset(_G, 'crud', rawget(_G, 'tmp_crud'))", ValueFactory.emptyArray())
+        .join();
 
-    HelpersUtils.retry(100, 100, () -> {
-      assertDoesNotThrow(() -> {
-        spaceWithHeartbeat.select(Collections.emptyList()).join();
-        spaceWithHeartbeat.select(Collections.emptyList()).join();
-      });
-      assertDoesNotThrow(() -> {
-        space.select(Collections.emptyList()).join();
-        space.select(Collections.emptyList()).join();
-      });
-      assertEquals(2, crudHeartbeatPool.availableConnections());
-      assertEquals(2, pool.availableConnections());
-    });
+    HelpersUtils.retry(
+        100,
+        100,
+        () -> {
+          assertDoesNotThrow(
+              () -> {
+                spaceWithHeartbeat.select(Collections.emptyList()).join();
+                spaceWithHeartbeat.select(Collections.emptyList()).join();
+              });
+          assertDoesNotThrow(
+              () -> {
+                space.select(Collections.emptyList()).join();
+                space.select(Collections.emptyList()).join();
+              });
+          assertEquals(2, crudHeartbeatPool.availableConnections());
+          assertEquals(2, pool.availableConnections());
+        });
   }
 
   @Test
@@ -294,7 +318,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     List<?> insertResult = person.insert(baseOptions, listTypeRef, expected, OPTIONS).join().get();
     assertEquals(expected.asList(), removeBucketId(insertResult));
 
-    List<Tuple<Person>> selectResult = person.select(baseOptions, listPersonTypeRef, PkEquals(0)).join().get();
+    List<Tuple<Person>> selectResult =
+        person.select(baseOptions, listPersonTypeRef, PkEquals(0)).join().get();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult));
   }
 
@@ -304,41 +329,37 @@ public class TarantoolCrudClientTest extends BaseTest {
     TarantoolCrudSpace person = client.space("person");
     TarantoolCrudSpace personWithoutTupleExt = clientWithoutTupleExtensionEnabled.space("person");
 
-    //eval
-    String expression = "return box.tuple.new("
-        + "{'1', '1'}, {format = {{ 'id', type = 'string' }, { 'value', type = 'string' }} })";
+    // eval
+    String expression =
+        "return box.tuple.new("
+            + "{'1', '1'}, {format = {{ 'id', type = 'string' }, { 'value', type = 'string' }} })";
     TarantoolResponse<List<?>> tupleFromEval = client.eval(expression).join();
     assertFalse(tupleFromEval.getFormats().isEmpty());
     List<List<String>> evalExpected = Collections.singletonList(Arrays.asList("1", "1"));
-    assertEquals(
-        evalExpected,
-        unpackT((List<Tuple<List<?>>>) tupleFromEval.get())
-    );
+    assertEquals(evalExpected, unpackT((List<Tuple<List<?>>>) tupleFromEval.get()));
     tupleFromEval = clientWithoutTupleExtensionEnabled.eval(expression).join();
     assertTrue(tupleFromEval.getFormats().isEmpty());
-    assertEquals(
-        evalExpected,
-        tupleFromEval.get()
-    );
+    assertEquals(evalExpected, tupleFromEval.get());
 
     // replace
     Person expected = STUB_PERSON;
-    Tuple<List<?>> replaceResult = person.replace(baseOptions, listTypeRef, expected, OPTIONS).join();
+    Tuple<List<?>> replaceResult =
+        person.replace(baseOptions, listTypeRef, expected, OPTIONS).join();
     assertFalse(replaceResult.getFormat().isEmpty());
     assertEquals(expected.asList(), removeBucketId(replaceResult.get()));
 
-    replaceResult = personWithoutTupleExt.replace(baseOptions, listTypeRef, expected, OPTIONS).join();
+    replaceResult =
+        personWithoutTupleExt.replace(baseOptions, listTypeRef, expected, OPTIONS).join();
     assertTrue(replaceResult.getFormat().isEmpty());
     assertEquals(expected.asList(), removeBucketId(replaceResult.get()));
 
     // select
-    TarantoolResponse<List<Tuple<Person>>> selectResult = person.select(baseOptions, listPersonTypeRef, PkEquals(0))
-        .join();
+    TarantoolResponse<List<Tuple<Person>>> selectResult =
+        person.select(baseOptions, listPersonTypeRef, PkEquals(0)).join();
     assertFalse(selectResult.getFormats().isEmpty());
     assertEquals(Collections.singletonList(expected), unpackT(selectResult.get()));
 
-    selectResult = personWithoutTupleExt.select(baseOptions, listPersonTypeRef, PkEquals(0))
-        .join();
+    selectResult = personWithoutTupleExt.select(baseOptions, listPersonTypeRef, PkEquals(0)).join();
     assertTrue(selectResult.getFormats().isEmpty());
     assertEquals(Collections.singletonList(expected), unpackT(selectResult.get()));
   }
@@ -353,7 +374,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expected.asList(), removeBucketId(insertResult));
 
     List<Tuple<List<?>>> selectResult = person.select(ConditionPkEquals(0)).join();
-    assertEquals(Collections.singletonList(expected.asList()), listRemoveBucketId(unpack(selectResult)));
+    assertEquals(
+        Collections.singletonList(expected.asList()), listRemoveBucketId(unpack(selectResult)));
   }
 
   @Test
@@ -365,8 +387,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person insertResult = person.insert(expected, Person.class).join().get();
     assertEquals(expected, insertResult);
 
-    List<Tuple<Person>> selectResult = person.select(Collections.singletonList(ConditionPkEquals(0)), Person.class)
-        .join();
+    List<Tuple<Person>> selectResult =
+        person.select(Collections.singletonList(ConditionPkEquals(0)), Person.class).join();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult));
   }
 
@@ -379,8 +401,11 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person insertResult = person.insert(expected, personTypeRef).join().get();
     assertEquals(expected, insertResult);
 
-    List<Tuple<Person>> selectResult = person.select(Collections.singletonList(ConditionPkEquals(0)), listPersonTypeRef)
-        .join().get();
+    List<Tuple<Person>> selectResult =
+        person
+            .select(Collections.singletonList(ConditionPkEquals(0)), listPersonTypeRef)
+            .join()
+            .get();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult));
   }
 
@@ -406,20 +431,22 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     List<?> expectedResult = Arrays.asList(1, true, "Roman");
 
-    Person duplicatedPerson = Person.builder()
-        .id(1)
-        .isMarried(true)
-        .name("Roman")
-        .build();
+    Person duplicatedPerson = Person.builder().id(1).isMarried(true).name("Roman").build();
 
     List<?> insertResult = person.insert(duplicatedPerson).join().get();
     assertEquals(expectedResult, insertResult.subList(0, 3));
 
-    Throwable ex = assertThrows(CompletionException.class, () -> {person.insert(duplicatedPerson).join();});
+    Throwable ex =
+        assertThrows(
+            CompletionException.class,
+            () -> {
+              person.insert(duplicatedPerson).join();
+            });
     Throwable cause = ex.getCause();
     assertEquals(CrudException.class, cause.getClass());
 
-    Condition condition = Condition.builder().withOperator("==").withFieldIdentifier("pk").withValue(1).build();
+    Condition condition =
+        Condition.builder().withOperator("==").withFieldIdentifier("pk").withValue(1).build();
     List<Tuple<List<?>>> selectResult = person.select(condition).join();
     assertEquals(expectedResult, selectResult.get(0).get().subList(0, 3));
 
@@ -427,8 +454,14 @@ public class TarantoolCrudClientTest extends BaseTest {
     selectResult = person.select(condition).join();
     assertEquals(expectedResult, selectResult.get(0).get().subList(0, 3));
 
-    List<Tuple<List<?>>> selectResultWithTypeRef = person.select(baseOptions,
-        listListTypeRef, Collections.singletonList(Arrays.asList("==", "pk", 1))).join().get();
+    List<Tuple<List<?>>> selectResultWithTypeRef =
+        person
+            .select(
+                baseOptions,
+                listListTypeRef,
+                Collections.singletonList(Arrays.asList("==", "pk", 1)))
+            .join()
+            .get();
     assertEquals(expectedResult, selectResultWithTypeRef.get(0).get().subList(0, 3));
   }
 
@@ -438,11 +471,7 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     List<?> expectedResult = Arrays.asList(1, true, "Roman");
 
-    Person insertedPerson = Person.builder()
-        .id(1)
-        .isMarried(true)
-        .name("Roman")
-        .build();
+    Person insertedPerson = Person.builder().id(1).isMarried(true).name("Roman").build();
 
     List<?> insertResult = person.insert(insertedPerson).join().get();
     assertEquals(expectedResult, insertResult.subList(0, 3));
@@ -509,82 +538,79 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     List<?> expectedResult = Arrays.asList(1, true, "Roman");
 
-    Person insertedPerson = Person.builder()
-        .id(1)
-        .isMarried(true)
-        .name("Roman")
-        .build();
+    Person insertedPerson = Person.builder().id(1).isMarried(true).name("Roman").build();
 
     List<?> insertResult = person.insert(insertedPerson).join().get();
     assertEquals(expectedResult, insertResult.subList(0, 3));
 
     expectedResult = Arrays.asList("Roman", 1);
 
-    Condition condition = Condition.builder()
-        .withOperator("==")
-        .withFieldIdentifier("pk")
-        .withValue(1)
-        .build();
+    Condition condition =
+        Condition.builder().withOperator("==").withFieldIdentifier("pk").withValue(1).build();
 
-    Condition conditionWithConditionOperator = Condition.builder()
-        .withOperator(EQ)
-        .withFieldIdentifier("pk")
-        .withValue(1)
-        .build();
+    Condition conditionWithConditionOperator =
+        Condition.builder().withOperator(EQ).withFieldIdentifier("pk").withValue(1).build();
 
-    SelectOptions selectOptions = SelectOptions.builder()
-        .withFields("name")
-        .build();
+    SelectOptions selectOptions = SelectOptions.builder().withFields("name").build();
 
-    List<Tuple<List<?>>> selectResult = person.select(Collections.singletonList(condition), selectOptions).join();
+    List<Tuple<List<?>>> selectResult =
+        person.select(Collections.singletonList(condition), selectOptions).join();
     assertEquals(expectedResult, selectResult.get(0).get());
 
-    selectResult = person.select(Collections.singletonList(conditionWithConditionOperator), selectOptions).join();
+    selectResult =
+        person
+            .select(Collections.singletonList(conditionWithConditionOperator), selectOptions)
+            .join();
     assertEquals(expectedResult, selectResult.get(0).get());
 
     List<?> conditionAsList = Arrays.asList("==", "pk", 1);
     Map<?, ?> options = Collections.singletonMap("fields", Collections.singletonList("name"));
 
-    TarantoolResponse<List<Tuple<List<?>>>> selectResultWithTypeRef = person.select(
-        baseOptions,
-        listListTypeRef,
-        Collections.singletonList(conditionAsList),
-        options
-    ).join();
+    TarantoolResponse<List<Tuple<List<?>>>> selectResultWithTypeRef =
+        person
+            .select(
+                baseOptions, listListTypeRef, Collections.singletonList(conditionAsList), options)
+            .join();
     assertEquals(expectedResult, selectResultWithTypeRef.get().get(0).get());
   }
 
   @Test
   public void testReplace() {
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
 
     TarantoolCrudSpace personSpace = client.space("person");
 
     Person insertedPerson = new Person(0, true, "0");
 
-    Map<String, Object> options = new HashMap<String, Object>() {{
-      put("timeout", 2_000L);
-    }};
+    Map<String, Object> options =
+        new HashMap<String, Object>() {
+          {
+            put("timeout", 2_000L);
+          }
+        };
 
     TypeReference<Person> typeAsClass = new TypeReference<Person>() {};
     TypeReference<List<?>> typeAsList = new TypeReference<List<?>>() {};
 
     insertedPerson.setName("1");
-    List<?> baseReplaceResult = personSpace.replace(baseOptions, typeAsList, insertedPerson, options).join().get();
+    List<?> baseReplaceResult =
+        personSpace.replace(baseOptions, typeAsList, insertedPerson, options).join().get();
     assertEquals(insertedPerson.asList(), baseReplaceResult.subList(0, 3));
 
     insertedPerson.setName("2");
-    Person baseReplaceResultWithClass = personSpace.replace(baseOptions, typeAsClass, insertedPerson).join().get();
+    Person baseReplaceResultWithClass =
+        personSpace.replace(baseOptions, typeAsClass, insertedPerson).join().get();
     assertEquals(insertedPerson, baseReplaceResultWithClass);
 
     insertedPerson.setName("3");
-    Person baseReplaceResultWithTypeRefAsClass = personSpace.replace(baseOptions, typeAsClass, insertedPerson)
-        .join().get();
+    Person baseReplaceResultWithTypeRefAsClass =
+        personSpace.replace(baseOptions, typeAsClass, insertedPerson).join().get();
     assertEquals(insertedPerson, baseReplaceResultWithTypeRefAsClass);
 
     insertedPerson.setName("4");
-    List<?> baseReplaceResultWithTypeRefAsList = personSpace.replace(baseOptions, typeAsList, insertedPerson)
-        .join().get();
+    List<?> baseReplaceResultWithTypeRefAsList =
+        personSpace.replace(baseOptions, typeAsList, insertedPerson).join().get();
     assertEquals(insertedPerson.asList(), baseReplaceResultWithTypeRefAsList.subList(0, 3));
 
     insertedPerson.setName("5");
@@ -592,26 +618,29 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(insertedPerson.asList(), replaceResultAsList.subList(0, 3));
 
     insertedPerson.setName("6");
-    Person replaceResultAsClassWithClass = personSpace.replace(insertedPerson, Person.class).join().get();
+    Person replaceResultAsClassWithClass =
+        personSpace.replace(insertedPerson, Person.class).join().get();
     assertEquals(insertedPerson, replaceResultAsClassWithClass);
 
     // input argument as list
     insertedPerson.setName("7");
-    baseReplaceResult = personSpace.replace(baseOptions, typeAsList, insertedPerson.asList(), options).join().get();
+    baseReplaceResult =
+        personSpace.replace(baseOptions, typeAsList, insertedPerson.asList(), options).join().get();
     assertEquals(insertedPerson.asList(), baseReplaceResult.subList(0, 3));
 
     insertedPerson.setName("8");
-    baseReplaceResultWithClass = personSpace.replace(baseOptions, typeAsClass, insertedPerson.asList()).join().get();
+    baseReplaceResultWithClass =
+        personSpace.replace(baseOptions, typeAsClass, insertedPerson.asList()).join().get();
     assertEquals(insertedPerson, baseReplaceResultWithClass);
 
     insertedPerson.setName("9");
-    baseReplaceResultWithTypeRefAsClass = personSpace.replace(baseOptions, typeAsClass, insertedPerson.asList())
-        .join().get();
+    baseReplaceResultWithTypeRefAsClass =
+        personSpace.replace(baseOptions, typeAsClass, insertedPerson.asList()).join().get();
     assertEquals(insertedPerson, baseReplaceResultWithTypeRefAsClass);
 
     insertedPerson.setName("10");
-    baseReplaceResultWithTypeRefAsList = personSpace.replace(baseOptions, typeAsList, insertedPerson.asList())
-        .join().get();
+    baseReplaceResultWithTypeRefAsList =
+        personSpace.replace(baseOptions, typeAsList, insertedPerson.asList()).join().get();
     assertEquals(insertedPerson.asList(), baseReplaceResultWithTypeRefAsList.subList(0, 3));
 
     insertedPerson.setName("11");
@@ -619,7 +648,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(insertedPerson.asList(), replaceResultAsList.subList(0, 3));
 
     insertedPerson.setName("12");
-    replaceResultAsClassWithClass = personSpace.replace(insertedPerson.asList(), Person.class).join().get();
+    replaceResultAsClassWithClass =
+        personSpace.replace(insertedPerson.asList(), Person.class).join().get();
     assertEquals(insertedPerson, replaceResultAsClassWithClass);
   }
 
@@ -631,13 +661,15 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person person1 = new Person(1, true, "1");
     List<Person> persons = Arrays.asList(person0, person1);
 
-    Map<String, Object> options = new HashMap<String, Object>() {{
-      put("timeout", 2_000L);
-    }};
+    Map<String, Object> options =
+        new HashMap<String, Object>() {
+          {
+            put("timeout", 2_000L);
+          }
+        };
 
-    CrudBatchResponse<List<Tuple<List<?>>>> baseInsertManyResult = personSpace.insertMany(
-        baseOptions, listListTypeRef, persons, options
-    ).join().get();
+    CrudBatchResponse<List<Tuple<List<?>>>> baseInsertManyResult =
+        personSpace.insertMany(baseOptions, listListTypeRef, persons, options).join().get();
     List<Tuple<List<?>>> baseRows = baseInsertManyResult.getRows();
     baseRows.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRows.size());
@@ -645,8 +677,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(persons.get(1).asList(), baseRows.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<Person>>> baseInsertManyResultWithClass = personSpace.insertMany(baseOptions,
-        listPersonTypeRef, persons).join().get();
+    CrudBatchResponse<List<Tuple<Person>>> baseInsertManyResultWithClass =
+        personSpace.insertMany(baseOptions, listPersonTypeRef, persons).join().get();
     List<Tuple<Person>> baseRowsWithClass = baseInsertManyResultWithClass.getRows();
     baseRowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithClass.size());
@@ -654,25 +686,28 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(persons.get(1), baseRowsWithClass.get(1).get());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<Person>>> baseInsertManyResultWithTypeRefAsClass = personSpace.insertMany(baseOptions,
-        listPersonTypeRef, persons).join().get();
-    List<Tuple<Person>> baseRowsWithTypeRefAsClass = baseInsertManyResultWithTypeRefAsClass.getRows();
+    CrudBatchResponse<List<Tuple<Person>>> baseInsertManyResultWithTypeRefAsClass =
+        personSpace.insertMany(baseOptions, listPersonTypeRef, persons).join().get();
+    List<Tuple<Person>> baseRowsWithTypeRefAsClass =
+        baseInsertManyResultWithTypeRefAsClass.getRows();
     baseRowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithTypeRefAsClass.size());
     assertEquals(persons.get(0), baseRowsWithTypeRefAsClass.get(0).get());
     assertEquals(persons.get(1), baseRowsWithTypeRefAsClass.get(1).get());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<List<?>>>> baseInsertManyResultWithTypeRefAsList = personSpace.insertMany(baseOptions,
-        listListTypeRef, persons).join().get();
-    List<Tuple<List<?>>> baseRowsWithTypeRefAsList = baseInsertManyResultWithTypeRefAsList.getRows();
+    CrudBatchResponse<List<Tuple<List<?>>>> baseInsertManyResultWithTypeRefAsList =
+        personSpace.insertMany(baseOptions, listListTypeRef, persons).join().get();
+    List<Tuple<List<?>>> baseRowsWithTypeRefAsList =
+        baseInsertManyResultWithTypeRefAsList.getRows();
     baseRowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRowsWithTypeRefAsList.size());
     assertEquals(persons.get(0).asList(), baseRowsWithTypeRefAsList.get(0).get().subList(0, 3));
     assertEquals(persons.get(1).asList(), baseRowsWithTypeRefAsList.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<List<?>>>> insertManyResult = personSpace.insertMany(persons).join();
+    CrudBatchResponse<List<Tuple<List<?>>>> insertManyResult =
+        personSpace.insertMany(persons).join();
     List<Tuple<List<?>>> rows = insertManyResult.getRows();
     rows.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, rows.size());
@@ -680,8 +715,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(persons.get(1).asList(), rows.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<List<?>>>> insertManyResultWithTypeRefAsList = personSpace.insertMany(persons,
-        TarantoolCrudClientTest.listListTypeRef).join().get();
+    CrudBatchResponse<List<Tuple<List<?>>>> insertManyResultWithTypeRefAsList =
+        personSpace.insertMany(persons, TarantoolCrudClientTest.listListTypeRef).join().get();
     List<Tuple<List<?>>> rowsWithTypeRefAsList = insertManyResultWithTypeRefAsList.getRows();
     rowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, rowsWithTypeRefAsList.size());
@@ -689,8 +724,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(persons.get(1).asList(), rowsWithTypeRefAsList.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<Person>>> insertManyResultWithClass = personSpace.insertMany(persons, Person.class)
-        .join();
+    CrudBatchResponse<List<Tuple<Person>>> insertManyResultWithClass =
+        personSpace.insertMany(persons, Person.class).join();
     List<Tuple<Person>> rowsWithClass = insertManyResultWithClass.getRows();
     rowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithClass.size());
@@ -698,8 +733,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(persons.get(1), rowsWithClass.get(1).get());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    CrudBatchResponse<List<Tuple<Person>>> insertManyResultWithTypeRefAsClass = personSpace.insertMany(persons,
-        listPersonTypeRef).join().get();
+    CrudBatchResponse<List<Tuple<Person>>> insertManyResultWithTypeRefAsClass =
+        personSpace.insertMany(persons, listPersonTypeRef).join().get();
     List<Tuple<Person>> rowsWithTypeRefAsClass = insertManyResultWithTypeRefAsClass.getRows();
     rowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithTypeRefAsClass.size());
@@ -708,11 +743,11 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
     // input as list
-    List<List<?>> personsAsList = Arrays.asList(Arrays.asList(0, true, "0"),
-        Arrays.asList(1, true, "1"));
+    List<List<?>> personsAsList =
+        Arrays.asList(Arrays.asList(0, true, "0"), Arrays.asList(1, true, "1"));
 
-    baseInsertManyResult = personSpace.insertMany(baseOptions, listListTypeRef,
-        personsAsList, options).join().get();
+    baseInsertManyResult =
+        personSpace.insertMany(baseOptions, listListTypeRef, personsAsList, options).join().get();
     baseRows = baseInsertManyResult.getRows();
     baseRows.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRows.size());
@@ -720,7 +755,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(personsAsList.get(1), baseRows.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    baseInsertManyResultWithClass = personSpace.insertMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
+    baseInsertManyResultWithClass =
+        personSpace.insertMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
     baseRowsWithClass = baseInsertManyResultWithClass.getRows();
     baseRowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithClass.size());
@@ -728,8 +764,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(personsAsList.get(1), baseRowsWithClass.get(1).get().asList());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    baseInsertManyResultWithTypeRefAsClass = personSpace.insertMany(baseOptions, listPersonTypeRef, personsAsList)
-        .join().get();
+    baseInsertManyResultWithTypeRefAsClass =
+        personSpace.insertMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
     baseRowsWithTypeRefAsClass = baseInsertManyResultWithTypeRefAsClass.getRows();
     baseRowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithTypeRefAsClass.size());
@@ -737,8 +773,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(personsAsList.get(1), baseRowsWithTypeRefAsClass.get(1).get().asList());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    baseInsertManyResultWithTypeRefAsList = personSpace.insertMany(baseOptions, listListTypeRef, personsAsList)
-        .join().get();
+    baseInsertManyResultWithTypeRefAsList =
+        personSpace.insertMany(baseOptions, listListTypeRef, personsAsList).join().get();
     baseRowsWithTypeRefAsList = baseInsertManyResultWithTypeRefAsList.getRows();
     baseRowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRowsWithTypeRefAsList.size());
@@ -754,7 +790,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(personsAsList.get(1), rows.get(1).get().subList(0, 3));
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    insertManyResultWithTypeRefAsList = personSpace.insertMany(personsAsList, listListTypeRef).join().get();
+    insertManyResultWithTypeRefAsList =
+        personSpace.insertMany(personsAsList, listListTypeRef).join().get();
     rowsWithTypeRefAsList = insertManyResultWithTypeRefAsList.getRows();
     rowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, rowsWithTypeRefAsList.size());
@@ -770,7 +807,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(personsAsList.get(1), rowsWithClass.get(1).get().asList());
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
-    insertManyResultWithTypeRefAsClass = personSpace.insertMany(personsAsList, listPersonTypeRef).join().get();
+    insertManyResultWithTypeRefAsClass =
+        personSpace.insertMany(personsAsList, listPersonTypeRef).join().get();
     rowsWithTypeRefAsClass = insertManyResultWithTypeRefAsClass.getRows();
     rowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithTypeRefAsClass.size());
@@ -786,23 +824,22 @@ public class TarantoolCrudClientTest extends BaseTest {
     return Stream.of(
         Arguments.of(
             (Supplier<List<?>>) () -> space.insertObject(insertValue).join().get(),
-            insertValue.asList()
-        ),
+            insertValue.asList()),
         Arguments.of(
-            (Supplier<List<?>>) () ->
-                space.insertObject(insertValue, InsertOptions.builder().build()).join().get(),
-            insertValue.asList()
-        ),
+            (Supplier<List<?>>)
+                () -> space.insertObject(insertValue, InsertOptions.builder().build()).join().get(),
+            insertValue.asList()),
         Arguments.of(
             (Supplier<List<?>>) () -> space.insertObject(insertValue.asMap()).join().get(),
-            insertValue.asList()
-        ),
+            insertValue.asList()),
         Arguments.of(
-            (Supplier<List<?>>) () ->
-                space.insertObject(insertValue.asMap(), InsertOptions.builder().build()).join().get(),
-            insertValue.asList()
-        )
-    );
+            (Supplier<List<?>>)
+                () ->
+                    space
+                        .insertObject(insertValue.asMap(), InsertOptions.builder().build())
+                        .join()
+                        .get(),
+            insertValue.asList()));
   }
 
   @ParameterizedTest
@@ -814,8 +851,10 @@ public class TarantoolCrudClientTest extends BaseTest {
 
   @Test
   void testInsertObjectThrows() {
-    final Throwable exception = assertThrows(CompletionException.class,
-        () -> client.space("person").insertObject(personInstance).join());
+    final Throwable exception =
+        assertThrows(
+            CompletionException.class,
+            () -> client.space("person").insertObject(personInstance).join());
     assertEquals(CrudException.class, exception.getCause().getClass());
   }
 
@@ -826,37 +865,56 @@ public class TarantoolCrudClientTest extends BaseTest {
     final PersonAsMap secondInsertValue = new PersonAsMap(321, null, "true");
     final List<PersonAsMap> insertValues = Arrays.asList(insertValue, secondInsertValue);
     final List<List<?>> expectedValues =
-        insertValues.stream().map(PersonAsMap::asList).sorted(tupleComparator).collect(Collectors.toList());
+        insertValues.stream()
+            .map(PersonAsMap::asList)
+            .sorted(tupleComparator)
+            .collect(Collectors.toList());
 
     return Stream.of(
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(space.insertObjectMany(insertValues).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () -> mapBatchToType(space.insertObjectMany(insertValues).join(), tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.insertObjectMany(insertValues, InsertManyOptions.builder().build()).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .insertObjectMany(insertValues, InsertManyOptions.builder().build())
+                            .join(),
+                        tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.insertObjectMany(insertValues.stream().map(PersonAsMap::asMap)
-                    .collect(Collectors.toList())).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .insertObjectMany(
+                                insertValues.stream()
+                                    .map(PersonAsMap::asMap)
+                                    .collect(Collectors.toList()))
+                            .join(),
+                        tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.insertObjectMany(insertValues.stream().map(PersonAsMap::asMap).collect(Collectors.toList()),
-                    InsertManyOptions.builder().build()).join(), tupleComparator
-            ),
-            expectedValues
-        )
-    );
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .insertObjectMany(
+                                insertValues.stream()
+                                    .map(PersonAsMap::asMap)
+                                    .collect(Collectors.toList()),
+                                InsertManyOptions.builder().build())
+                            .join(),
+                        tupleComparator),
+            expectedValues));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestInsertObjectMany")
-  void testInsertObjectMany(final Supplier<List<List<?>>> executingMethod, final List<List<?>> expectedValues) {
+  void testInsertObjectMany(
+      final Supplier<List<List<?>>> executingMethod, final List<List<?>> expectedValues) {
     final List<List<?>> insertedValues = executingMethod.get();
     assertEquals(expectedValues.size(), insertedValues.size());
 
@@ -873,23 +931,23 @@ public class TarantoolCrudClientTest extends BaseTest {
     return Stream.of(
         Arguments.of(
             (Supplier<List<?>>) () -> space.replaceObject(insertValue).join().get(),
-            insertValue.asList()
-        ),
+            insertValue.asList()),
         Arguments.of(
-            (Supplier<List<?>>) () ->
-                space.replaceObject(insertValue, InsertOptions.builder().build()).join().get(),
-            insertValue.asList()
-        ),
+            (Supplier<List<?>>)
+                () ->
+                    space.replaceObject(insertValue, InsertOptions.builder().build()).join().get(),
+            insertValue.asList()),
         Arguments.of(
             (Supplier<List<?>>) () -> space.replaceObject(insertValue.asMap()).join().get(),
-            insertValue.asList()
-        ),
+            insertValue.asList()),
         Arguments.of(
-            (Supplier<List<?>>) () ->
-                space.replaceObject(insertValue.asMap(), InsertOptions.builder().build()).join().get(),
-            insertValue.asList()
-        )
-    );
+            (Supplier<List<?>>)
+                () ->
+                    space
+                        .replaceObject(insertValue.asMap(), InsertOptions.builder().build())
+                        .join()
+                        .get(),
+            insertValue.asList()));
   }
 
   @ParameterizedTest
@@ -906,37 +964,56 @@ public class TarantoolCrudClientTest extends BaseTest {
     final PersonAsMap secondInsertValue = new PersonAsMap(321, null, "true");
     final List<PersonAsMap> insertValues = Arrays.asList(insertValue, secondInsertValue);
     final List<List<?>> expectedValues =
-        insertValues.stream().map(PersonAsMap::asList).sorted(tupleComparator).collect(Collectors.toList());
+        insertValues.stream()
+            .map(PersonAsMap::asList)
+            .sorted(tupleComparator)
+            .collect(Collectors.toList());
 
     return Stream.of(
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(space.replaceObjectMany(insertValues).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () -> mapBatchToType(space.replaceObjectMany(insertValues).join(), tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.replaceObjectMany(insertValues, InsertManyOptions.builder().build()).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .replaceObjectMany(insertValues, InsertManyOptions.builder().build())
+                            .join(),
+                        tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.replaceObjectMany(insertValues.stream().map(PersonAsMap::asMap)
-                    .collect(Collectors.toList())).join(), tupleComparator),
-            expectedValues
-        ),
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .replaceObjectMany(
+                                insertValues.stream()
+                                    .map(PersonAsMap::asMap)
+                                    .collect(Collectors.toList()))
+                            .join(),
+                        tupleComparator),
+            expectedValues),
         Arguments.of(
-            (Supplier<List<?>>) () -> mapBatchToType(
-                space.replaceObjectMany(insertValues.stream().map(PersonAsMap::asMap).collect(Collectors.toList()),
-                    InsertManyOptions.builder().build()).join(), tupleComparator
-            ),
-            expectedValues
-        )
-    );
+            (Supplier<List<?>>)
+                () ->
+                    mapBatchToType(
+                        space
+                            .replaceObjectMany(
+                                insertValues.stream()
+                                    .map(PersonAsMap::asMap)
+                                    .collect(Collectors.toList()),
+                                InsertManyOptions.builder().build())
+                            .join(),
+                        tupleComparator),
+            expectedValues));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestReplaceObjectMany")
-  void testReplaceObjectMany(final Supplier<List<List<?>>> executingMethod, final List<List<?>> expectedValues) {
+  void testReplaceObjectMany(
+      final Supplier<List<List<?>>> executingMethod, final List<List<?>> expectedValues) {
     final List<List<?>> insertedValues = executingMethod.get();
     assertEquals(expectedValues.size(), insertedValues.size());
 
@@ -949,26 +1026,27 @@ public class TarantoolCrudClientTest extends BaseTest {
   public static Stream<Arguments> dataForTestUpsertObject() {
     final PersonAsMap insertValue = new PersonAsMap(123, true, "name");
 
-    List<Object[]> testCases = Arrays.asList(
-        new Object[] { new PersonAsMap(123, true, "name"), "name", "Kolya"},
-        new Object[] { new PersonAsMap(123, true, "name"), "is_married", null}
-    );
+    List<Object[]> testCases =
+        Arrays.asList(
+            new Object[] {new PersonAsMap(123, true, "name"), "name", "Kolya"},
+            new Object[] {new PersonAsMap(123, true, "name"), "is_married", null});
 
     return testCases.stream()
-        .flatMap(tc -> prepareForTestUpsertObject(
-            insertValue, (PersonAsMap) tc[0], (String) tc[1], tc[2]
-            )
-        );
+        .flatMap(
+            tc ->
+                prepareForTestUpsertObject(
+                    insertValue, (PersonAsMap) tc[0], (String) tc[1], tc[2]));
   }
 
-  public static Stream<Arguments> prepareForTestUpsertObject(PersonAsMap origin, PersonAsMap expected, String updField,
-      Object newFieldValue) {
+  public static Stream<Arguments> prepareForTestUpsertObject(
+      PersonAsMap origin, PersonAsMap expected, String updField, Object newFieldValue) {
     final TarantoolCrudSpace space = client.space("person");
 
     final Supplier<List<List<?>>> selectSupplier =
         () -> space.select().join().stream().map(Tuple::get).collect(Collectors.toList());
 
-    final List<List<?>> operationsAsList = Collections.singletonList(Arrays.asList("=", updField, newFieldValue));
+    final List<List<?>> operationsAsList =
+        Collections.singletonList(Arrays.asList("=", updField, newFieldValue));
     final Operations operationsAsClass = Operations.create().set(updField, newFieldValue);
 
     final Options options = BaseOptions.builder().withTimeout(3_000L).build();
@@ -978,59 +1056,52 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             (Runnable) () -> space.upsertObject(options, origin, operationsAsList).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(options, origin.asMap(), operationsAsList).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin, operationsAsList).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin.asMap(), operationsAsList).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin, operationsAsClass).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin.asMap(), operationsAsClass).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin, operationsAsList, updateOptions).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
-            (Runnable) () -> space.upsertObject(origin.asMap(), operationsAsList, updateOptions).join(),
+            (Runnable)
+                () -> space.upsertObject(origin.asMap(), operationsAsList, updateOptions).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
             (Runnable) () -> space.upsertObject(origin, operationsAsClass, updateOptions).join(),
             selectSupplier,
-            expected.asList()
-        ),
+            expected.asList()),
         Arguments.of(
-            (Runnable) () -> space.upsertObject(origin.asMap(), operationsAsClass, updateOptions).join(),
+            (Runnable)
+                () -> space.upsertObject(origin.asMap(), operationsAsClass, updateOptions).join(),
             selectSupplier,
-            expected.asList()
-        )
-    );
+            expected.asList()));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestUpsertObject")
-  void testUpsertObject(final Runnable executingMethod, final Supplier<List<List<?>>> selectSupplier,
+  void testUpsertObject(
+      final Runnable executingMethod,
+      final Supplier<List<List<?>>> selectSupplier,
       final List<?> expectedValue) {
     executingMethod.run();
     final List<List<?>> insertedTuples = selectSupplier.get();
@@ -1048,82 +1119,85 @@ public class TarantoolCrudClientTest extends BaseTest {
     final PersonAsMap secondInsertValue = new PersonAsMap(321, null, "true");
     final List<PersonAsMap> insertValues = Arrays.asList(insertValue, secondInsertValue);
     final List<List<?>> expectedValues =
-        insertValues.stream().map(PersonAsMap::asList).sorted(tupleComparator).collect(Collectors.toList());
+        insertValues.stream()
+            .map(PersonAsMap::asList)
+            .sorted(tupleComparator)
+            .collect(Collectors.toList());
 
     final List<List<?>> operations = Collections.singletonList(Arrays.asList("=", "name", "Kolya"));
     final Options options = BaseOptions.builder().withTimeout(3_000L).build();
     final UpsertManyOptions upsertManyOptions = UpsertManyOptions.builder().build();
     final Operations operationsAsClass = Operations.create().set("name", "Kolya");
-    final Supplier<List<List<?>>> selectSupplier = () -> space.select().join().stream().map(Tuple::get)
-        .sorted(tupleComparator).collect(Collectors.toList());
+    final Supplier<List<List<?>>> selectSupplier =
+        () ->
+            space.select().join().stream()
+                .map(Tuple::get)
+                .sorted(tupleComparator)
+                .collect(Collectors.toList());
 
-    final List<?> ops = Arrays.asList(Arrays.asList(insertValue, operations),
-        Arrays.asList(secondInsertValue, operations));
-    final List<?> opsAsMap = Arrays.asList(Arrays.asList(insertValue.asMap(), operations),
-        Arrays.asList(secondInsertValue.asMap(), operations));
+    final List<?> ops =
+        Arrays.asList(
+            Arrays.asList(insertValue, operations), Arrays.asList(secondInsertValue, operations));
+    final List<?> opsAsMap =
+        Arrays.asList(
+            Arrays.asList(insertValue.asMap(), operations),
+            Arrays.asList(secondInsertValue.asMap(), operations));
 
-    final UpsertBatch upsertBatch = UpsertBatch.create()
-        .add(insertValue, operationsAsClass).add(secondInsertValue, operationsAsClass);
-    final UpsertBatch upsertBatchAsMap = UpsertBatch.create()
-        .add(insertValue.asMap(), operationsAsClass).add(secondInsertValue.asMap(), operationsAsClass);
+    final UpsertBatch upsertBatch =
+        UpsertBatch.create()
+            .add(insertValue, operationsAsClass)
+            .add(secondInsertValue, operationsAsClass);
+    final UpsertBatch upsertBatchAsMap =
+        UpsertBatch.create()
+            .add(insertValue.asMap(), operationsAsClass)
+            .add(secondInsertValue.asMap(), operationsAsClass);
 
     return Stream.of(
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(options, ops).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(options, opsAsMap).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
-            (Runnable) () -> space.upsertObjectMany(ops).join(),
-            selectSupplier,
-            expectedValues
-        ),
+            (Runnable) () -> space.upsertObjectMany(ops).join(), selectSupplier, expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(opsAsMap).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(ops, upsertManyOptions).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(opsAsMap, upsertManyOptions).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(upsertBatch).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(upsertBatchAsMap).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(upsertBatch, upsertManyOptions).join(),
             selectSupplier,
-            expectedValues
-        ),
+            expectedValues),
         Arguments.of(
             (Runnable) () -> space.upsertObjectMany(upsertBatchAsMap, upsertManyOptions).join(),
             selectSupplier,
-            expectedValues
-        )
-    );
+            expectedValues));
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestUpsertObjectMany")
-  void testUpsertObjectMany(final Runnable executingMethod, final Supplier<List<List<?>>> selectSupplier,
+  void testUpsertObjectMany(
+      final Runnable executingMethod,
+      final Supplier<List<List<?>>> selectSupplier,
       final List<List<?>> expectedValues) {
     executingMethod.run();
     final List<List<?>> insertedTuples = selectSupplier.get();
@@ -1138,8 +1212,9 @@ public class TarantoolCrudClientTest extends BaseTest {
   @Test
   public void testReplaceMany() {
     assertDoesNotThrow(
-        () -> clusterContainer.executeCommand("return crud.insert_many('person', {{0, true, '0'}, {1, " +
-            "true, '1'}})"));
+        () ->
+            clusterContainer.executeCommand(
+                "return crud.insert_many('person', {{0, true, '0'}, {1, " + "true, '1'}})"));
 
     TarantoolCrudSpace personSpace = client.space("person");
 
@@ -1147,14 +1222,17 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person secondPerson = new Person(1, true, "1");
     List<Person> persons = Arrays.asList(firstPerson, secondPerson);
 
-    Map<String, Object> options = new HashMap<String, Object>() {{
-      put("timeout", 2_000L);
-    }};
+    Map<String, Object> options =
+        new HashMap<String, Object>() {
+          {
+            put("timeout", 2_000L);
+          }
+        };
 
     firstPerson.setName("00");
     secondPerson.setName("10");
-    CrudBatchResponse<List<Tuple<List<?>>>> baseReplaceResult = personSpace.replaceMany(baseOptions,
-        listListTypeRef, persons, options).join().get();
+    CrudBatchResponse<List<Tuple<List<?>>>> baseReplaceResult =
+        personSpace.replaceMany(baseOptions, listListTypeRef, persons, options).join().get();
     List<Tuple<List<?>>> baseRows = baseReplaceResult.getRows();
     baseRows.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRows.size());
@@ -1164,8 +1242,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("01");
     secondPerson.setName("11");
-    CrudBatchResponse<List<Tuple<Person>>> baseReplaceResultWithClass = personSpace.replaceMany(baseOptions,
-        listPersonTypeRef, persons).join().get();
+    CrudBatchResponse<List<Tuple<Person>>> baseReplaceResultWithClass =
+        personSpace.replaceMany(baseOptions, listPersonTypeRef, persons).join().get();
     List<Tuple<Person>> baseRowsWithClass = baseReplaceResultWithClass.getRows();
     baseRowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithClass.size());
@@ -1175,8 +1253,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("02");
     secondPerson.setName("12");
-    CrudBatchResponse<List<Tuple<Person>>> baseReplaceResultWithTypeRefAsClass = personSpace.replaceMany(baseOptions,
-        listPersonTypeRef, persons).join().get();
+    CrudBatchResponse<List<Tuple<Person>>> baseReplaceResultWithTypeRefAsClass =
+        personSpace.replaceMany(baseOptions, listPersonTypeRef, persons).join().get();
     List<Tuple<Person>> baseRowsWithTypeRefAsClass = baseReplaceResultWithTypeRefAsClass.getRows();
     baseRowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithTypeRefAsClass.size());
@@ -1186,8 +1264,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("03");
     secondPerson.setName("13");
-    CrudBatchResponse<List<Tuple<List<?>>>> baseReplaceResultWithTypeRefAsList = personSpace.replaceMany(baseOptions,
-        listListTypeRef, persons).join().get();
+    CrudBatchResponse<List<Tuple<List<?>>>> baseReplaceResultWithTypeRefAsList =
+        personSpace.replaceMany(baseOptions, listListTypeRef, persons).join().get();
     List<Tuple<List<?>>> baseRowsWithTypeRefAsList = baseReplaceResultWithTypeRefAsList.getRows();
     baseRowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRowsWithTypeRefAsList.size());
@@ -1207,8 +1285,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("05");
     secondPerson.setName("15");
-    CrudBatchResponse<List<Tuple<List<?>>>> replaceResultWithTypeRefAsList = personSpace.replaceMany(persons,
-        listListTypeRef).join().get();
+    CrudBatchResponse<List<Tuple<List<?>>>> replaceResultWithTypeRefAsList =
+        personSpace.replaceMany(persons, listListTypeRef).join().get();
     List<Tuple<List<?>>> rowsWithTypeRefAsList = replaceResultWithTypeRefAsList.getRows();
     rowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, rowsWithTypeRefAsList.size());
@@ -1218,8 +1296,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("06");
     secondPerson.setName("16");
-    CrudBatchResponse<List<Tuple<Person>>> replaceResultWithClass = personSpace.replaceMany(persons, Person.class)
-        .join();
+    CrudBatchResponse<List<Tuple<Person>>> replaceResultWithClass =
+        personSpace.replaceMany(persons, Person.class).join();
     List<Tuple<Person>> rowsWithClass = replaceResultWithClass.getRows();
     rowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithClass.size());
@@ -1229,8 +1307,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     firstPerson.setName("07");
     secondPerson.setName("17");
-    CrudBatchResponse<List<Tuple<Person>>> replaceResultWithTypeRefAsClass = personSpace.replaceMany(persons,
-        listPersonTypeRef).join().get();
+    CrudBatchResponse<List<Tuple<Person>>> replaceResultWithTypeRefAsClass =
+        personSpace.replaceMany(persons, listPersonTypeRef).join().get();
     List<Tuple<Person>> rowsWithTypeRefAsClass = replaceResultWithTypeRefAsClass.getRows();
     rowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithTypeRefAsClass.size());
@@ -1239,12 +1317,13 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
 
     // input as list
-    List<List<?>> personsAsList = Arrays.asList(Arrays.asList(0, true, "0"),
-        Arrays.asList(1, true, "1"));
+    List<List<?>> personsAsList =
+        Arrays.asList(Arrays.asList(0, true, "0"), Arrays.asList(1, true, "1"));
 
     personsAsList.set(0, Arrays.asList(0, true, "08"));
     personsAsList.set(1, Arrays.asList(1, true, "18"));
-    baseReplaceResult = personSpace.replaceMany(baseOptions, listListTypeRef, personsAsList, options).join().get();
+    baseReplaceResult =
+        personSpace.replaceMany(baseOptions, listListTypeRef, personsAsList, options).join().get();
     baseRows = baseReplaceResult.getRows();
     baseRows.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRows.size());
@@ -1254,7 +1333,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     personsAsList.set(0, Arrays.asList(0, true, "09"));
     personsAsList.set(1, Arrays.asList(1, true, "19"));
-    baseReplaceResultWithClass = personSpace.replaceMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
+    baseReplaceResultWithClass =
+        personSpace.replaceMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
     baseRowsWithClass = baseReplaceResultWithClass.getRows();
     baseRowsWithClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithClass.size());
@@ -1264,8 +1344,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     personsAsList.set(0, Arrays.asList(0, true, "010"));
     personsAsList.set(1, Arrays.asList(1, true, "110"));
-    baseReplaceResultWithTypeRefAsClass = personSpace.replaceMany(baseOptions, listPersonTypeRef, personsAsList)
-        .join().get();
+    baseReplaceResultWithTypeRefAsClass =
+        personSpace.replaceMany(baseOptions, listPersonTypeRef, personsAsList).join().get();
     baseRowsWithTypeRefAsClass = baseReplaceResultWithTypeRefAsClass.getRows();
     baseRowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, baseRowsWithTypeRefAsClass.size());
@@ -1275,8 +1355,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     personsAsList.set(0, Arrays.asList(0, true, "011"));
     personsAsList.set(1, Arrays.asList(1, true, "111"));
-    baseReplaceResultWithTypeRefAsList = personSpace.replaceMany(baseOptions, listListTypeRef, personsAsList)
-        .join().get();
+    baseReplaceResultWithTypeRefAsList =
+        personSpace.replaceMany(baseOptions, listListTypeRef, personsAsList).join().get();
     baseRowsWithTypeRefAsList = baseReplaceResultWithTypeRefAsList.getRows();
     baseRowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, baseRowsWithTypeRefAsList.size());
@@ -1296,7 +1376,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     personsAsList.set(0, Arrays.asList(0, true, "013"));
     personsAsList.set(1, Arrays.asList(1, true, "113"));
-    replaceResultWithTypeRefAsList = personSpace.replaceMany(personsAsList, listListTypeRef).join().get();
+    replaceResultWithTypeRefAsList =
+        personSpace.replaceMany(personsAsList, listListTypeRef).join().get();
     rowsWithTypeRefAsList = replaceResultWithTypeRefAsList.getRows();
     rowsWithTypeRefAsList.sort(Comparator.comparing(p -> (int) (Object) (p.get().get(0))));
     assertEquals(2, rowsWithTypeRefAsList.size());
@@ -1316,7 +1397,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     personsAsList.set(0, Arrays.asList(0, true, "015"));
     personsAsList.set(1, Arrays.asList(1, true, "115"));
-    replaceResultWithTypeRefAsClass = personSpace.replaceMany(personsAsList, listPersonTypeRef).join().get();
+    replaceResultWithTypeRefAsClass =
+        personSpace.replaceMany(personsAsList, listPersonTypeRef).join().get();
     rowsWithTypeRefAsClass = replaceResultWithTypeRefAsClass.getRows();
     rowsWithTypeRefAsClass.sort(Comparator.comparing(person -> person.get().getId()));
     assertEquals(2, rowsWithTypeRefAsClass.size());
@@ -1327,7 +1409,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
   @Test
   public void testUpsert() {
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
 
     TarantoolCrudSpace personSpace = client.space("person");
 
@@ -1336,39 +1419,58 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person oldPerson = new Person(0, true, "1");
     Person newPerson = new Person(1, true, "2");
 
-    Options options = BaseOptions.builder()
-        .withTimeout(2_000)
-        .build();
+    Options options = BaseOptions.builder().withTimeout(2_000).build();
 
-    Executable checkPersons = () -> {
-      List<Tuple<Person>> persons = personSpace.select(baseOptions, listPersonTypeRef).join().get();
-      persons.sort(Comparator.comparing(person -> person.get().getId()));
-      assertEquals(2, persons.size());
-      assertEquals(oldPerson.getName(), persons.get(0).get().getName());
-      assertEquals(newPerson.getName(), persons.get(1).get().getName());
-      assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.truncate('person')"));
-    };
+    Executable checkPersons =
+        () -> {
+          List<Tuple<Person>> persons =
+              personSpace.select(baseOptions, listPersonTypeRef).join().get();
+          persons.sort(Comparator.comparing(person -> person.get().getId()));
+          assertEquals(2, persons.size());
+          assertEquals(oldPerson.getName(), persons.get(0).get().getName());
+          assertEquals(newPerson.getName(), persons.get(1).get().getName());
+          assertDoesNotThrow(
+              () -> clusterContainer.executeCommand("return crud.truncate('person')"));
+        };
 
-    personSpace.upsert(options, oldPerson,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
-    personSpace.upsert(options, newPerson,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
+    personSpace
+        .upsert(
+            options,
+            oldPerson,
+            Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
+    personSpace
+        .upsert(
+            options,
+            newPerson,
+            Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
     assertDoesNotThrow(checkPersons);
 
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
 
-    personSpace.upsert(options, oldPerson, Operations.create().set("name", oldPerson.getName())).join();
-    personSpace.upsert(options, newPerson, Operations.create().set("name", oldPerson.getName())).join();
+    personSpace
+        .upsert(options, oldPerson, Operations.create().set("name", oldPerson.getName()))
+        .join();
+    personSpace
+        .upsert(options, newPerson, Operations.create().set("name", oldPerson.getName()))
+        .join();
     assertDoesNotThrow(checkPersons);
 
     // not generic
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
     assertEquals(1, personSpace.select().join().size());
 
-    personSpace.upsert(oldPerson,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
-    personSpace.upsert(newPerson,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
+    personSpace
+        .upsert(
+            oldPerson, Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
+    personSpace
+        .upsert(
+            newPerson, Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
     assertDoesNotThrow(checkPersons);
 
     personSpace.upsert(oldPerson, Operations.create().set("name", oldPerson.getName())).join();
@@ -1376,80 +1478,108 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertDoesNotThrow(checkPersons);
 
     // input tuple as list
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
     assertEquals(1, personSpace.select().join().size());
 
     List<?> oldPersonAsList = oldPerson.asList();
     List<?> newPersonAsList = newPerson.asList();
 
-    personSpace.upsert(options, oldPersonAsList,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
-    personSpace.upsert(options, newPersonAsList,
-        Collections.singletonList(Arrays.asList("=", "name", newPerson.getName()))).join();
+    personSpace
+        .upsert(
+            options,
+            oldPersonAsList,
+            Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
+    personSpace
+        .upsert(
+            options,
+            newPersonAsList,
+            Collections.singletonList(Arrays.asList("=", "name", newPerson.getName())))
+        .join();
     assertDoesNotThrow(checkPersons);
 
-    personSpace.upsert(options, oldPersonAsList, Operations.create().set("name", oldPerson.getName())).join();
-    personSpace.upsert(options, newPersonAsList, Operations.create().set("name", newPerson.getName())).join();
+    personSpace
+        .upsert(options, oldPersonAsList, Operations.create().set("name", oldPerson.getName()))
+        .join();
+    personSpace
+        .upsert(options, newPersonAsList, Operations.create().set("name", newPerson.getName()))
+        .join();
     assertDoesNotThrow(checkPersons);
 
     // input tuple as list and not generic
-    assertDoesNotThrow(() -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
+    assertDoesNotThrow(
+        () -> clusterContainer.executeCommand("return crud.insert('person', {0, true, '0'})"));
     assertEquals(1, personSpace.select().join().size());
 
-    personSpace.upsert(oldPersonAsList,
-        Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName()))).join();
-    personSpace.upsert(newPersonAsList,
-        Collections.singletonList(Arrays.asList("=", "name", newPerson.getName()))).join();
+    personSpace
+        .upsert(
+            oldPersonAsList,
+            Collections.singletonList(Arrays.asList("=", "name", oldPerson.getName())))
+        .join();
+    personSpace
+        .upsert(
+            newPersonAsList,
+            Collections.singletonList(Arrays.asList("=", "name", newPerson.getName())))
+        .join();
     assertDoesNotThrow(checkPersons);
 
-    personSpace.upsert(oldPersonAsList, Operations.create().set("name", oldPersonAsList.get(2))).join();
-    personSpace.upsert(newPersonAsList, Operations.create().set("name", newPersonAsList.get(2))).join();
+    personSpace
+        .upsert(oldPersonAsList, Operations.create().set("name", oldPersonAsList.get(2)))
+        .join();
+    personSpace
+        .upsert(newPersonAsList, Operations.create().set("name", newPersonAsList.get(2)))
+        .join();
     assertDoesNotThrow(checkPersons);
   }
 
   @Test
   public void testUpsertMany() {
     TarantoolCrudSpace personSpace = client.space("person");
-    String PREPARE = "crud.truncate('person'); " +
-        "return crud.insert_many('person', {{1, true, '11'}, {2, true, '22'}})";
-    List<Person> persons = Arrays.asList(
-        new Person(1, true, "One"),
-        new Person(2, true, "Second"),
-        new Person(3, true, "Third"),
-        new Person(4, true, "Fourth")
-    );
-    UpsertManyOptions options = UpsertManyOptions
-        .builder()
-        .withTimeout(2_000)
-        .build();
-    List<?> batchOpsAsList = persons
-        .stream()
-        .map(p -> Arrays.asList(p, Collections.singletonList(Arrays.asList("=", "name", p.getName()))))
-        .collect(Collectors.toList());
-    List<?> batchTuplesAsListOpsAsList = persons
-        .stream()
-        .map(p -> Arrays.asList(p.asList(), Collections.singletonList(Arrays.asList("=", "name", p.getName()))))
-        .collect(Collectors.toList());
-    UpsertBatch upsertBatch = persons
-        .stream()
-        .reduce(
-            UpsertBatch.create(),
-            (batch, p) -> batch.add(p, Operations.create().set("name", p.getName())),
-            (batch1, batch2) -> {
-              batch1.addAll(batch2);
-              return batch1;
-            }
-        );
-    List<ThrowingSupplier<List<CrudError>>> actions = Arrays.asList(
-        () -> personSpace.upsertMany(batchOpsAsList).join(),
-        () -> personSpace.upsertMany(batchTuplesAsListOpsAsList).join(),
-        () -> personSpace.upsertMany(options, batchOpsAsList).join(),
-        () -> personSpace.upsertMany(options, batchTuplesAsListOpsAsList).join(),
-        () -> personSpace.upsertMany(batchOpsAsList, options).join(),
-        () -> personSpace.upsertMany(batchTuplesAsListOpsAsList, options).join(),
-        () -> personSpace.upsertMany(upsertBatch).join(),
-        () -> personSpace.upsertMany(upsertBatch, options).join()
-    );
+    String PREPARE =
+        "crud.truncate('person'); "
+            + "return crud.insert_many('person', {{1, true, '11'}, {2, true, '22'}})";
+    List<Person> persons =
+        Arrays.asList(
+            new Person(1, true, "One"),
+            new Person(2, true, "Second"),
+            new Person(3, true, "Third"),
+            new Person(4, true, "Fourth"));
+    UpsertManyOptions options = UpsertManyOptions.builder().withTimeout(2_000).build();
+    List<?> batchOpsAsList =
+        persons.stream()
+            .map(
+                p ->
+                    Arrays.asList(
+                        p, Collections.singletonList(Arrays.asList("=", "name", p.getName()))))
+            .collect(Collectors.toList());
+    List<?> batchTuplesAsListOpsAsList =
+        persons.stream()
+            .map(
+                p ->
+                    Arrays.asList(
+                        p.asList(),
+                        Collections.singletonList(Arrays.asList("=", "name", p.getName()))))
+            .collect(Collectors.toList());
+    UpsertBatch upsertBatch =
+        persons.stream()
+            .reduce(
+                UpsertBatch.create(),
+                (batch, p) -> batch.add(p, Operations.create().set("name", p.getName())),
+                (batch1, batch2) -> {
+                  batch1.addAll(batch2);
+                  return batch1;
+                });
+    List<ThrowingSupplier<List<CrudError>>> actions =
+        Arrays.asList(
+            () -> personSpace.upsertMany(batchOpsAsList).join(),
+            () -> personSpace.upsertMany(batchTuplesAsListOpsAsList).join(),
+            () -> personSpace.upsertMany(options, batchOpsAsList).join(),
+            () -> personSpace.upsertMany(options, batchTuplesAsListOpsAsList).join(),
+            () -> personSpace.upsertMany(batchOpsAsList, options).join(),
+            () -> personSpace.upsertMany(batchTuplesAsListOpsAsList, options).join(),
+            () -> personSpace.upsertMany(upsertBatch).join(),
+            () -> personSpace.upsertMany(upsertBatch, options).join());
 
     for (ThrowingSupplier<List<CrudError>> upsertManyAction : actions) {
       assertDoesNotThrow(() -> clusterContainer.executeCommand(PREPARE));
@@ -1457,7 +1587,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
       assertNull(assertDoesNotThrow(upsertManyAction), "crud.upsertMany returned errors");
 
-      List<Tuple<Person>> selectedPersons = personSpace.select(baseOptions, listPersonTypeRef).join().get();
+      List<Tuple<Person>> selectedPersons =
+          personSpace.select(baseOptions, listPersonTypeRef).join().get();
       selectedPersons.sort(Comparator.comparing(person -> person.get().getId()));
       assertEquals(persons.size(), selectedPersons.size());
       for (int i = 0; i < selectedPersons.size(); i++) {
@@ -1481,9 +1612,10 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     TarantoolCrudSpace space = client.space("person");
 
-    Runnable prepareAction = () -> {
-      assertEquals(resultAsList, space.insert(resultAsList).join().get().subList(begin, end));
-    };
+    Runnable prepareAction =
+        () -> {
+          assertEquals(resultAsList, space.insert(resultAsList).join().get().subList(begin, end));
+        };
 
     return Stream.of(
         Arguments.of(
@@ -1497,11 +1629,13 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsList, baseOptions).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.get(keyAsList, baseOptions).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsClass, baseOptions).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.get(keyAsClass, baseOptions).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
@@ -1521,11 +1655,13 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsList, listTypeRef).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.get(keyAsList, listTypeRef).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsClass, listTypeRef).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.get(keyAsClass, listTypeRef).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
@@ -1537,11 +1673,23 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsList, baseOptions, listTypeRef).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .get(keyAsList, baseOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.get(keyAsClass, baseOptions, listTypeRef).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .get(keyAsClass, baseOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
@@ -1549,7 +1697,8 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.get(keyAsClass, baseOptions, personTypeRef).join().get()));
+            (Supplier<Object>)
+                () -> space.get(keyAsClass, baseOptions, personTypeRef).join().get()));
   }
 
   @ParameterizedTest
@@ -1574,13 +1723,15 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     TarantoolCrudSpace space = client.space("person");
 
-    Runnable prepareAction = () -> {
-      assertEquals(resultAsList, space.insert(resultAsList).join().get().subList(begin, end));
-    };
+    Runnable prepareAction =
+        () -> {
+          assertEquals(resultAsList, space.insert(resultAsList).join().get().subList(begin, end));
+        };
 
-    Runnable finalAction = () -> {
-      assertTrue(space.select(Collections.emptyList()).join().isEmpty());
-    };
+    Runnable finalAction =
+        () -> {
+          assertTrue(space.select(Collections.emptyList()).join().isEmpty());
+        };
 
     return Stream.of(
         Arguments.of(
@@ -1596,12 +1747,14 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsList, baseOptions).join().get().subList(begin, end),
+            (Supplier<Object>)
+                () -> space.delete(keyAsList, baseOptions).join().get().subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsClass, baseOptions).join().get().subList(begin, end),
+            (Supplier<Object>)
+                () -> space.delete(keyAsClass, baseOptions).join().get().subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
@@ -1616,22 +1769,26 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.delete(keyAsList, baseOptions, Person.class).join().get(),
+            (Supplier<Object>)
+                () -> space.delete(keyAsList, baseOptions, Person.class).join().get(),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.delete(keyAsClass, baseOptions, Person.class).join().get(),
+            (Supplier<Object>)
+                () -> space.delete(keyAsClass, baseOptions, Person.class).join().get(),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsList, listTypeRef).join().get().subList(begin, end),
+            (Supplier<Object>)
+                () -> space.delete(keyAsList, listTypeRef).join().get().subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsClass, listTypeRef).join().get().subList(begin, end),
+            (Supplier<Object>)
+                () -> space.delete(keyAsClass, listTypeRef).join().get().subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
@@ -1646,31 +1803,43 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsList, baseOptions, listTypeRef).join().get()
-                .subList(begin, end),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .delete(keyAsList, baseOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.delete(keyAsClass, baseOptions, listTypeRef).join().get()
-                .subList(begin, end),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .delete(keyAsClass, baseOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.delete(keyAsList, baseOptions, personTypeRef).join().get(),
+            (Supplier<Object>)
+                () -> space.delete(keyAsList, baseOptions, personTypeRef).join().get(),
             finalAction),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.delete(keyAsClass, baseOptions, personTypeRef).join().get(),
+            (Supplier<Object>)
+                () -> space.delete(keyAsClass, baseOptions, personTypeRef).join().get(),
             finalAction));
   }
 
   @ParameterizedTest
   @MethodSource("dataForDeleteTest")
-  public void testDelete(Runnable prepareAction, Object result, Supplier<Object> callingMethod,
-      Runnable finalAction) {
+  public void testDelete(
+      Runnable prepareAction, Object result, Supplier<Object> callingMethod, Runnable finalAction) {
     prepareAction.run();
 
     assertEquals(result, callingMethod.get());
@@ -1681,24 +1850,29 @@ public class TarantoolCrudClientTest extends BaseTest {
   @Test
   public void testMinMax() {
     TarantoolCrudSpace person = client.space("person");
-    List<Person> insertedPersons = Arrays.asList(new Person(0, true, "0"),
-        new Person(1, true, "1"));
+    List<Person> insertedPersons =
+        Arrays.asList(new Person(0, true, "0"), new Person(1, true, "1"));
 
     for (Person obj : insertedPersons) {
       assertEquals(obj, person.insert(obj, Person.class).join().get());
     }
 
-    Map<String, Object> options = new HashMap<String, Object>() {{
-      put("timeout", 2_000L);
-    }};
+    Map<String, Object> options =
+        new HashMap<String, Object>() {
+          {
+            put("timeout", 2_000L);
+          }
+        };
 
     TypeReference<List<?>> typeReferenceAsList = new TypeReference<List<?>>() {};
     TypeReference<Person> typeReferenceAsClass = new TypeReference<Person>() {};
 
     List<?> baseMinResult = person.min(baseOptions, listTypeRef, "pk", options).join().get();
     Person baseMinResultWithClass = person.min(baseOptions, personTypeRef, "pk").join().get();
-    Person baseMinResultWithTypeRefAsClass = person.min(baseOptions, typeReferenceAsClass, "pk").join().get();
-    List<?> baseMinResultWithTypeRefAsList = person.min(baseOptions, typeReferenceAsList, "pk").join().get();
+    Person baseMinResultWithTypeRefAsClass =
+        person.min(baseOptions, typeReferenceAsClass, "pk").join().get();
+    List<?> baseMinResultWithTypeRefAsList =
+        person.min(baseOptions, typeReferenceAsList, "pk").join().get();
     List<?> minResult = person.min("pk").join().get();
     Person minResultWithClass = person.min("pk", Person.class).join().get();
     Person minResultWithTypeRefAsClass = person.min("pk", typeReferenceAsClass).join().get();
@@ -1706,8 +1880,10 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     List<?> baseMaxResult = person.max(baseOptions, listTypeRef, "pk", options).join().get();
     Person baseMaxResultWithClass = person.max(baseOptions, personTypeRef, "pk").join().get();
-    Person baseMaxResultWithTypeRefAsClass = person.max(baseOptions, typeReferenceAsClass, "pk").join().get();
-    List<?> baseMaxResultWithTypeRefAsList = person.max(baseOptions, typeReferenceAsList, "pk").join().get();
+    Person baseMaxResultWithTypeRefAsClass =
+        person.max(baseOptions, typeReferenceAsClass, "pk").join().get();
+    List<?> baseMaxResultWithTypeRefAsList =
+        person.max(baseOptions, typeReferenceAsList, "pk").join().get();
     List<?> maxResult = person.max("pk").join().get();
     Person maxResultWithClass = person.max("pk", Person.class).join().get();
     Person maxResultWithTypeRefAsClass = person.max("pk", typeReferenceAsClass).join().get();
@@ -1733,21 +1909,19 @@ public class TarantoolCrudClientTest extends BaseTest {
   }
 
   public static Stream<Arguments> dataForUpdateTest() {
-    List<Object[]> testCases = Arrays.asList(
-        new Object[] { new Person(1, true, "Фёдор"), "name", "Фёдор"},
-        new Object[] { new Person(1, false, "Roman"), "is_married", Boolean.FALSE},
-        new Object[] { new Person(1, null, "Roman"), "is_married", null}
-    );
+    List<Object[]> testCases =
+        Arrays.asList(
+            new Object[] {new Person(1, true, "Фёдор"), "name", "Фёдор"},
+            new Object[] {new Person(1, false, "Roman"), "is_married", Boolean.FALSE},
+            new Object[] {new Person(1, null, "Roman"), "is_married", null});
 
     return testCases.stream()
-        .flatMap(tc -> prepareDataForUpdateTest(
-            personInstance, (Person) tc[0], (String) tc[1], tc[2]
-        )
-    );
+        .flatMap(
+            tc -> prepareDataForUpdateTest(personInstance, (Person) tc[0], (String) tc[1], tc[2]));
   }
 
-  public static Stream<Arguments> prepareDataForUpdateTest(Person origin, Person expected, String updField,
-      Object newFieldValue) {
+  public static Stream<Arguments> prepareDataForUpdateTest(
+      Person origin, Person expected, String updField, Object newFieldValue) {
     TarantoolCrudSpace space = client.space("person");
 
     List<?> keyAsList = Collections.singletonList(origin.getId());
@@ -1755,10 +1929,12 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     // after update
     Person resultAsClass = expected;
-    List<?> resultAsList = Arrays.asList(expected.getId(), expected.getIsMarried(), expected.getName());
+    List<?> resultAsList =
+        Arrays.asList(expected.getId(), expected.getIsMarried(), expected.getName());
 
     Operations operationsAsClass = Operations.create().set(updField, newFieldValue);
-    List<List<?>> operationsAsList = Collections.singletonList(Arrays.asList("=", updField, newFieldValue));
+    List<List<?>> operationsAsList =
+        Collections.singletonList(Arrays.asList("=", updField, newFieldValue));
 
     Options genericOptions = BaseOptions.builder().build();
     UpdateOptions baseUpdateOptions = UpdateOptions.builder().build();
@@ -1766,250 +1942,419 @@ public class TarantoolCrudClientTest extends BaseTest {
     int begin = 0;
     int end = resultAsList.size();
 
-    Runnable prepareAction = () -> {
-      assertEquals(origin, space.insert(origin, Person.class).join().get());
-    };
+    Runnable prepareAction =
+        () -> {
+          assertEquals(origin, space.insert(origin, Person.class).join().get());
+        };
 
     return Stream.of(
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsList).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsList).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsClass).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass).join().get().subList(begin, end)),
-
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsClass).join().get().subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, baseUpdateOptions).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsList, baseUpdateOptions)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, baseUpdateOptions).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsList, baseUpdateOptions)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, baseUpdateOptions).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsClass, baseUpdateOptions)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, baseUpdateOptions).join().get()
-                .subList(begin, end)),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsClass, baseUpdateOptions)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, Person.class).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsList, Person.class).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, Person.class).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsList, Person.class).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, Person.class).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsClass, Person.class).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, Person.class).join().get()),
-
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsClass, Person.class).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, baseUpdateOptions, Person.class)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsList, baseUpdateOptions, Person.class)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, baseUpdateOptions, Person.class)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsList, baseUpdateOptions, Person.class)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, baseUpdateOptions, Person.class)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsClass, baseUpdateOptions, Person.class)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, baseUpdateOptions, Person.class)
-                .join().get()),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsClass, baseUpdateOptions, Person.class)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, listTypeRef).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsList, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, listTypeRef).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsList, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, listTypeRef).join().get()
-                .subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsClass, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, listTypeRef).join().get()
-                .subList(begin, end)),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsClass, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, personTypeRef).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsList, personTypeRef).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, personTypeRef).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsList, personTypeRef).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, personTypeRef).join().get()),
+            (Supplier<Object>)
+                () -> space.update(keyAsList, operationsAsClass, personTypeRef).join().get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, personTypeRef).join().get()),
-
+            (Supplier<Object>)
+                () -> space.update(keyAsClass, operationsAsClass, personTypeRef).join().get()),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, baseUpdateOptions, listTypeRef)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsList, baseUpdateOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, baseUpdateOptions, listTypeRef)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsList, baseUpdateOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, baseUpdateOptions, listTypeRef)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsClass, baseUpdateOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, baseUpdateOptions, listTypeRef)
-                .join().get().subList(begin, end)),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsClass, baseUpdateOptions, listTypeRef)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsList, baseUpdateOptions, personTypeRef)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsList, baseUpdateOptions, personTypeRef)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsList, baseUpdateOptions, personTypeRef)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsList, baseUpdateOptions, personTypeRef)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsList, operationsAsClass, baseUpdateOptions, personTypeRef)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsList, operationsAsClass, baseUpdateOptions, personTypeRef)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(keyAsClass, operationsAsClass, baseUpdateOptions, personTypeRef)
-                .join().get()),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(keyAsClass, operationsAsClass, baseUpdateOptions, personTypeRef)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsList, operationsAsList)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsList, operationsAsList)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsList, operationsAsClass)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsList, operationsAsClass)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsClass, operationsAsList)
-                .join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsClass, operationsAsList)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsClass, operationsAsClass)
-                .join().get().subList(begin, end)),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsClass, operationsAsClass)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsList, operationsAsList,
-                OPTIONS).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsList, operationsAsList, OPTIONS)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsList, operationsAsClass,
-                OPTIONS).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsList, operationsAsClass, OPTIONS)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsClass, operationsAsList,
-                OPTIONS).join().get().subList(begin, end)),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsClass, operationsAsList, OPTIONS)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsList,
-            (Supplier<Object>) () -> space.update(genericOptions, listTypeRef, keyAsClass, operationsAsClass,
-                OPTIONS).join().get().subList(begin, end)),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, listTypeRef, keyAsClass, operationsAsClass, OPTIONS)
+                        .join()
+                        .get()
+                        .subList(begin, end)),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsList, operationsAsList)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, personTypeRef, keyAsList, operationsAsList)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsList, operationsAsClass)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, personTypeRef, keyAsList, operationsAsClass)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsClass, operationsAsList)
-                .join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, personTypeRef, keyAsClass, operationsAsList)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsClass, operationsAsClass)
-                .join().get()),
-
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, personTypeRef, keyAsClass, operationsAsClass)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsList, operationsAsList,
-                OPTIONS).join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(genericOptions, personTypeRef, keyAsList, operationsAsList, OPTIONS)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsList, operationsAsClass,
-                OPTIONS).join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(
+                            genericOptions, personTypeRef, keyAsList, operationsAsClass, OPTIONS)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsClass, operationsAsList,
-                OPTIONS).join().get()),
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(
+                            genericOptions, personTypeRef, keyAsClass, operationsAsList, OPTIONS)
+                        .join()
+                        .get()),
         Arguments.of(
             prepareAction,
             resultAsClass,
-            (Supplier<Object>) () -> space.update(genericOptions, personTypeRef, keyAsClass, operationsAsClass,
-                OPTIONS).join().get()));
+            (Supplier<Object>)
+                () ->
+                    space
+                        .update(
+                            genericOptions, personTypeRef, keyAsClass, operationsAsClass, OPTIONS)
+                        .join()
+                        .get()));
   }
 
   @ParameterizedTest
@@ -2026,92 +2371,100 @@ public class TarantoolCrudClientTest extends BaseTest {
             "timeout",
             null,
             1000,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             null,
             Arrays.asList("id", "name"),
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "after",
             null,
             Arrays.asList(0, false, "name", 1000),
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withAfter(optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().withAfter(optionValue).build()),
         Arguments.of(
             "batch_size",
             null,
             100,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withBatchSize((Integer) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withBatchSize((Integer) optionValue).build()),
         Arguments.of(
             "bucket_id",
             null,
             100,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "first",
             SelectOptions.DEFAULT_LIMIT,
             100,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withFirst((Integer) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().withFirst((Integer) optionValue).build()),
         Arguments.of(
             "mode",
             Mode.WRITE.value(),
             Mode.READ,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withMode((Mode) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().withMode((Mode) optionValue).build()),
         Arguments.of(
             "yield_every",
             null,
             100,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withYieldEvery((Integer) optionValue).build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withYieldEvery((Integer) optionValue).build()),
         Arguments.of(
             "fullscan",
             null,
             true,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().fullscan().build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().fullscan().build()),
         Arguments.of(
             "force_map_call",
             null,
             true,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().forceMapCall().build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().forceMapCall().build()),
         Arguments.of(
             "prefer_replica",
             null,
             true,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().preferReplica().build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().preferReplica().build()),
         Arguments.of(
             "balance",
             null,
             true,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().balance().build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().balance().build()),
         Arguments.of(
             "fetch_latest_metadata",
             null,
             true,
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().fetchLatestMetadata().build()),
+            (Function<Object, SelectOptions>)
+                (optionValue) -> SelectOptions.builder().fetchLatestMetadata().build()),
         Arguments.of(
             "vshard_router",
             null,
             "default",
-            (Function<Object, SelectOptions>) (optionValue) ->
-                SelectOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, SelectOptions>)
+                (optionValue) ->
+                    SelectOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("selectOptions")
-  public void testSelectParameters(String optName, Object defaultOptSentValue, Object optionValue,
+  public void testSelectParameters(
+      String optName,
+      Object defaultOptSentValue,
+      Object optionValue,
       Function<Object, SelectOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
@@ -2119,22 +2472,21 @@ public class TarantoolCrudClientTest extends BaseTest {
     List<?> result = client.eval("return crud_select_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .select(Collections.emptyList(), SelectOptions.builder().build())
-            .join()
-    );
+    assertDoesNotThrow(
+        () -> person.select(Collections.emptyList(), SelectOptions.builder().build()).join());
     result = client.eval("return crud_select_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
-    Executable executable = () -> {
-      person.select(Collections.emptyList(), getOptions.apply(optionValue)).join();
-    };
+    Executable executable =
+        () -> {
+          person.select(Collections.emptyList(), getOptions.apply(optionValue)).join();
+        };
     if (optName.equals("vshard_router") && !isCartridgeAvailable()) {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable, "Incorrect usage of option " + optName);
@@ -2147,12 +2499,18 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expectedResult, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_select_opts = {}").join().get();
 
-    assertDoesNotThrow(() -> {
-      person
-          .select(baseOptions,
-              listListTypeRef, Collections.emptyList(), getOptions.apply(optionValue).getOptions())
-          .join().get();
-    }, "Incorrect usage of option " + optName);
+    assertDoesNotThrow(
+        () -> {
+          person
+              .select(
+                  baseOptions,
+                  listListTypeRef,
+                  Collections.emptyList(),
+                  getOptions.apply(optionValue).getOptions())
+              .join()
+              .get();
+        },
+        "Incorrect usage of option " + optName);
 
     result = client.eval("return crud_select_opts").join().get();
     if (optName.equals("mode")) {
@@ -2164,19 +2522,23 @@ public class TarantoolCrudClientTest extends BaseTest {
   @Test
   public void testSelectWrongParameters() {
     TarantoolCrudSpace person = client.space("person");
-    Throwable ex = assertThrows(CompletionException.class, () -> {
-      person
-          .select(
-              Collections.emptyList(),
-              SelectOptions.builder().withOption("coolOption", "coolValue").build()
-          )
-          .join();
-    });
+    Throwable ex =
+        assertThrows(
+            CompletionException.class,
+            () -> {
+              person
+                  .select(
+                      Collections.emptyList(),
+                      SelectOptions.builder().withOption("coolOption", "coolValue").build())
+                  .join();
+            });
     CrudException cause = (CrudException) ex.getCause();
     assertEquals(CompletionException.class, ex.getClass());
     assertEquals(CrudException.class, cause.getClass());
-    assertTrue(cause.getMessage().matches("SelectError:.*" +
-        "unexpected argument opts.coolOption to nil"));
+    assertTrue(
+        cause
+            .getMessage()
+            .matches("SelectError:.*" + "unexpected argument opts.coolOption to nil"));
   }
 
   @SuppressWarnings("unchecked")
@@ -2186,74 +2548,70 @@ public class TarantoolCrudClientTest extends BaseTest {
             "timeout",
             null,
             1000,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, GetOptions>)
+                (optionValue) ->
+                    GetOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             null,
             Arrays.asList("id", "name"),
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, GetOptions>)
+                (optionValue) ->
+                    GetOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "bucket_id",
             null,
             100,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, GetOptions>)
+                (optionValue) -> GetOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "mode",
             Mode.WRITE.value(),
             Mode.READ,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().withMode((Mode) optionValue).build()),
+            (Function<Object, GetOptions>)
+                (optionValue) -> GetOptions.builder().withMode((Mode) optionValue).build()),
         Arguments.of(
             "prefer_replica",
             null,
             true,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().preferReplica().build()),
+            (Function<Object, GetOptions>)
+                (optionValue) -> GetOptions.builder().preferReplica().build()),
         Arguments.of(
             "balance",
             null,
             true,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().balance().build()),
+            (Function<Object, GetOptions>) (optionValue) -> GetOptions.builder().balance().build()),
         Arguments.of(
             "fetch_latest_metadata",
             null,
             true,
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().fetchLatestMetadata().build()),
+            (Function<Object, GetOptions>)
+                (optionValue) -> GetOptions.builder().fetchLatestMetadata().build()),
         Arguments.of(
             "vshard_router",
             null,
             "default",
-            (Function<Object, GetOptions>) (optionValue) ->
-                GetOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, GetOptions>)
+                (optionValue) ->
+                    GetOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("getOptions")
-  public void testGetParameters(String optName, Object defaultOptSentValue, Object optionValue,
+  public void testGetParameters(
+      String optName,
+      Object defaultOptSentValue,
+      Object optionValue,
       Function<Object, GetOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
     List<?> key = Collections.singletonList(1);
     // without all
-    assertDoesNotThrow(() ->
-        person
-            .get(key)
-            .join()
-    );
+    assertDoesNotThrow(() -> person.get(key).join());
     List<?> result = client.eval("return crud_get_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
     // without default
-    assertDoesNotThrow(() ->
-        person
-            .get(key, GetOptions.builder().build())
-            .join()
-    );
+    assertDoesNotThrow(() -> person.get(key, GetOptions.builder().build()).join());
     result = client.eval("return crud_get_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -2263,7 +2621,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2276,11 +2635,11 @@ public class TarantoolCrudClientTest extends BaseTest {
     client.eval("crud_get_opts = {}").join().get();
 
     // specified generic
-    assertDoesNotThrow(() ->
-        person
-            .get(baseOptions, personTypeRef, key, getOptions.apply(optionValue).getOptions())
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .get(baseOptions, personTypeRef, key, getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_get_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -2294,66 +2653,61 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, DeleteOptions>)
+                (optionValue) ->
+                    DeleteOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, DeleteOptions>)
+                (optionValue) ->
+                    DeleteOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "bucket_id",
             100,
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, DeleteOptions>)
+                (optionValue) ->
+                    DeleteOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "fetch_latest_metadata",
             true,
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().fetchLatestMetadata().build()),
+            (Function<Object, DeleteOptions>)
+                (optionValue) -> DeleteOptions.builder().fetchLatestMetadata().build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().withVshardRouter((String) optionValue).build()),
+            (Function<Object, DeleteOptions>)
+                (optionValue) ->
+                    DeleteOptions.builder().withVshardRouter((String) optionValue).build()),
         Arguments.of(
             "noreturn",
             true,
-            (Function<Object, DeleteOptions>) (optionValue) ->
-                DeleteOptions.builder().withNoReturn().build())
-    );
+            (Function<Object, DeleteOptions>)
+                (optionValue) -> DeleteOptions.builder().withNoReturn().build()));
   }
 
   @ParameterizedTest
   @MethodSource("deleteOptions")
-  public void testDeleteParameters(String optName, Object optionValue,
-      Function<Object, DeleteOptions> deleteOptions) {
+  public void testDeleteParameters(
+      String optName, Object optionValue, Function<Object, DeleteOptions> deleteOptions) {
     TarantoolCrudSpace person = client.space("person");
     List<Integer> key = Collections.singletonList(1);
 
-    assertDoesNotThrow(() ->
-        person
-            .delete(key)
-            .join()
-    );
+    assertDoesNotThrow(() -> person.delete(key).join());
     List<?> result = client.eval("return crud_delete_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .delete(key, DeleteOptions.builder().build())
-            .join()
-    );
+    assertDoesNotThrow(() -> person.delete(key, DeleteOptions.builder().build()).join());
     result = client.eval("return crud_delete_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    Executable executable =
-        () -> person.delete(key, deleteOptions.apply(optionValue)).join();
+    Executable executable = () -> person.delete(key, deleteOptions.apply(optionValue)).join();
     if (optName.equals("vshard_router") && !isCartridgeAvailable()) {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2365,11 +2719,12 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expectedResult, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_delete_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .delete(baseOptions, personTypeRef, key, deleteOptions.apply(optionValue).getOptions())
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .delete(
+                    baseOptions, personTypeRef, key, deleteOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_delete_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -2383,61 +2738,53 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, UpdateOptions>)
+                (optionValue) ->
+                    UpdateOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, UpdateOptions>)
+                (optionValue) ->
+                    UpdateOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "bucket_id",
             100,
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, UpdateOptions>)
+                (optionValue) ->
+                    UpdateOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "fetch_latest_metadata",
             true,
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().fetchLatestMetadata().build()),
+            (Function<Object, UpdateOptions>)
+                (optionValue) -> UpdateOptions.builder().fetchLatestMetadata().build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().withVshardRouter((String) optionValue).build()),
+            (Function<Object, UpdateOptions>)
+                (optionValue) ->
+                    UpdateOptions.builder().withVshardRouter((String) optionValue).build()),
         Arguments.of(
             "noreturn",
             true,
-            (Function<Object, UpdateOptions>) (optionValue) ->
-                UpdateOptions.builder().withNoReturn().build())
-    );
+            (Function<Object, UpdateOptions>)
+                (optionValue) -> UpdateOptions.builder().withNoReturn().build()));
   }
 
   @ParameterizedTest
   @MethodSource("updateParameters")
-  public void testUpdateParameters(String optName, Object optionValue,
-      Function<Object, UpdateOptions> updateOptions) {
+  public void testUpdateParameters(
+      String optName, Object optionValue, Function<Object, UpdateOptions> updateOptions) {
     TarantoolCrudSpace person = client.space("person");
     List<Integer> key = Collections.singletonList(1);
-    List<List<?>> operations = Collections.singletonList(Arrays.asList(
-        "=",
-        "name",
-        "DimaK"
-    ));
+    List<List<?>> operations = Collections.singletonList(Arrays.asList("=", "name", "DimaK"));
 
-    assertDoesNotThrow(() ->
-        person
-            .update(key, Collections.emptyList())
-            .join()
-    );
+    assertDoesNotThrow(() -> person.update(key, Collections.emptyList()).join());
     List<?> result = client.eval("return crud_update_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .update(key, operations, UpdateOptions.builder().build())
-            .join()
-    );
+    assertDoesNotThrow(
+        () -> person.update(key, operations, UpdateOptions.builder().build()).join());
     result = client.eval("return crud_update_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -2447,7 +2794,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2456,17 +2804,16 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expectedResult, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_update_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .update(
-                baseOptions,
-                personTypeRef,
-                key,
-                operations,
-                updateOptions.apply(optionValue).getOptions()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .update(
+                    baseOptions,
+                    personTypeRef,
+                    key,
+                    operations,
+                    updateOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_update_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -2476,42 +2823,34 @@ public class TarantoolCrudClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("updateParameters")
-  public void testUpsertParameters(String optName, Object optionValue,
-      Function<Object, UpdateOptions> updateOptions) {
+  public void testUpsertParameters(
+      String optName, Object optionValue, Function<Object, UpdateOptions> updateOptions) {
     TarantoolCrudSpace person = client.space("person");
-    List<List<?>> operations = Collections.singletonList(Arrays.asList(
-        "=",
-        "name",
-        "DimaK"
-    ));
+    List<List<?>> operations = Collections.singletonList(Arrays.asList("=", "name", "DimaK"));
 
-    assertDoesNotThrow(() ->
-        person
-            .upsert(personInstance.asList(), operations)
-            .join()
-    );
+    assertDoesNotThrow(() -> person.upsert(personInstance.asList(), operations).join());
     List<?> result = client.eval("return crud_upsert_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .upsert(
-                personInstance.asList(),
-                operations,
-                UpdateOptions.builder().build()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .upsert(personInstance.asList(), operations, UpdateOptions.builder().build())
+                .join());
     result = client.eval("return crud_upsert_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
     Executable executable =
-        () -> person.upsert(personInstance.asList(), operations, updateOptions.apply(optionValue)).join();
+        () ->
+            person
+                .upsert(personInstance.asList(), operations, updateOptions.apply(optionValue))
+                .join();
     if (optName.equals("vshard_router") && !isCartridgeAvailable()) {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2520,16 +2859,15 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expectedResult, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_upsert_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .upsert(
-                baseOptions,
-                personInstance.asList(),
-                operations,
-                updateOptions.apply(optionValue).getOptions()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .upsert(
+                    baseOptions,
+                    personInstance.asList(),
+                    operations,
+                    updateOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_upsert_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -2543,57 +2881,55 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, InsertOptions>)
+                (optionValue) ->
+                    InsertOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, InsertOptions>)
+                (optionValue) ->
+                    InsertOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "noreturn",
             true,
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().withNoReturn().build()),
+            (Function<Object, InsertOptions>)
+                (optionValue) -> InsertOptions.builder().withNoReturn().build()),
         Arguments.of(
             "bucket_id",
             123,
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, InsertOptions>)
+                (optionValue) ->
+                    InsertOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().withVshardRouter((String) optionValue).build()),
+            (Function<Object, InsertOptions>)
+                (optionValue) ->
+                    InsertOptions.builder().withVshardRouter((String) optionValue).build()),
         Arguments.of(
             "fetch_latest_metadata",
             true,
-            (Function<Object, InsertOptions>) (optionValue) ->
-                InsertOptions.builder().fetchLatestMetadata().build())
-    );
+            (Function<Object, InsertOptions>)
+                (optionValue) -> InsertOptions.builder().fetchLatestMetadata().build()));
   }
 
   @ParameterizedTest
   @MethodSource("insertOptions")
-  public void testInsertParameters(String optName, Object optionValue, Function<Object, InsertOptions> getOptions) {
+  public void testInsertParameters(
+      String optName, Object optionValue, Function<Object, InsertOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
-    assertDoesNotThrow(() ->
-        person
-            .insert(Arrays.asList(1, true, "Roman"))
-            .join().get()
-    );
+    assertDoesNotThrow(() -> person.insert(Arrays.asList(1, true, "Roman")).join().get());
     List<?> result = client.eval("return crud_insert_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .insert(
-                Arrays.asList(2, true, "Roman"),
-                InsertOptions.builder().build()
-            )
-            .join().get()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insert(Arrays.asList(2, true, "Roman"), InsertOptions.builder().build())
+                .join()
+                .get());
     result = client.eval("return crud_insert_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -2603,7 +2939,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable, "Incorrect usage of " + optName);
@@ -2611,37 +2948,32 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_insert_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .insert(
-                baseOptions,
-                listTypeRef,
-                Arrays.asList(4, true, "Roman"),
-                getOptions.apply(optionValue).getOptions()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insert(
+                    baseOptions,
+                    listTypeRef,
+                    Arrays.asList(4, true, "Roman"),
+                    getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_insert_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
 
   @ParameterizedTest
   @MethodSource("insertOptions")
-  public void testReplaceParameters(String optName, Object optionValue, Function<Object, InsertOptions> getOptions) {
+  public void testReplaceParameters(
+      String optName, Object optionValue, Function<Object, InsertOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
     assertDoesNotThrow(() -> person.replace(personInstance.asList()).join().get());
     List<?> result = client.eval("return crud_replace_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .replace(
-                personInstance.asList(),
-                InsertOptions.builder().build()
-            )
-            .join().get()
-    );
+    assertDoesNotThrow(
+        () ->
+            person.replace(personInstance.asList(), InsertOptions.builder().build()).join().get());
     result = client.eval("return crud_replace_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -2651,7 +2983,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2659,16 +2992,15 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_replace_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .replace(
-                baseOptions,
-                listTypeRef,
-                personInstance.asList(),
-                getOptions.apply(optionValue).getOptions()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .replace(
+                    baseOptions,
+                    listTypeRef,
+                    personInstance.asList(),
+                    getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_replace_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
@@ -2679,175 +3011,167 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) ->
+                    InsertManyOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) ->
+                    InsertManyOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "noreturn",
             true,
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().withNoReturn().build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) -> InsertManyOptions.builder().withNoReturn().build()),
         Arguments.of(
             "stop_on_error",
             true,
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().stopOnError().build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) -> InsertManyOptions.builder().stopOnError().build()),
         Arguments.of(
             "rollback_on_error",
             true,
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().rollbackOnError().build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) -> InsertManyOptions.builder().rollbackOnError().build()),
         Arguments.of(
             "vshard_router",
             Collections.singletonList("r2"),
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().withVshardRouter((List<String>) optionValue).build()),
+            (Function<Object, InsertManyOptions>)
+                (optionValue) ->
+                    InsertManyOptions.builder()
+                        .withVshardRouter((List<String>) optionValue)
+                        .build()),
         Arguments.of(
             "fetch_latest_metadata",
             true,
-            (Function<Object, InsertManyOptions>) (optionValue) ->
-                InsertManyOptions.builder().fetchLatestMetadata().build())
-    );
+            (Function<Object, InsertManyOptions>)
+                (optionValue) -> InsertManyOptions.builder().fetchLatestMetadata().build()));
   }
 
   @ParameterizedTest
   @MethodSource("insertManyOptions")
-  public void testInsertManyParameters(String optName, Object optionValue,
-      Function<Object, InsertManyOptions> getOptions) {
+  public void testInsertManyParameters(
+      String optName, Object optionValue, Function<Object, InsertManyOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
     List<?> result;
 
-    assertDoesNotThrow(() ->
-        person
-            .insertMany(
-                Arrays.asList(
-                    Arrays.asList(1, true, "Roman"),
-                    Arrays.asList(2, true, "Roman"),
-                    Arrays.asList(3, true, "Roman")
-                )
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insertMany(
+                    Arrays.asList(
+                        Arrays.asList(1, true, "Roman"),
+                        Arrays.asList(2, true, "Roman"),
+                        Arrays.asList(3, true, "Roman")))
+                .join());
     result = client.eval("return crud_insert_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .insertMany(
-                Arrays.asList(
-                    Arrays.asList(4, true, "Ivan"),
-                    Arrays.asList(5, true, "Artyom"),
-                    Arrays.asList(6, true, "Nikolay")
-                ),
-                InsertManyOptions.builder().build()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insertMany(
+                    Arrays.asList(
+                        Arrays.asList(4, true, "Ivan"),
+                        Arrays.asList(5, true, "Artyom"),
+                        Arrays.asList(6, true, "Nikolay")),
+                    InsertManyOptions.builder().build())
+                .join());
     result = client.eval("return crud_insert_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .insertMany(
-                Arrays.asList(
-                    Arrays.asList(7, true, "Igor"),
-                    Arrays.asList(8, true, "Andrey"),
-                    Arrays.asList(9, true, "Aleksandr")
-                ),
-                getOptions.apply(optionValue)
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insertMany(
+                    Arrays.asList(
+                        Arrays.asList(7, true, "Igor"),
+                        Arrays.asList(8, true, "Andrey"),
+                        Arrays.asList(9, true, "Aleksandr")),
+                    getOptions.apply(optionValue))
+                .join());
 
     result = client.eval("return crud_insert_many_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_insert_many_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .insertMany(
-                baseOptions, listListTypeRef,
-                Arrays.asList(
-                    Arrays.asList(10, true, "Foma"),
-                    Arrays.asList(12, true, "Mikhail"),
-                    Arrays.asList(13, true, "Aleksey")
-                ),
-                getOptions.apply(optionValue).getOptions()
-            )
-            .join().get()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .insertMany(
+                    baseOptions,
+                    listListTypeRef,
+                    Arrays.asList(
+                        Arrays.asList(10, true, "Foma"),
+                        Arrays.asList(12, true, "Mikhail"),
+                        Arrays.asList(13, true, "Aleksey")),
+                    getOptions.apply(optionValue).getOptions())
+                .join()
+                .get());
     result = client.eval("return crud_insert_many_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
 
   @ParameterizedTest
   @MethodSource("insertManyOptions")
-  public void testReplaceManyParameters(String optName, Object optionValue,
-      Function<Object, InsertManyOptions> getOptions) {
+  public void testReplaceManyParameters(
+      String optName, Object optionValue, Function<Object, InsertManyOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
-    assertDoesNotThrow(() ->
-        person
-            .replaceMany(
-                Arrays.asList(
-                    Arrays.asList(1, true, "Roman"),
-                    Arrays.asList(2, true, "Roman"),
-                    Arrays.asList(3, true, "Roman")
-                )
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .replaceMany(
+                    Arrays.asList(
+                        Arrays.asList(1, true, "Roman"),
+                        Arrays.asList(2, true, "Roman"),
+                        Arrays.asList(3, true, "Roman")))
+                .join());
     List<?> result = client.eval("return crud_replace_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .replaceMany(
-                Arrays.asList(
-                    Arrays.asList(4, true, "Ivan"),
-                    Arrays.asList(5, true, "Artyom"),
-                    Arrays.asList(6, true, "Nikolay")
-                ),
-                InsertManyOptions.builder().build()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .replaceMany(
+                    Arrays.asList(
+                        Arrays.asList(4, true, "Ivan"),
+                        Arrays.asList(5, true, "Artyom"),
+                        Arrays.asList(6, true, "Nikolay")),
+                    InsertManyOptions.builder().build())
+                .join());
     result = client.eval("return crud_replace_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .replaceMany(
-                Arrays.asList(
-                    Arrays.asList(7, true, "Igor"),
-                    Arrays.asList(8, true, "Andrey"),
-                    Arrays.asList(9, true, "Aleksandr")
-                ),
-                getOptions.apply(optionValue)
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .replaceMany(
+                    Arrays.asList(
+                        Arrays.asList(7, true, "Igor"),
+                        Arrays.asList(8, true, "Andrey"),
+                        Arrays.asList(9, true, "Aleksandr")),
+                    getOptions.apply(optionValue))
+                .join());
     result = client.eval("return crud_replace_many_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_replace_many_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .replaceMany(
-                baseOptions, listListTypeRef,
-                Arrays.asList(
-                    Arrays.asList(10, true, "Foma"),
-                    Arrays.asList(12, true, "Mikhail"),
-                    Arrays.asList(13, true, "Aleksey")
-                ),
-                getOptions.apply(optionValue).getOptions()
-            )
-            .join().get()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .replaceMany(
+                    baseOptions,
+                    listListTypeRef,
+                    Arrays.asList(
+                        Arrays.asList(10, true, "Foma"),
+                        Arrays.asList(12, true, "Mikhail"),
+                        Arrays.asList(13, true, "Aleksey")),
+                    getOptions.apply(optionValue).getOptions())
+                .join()
+                .get());
     result = client.eval("return crud_replace_many_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
@@ -2858,73 +3182,59 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) ->
+                    UpsertManyOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) ->
+                    UpsertManyOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "noreturn",
             true,
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().withNoReturn().build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) -> UpsertManyOptions.builder().withNoReturn().build()),
         Arguments.of(
             "stop_on_error",
             true,
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().stopOnError().build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) -> UpsertManyOptions.builder().stopOnError().build()),
         Arguments.of(
             "rollback_on_error",
             true,
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().rollbackOnError().build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) -> UpsertManyOptions.builder().rollbackOnError().build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().withVshardRouter((String) optionValue).build()),
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) ->
+                    UpsertManyOptions.builder().withVshardRouter((String) optionValue).build()),
         Arguments.of(
             "fetch_latest_metadata",
             true,
-            (Function<Object, UpsertManyOptions>) (optionValue) ->
-                UpsertManyOptions.builder().fetchLatestMetadata().build())
-    );
+            (Function<Object, UpsertManyOptions>)
+                (optionValue) -> UpsertManyOptions.builder().fetchLatestMetadata().build()));
   }
 
   @ParameterizedTest
   @MethodSource("upsertManyOptions")
-  public void testUpsertManyParameters(String optName, Object optionValue,
-      Function<Object, UpsertManyOptions> getOptions) {
+  public void testUpsertManyParameters(
+      String optName, Object optionValue, Function<Object, UpsertManyOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
-    List<List<String>> operation = Collections.singletonList(
+    List<List<String>> operation = Collections.singletonList(Arrays.asList("=", "name", "DimaK"));
+    List<List<List<?>>> tuples =
         Arrays.asList(
-            "=",
-            "name",
-            "DimaK"
-        )
-    );
-    List<List<List<?>>> tuples = Arrays.asList(
-        Arrays.asList(personInstance.asList(), operation),
-        Arrays.asList(personInstance.toBuilder().id(2).build().asList(), operation)
-    );
+            Arrays.asList(personInstance.asList(), operation),
+            Arrays.asList(personInstance.toBuilder().id(2).build().asList(), operation));
 
-    assertDoesNotThrow(() ->
-        person
-            .upsertMany(tuples)
-            .join()
-    );
+    assertDoesNotThrow(() -> person.upsertMany(tuples).join());
     List<?> result = client.eval("return crud_upsert_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .upsertMany(
-                tuples,
-                UpsertManyOptions.builder().build()
-            )
-    );
+    assertDoesNotThrow(() -> person.upsertMany(tuples, UpsertManyOptions.builder().build()));
     result = client.eval("return crud_upsert_many_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -2934,7 +3244,10 @@ public class TarantoolCrudClientTest extends BaseTest {
     client.eval("crud_upsert_many_opts = {}").join().get();
 
     assertDoesNotThrow(
-        () -> person.upsertMany(baseOptions, tuples, getOptions.apply(optionValue).getOptions()).join());
+        () ->
+            person
+                .upsertMany(baseOptions, tuples, getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_upsert_many_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
@@ -2944,20 +3257,21 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, TruncateOptions>) (optionValue) ->
-                TruncateOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, TruncateOptions>)
+                (optionValue) ->
+                    TruncateOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, TruncateOptions>) (optionValue) ->
-                TruncateOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, TruncateOptions>)
+                (optionValue) ->
+                    TruncateOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("truncateOptions")
-  public void testTruncateParameters(String optName, Object optionValue,
-      Function<Object, TruncateOptions> getOptions) {
+  public void testTruncateParameters(
+      String optName, Object optionValue, Function<Object, TruncateOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
     assertDoesNotThrow(() -> person.truncate().join());
@@ -2973,7 +3287,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -2981,7 +3296,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_truncate_opts = {}").join().get();
 
-    assertDoesNotThrow(() -> person.truncate(baseOptions, getOptions.apply(optionValue).getOptions()).join());
+    assertDoesNotThrow(
+        () -> person.truncate(baseOptions, getOptions.apply(optionValue).getOptions()).join());
     result = client.eval("return crud_truncate_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
@@ -2991,19 +3307,21 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, LenOptions>) (optionValue) ->
-                LenOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, LenOptions>)
+                (optionValue) ->
+                    LenOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, LenOptions>) (optionValue) ->
-                LenOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, LenOptions>)
+                (optionValue) ->
+                    LenOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("lenOptions")
-  public void testLenParameters(String optName, Object optionValue, Function<Object, LenOptions> getOptions) {
+  public void testLenParameters(
+      String optName, Object optionValue, Function<Object, LenOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
     assertDoesNotThrow(() -> person.len().join());
@@ -3019,7 +3337,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -3027,7 +3346,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_len_opts = {}").join().get();
 
-    assertDoesNotThrow(() -> person.len(baseOptions, getOptions.apply(optionValue).getOptions()).join());
+    assertDoesNotThrow(
+        () -> person.len(baseOptions, getOptions.apply(optionValue).getOptions()).join());
     result = client.eval("return crud_len_opts").join().get();
     assertEquals(optionValue, ((HashMap<?, ?>) result.get(0)).get(optName));
   }
@@ -3038,62 +3358,68 @@ public class TarantoolCrudClientTest extends BaseTest {
             "timeout",
             null,
             1000,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, CountOptions>)
+                (optionValue) ->
+                    CountOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "bucket_id",
             null,
             100,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().withBucketId((Integer) optionValue).build()),
+            (Function<Object, CountOptions>)
+                (optionValue) ->
+                    CountOptions.builder().withBucketId((Integer) optionValue).build()),
         Arguments.of(
             "mode",
             Mode.WRITE.value(),
             Mode.READ,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().withMode((Mode) optionValue).build()),
+            (Function<Object, CountOptions>)
+                (optionValue) -> CountOptions.builder().withMode((Mode) optionValue).build()),
         Arguments.of(
             "yield_every",
             null,
             100,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().withYieldEvery((Integer) optionValue).build()),
+            (Function<Object, CountOptions>)
+                (optionValue) ->
+                    CountOptions.builder().withYieldEvery((Integer) optionValue).build()),
         Arguments.of(
             "fullscan",
             null,
             true,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().fullscan().build()),
+            (Function<Object, CountOptions>)
+                (optionValue) -> CountOptions.builder().fullscan().build()),
         Arguments.of(
             "force_map_call",
             null,
             true,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().forceMapCall().build()),
+            (Function<Object, CountOptions>)
+                (optionValue) -> CountOptions.builder().forceMapCall().build()),
         Arguments.of(
             "prefer_replica",
             null,
             true,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().preferReplica().build()),
+            (Function<Object, CountOptions>)
+                (optionValue) -> CountOptions.builder().preferReplica().build()),
         Arguments.of(
             "balance",
             null,
             true,
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().balance().build()),
+            (Function<Object, CountOptions>)
+                (optionValue) -> CountOptions.builder().balance().build()),
         Arguments.of(
             "vshard_router",
             null,
             "default",
-            (Function<Object, CountOptions>) (optionValue) ->
-                CountOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, CountOptions>)
+                (optionValue) ->
+                    CountOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("countOptions")
-  public void testCountParameters(String optName, Object defaultOptSentValue, Object optionValue,
+  public void testCountParameters(
+      String optName,
+      Object defaultOptSentValue,
+      Object optionValue,
       Function<Object, CountOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
@@ -3101,11 +3427,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     List<?> result = client.eval("return crud_count_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
-    assertDoesNotThrow(() ->
-        person
-            .count(Collections.emptyList(), CountOptions.builder().build())
-            .join()
-    );
+    assertDoesNotThrow(
+        () -> person.count(Collections.emptyList(), CountOptions.builder().build()).join());
     result = client.eval("return crud_count_opts").join().get();
     assertEquals(defaultOptSentValue, ((HashMap<?, ?>) result.get(0)).get(optName));
 
@@ -3115,7 +3438,8 @@ public class TarantoolCrudClientTest extends BaseTest {
       CompletionException ex = assertThrows(CompletionException.class, count);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(count);
@@ -3127,16 +3451,15 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expectedResult, ((HashMap<?, ?>) result.get(0)).get(optName));
     client.eval("crud_count_opts = {}").join().get();
 
-    assertDoesNotThrow(() ->
-        person
-            .count(
-                baseOptions,
-                personTypeRef,
-                Collections.emptyList(),
-                getOptions.apply(optionValue).getOptions()
-            )
-            .join()
-    );
+    assertDoesNotThrow(
+        () ->
+            person
+                .count(
+                    baseOptions,
+                    personTypeRef,
+                    Collections.emptyList(),
+                    getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_count_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -3150,24 +3473,27 @@ public class TarantoolCrudClientTest extends BaseTest {
         Arguments.of(
             "timeout",
             1000,
-            (Function<Object, MinMaxOptions>) (optionValue) ->
-                MinMaxOptions.builder().withCrudTimeout((Integer) optionValue).build()),
+            (Function<Object, MinMaxOptions>)
+                (optionValue) ->
+                    MinMaxOptions.builder().withCrudTimeout((Integer) optionValue).build()),
         Arguments.of(
             "fields",
             Arrays.asList("id", "name"),
-            (Function<Object, MinMaxOptions>) (optionValue) ->
-                MinMaxOptions.builder().withFields((List<String>) optionValue).build()),
+            (Function<Object, MinMaxOptions>)
+                (optionValue) ->
+                    MinMaxOptions.builder().withFields((List<String>) optionValue).build()),
         Arguments.of(
             "vshard_router",
             "default",
-            (Function<Object, MinMaxOptions>) (optionValue) ->
-                MinMaxOptions.builder().withVshardRouter((String) optionValue).build())
-    );
+            (Function<Object, MinMaxOptions>)
+                (optionValue) ->
+                    MinMaxOptions.builder().withVshardRouter((String) optionValue).build()));
   }
 
   @ParameterizedTest
   @MethodSource("minMaxOptions")
-  public void testMinParameters(String optName, Object optionValue, Function<Object, MinMaxOptions> getOptions) {
+  public void testMinParameters(
+      String optName, Object optionValue, Function<Object, MinMaxOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
     assertDoesNotThrow(() -> person.min("pk").join());
@@ -3178,13 +3504,13 @@ public class TarantoolCrudClientTest extends BaseTest {
     result = client.eval("return crud_min_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    Executable executable =
-        () -> person.min("pk", getOptions.apply(optionValue)).join();
+    Executable executable = () -> person.min("pk", getOptions.apply(optionValue)).join();
     if (optName.equals("vshard_router") && !isCartridgeAvailable()) {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -3197,7 +3523,10 @@ public class TarantoolCrudClientTest extends BaseTest {
     client.eval("crud_min_opts = {}").join().get();
 
     assertDoesNotThrow(
-        () -> person.min(baseOptions, personTypeRef, "pk", getOptions.apply(optionValue).getOptions()).join());
+        () ->
+            person
+                .min(baseOptions, personTypeRef, "pk", getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_min_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -3207,7 +3536,8 @@ public class TarantoolCrudClientTest extends BaseTest {
 
   @ParameterizedTest
   @MethodSource("minMaxOptions")
-  public void testMaxParameters(String optName, Object optionValue, Function<Object, MinMaxOptions> getOptions) {
+  public void testMaxParameters(
+      String optName, Object optionValue, Function<Object, MinMaxOptions> getOptions) {
     TarantoolCrudSpace person = client.space("person");
 
     assertDoesNotThrow(() -> person.max("pk").join());
@@ -3218,13 +3548,13 @@ public class TarantoolCrudClientTest extends BaseTest {
     result = client.eval("return crud_max_opts").join().get();
     assertNull(((HashMap<?, ?>) result.get(0)).get(optName));
 
-    Executable executable =
-        () -> person.max("pk", getOptions.apply(optionValue)).join();
+    Executable executable = () -> person.max("pk", getOptions.apply(optionValue)).join();
     if (optName.equals("vshard_router") && !isCartridgeAvailable()) {
       CompletionException ex = assertThrows(CompletionException.class, executable);
       Throwable cause = ex.getCause();
       assertInstanceOf(CrudException.class, cause);
-      assertTrue(cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
+      assertTrue(
+          cause.getMessage().contains("Vshard groups are supported only in Tarantool Cartridge"));
       return;
     }
     assertDoesNotThrow(executable);
@@ -3237,7 +3567,10 @@ public class TarantoolCrudClientTest extends BaseTest {
     client.eval("crud_max_opts = {}").join().get();
 
     assertDoesNotThrow(
-        () -> person.max(baseOptions, personTypeRef, "pk", getOptions.apply(optionValue).getOptions()).join());
+        () ->
+            person
+                .max(baseOptions, personTypeRef, "pk", getOptions.apply(optionValue).getOptions())
+                .join());
     result = client.eval("return crud_max_opts").join().get();
     if (optName.equals("mode")) {
       expectedResult = ((Mode) optionValue).value();
@@ -3259,8 +3592,8 @@ public class TarantoolCrudClientTest extends BaseTest {
     insertPersons(persons, space);
 
     // test
-    List<Tuple<Person>> selectedPersons = space.select(Collections.emptyList(), SelectOptions.builder().build(),
-        Person.class).join();
+    List<Tuple<Person>> selectedPersons =
+        space.select(Collections.emptyList(), SelectOptions.builder().build(), Person.class).join();
 
     assertEquals(SelectOptions.DEFAULT_LIMIT, selectedPersons.size());
     selectedPersons.sort(Comparator.comparing(person -> person.get().getId()));
@@ -3278,11 +3611,10 @@ public class TarantoolCrudClientTest extends BaseTest {
     final int AFTER_POSITION = 9;
     final Person AFTER_TUPLE = persons.get(AFTER_POSITION);
 
-    final SelectOptions options = SelectOptions.builder()
-        .withAfter(AFTER_TUPLE)
-        .build();
+    final SelectOptions options = SelectOptions.builder().withAfter(AFTER_TUPLE).build();
 
-    List<Tuple<Person>> selectedPerson = space.select(Collections.emptyList(), options, Person.class).join();
+    List<Tuple<Person>> selectedPerson =
+        space.select(Collections.emptyList(), options, Person.class).join();
     selectedPerson.sort(Comparator.comparing(person -> person.get().getId()));
 
     final int END_SELECT_POSITION = AFTER_POSITION + SelectOptions.DEFAULT_LIMIT + 1;
@@ -3309,12 +3641,11 @@ public class TarantoolCrudClientTest extends BaseTest {
     final Person AFTER_TUPLE = persons.get(AFTER_POSITION);
     final int CUSTOM_LIMIT = 2 * SelectOptions.DEFAULT_LIMIT;
 
-    final SelectOptions options = SelectOptions.builder()
-        .withAfter(AFTER_TUPLE)
-        .withFirst(CUSTOM_LIMIT)
-        .build();
+    final SelectOptions options =
+        SelectOptions.builder().withAfter(AFTER_TUPLE).withFirst(CUSTOM_LIMIT).build();
 
-    List<Tuple<Person>> selectedPerson = space.select(Collections.emptyList(), options, Person.class).join();
+    List<Tuple<Person>> selectedPerson =
+        space.select(Collections.emptyList(), options, Person.class).join();
     selectedPerson.sort(Comparator.comparing(person -> person.get().getId()));
 
     final int END_SELECT_POSITION = AFTER_POSITION + 1 + CUSTOM_LIMIT;
@@ -3332,12 +3663,14 @@ public class TarantoolCrudClientTest extends BaseTest {
     final int BEFORE_POSITION = PERSON_COUNT - 1;
     final Person BEFORE_TUPLE = persons.get(BEFORE_POSITION);
 
-    final SelectOptions options = SelectOptions.builder()
-        .withFirst(-1 * SelectOptions.DEFAULT_LIMIT)
-        .withAfter(BEFORE_TUPLE)
-        .build();
+    final SelectOptions options =
+        SelectOptions.builder()
+            .withFirst(-1 * SelectOptions.DEFAULT_LIMIT)
+            .withAfter(BEFORE_TUPLE)
+            .build();
 
-    List<Tuple<Person>> selectedPerson = space.select(Collections.emptyList(), options, Person.class).join();
+    List<Tuple<Person>> selectedPerson =
+        space.select(Collections.emptyList(), options, Person.class).join();
     selectedPerson.sort(Comparator.comparing(person -> person.get().getId()));
 
     final int START_SELECT_INDEX = BEFORE_POSITION - SelectOptions.DEFAULT_LIMIT;
@@ -3357,33 +3690,35 @@ public class TarantoolCrudClientTest extends BaseTest {
     final Person BEFORE_TUPLE = persons.get(BEFORE_POSITION);
     final int CUSTOM_LIMIT = -2 * SelectOptions.DEFAULT_LIMIT;
 
-    final SelectOptions options = SelectOptions.builder()
-        .withAfter(BEFORE_TUPLE)
-        .withFirst(CUSTOM_LIMIT)
-        .build();
+    final SelectOptions options =
+        SelectOptions.builder().withAfter(BEFORE_TUPLE).withFirst(CUSTOM_LIMIT).build();
 
-    List<Tuple<Person>> selectedPerson = space.select(Collections.emptyList(), options, Person.class).join();
+    List<Tuple<Person>> selectedPerson =
+        space.select(Collections.emptyList(), options, Person.class).join();
     selectedPerson.sort(Comparator.comparing(person -> person.get().getId()));
 
-    assertEquals(persons.subList(BEFORE_POSITION + CUSTOM_LIMIT, BEFORE_POSITION), unpackT(selectedPerson));
+    assertEquals(
+        persons.subList(BEFORE_POSITION + CUSTOM_LIMIT, BEFORE_POSITION), unpackT(selectedPerson));
   }
 
   protected static Stream<Arguments> dataForTestNestedPerson() {
 
     final int ITERATION_COUNT = 3;
-    final Map<String, Object> BUYS = new HashMap<String, Object>() {{
-      put("fruit1", "fruit1");
-    }};
+    final Map<String, Object> BUYS =
+        new HashMap<String, Object>() {
+          {
+            put("fruit1", "fruit1");
+          }
+        };
 
-    List<Person> husbands = Arrays.asList(
-        new Person(0, true, "Sonya"),
-        new Person(1, true, "Anna"),
-        new Person(2, true, "Galya"));
+    List<Person> husbands =
+        Arrays.asList(
+            new Person(0, true, "Sonya"),
+            new Person(1, true, "Anna"),
+            new Person(2, true, "Galya"));
 
-    List<Child> children = Arrays.asList(
-        new Child(0, "Kostya"),
-        new Child(1, "Kolya"),
-        new Child(2, "Artem"));
+    List<Child> children =
+        Arrays.asList(new Child(0, "Kostya"), new Child(1, "Kolya"), new Child(2, "Artem"));
 
     List<NestedPerson> persons = new ArrayList<>();
 
@@ -3419,19 +3754,26 @@ public class TarantoolCrudClientTest extends BaseTest {
 
   @ParameterizedTest(autoCloseArguments = false)
   @MethodSource("dataForTestNestedPerson")
-  void testNestedPerson(List<Condition> conditions, List<NestedPerson> expectedPersons, List<NestedPerson> persons) {
+  void testNestedPerson(
+      List<Condition> conditions, List<NestedPerson> expectedPersons, List<NestedPerson> persons) {
     TarantoolCrudSpace space = client.space("nested_person");
 
     space.insertMany(persons, NestedPerson.class).join();
 
-    List<NestedPerson> selectedPersons = space.select(conditions, NestedPerson.class).join()
-        .stream().map(Tuple::get).sorted(Comparator.comparing(NestedPerson::getId)).collect(Collectors.toList());
+    List<NestedPerson> selectedPersons =
+        space.select(conditions, NestedPerson.class).join().stream()
+            .map(Tuple::get)
+            .sorted(Comparator.comparing(NestedPerson::getId))
+            .collect(Collectors.toList());
 
     assertEquals(expectedPersons, selectedPersons);
   }
 
-  private static <T> List<T> mapBatchToType(CrudBatchResponse<List<Tuple<T>>> batchResponse,
-      Comparator<T> tupleComparator) {
-    return batchResponse.getRows().stream().map(Tuple::get).sorted(tupleComparator).collect(Collectors.toList());
+  private static <T> List<T> mapBatchToType(
+      CrudBatchResponse<List<Tuple<T>>> batchResponse, Comparator<T> tupleComparator) {
+    return batchResponse.getRows().stream()
+        .map(Tuple::get)
+        .sorted(tupleComparator)
+        .collect(Collectors.toList());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -36,9 +36,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValuePersistentProperty<
     this.identifier = null;
   }
 
-  /**
-   * Check methods for adding and retrieving parts of a composite key.
-   */
+  /** Check methods for adding and retrieving parts of a composite key. */
   @Test
   public void testAddAndGetParts() {
     Class<?> entityClass = TestEntity.class;
@@ -50,17 +48,15 @@ public class KeyValueCompositePropertyTest<P extends KeyValuePersistentProperty<
     ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner), isIdFieldFiler);
 
     assertNotNull(identifier);
-    List<Field> identifierFieldsFromProperties = this.identifier.getParts()
-        .stream()
-        .map(PersistentProperty::getField)
-        .collect(Collectors.toList());
+    List<Field> identifierFieldsFromProperties =
+        this.identifier.getParts().stream()
+            .map(PersistentProperty::getField)
+            .collect(Collectors.toList());
 
     compareFieldCollection(identifierFieldsFromProperties, getExpectedIdFields(entityClass));
   }
 
-  /**
-   * Check methods for adding and retrieving parts of a composite key.
-   */
+  /** Check methods for adding and retrieving parts of a composite key. */
   @Test
   public void testAddAndGetFields() {
     Class<?> entityClass = TestEntity.class;
@@ -78,46 +74,43 @@ public class KeyValueCompositePropertyTest<P extends KeyValuePersistentProperty<
   }
 
   /**
-   * Check methods for adding and getting parts of a composite key for an object without {@code @Id}.
+   * Check methods for adding and getting parts of a composite key for an object without
+   * {@code @Id}.
    */
   @Test
   public void testAddAndGetPartsWithEntityWithoutId() {
     Class<?> entityClass = TestEntityWithoutId.class;
 
-    PersistentEntity<?, P> owner = new BasicKeyValuePersistentEntity<>(TypeInformation.of(TestEntity.class),
-        null);
-    ReflectionUtils.doWithFields(entityClass, field -> addPart(field, owner),
-        field -> field.isAnnotationPresent(Id.class));
+    PersistentEntity<?, P> owner =
+        new BasicKeyValuePersistentEntity<>(TypeInformation.of(TestEntity.class), null);
+    ReflectionUtils.doWithFields(
+        entityClass, field -> addPart(field, owner), field -> field.isAnnotationPresent(Id.class));
 
     assertNull(identifier);
   }
 
   static class TestEntity {
 
-    @Id
-    private long id;
+    @Id private long id;
 
-    @Id
-    private int secondId;
+    @Id private int secondId;
   }
 
   static class TestEntityWithoutId {
 
     private long id;
 
-    @Nullable
-    private String name;
+    @Nullable private String name;
 
     private int secondId;
   }
 
-  /**
-   * Create a PersistentProperty and add to first id property.
-   */
+  /** Create a PersistentProperty and add to first id property. */
   @SuppressWarnings("unchecked")
   private void addPart(Field field, PersistentEntity<?, P> owner) {
     Property property = Property.of(owner.getTypeInformation(), field);
-    Identifier<P> persistentProperty = new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
+    Identifier<P> persistentProperty =
+        new KeyValueCompositeProperty<>(property, owner, SimpleTypeHolder.DEFAULT);
 
     if (this.identifier == null) {
       this.identifier = persistentProperty;
@@ -125,9 +118,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValuePersistentProperty<
     this.identifier.addPart((P) persistentProperty);
   }
 
-  /**
-   * Compare fields by name and type.
-   */
+  /** Compare fields by name and type. */
   private void compareFieldCollection(List<Field> first, List<Field> second) {
     assertEquals(first.size(), second.size());
 
@@ -140,9 +131,7 @@ public class KeyValueCompositePropertyTest<P extends KeyValuePersistentProperty<
     }
   }
 
-  /**
-   * Get the expected fields marked with the {@code @Id} annotation.
-   */
+  /** Get the expected fields marked with the {@code @Id} annotation. */
   private List<Field> getExpectedIdFields(Class<?> entityClass) {
     return Arrays.stream(entityClass.getDeclaredFields())
         .filter(field -> field.isAnnotationPresent(Id.class))

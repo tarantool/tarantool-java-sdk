@@ -1,5 +1,5 @@
 /**
- * <p>The package contains classes and interfaces necessary for Tarantool clients to work.</p>
+ * The package contains classes and interfaces necessary for Tarantool clients to work.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,7 +35,6 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.tarantool.core.ManagedResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -46,6 +45,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.tarantool.core.IProtoClient;
+import io.tarantool.core.ManagedResource;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.connection.exceptions.ConnectionException;
 import io.tarantool.core.protocol.BoxIterator;
@@ -60,18 +60,18 @@ import io.tarantool.pool.PoolEventListener;
 import io.tarantool.pool.TripleConsumer;
 import io.tarantool.pool.exceptions.PoolClosedException;
 
-
 @Timeout(value = 5)
 @Testcontainers
 public class ConnectionPoolTest extends BasePoolTest {
 
-  protected static final Bootstrap bootstrap = new Bootstrap()
-      .group(new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory()))
-      .channel(NioSocketChannel.class)
-      .option(ChannelOption.SO_REUSEADDR, true)
-      .option(ChannelOption.SO_KEEPALIVE, true)
-      .option(ChannelOption.TCP_NODELAY, true)
-      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
+  protected static final Bootstrap bootstrap =
+      new Bootstrap()
+          .group(new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory()))
+          .channel(NioSocketChannel.class)
+          .option(ChannelOption.SO_REUSEADDR, true)
+          .option(ChannelOption.SO_KEEPALIVE, true)
+          .option(ChannelOption.TCP_NODELAY, true)
+          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
 
   private static final int MAX_CONNECTION_COUNT = 20;
   private static final int MIN_CONNECTION_COUNT = 10;
@@ -84,45 +84,38 @@ public class ConnectionPoolTest extends BasePoolTest {
   private static int count2;
 
   @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
 
   @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() {
     host1 = tt1.getHost();
     port1 = tt1.getPort();
-    count1 = ThreadLocalRandom.current().nextInt(
-        MIN_CONNECTION_COUNT,
-        MAX_CONNECTION_COUNT + 1
-    );
+    count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     host2 = tt2.getHost();
     port2 = tt2.getPort();
-    count2 = ThreadLocalRandom.current().nextInt(
-        MIN_CONNECTION_COUNT,
-        MAX_CONNECTION_COUNT + 1
-    );
+    count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
   @Test
   public void testConnect() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-b")
+                .build()));
 
     List<IProtoClient> clients = new ArrayList<>();
     for (int i = 0; i < count1; i++) {
@@ -140,24 +133,26 @@ public class ConnectionPoolTest extends BasePoolTest {
     pool.close();
   }
 
-
-  private static IProtoClientPool createClientPool(boolean gracefulShutdown,
-      MeterRegistry metricsRegistry) {
+  private static IProtoClientPool createClientPool(
+      boolean gracefulShutdown, MeterRegistry metricsRegistry) {
     return createClientPool(gracefulShutdown, metricsRegistry, null, null, null);
   }
 
-  private static IProtoClientPool createClientPool(boolean gracefulShutdown,
+  private static IProtoClientPool createClientPool(
+      boolean gracefulShutdown,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredCatcher) {
     return createClientPool(gracefulShutdown, metricsRegistry, ignoredCatcher, null, null);
   }
 
-  private static IProtoClientPool createClientPool(boolean gracefulShutdown,
+  private static IProtoClientPool createClientPool(
+      boolean gracefulShutdown,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredCatcher,
       PoolEventListener poolEventListener,
       HeartbeatOpts heartbeatOpts) {
-    ManagedResource<Timer> timerResource = ManagedResource.owned(new HashedWheelTimer(), Timer::stop);
+    ManagedResource<Timer> timerResource =
+        ManagedResource.owned(new HashedWheelTimer(), Timer::stop);
     ConnectionFactory factory = new ConnectionFactory(bootstrap, timerResource.get());
     return new IProtoClientPoolImpl(
         factory,
@@ -168,25 +163,23 @@ public class ConnectionPoolTest extends BasePoolTest {
         metricsRegistry,
         ignoredCatcher,
         false,
-        poolEventListener
-    );
+        poolEventListener);
   }
 
   @Test
   public void testDoubleConnect() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withTag("node-a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withTag("node-a")
+                .build()));
 
     CompletableFuture<IProtoClient> future1 = pool.get("node-a", 0);
     CompletableFuture<IProtoClient> future2 = pool.get("node-a", 0);
-    CompletableFuture
-        .allOf(future1, future2)
-        .join();
+    CompletableFuture.allOf(future1, future2).join();
     assertTrue(future1 == future2);
     assertEquals(1, getActiveConnectionsCount(tt1));
     pool.close();
@@ -195,23 +188,24 @@ public class ConnectionPoolTest extends BasePoolTest {
   @Test
   public void testConnectWithCredentials() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .withUser("user_a")
-            .withPassword("secret_a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-b")
-            .withUser("user_b")
-            .withPassword("secret_b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .withUser("user_a")
+                .withPassword("secret_a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-b")
+                .withUser("user_b")
+                .withPassword("secret_b")
+                .build()));
 
     List<IProtoClient> clients = new ArrayList<>();
     for (int i = 0; i < count1; i++) {
@@ -224,14 +218,15 @@ public class ConnectionPoolTest extends BasePoolTest {
     Integer space = (Integer) result.get(0);
     for (IProtoClient client : clients) {
       assertTrue(client.isConnected());
-      client.select(
-          space,
-          0,
-          ValueFactory.newArray(ValueFactory.newString("testkey")),
-          1,
-          0,
-          BoxIterator.GE
-      ).get();
+      client
+          .select(
+              space,
+              0,
+              ValueFactory.newArray(ValueFactory.newString("testkey")),
+              1,
+              0,
+              BoxIterator.GE)
+          .get();
     }
     assertEquals(count1, getActiveConnectionsCount(tt1));
     assertEquals(count2, getActiveConnectionsCount(tt2));
@@ -241,21 +236,23 @@ public class ConnectionPoolTest extends BasePoolTest {
   @Test
   public void testPoolEventListenerReceivesLifecycleEvents() throws Exception {
     RecordingPoolEventListener listener = new RecordingPoolEventListener();
-    HeartbeatOpts heartbeatOpts = HeartbeatOpts.getDefault()
-        .withPingInterval(100)
-        .withWindowSize(1)
-        .withInvalidationThreshold(1)
-        .withDeathThreshold(2);
+    HeartbeatOpts heartbeatOpts =
+        HeartbeatOpts.getDefault()
+            .withPingInterval(100)
+            .withWindowSize(1)
+            .withInvalidationThreshold(1)
+            .withDeathThreshold(2);
     IProtoClientPool pool = createClientPool(true, null, null, listener, heartbeatOpts);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(1)
-            .withTag("node-events")
-            .withUser("user_a")
-            .withPassword("secret_a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(1)
+                .withTag("node-events")
+                .withUser("user_a")
+                .withPassword("secret_a")
+                .build()));
 
     IProtoClient client = pool.get("node-events", 0).get();
     client.ping().get();
@@ -273,20 +270,20 @@ public class ConnectionPoolTest extends BasePoolTest {
     RecordingPoolEventListener listener = new RecordingPoolEventListener();
     IProtoClientPool pool = createClientPool(true, null, null, listener, null);
     pool.setConnectTimeout(200);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(65_001)
-            .withSize(1)
-            .withTag("node-events")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(65_001)
+                .withSize(1)
+                .withTag("node-events")
+                .build()));
 
     listener.expectReconnect("node-events:0");
     assertThrows(ExecutionException.class, () -> pool.get("node-events", 0).get());
     assertTrue(
         listener.awaitReconnect("node-events:0", pool.getReconnectAfter() + 2_000),
-        "Reconnect event not received in time"
-    );
+        "Reconnect event not received in time");
     List<Long> reconnectDelays = listener.getReconnectDelaysFor("node-events:0");
     assertFalse(reconnectDelays.isEmpty());
     assertTrue(reconnectDelays.get(0) >= pool.getReconnectAfter());
@@ -297,39 +294,34 @@ public class ConnectionPoolTest extends BasePoolTest {
   @Test
   public void testConnectWithBadCredentials() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .withUser("user_a")
-            .withPassword("secret")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-b")
-            .withUser("user_b")
-            .withPassword("secret")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .withUser("user_a")
+                .withPassword("secret")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-b")
+                .withUser("user_b")
+                .withPassword("secret")
+                .build()));
 
     for (int i = 0; i < count1; i++) {
       final int j = i; // because lambda requires that
       // variables should be final
-      assertThrows(
-          ExecutionException.class,
-          () -> pool.get("node-a", j).get()
-      );
+      assertThrows(ExecutionException.class, () -> pool.get("node-a", j).get());
     }
     for (int i = 0; i < count2; i++) {
       final int j = i; // because lambda requires that
       // variables should be final
-      assertThrows(
-          ExecutionException.class,
-          () -> pool.get("node-b", j).get()
-      );
+      assertThrows(ExecutionException.class, () -> pool.get("node-b", j).get());
     }
     assertEquals(0, getActiveConnectionsCount(tt1));
     assertEquals(0, getActiveConnectionsCount(tt2));
@@ -339,13 +331,14 @@ public class ConnectionPoolTest extends BasePoolTest {
   @Test
   public void testConnectErrorAfterPoolClose() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .build()));
 
     List<IProtoClient> clients = new ArrayList<>();
     for (int i = 0; i < count1; i++) {
@@ -368,19 +361,20 @@ public class ConnectionPoolTest extends BasePoolTest {
   public void testConnectWithChangeGroups() throws Exception {
     List<IProtoClient> clients = new ArrayList<IProtoClient>();
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-b")
+                .build()));
 
     for (int i = 0; i < count1; i++) {
       clients.add(pool.get("node-a", i).get());
@@ -396,19 +390,20 @@ public class ConnectionPoolTest extends BasePoolTest {
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
     clients.clear();
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1 / 2)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2 * 2)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1 / 2)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2 * 2)
+                .withTag("node-b")
+                .build()));
 
     for (int i = 0; i < count1 / 2; i++) {
       clients.add(pool.get("node-a", i).get());
@@ -424,12 +419,13 @@ public class ConnectionPoolTest extends BasePoolTest {
     assertEquals(count2 * 2, getActiveConnectionsCount(tt2));
 
     clients.clear();
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withTag("node-a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withTag("node-a")
+                .build()));
 
     clients.add(pool.get("node-a", 0).get());
     for (IProtoClient client : clients) {
@@ -446,19 +442,20 @@ public class ConnectionPoolTest extends BasePoolTest {
   public void testConnectWithChangeGroupHosts() throws Exception {
     List<IProtoClient> clients = new ArrayList<IProtoClient>();
     IProtoClientPool pool = createClientPool(true, null);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-b")
+                .build()));
 
     for (int i = 0; i < count1; i++) {
       clients.add(pool.get("node-a", i).get());
@@ -475,19 +472,20 @@ public class ConnectionPoolTest extends BasePoolTest {
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
     clients.clear();
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(count2)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(count2)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-b")
+                .build()));
 
     for (int i = 0; i < count2; i++) {
       clients.add(pool.get("node-a", i).get());
@@ -499,14 +497,8 @@ public class ConnectionPoolTest extends BasePoolTest {
       assertTrue(client.isConnected());
       client.ping().get();
     }
-    assertThrows(
-        IndexOutOfBoundsException.class,
-        () -> pool.get("node-a", count2)
-    );
-    assertThrows(
-        IndexOutOfBoundsException.class,
-        () -> pool.get("node-b", count1)
-    );
+    assertThrows(IndexOutOfBoundsException.class, () -> pool.get("node-a", count2));
+    assertThrows(IndexOutOfBoundsException.class, () -> pool.get("node-b", count1));
     assertEquals(count1, getActiveConnectionsCount(tt1));
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
@@ -517,22 +509,17 @@ public class ConnectionPoolTest extends BasePoolTest {
   public void testGetConnectOutOfPool() throws Exception {
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createClientPool(true, metricsRegistry);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(count1)
-            .withTag("node-a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(count1)
+                .withTag("node-a")
+                .build()));
 
-    assertThrows(
-        NoSuchElementException.class,
-        () -> pool.get("node-b", 0).get()
-    );
-    assertThrows(
-        IndexOutOfBoundsException.class,
-        () -> pool.get("node-a", count1)
-    );
+    assertThrows(NoSuchElementException.class, () -> pool.get("node-b", 0).get());
+    assertThrows(IndexOutOfBoundsException.class, () -> pool.get("node-a", count1));
     // since we didn't request connection from pool, no connections are
     // created actually
     assertEquals(0, getActiveConnectionsCount(tt1));
@@ -545,18 +532,16 @@ public class ConnectionPoolTest extends BasePoolTest {
   public void testConnectError() throws Exception {
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createClientPool(true, metricsRegistry);
-    pool.setGroups(Collections.singletonList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(10)
-            .withSize(count1)
-            .withTag("node-a")
-            .build()));
+    pool.setGroups(
+        Collections.singletonList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(10)
+                .withSize(count1)
+                .withTag("node-a")
+                .build()));
 
-    Exception ex = assertThrows(
-        ExecutionException.class,
-        () -> pool.get("node-a", 0).get()
-    );
+    Exception ex = assertThrows(ExecutionException.class, () -> pool.get("node-a", 0).get());
     Throwable cause = ex.getCause();
     assertEquals(ConnectionException.class, cause.getClass());
     pool.close();
@@ -567,31 +552,31 @@ public class ConnectionPoolTest extends BasePoolTest {
   @Test
   public void testRequestsWithIgnoredPacketsHandler() throws Exception {
     List<List<Object>> triplets = new ArrayList<>();
-    TripleConsumer<String, Integer, IProtoResponse> ignoredCatcher = (tag, index, packet) -> {
-      synchronized (triplets) {
-        triplets.add(Arrays.asList(tag, index, packet));
-      }
-    };
+    TripleConsumer<String, Integer, IProtoResponse> ignoredCatcher =
+        (tag, index, packet) -> {
+          synchronized (triplets) {
+            triplets.add(Arrays.asList(tag, index, packet));
+          }
+        };
     IProtoClientPool pool = createClientPool(true, null, ignoredCatcher);
-    pool.setGroups(Arrays.asList(
-        InstanceConnectionGroup.builder()
-            .withHost(host1)
-            .withPort(port1)
-            .withSize(1)
-            .withTag("node-a")
-            .build(),
-        InstanceConnectionGroup.builder()
-            .withHost(host2)
-            .withPort(port2)
-            .withSize(1)
-            .withTag("node-b")
-            .build()));
+    pool.setGroups(
+        Arrays.asList(
+            InstanceConnectionGroup.builder()
+                .withHost(host1)
+                .withPort(port1)
+                .withSize(1)
+                .withTag("node-a")
+                .build(),
+            InstanceConnectionGroup.builder()
+                .withHost(host2)
+                .withPort(port2)
+                .withSize(1)
+                .withTag("node-b")
+                .build()));
 
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
-    ArrayValue args = ValueFactory.newArray(
-        ValueFactory.newString("one"),
-        ValueFactory.newInteger(1)
-    );
+    ArrayValue args =
+        ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     List<CompletableFuture<IProtoResponse>> futures = new ArrayList<>();
 
     IProtoClient clientA = pool.get("node-a", 0).get();
@@ -603,13 +588,11 @@ public class ConnectionPoolTest extends BasePoolTest {
     futures.add(
         pool.get("node-a", 0)
             .thenApply(client -> client.call("slow_echo", args, opts))
-            .thenCompose(f -> f)
-    );
+            .thenCompose(f -> f));
     futures.add(
         pool.get("node-b", 0)
             .thenApply(client -> client.call("slow_echo", args, opts))
-            .thenCompose(f -> f)
-    );
+            .thenCompose(f -> f));
     for (CompletableFuture<IProtoResponse> future : futures) {
       Exception ex = assertThrows(CompletionException.class, future::join);
       Throwable cause = ex.getCause();
@@ -650,14 +633,18 @@ public class ConnectionPoolTest extends BasePoolTest {
 
     @Override
     public void onHeartbeatEvent(String tag, int index, HeartbeatEvent event) {
-      eventsByConnection.computeIfAbsent(tag + ":" + index, k -> new ConnectionEvents())
-          .heartbeatEvents.add(event);
+      eventsByConnection
+          .computeIfAbsent(tag + ":" + index, k -> new ConnectionEvents())
+          .heartbeatEvents
+          .add(event);
     }
 
     @Override
     public void onReconnectScheduled(String tag, int index, long delayMs) {
-      eventsByConnection.computeIfAbsent(tag + ":" + index, k -> new ConnectionEvents())
-          .reconnectDelays.add(delayMs);
+      eventsByConnection
+          .computeIfAbsent(tag + ":" + index, k -> new ConnectionEvents())
+          .reconnectDelays
+          .add(delayMs);
       CountDownLatch latch = reconnectAwaiters.get(tag + ":" + index);
       if (latch != null) {
         latch.countDown();
@@ -693,7 +680,8 @@ public class ConnectionPoolTest extends BasePoolTest {
     }
 
     boolean awaitReconnect(String connectionId, long timeoutMs) throws InterruptedException {
-      CountDownLatch latch = reconnectAwaiters.computeIfAbsent(connectionId, k -> new CountDownLatch(1));
+      CountDownLatch latch =
+          reconnectAwaiters.computeIfAbsent(connectionId, k -> new CountDownLatch(1));
       return latch.await(timeoutMs, TimeUnit.MILLISECONDS);
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -15,9 +15,7 @@ import org.testcontainers.lifecycle.Startable;
 
 public interface TDBCluster extends Startable {
 
-  /**
-   * Stop cluster nodes with saving mount data and start them after delay.
-   */
+  /** Stop cluster nodes with saving mount data and start them after delay. */
   default void restart(long delay, TimeUnit unit) throws InterruptedException {
     nodes().values().parallelStream().forEach(TarantoolContainer::stopWithSafeMount);
 
@@ -29,33 +27,21 @@ public interface TDBCluster extends Startable {
     TimeUnit.SECONDS.sleep(delay);
   }
 
-  /**
-   * Get cluster nodes.
-   */
+  /** Get cluster nodes. */
   Map<String, TarantoolContainer<?>> nodes();
 
-  /**
-   * Get cluster name.
-   */
+  /** Get cluster name. */
   String clusterName();
 
-  /**
-   * Get router nodes.
-   */
+  /** Get router nodes. */
   Map<String, TarantoolContainer<?>> routers();
 
-  /**
-   * Get all replica nodes (masters and slaves)
-   */
+  /** Get all replica nodes (masters and slaves) */
   Map<String, TarantoolContainer<?>> storages();
 
-  /**
-   * Get etcd node. It's null if cluster is cluster of Tarantool 2.x.
-   */
+  /** Get etcd node. It's null if cluster is cluster of Tarantool 2.x. */
   EtcdContainer etcdContainer();
 
-  /**
-   * Get tcm node. It's null if cluster is cluster of Tarantool 2.x.
-   */
+  /** Get tcm node. It's null if cluster is cluster of Tarantool 2.x. */
   TCMContainer tcmContainer();
 }

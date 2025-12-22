@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,13 +12,12 @@ import io.tarantool.core.protocol.IProtoResponse;
  */
 public interface IProtoStateMachine {
 
-  /**
-   * Run the request once (data request or watch subscription request).
-   */
+  /** Run the request once (data request or watch subscription request). */
   void runOnce();
 
   /**
    * Process the received {@link IProtoResponse} message.
+   *
    * @param msg {@link IProtoResponse} object
    * @return true if the message is processed, false otherwise
    */
@@ -26,7 +25,9 @@ public interface IProtoStateMachine {
 
   /**
    * Destroy the current {@link IProtoStateMachine} object, freeing memory.
-   * @param ex the exception to throw when the current {@link IProtoStateMachine} object is destroyed.
+   *
+   * @param ex the exception to throw when the current {@link IProtoStateMachine} object is
+   *     destroyed.
    */
   default void kill(Throwable ex) {}
 

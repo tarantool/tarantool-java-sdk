@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,15 +24,12 @@ import io.tarantool.spring.data27.query.TarantoolQueryMethodImpl;
 import io.tarantool.spring.data27.query.TarantoolRepositoryQuery;
 
 /**
- * <p>
- * Ensures {@link TarantoolPartTreeQuery} is used for query preparation rather than {@link KeyValuePartTreeQuery} or
- * other alternatives.
- * </P>
+ * Ensures {@link TarantoolPartTreeQuery} is used for query preparation rather than {@link
+ * KeyValuePartTreeQuery} or other alternatives.
  *
  * @author Artyom Dubinin
  */
-public class TarantoolQueryLookupStrategy
-    implements QueryLookupStrategy {
+public class TarantoolQueryLookupStrategy implements QueryLookupStrategy {
 
   private final QueryMethodEvaluationContextProvider evaluationContextProvider;
   private final KeyValueOperations keyValueOperations;
@@ -40,17 +37,16 @@ public class TarantoolQueryLookupStrategy
   private final TarantoolCrudClient client;
 
   /**
-   * <p>
    * Required constructor, capturing arguments for use in {@link #resolveQuery}.
-   * </P>
    *
-   * @param client                    tarantool crud client
-   * @param key                       Not used
+   * @param client tarantool crud client
+   * @param key Not used
    * @param evaluationContextProvider For evaluation of query expressions
-   * @param keyValueOperations        Bean to use for Key/Value operations on Tarantool repos
-   * @param queryCreator              Query creator
+   * @param keyValueOperations Bean to use for Key/Value operations on Tarantool repos
+   * @param queryCreator Query creator
    */
-  public TarantoolQueryLookupStrategy(TarantoolCrudClient client,
+  public TarantoolQueryLookupStrategy(
+      TarantoolCrudClient client,
       Key key,
       QueryMethodEvaluationContextProvider evaluationContextProvider,
       KeyValueOperations keyValueOperations,
@@ -67,27 +63,28 @@ public class TarantoolQueryLookupStrategy
   }
 
   /**
-   * <p>
    * Use {@link TarantoolPartTreeQuery} for resolving queries against Tarantool repositories.
-   * </P>
    *
-   * @param method,            the query method
-   * @param metadata,          not used
+   * @param method, the query method
+   * @param metadata, not used
    * @param projectionFactory, not used
-   * @param namedQueries,      not used
+   * @param namedQueries, not used
    * @return A mechanism for querying Tarantool repositories
    */
-  public RepositoryQuery resolveQuery(Method method, RepositoryMetadata metadata, ProjectionFactory projectionFactory,
+  public RepositoryQuery resolveQuery(
+      Method method,
+      RepositoryMetadata metadata,
+      ProjectionFactory projectionFactory,
       NamedQueries namedQueries) {
 
-    TarantoolQueryMethodImpl queryMethod = new TarantoolQueryMethodImpl(method, metadata, projectionFactory);
+    TarantoolQueryMethodImpl queryMethod =
+        new TarantoolQueryMethodImpl(method, metadata, projectionFactory);
 
     if (queryMethod.hasAnnotatedQuery()) {
       return new TarantoolRepositoryQuery(client, queryMethod);
     }
 
-    return new TarantoolPartTreeQuery(queryMethod, evaluationContextProvider, this.keyValueOperations,
-        this.queryCreator);
+    return new TarantoolPartTreeQuery(
+        queryMethod, evaluationContextProvider, this.keyValueOperations, this.queryCreator);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,7 +23,8 @@ public class IProtoFeatureTest {
       assertEquals(feature, IProtoFeature.valueOf(feature.ordinal()));
     }
 
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> IProtoFeature.valueOf(ThreadLocalRandom.current().nextInt(20_000, 30_000)));
   }
 }

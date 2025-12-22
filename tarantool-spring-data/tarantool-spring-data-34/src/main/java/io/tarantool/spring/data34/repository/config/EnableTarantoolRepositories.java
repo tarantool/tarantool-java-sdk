@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -37,25 +37,28 @@ import io.tarantool.spring.data34.repository.support.TarantoolRepositoryFactoryB
 public @interface EnableTarantoolRepositories {
 
   /**
-   * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation declarations e.g.:
-   * {@code @EnableJpaRepositories("org.my.pkg")} instead of {@code @EnableJpaRepositories(basePackages="org.my.pkg")}.
+   * Alias for the {@link #basePackages()} attribute. Allows for more concise annotation
+   * declarations e.g.: {@code @EnableJpaRepositories("org.my.pkg")} instead of
+   * {@code @EnableJpaRepositories(basePackages="org.my.pkg")}.
    *
    * @return value
    */
   String[] value() default {};
 
   /**
-   * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually exclusive with) this
-   * attribute. Use {@link #basePackageClasses()} for a type-safe alternative to String-based package names.
+   * Base packages to scan for annotated components. {@link #value()} is an alias for (and mutually
+   * exclusive with) this attribute. Use {@link #basePackageClasses()} for a type-safe alternative
+   * to String-based package names.
    *
    * @return base packages
    */
   String[] basePackages() default {};
 
   /**
-   * Type-safe alternative to {@link #basePackages()} for specifying the packages to scan for annotated components. The
-   * package of each class specified will be scanned. Consider creating a special no-op marker class or interface in
-   * each package that serves no purpose other than being referenced by this attribute.
+   * Type-safe alternative to {@link #basePackages()} for specifying the packages to scan for
+   * annotated components. The package of each class specified will be scanned. Consider creating a
+   * special no-op marker class or interface in each package that serves no purpose other than being
+   * referenced by this attribute.
    *
    * @return classes
    */
@@ -69,17 +72,18 @@ public @interface EnableTarantoolRepositories {
   Filter[] excludeFilters() default {};
 
   /**
-   * Specifies which types are eligible for component scanning. Further, narrows the set of candidate components from
-   * everything in {@link #basePackages()} to everything in the base packages that matches the given filter or filters.
+   * Specifies which types are eligible for component scanning. Further, narrows the set of
+   * candidate components from everything in {@link #basePackages()} to everything in the base
+   * packages that matches the given filter or filters.
    *
    * @return filters
    */
   Filter[] includeFilters() default {};
 
   /**
-   * Returns the postfix to be used when looking up custom repository implementations. Defaults to {@literal Impl}. So
-   * for a repository named {@code PersonRepository} the corresponding implementation class will be looked up scanning
-   * for {@code PersonRepositoryImpl}.
+   * Returns the postfix to be used when looking up custom repository implementations. Defaults to
+   * {@literal Impl}. So for a repository named {@code PersonRepository} the corresponding
+   * implementation class will be looked up scanning for {@code PersonRepositoryImpl}.
    *
    * @return postfix
    */
@@ -93,8 +97,8 @@ public @interface EnableTarantoolRepositories {
   String namedQueriesLocation() default "";
 
   /**
-   * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query methods. Defaults to
-   * {@link Key#CREATE_IF_NOT_FOUND}.
+   * Returns the key of the {@link QueryLookupStrategy} to be used for lookup queries for query
+   * methods. Defaults to {@link Key#CREATE_IF_NOT_FOUND}.
    *
    * @return strategy
    */
@@ -110,23 +114,25 @@ public @interface EnableTarantoolRepositories {
   Class<?> repositoryBaseClass() default DefaultRepositoryBaseClass.class;
 
   /**
-   * Configures the name of the {@link KeyValueOperations} bean to be used with the repositories detected.
+   * Configures the name of the {@link KeyValueOperations} bean to be used with the repositories
+   * detected.
    *
    * @return reference to {@link KeyValueOperations} bean.
    */
   String keyValueTemplateRef() default DEFAULT_TARANTOOL_KEY_VALUE_TEMPLATE_REF;
 
   /**
-   * Configures whether nested repository-interfaces (e.g. defined as inner classes) should be discovered by the
-   * repositories' infrastructure.
+   * Configures whether nested repository-interfaces (e.g. defined as inner classes) should be
+   * discovered by the repositories' infrastructure.
    *
    * @return result of consideration
    */
   boolean considerNestedRepositories() default false;
 
   /**
-   * Configures the {@link ClientType} to be used as driver client type to connection to Tarantool. Must match the
-   * referenced type in {@link #keyValueTemplateRef()}} if these values differ from the default ones.
+   * Configures the {@link ClientType} to be used as driver client type to connection to Tarantool.
+   * Must match the referenced type in {@link #keyValueTemplateRef()}} if these values differ from
+   * the default ones.
    *
    * @return the type of client through which communication with Tarantool will be made.
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -29,8 +29,7 @@ import io.tarantool.core.Assert;
 
 /**
  * @author Artyom Dubinin
- * <p>
- * TODO: implement Temporal to add or substract Interval instances
+ *     <p>TODO: implement Temporal to add or substract Interval instances
  */
 public class Interval implements TemporalAmount {
 
@@ -56,15 +55,9 @@ public class Interval implements TemporalAmount {
   private static final String NSEC_BOUND_FORMAT;
   private static final String VALUE_BOUND_FORMAT;
 
-  private static final List<TemporalUnit> SUPPORTED_UNITS = Collections.unmodifiableList(Arrays.<TemporalUnit>asList(
-      YEARS,
-      MONTHS,
-      WEEKS,
-      DAYS,
-      HOURS,
-      MINUTES,
-      SECONDS,
-      NANOS));
+  private static final List<TemporalUnit> SUPPORTED_UNITS =
+      Collections.unmodifiableList(
+          Arrays.<TemporalUnit>asList(YEARS, MONTHS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, NANOS));
 
   public static final long MAX_NSEC_RANGE = Integer.MAX_VALUE;
   public static final long MAX_YEAR_RANGE = MAX_DATE_YEAR - MIN_DATE_YEAR;
@@ -88,18 +81,25 @@ public class Interval implements TemporalAmount {
   static {
     threadLocalStringBuilder = ThreadLocal.withInitial(StringBuilder::new);
     VALUE_BOUND_FORMAT = "Value ";
-    YEARS_BOUND_FORMAT = " of year " + OUT_OF_ALLOWED_RANGE + MAX_YEAR_RANGE + ", " + MAX_YEAR_RANGE + "]";
-    MOTH_BOUND_FORMAT = " of month " + OUT_OF_ALLOWED_RANGE + MAX_MONTH_RANGE + ", " + MAX_MONTH_RANGE + "]";
-    WEEK_BOUND_FORMAT = " of week " + OUT_OF_ALLOWED_RANGE + MAX_WEEK_RANGE + ", " + MAX_WEEK_RANGE + "]";
-    DAY_BOUND_FORMAT = " of day " + OUT_OF_ALLOWED_RANGE + MAX_DAY_RANGE + ", " + MAX_DAY_RANGE + "]";
-    HOUR_BOUND_FORMAT = " of hour " + OUT_OF_ALLOWED_RANGE + MAX_HOUR_RANGE + ", " + MAX_HOUR_RANGE + "]";
-    MIN_BOUND_FORMAT = " of min " + OUT_OF_ALLOWED_RANGE + MAX_MIN_RANGE + ", " + MAX_MIN_RANGE + "]";
-    SEC_BOUND_FORMAT = " of sec " + OUT_OF_ALLOWED_RANGE + MAX_SEC_RANGE + ", " + MAX_SEC_RANGE + "]";
-    NSEC_BOUND_FORMAT = " of nsec " + OUT_OF_ALLOWED_RANGE + MAX_NSEC_RANGE + ", " + MAX_NSEC_RANGE + "]";
+    YEARS_BOUND_FORMAT =
+        " of year " + OUT_OF_ALLOWED_RANGE + MAX_YEAR_RANGE + ", " + MAX_YEAR_RANGE + "]";
+    MOTH_BOUND_FORMAT =
+        " of month " + OUT_OF_ALLOWED_RANGE + MAX_MONTH_RANGE + ", " + MAX_MONTH_RANGE + "]";
+    WEEK_BOUND_FORMAT =
+        " of week " + OUT_OF_ALLOWED_RANGE + MAX_WEEK_RANGE + ", " + MAX_WEEK_RANGE + "]";
+    DAY_BOUND_FORMAT =
+        " of day " + OUT_OF_ALLOWED_RANGE + MAX_DAY_RANGE + ", " + MAX_DAY_RANGE + "]";
+    HOUR_BOUND_FORMAT =
+        " of hour " + OUT_OF_ALLOWED_RANGE + MAX_HOUR_RANGE + ", " + MAX_HOUR_RANGE + "]";
+    MIN_BOUND_FORMAT =
+        " of min " + OUT_OF_ALLOWED_RANGE + MAX_MIN_RANGE + ", " + MAX_MIN_RANGE + "]";
+    SEC_BOUND_FORMAT =
+        " of sec " + OUT_OF_ALLOWED_RANGE + MAX_SEC_RANGE + ", " + MAX_SEC_RANGE + "]";
+    NSEC_BOUND_FORMAT =
+        " of nsec " + OUT_OF_ALLOWED_RANGE + MAX_NSEC_RANGE + ", " + MAX_NSEC_RANGE + "]";
   }
 
-  public Interval() {
-  }
+  public Interval() {}
 
   @Override
   public long get(TemporalUnit unit) {
@@ -189,8 +189,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setYear(long year) {
-    Assert.state(-MAX_YEAR_RANGE <= year && year <= MAX_YEAR_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_YEAR_RANGE <= year && year <= MAX_YEAR_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(year)
@@ -205,8 +207,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setMonth(long month) {
-    Assert.state(-MAX_MONTH_RANGE <= month && month <= MAX_MONTH_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_MONTH_RANGE <= month && month <= MAX_MONTH_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(month)
@@ -221,8 +225,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setWeek(long week) {
-    Assert.state(-MAX_WEEK_RANGE <= week && week <= MAX_WEEK_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_WEEK_RANGE <= week && week <= MAX_WEEK_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(week)
@@ -237,8 +243,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setDay(long day) {
-    Assert.state(-MAX_DAY_RANGE <= day && day <= MAX_DAY_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_DAY_RANGE <= day && day <= MAX_DAY_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(day)
@@ -253,8 +261,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setHour(long hour) {
-    Assert.state(-MAX_HOUR_RANGE <= hour && hour <= MAX_HOUR_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_HOUR_RANGE <= hour && hour <= MAX_HOUR_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(hour)
@@ -269,8 +279,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setMin(long min) {
-    Assert.state(-MAX_MIN_RANGE <= min && min <= MAX_MIN_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_MIN_RANGE <= min && min <= MAX_MIN_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(min)
@@ -285,8 +297,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setSec(long sec) {
-    Assert.state(-MAX_SEC_RANGE <= sec && sec <= MAX_SEC_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_SEC_RANGE <= sec && sec <= MAX_SEC_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(sec)
@@ -301,8 +315,10 @@ public class Interval implements TemporalAmount {
   }
 
   public Interval setNsec(long nsec) {
-    Assert.state(-MAX_NSEC_RANGE <= nsec && nsec <= MAX_NSEC_RANGE,
-        threadLocalStringBuilder.get()
+    Assert.state(
+        -MAX_NSEC_RANGE <= nsec && nsec <= MAX_NSEC_RANGE,
+        threadLocalStringBuilder
+            .get()
             .delete(0, threadLocalStringBuilder.get().length())
             .append(VALUE_BOUND_FORMAT)
             .append(nsec)

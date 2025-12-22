@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,7 +23,9 @@ public class ClusterConfig {
   private final TarantoolConnection tarantoolConnection;
 
   @JsonCreator
-  ClusterConfig(@JsonProperty("name") String name, @JsonProperty("id") UUID id,
+  ClusterConfig(
+      @JsonProperty("name") String name,
+      @JsonProperty("id") UUID id,
       @JsonProperty("storage-connection") StorageConnection storageConnection,
       @JsonProperty("tarantool-connection") TarantoolConnection tarantoolConnection) {
     this.name = name;
@@ -56,7 +58,8 @@ public class ClusterConfig {
     private final Etcd etcdConnection;
 
     @JsonCreator
-    public StorageConnection(@JsonProperty("provider") String provider,
+    public StorageConnection(
+        @JsonProperty("provider") String provider,
         @JsonProperty("etcd-connection") Etcd etcdConnection) {
       this.provider = provider;
       this.etcdConnection = etcdConnection;
@@ -78,7 +81,8 @@ public class ClusterConfig {
     private final CharSequence password;
 
     @JsonCreator
-    public TarantoolConnection(@JsonProperty("username") String username,
+    public TarantoolConnection(
+        @JsonProperty("username") String username,
         @JsonProperty("password") CharSequence password) {
       this.username = username;
       this.password = password;

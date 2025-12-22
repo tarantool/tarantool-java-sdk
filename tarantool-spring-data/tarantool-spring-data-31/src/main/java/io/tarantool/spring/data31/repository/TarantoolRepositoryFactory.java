@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,21 +21,18 @@ import io.tarantool.spring.data31.repository.config.TarantoolQueryLookupStrategy
 import io.tarantool.spring.data31.repository.support.TarantoolSimpleRepository;
 
 /**
- * <p>
- * Tarantool version of {@link KeyValueRepositoryFactory}, a factory to build tarantool repository instances.
- * </P>
- * <p>
- * The purpose of extending is to ensure that the {@link #getQueryLookupStrategy} method returns a
- * {@link TarantoolQueryLookupStrategy} rather than the default.
- * </P>
- * <p>
- * The end goal of this bean is for {@link TarantoolPartTreeQuery} to be used for query preparation.
- * </P>
+ * Tarantool version of {@link KeyValueRepositoryFactory}, a factory to build tarantool repository
+ * instances.
+ *
+ * <p>The purpose of extending is to ensure that the {@link #getQueryLookupStrategy} method returns
+ * a {@link TarantoolQueryLookupStrategy} rather than the default.
+ *
+ * <p>The end goal of this bean is for {@link TarantoolPartTreeQuery} to be used for query
+ * preparation.
  *
  * @author Artyom Dubinin
  */
-public class TarantoolRepositoryFactory
-    extends KeyValueRepositoryFactory {
+public class TarantoolRepositoryFactory extends KeyValueRepositoryFactory {
 
   private static final Class<SpelQueryCreator> DEFAULT_QUERY_CREATOR = SpelQueryCreator.class;
 
@@ -46,13 +43,16 @@ public class TarantoolRepositoryFactory
   /* Mirror functionality of super, to ensure private
    * fields are set.
    */
-  public TarantoolRepositoryFactory(TarantoolCrudClient client, KeyValueOperations keyValueOperations) {
+  public TarantoolRepositoryFactory(
+      TarantoolCrudClient client, KeyValueOperations keyValueOperations) {
     this(client, keyValueOperations, DEFAULT_QUERY_CREATOR);
   }
 
   /* Capture KeyValueOperations and QueryCreator objects after passing to super.
    */
-  public TarantoolRepositoryFactory(TarantoolCrudClient client, KeyValueOperations keyValueOperations,
+  public TarantoolRepositoryFactory(
+      TarantoolCrudClient client,
+      KeyValueOperations keyValueOperations,
       Class<? extends AbstractQueryCreator<?, ?>> queryCreator) {
 
     super(keyValueOperations, queryCreator);
@@ -63,16 +63,15 @@ public class TarantoolRepositoryFactory
   }
 
   /**
-   * <p>
-   * Ensure the mechanism for query evaluation is Tarantool specific, as the original
-   * {@code KeyValueQueryLookupStrategy} does not function correctly for Tarantool.
-   * </P>
+   * Ensure the mechanism for query evaluation is Tarantool specific, as the original {@code
+   * KeyValueQueryLookupStrategy} does not function correctly for Tarantool.
    */
   @Override
-  protected Optional<QueryLookupStrategy> getQueryLookupStrategy(QueryLookupStrategy.Key key,
-      QueryMethodEvaluationContextProvider evaluationContextProvider) {
-    return Optional.of(new TarantoolQueryLookupStrategy(client, key, evaluationContextProvider, keyValueOperations,
-        queryCreator));
+  protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
+      QueryLookupStrategy.Key key, QueryMethodEvaluationContextProvider evaluationContextProvider) {
+    return Optional.of(
+        new TarantoolQueryLookupStrategy(
+            client, key, evaluationContextProvider, keyValueOperations, queryCreator));
   }
 
   @Override

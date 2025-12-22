@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -26,18 +26,22 @@ import io.tarantool.mapping.Tuple;
  */
 public class TarantoolSchemaFetcher {
 
-  final static Logger log = LoggerFactory.getLogger(TarantoolSchemaFetcher.class);
+  static final Logger log = LoggerFactory.getLogger(TarantoolSchemaFetcher.class);
 
   private static final int BOX_VSPACE_ID = 281;
   private static final int BOX_VINDEX_ID = 289;
   public static final int PRIMARY = 0; // Primary index has always ID 0;
-  private static final int SPACE_MAX = 65_000; // ref: https://www.tarantool.io/en/doc/latest/book/box/limitations/
-  private static final int SPACE_INDEX_MAX = 128; // ref: https://www.tarantool.io/en/doc/latest/book/box/limitations/
+  private static final int SPACE_MAX =
+      65_000; // ref: https://www.tarantool.io/en/doc/latest/book/box/limitations/
+  private static final int SPACE_INDEX_MAX =
+      128; // ref: https://www.tarantool.io/en/doc/latest/book/box/limitations/
   private static final int INDEX_MAX = SPACE_MAX * SPACE_INDEX_MAX;
   private static final int OFFSET = 0;
   private static final BoxIterator ITERATOR = BoxIterator.EQ;
-  public static final TypeReference<List<Tuple<Space>>> LIST_TUPLE_SPACE = new TypeReference<List<Tuple<Space>>>() {};
-  public static final TypeReference<List<Tuple<Index>>> LIST_TUPLE_INDEX = new TypeReference<List<Tuple<Index>>>() {};
+  public static final TypeReference<List<Tuple<Space>>> LIST_TUPLE_SPACE =
+      new TypeReference<List<Tuple<Space>>>() {};
+  public static final TypeReference<List<Tuple<Index>>> LIST_TUPLE_INDEX =
+      new TypeReference<List<Tuple<Index>>>() {};
   private final TarantoolBalancer balancer;
   private final boolean ignoreOldSchemaVersion;
 
@@ -54,31 +58,37 @@ public class TarantoolSchemaFetcher {
     fetchSchema();
   }
 
-  public CompletableFuture<IProtoResponse> processRequest(CompletableFuture<IProtoResponse> request) {
-    return request.thenCompose(requestResponse -> {
-      Long responseSchemaVersion = requestResponse.getSchemaVersion();
-      if (responseSchemaVersion.equals(schemaVersion)) {
-        return CompletableFuture.completedFuture(requestResponse);
-      } else if (responseSchemaVersion < schemaVersion) {
-        log.error("Response has older schema version than client has");
-        if (ignoreOldSchemaVersion) {
-          return CompletableFuture.completedFuture(requestResponse);
-        }
-        throw new SchemaFetchingException("Response has older schema version than client has");
-      }
+  public CompletableFuture<IProtoResponse> processRequest(
+      CompletableFuture<IProtoResponse> request) {
+    return request.thenCompose(
+        requestResponse -> {
+          Long responseSchemaVersion = requestResponse.getSchemaVersion();
+          if (responseSchemaVersion.equals(schemaVersion)) {
+            return CompletableFuture.completedFuture(requestResponse);
+          } else if (responseSchemaVersion < schemaVersion) {
+            log.error("Response has older schema version than client has");
+            if (ignoreOldSchemaVersion) {
+              return CompletableFuture.completedFuture(requestResponse);
+            }
+            throw new SchemaFetchingException("Response has older schema version than client has");
+          }
 
-      return vspaceSelect().thenCombine(vindexSelect(), (schemaResponse, indexesResponse) -> {
-        updateSchema(
-            TarantoolJacksonMapping.readResponse(schemaResponse, LIST_TUPLE_SPACE).get(),
-            TarantoolJacksonMapping.readResponse(indexesResponse, LIST_TUPLE_INDEX).get()
-        );
-        long newSchemaVersion = schemaResponse.getSchemaVersion();
-        if (newSchemaVersion > schemaVersion) {
-          schemaVersion = newSchemaVersion;
-        }
-        return requestResponse;
-      });
-    });
+          return vspaceSelect()
+              .thenCombine(
+                  vindexSelect(),
+                  (schemaResponse, indexesResponse) -> {
+                    updateSchema(
+                        TarantoolJacksonMapping.readResponse(schemaResponse, LIST_TUPLE_SPACE)
+                            .get(),
+                        TarantoolJacksonMapping.readResponse(indexesResponse, LIST_TUPLE_INDEX)
+                            .get());
+                    long newSchemaVersion = schemaResponse.getSchemaVersion();
+                    if (newSchemaVersion > schemaVersion) {
+                      schemaVersion = newSchemaVersion;
+                    }
+                    return requestResponse;
+                  });
+        });
   }
 
   public void updateSchema(List<Tuple<Space>> spaces, List<Tuple<Index>> indexes) {
@@ -106,36 +116,40 @@ public class TarantoolSchemaFetcher {
     CompletableFuture.allOf(vspaceRequest, vindexRequest).join();
     IProtoResponse vspaceRequestResponse = vspaceRequest.join();
     IProtoResponse vindexRequestResponse = vindexRequest.join();
-    List<Tuple<Space>> spaces = TarantoolJacksonMapping.readResponse(
-        vspaceRequestResponse, LIST_TUPLE_SPACE
-    ).get();
-    List<Tuple<Index>> indexes = TarantoolJacksonMapping.readResponse(
-        vindexRequestResponse, LIST_TUPLE_INDEX
-    ).get();
+    List<Tuple<Space>> spaces =
+        TarantoolJacksonMapping.readResponse(vspaceRequestResponse, LIST_TUPLE_SPACE).get();
+    List<Tuple<Index>> indexes =
+        TarantoolJacksonMapping.readResponse(vindexRequestResponse, LIST_TUPLE_INDEX).get();
     updateSchema(spaces, indexes);
     schemaVersion = vspaceRequestResponse.getSchemaVersion();
   }
 
   private CompletableFuture<IProtoResponse> vspaceSelect() {
-    return balancer.getNext().thenCompose(c -> c.select(
-        BOX_VSPACE_ID,
-        PRIMARY,
-        ValueFactory.emptyArray(),
-        SPACE_MAX,
-        OFFSET,
-        ITERATOR
-    ));
+    return balancer
+        .getNext()
+        .thenCompose(
+            c ->
+                c.select(
+                    BOX_VSPACE_ID,
+                    PRIMARY,
+                    ValueFactory.emptyArray(),
+                    SPACE_MAX,
+                    OFFSET,
+                    ITERATOR));
   }
 
   private CompletableFuture<IProtoResponse> vindexSelect() {
-    return balancer.getNext().thenCompose(c -> c.select(
-        BOX_VINDEX_ID,
-        PRIMARY,
-        ValueFactory.emptyArray(),
-        INDEX_MAX,
-        OFFSET,
-        ITERATOR
-    ));
+    return balancer
+        .getNext()
+        .thenCompose(
+            c ->
+                c.select(
+                    BOX_VINDEX_ID,
+                    PRIMARY,
+                    ValueFactory.emptyArray(),
+                    INDEX_MAX,
+                    OFFSET,
+                    ITERATOR));
   }
 
   public Space getSpace(String spaceName) {

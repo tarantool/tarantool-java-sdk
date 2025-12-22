@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,26 +13,23 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.lifecycle.Startable;
 
 /**
- * Common interface to represent {@code Tarantool Data Grid} containers with ability to save mount data. Implementations
- * must ensure that exposed ports are reserved after the first container launch.
+ * Common interface to represent {@code Tarantool Data Grid} containers with ability to save mount
+ * data. Implementations must ensure that exposed ports are reserved after the first container
+ * launch.
  *
  * @param <SELF> type of {@link TDGContainer} implementation
  */
 public interface TDGContainer<SELF extends TDGContainer<SELF>> extends Container<SELF>, Startable {
 
-  /**
-   * Default http port which is listening in {@code TDG}
-   */
+  /** Default http port which is listening in {@code TDG} */
   int DEFAULT_HTTP_PORT = 8080;
 
-  /**
-   * Default location where data of TDG is stored .
-   */
+  /** Default location where data of TDG is stored . */
   Path DEFAULT_TDG_DATA_DIR = Paths.get("/", "var", "lib", "tarantool");
 
   /**
-   * Stops container without deleting data directory. After calling this method, the container instance can be
-   * restarted. <b><i>Note:</i></b> method must be idempotent.
+   * Stops container without deleting data directory. After calling this method, the container
+   * instance can be restarted. <b><i>Note:</i></b> method must be idempotent.
    */
   void stopWithSafeMount();
 
@@ -58,8 +55,9 @@ public interface TDGContainer<SELF extends TDGContainer<SELF>> extends Container
   InetSocketAddress iprotoMappedAddress();
 
   /**
-   * Stops container without save mount data. After calling this method, the container instance can't be restarted
-   * (method {@code Container::start()} must throw exception). <b><i>Note:</i></b> method must be idempotent.
+   * Stops container without save mount data. After calling this method, the container instance
+   * can't be restarted (method {@code Container::start()} must throw exception).
+   * <b><i>Note:</i></b> method must be idempotent.
    */
   @Override
   void stop();

@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.core.unit.requests;
-
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -50,31 +49,47 @@ public class RequestTest {
     AuthType authType = AuthType.CHAP_SHA1;
     IProtoRequest auth = new IProtoAuth(user, password, salt, authType);
     assertEquals(
-        "IProtoAuth(syncId = " + auth.getSyncId() +
-            ", user = " + user +
-            ", authType = " + authType + ")",
+        "IProtoAuth(syncId = "
+            + auth.getSyncId()
+            + ", user = "
+            + user
+            + ", authType = "
+            + authType
+            + ")",
         auth.toString());
 
     // begin
     final Long streamId = 1L;
     long timeout = 1L;
     IProtoRequest begin = new IProtoBegin(streamId, timeout, TransactionIsolationLevel.DEFAULT);
-    assertEquals("IProtoBegin(syncId = " + begin.getSyncId() + ", timeout = " + timeout + ", level = " +
-        TransactionIsolationLevel.DEFAULT + ")", begin.toString());
+    assertEquals(
+        "IProtoBegin(syncId = "
+            + begin.getSyncId()
+            + ", timeout = "
+            + timeout
+            + ", level = "
+            + TransactionIsolationLevel.DEFAULT
+            + ")",
+        begin.toString());
 
     // call
     String functionName = "function";
     ArrayValue args = ValueFactory.newArray(ValueFactory.newInteger(5));
     IProtoRequest call = new IProtoCall(functionName, args, streamId);
-    assertEquals("IProtoCall(syncId = " + call.getSyncId() +
-            ", function = " + functionName +
-            ", args = " + args + ")",
+    assertEquals(
+        "IProtoCall(syncId = "
+            + call.getSyncId()
+            + ", function = "
+            + functionName
+            + ", args = "
+            + args
+            + ")",
         call.toString());
 
     // commit
     IProtoRequest commit = new IProtoCommit(streamId);
-    assertEquals("IProtoCommit(syncId = " + commit.getSyncId() +
-            ", streamId = " + streamId + ")",
+    assertEquals(
+        "IProtoCommit(syncId = " + commit.getSyncId() + ", streamId = " + streamId + ")",
         commit.toString());
 
     // delete
@@ -85,20 +100,33 @@ public class RequestTest {
     String indexName = "null";
 
     IProtoRequest delete = new IProtoDelete(spaceId, spaceName, indexId, indexName, key, streamId);
-    assertEquals("IProtoDelete(syncId = " + delete.getSyncId() +
-            ", spaceId = " + spaceId +
-            ", indexId = " + indexId +
-            ", spaceName = " + spaceName +
-            ", indexName = " + indexName +
-            ", key = " + key + ")",
+    assertEquals(
+        "IProtoDelete(syncId = "
+            + delete.getSyncId()
+            + ", spaceId = "
+            + spaceId
+            + ", indexId = "
+            + indexId
+            + ", spaceName = "
+            + spaceName
+            + ", indexName = "
+            + indexName
+            + ", key = "
+            + key
+            + ")",
         delete.toString());
 
     // eval
     String expression = "exp";
     IProtoRequest eval = new IProtoEval(expression, args, streamId);
-    assertEquals("IProtoEval(syncId = " + eval.getSyncId() +
-            ", expr = " + expression +
-            ", args = " + args + ")",
+    assertEquals(
+        "IProtoEval(syncId = "
+            + eval.getSyncId()
+            + ", expr = "
+            + expression
+            + ", args = "
+            + args
+            + ")",
         eval.toString());
 
     // execute
@@ -107,51 +135,66 @@ public class RequestTest {
     ArrayValue options = ValueFactory.newArray(ValueFactory.newInteger(23));
 
     IProtoRequest execute = new IProtoExecute(statementId, sqlBind, options, streamId);
-    assertEquals("IProtoExecute(syncId = " + execute.getSyncId() +
-            ", statementId = " + statementId +
-            ", sqlBind = " + sqlBind +
-            ", options = " + options +
-            ", streamId = " + streamId + ")",
+    assertEquals(
+        "IProtoExecute(syncId = "
+            + execute.getSyncId()
+            + ", statementId = "
+            + statementId
+            + ", sqlBind = "
+            + sqlBind
+            + ", options = "
+            + options
+            + ", streamId = "
+            + streamId
+            + ")",
         execute.toString());
 
     // id
     int protocolVersion = 1;
     List<Integer> features = Arrays.asList(3, 4, 5);
     IProtoRequest id = new IProtoId(protocolVersion, features);
-    assertEquals("IProtoId(syncId = " + id.getSyncId() +
-            ", version = " + protocolVersion +
-            ", features = " + features + ")",
+    assertEquals(
+        "IProtoId(syncId = "
+            + id.getSyncId()
+            + ", version = "
+            + protocolVersion
+            + ", features = "
+            + features
+            + ")",
         id.toString());
 
     // insert
     ArrayValue tuple = ValueFactory.newArray(ValueFactory.newString("tuple"));
     IProtoRequest insert = new IProtoInsert(spaceId, spaceName, tuple, streamId);
-    assertEquals("IProtoInsert(syncId = " + insert.getSyncId() +
-            ", tuple = " + tuple + ")",
+    assertEquals(
+        "IProtoInsert(syncId = " + insert.getSyncId() + ", tuple = " + tuple + ")",
         insert.toString());
 
     // ping
     IProtoRequest ping = new IProtoPing();
-    assertEquals("IProtoPing(syncId = " + ping.getSyncId() + ")",
-        ping.toString());
+    assertEquals("IProtoPing(syncId = " + ping.getSyncId() + ")", ping.toString());
 
     // prepare
     String statementText = "test";
     IProtoRequest prepare = new IProtoPrepare(statementText, streamId);
-    assertEquals("IProtoPrepare(syncId = " + prepare.getSyncId() +
-            ", statementText = " + statementText + ")",
+    assertEquals(
+        "IProtoPrepare(syncId = "
+            + prepare.getSyncId()
+            + ", statementText = "
+            + statementText
+            + ")",
         prepare.toString());
 
     // replace
     IProtoRequest replace = new IProtoReplace(spaceId, null, tuple, streamId);
-    assertEquals("IProtoReplace(syncId = " + replace.getSyncId() +
-            ", tuple = " + tuple + ")",
+    assertEquals(
+        "IProtoReplace(syncId = " + replace.getSyncId() + ", tuple = " + tuple + ")",
         replace.toString());
 
     // rollback
     IProtoRequest rollback = new IProtoRollback(streamId);
-    assertEquals("IProtoRollback(syncId = " + rollback.getSyncId() +
-            ", streamId = " + streamId + ")",
+    assertEquals(
+        "IProtoRollback(syncId = " + rollback.getSyncId() + ", streamId = " + streamId + ")",
         rollback.toString());
 
     // select
@@ -159,65 +202,84 @@ public class RequestTest {
     int offset = 5;
     int iterator = 5;
     ArrayValue keyS = ValueFactory.newArray(ValueFactory.newString("hello"));
-    IProtoRequest select = new IProtoSelect(spaceId,
-        spaceName,
-        indexId,
-        indexName,
-        limit,
-        offset,
-        iterator,
-        keyS,
-        streamId,
-        false,
-        null,
-        null);
-    assertEquals("IProtoSelect(syncId = " + select.getSyncId() +
-            ", spaceId = " + spaceId +
-            ", indexId = " + indexId +
-            ", spaceName = " + spaceName +
-            ", indexName = " + indexName +
-            ", limit = " + limit +
-            ", offset = " + offset +
-            ", iterator = " + iterator +
-            ", key = " + keyS +
-            ", fetchPosition = false" +
-            ", after = null" +
-            ", afterMode = null)",
+    IProtoRequest select =
+        new IProtoSelect(
+            spaceId, spaceName, indexId, indexName, limit, offset, iterator, keyS, streamId, false,
+            null, null);
+    assertEquals(
+        "IProtoSelect(syncId = "
+            + select.getSyncId()
+            + ", spaceId = "
+            + spaceId
+            + ", indexId = "
+            + indexId
+            + ", spaceName = "
+            + spaceName
+            + ", indexName = "
+            + indexName
+            + ", limit = "
+            + limit
+            + ", offset = "
+            + offset
+            + ", iterator = "
+            + iterator
+            + ", key = "
+            + keyS
+            + ", fetchPosition = false"
+            + ", after = null"
+            + ", afterMode = null)",
         select.toString());
 
     // unwatch
     String unWatchKey = "unwatch";
     IProtoRequest unwatch = new IProtoUnwatch(unWatchKey);
-    assertEquals("IProtoUnwatch(key = " + unWatchKey + ")",
-        unwatch.toString());
+    assertEquals("IProtoUnwatch(key = " + unWatchKey + ")", unwatch.toString());
 
     // update
     ArrayValue operations = ValueFactory.newArray(ValueFactory.newString("+"));
-    IProtoRequest update = new IProtoUpdate(spaceId, spaceName, indexId, indexName, keyS, operations, streamId);
-    assertEquals("IProtoUpdate(syncId = " + update.getSyncId() +
-            ", spaceId = " + spaceId +
-            ", indexId = " + indexId +
-            ", spaceName = " + spaceName +
-            ", indexName = " + indexName +
-            ", key = " + keyS +
-            ", operations = " + operations + ")",
+    IProtoRequest update =
+        new IProtoUpdate(spaceId, spaceName, indexId, indexName, keyS, operations, streamId);
+    assertEquals(
+        "IProtoUpdate(syncId = "
+            + update.getSyncId()
+            + ", spaceId = "
+            + spaceId
+            + ", indexId = "
+            + indexId
+            + ", spaceName = "
+            + spaceName
+            + ", indexName = "
+            + indexName
+            + ", key = "
+            + keyS
+            + ", operations = "
+            + operations
+            + ")",
         update.toString());
 
     // upsert
     int indexBase = 5;
-    IProtoRequest upsert = new IProtoUpsert(spaceId, spaceName, indexBase, tuple, operations, streamId);
-    assertEquals("IProtoUpsert(syncId = " + upsert.getSyncId() +
-            ", spaceId = " + spaceId +
-            ", indexId = " + indexBase +
-            ", spaceName = " + spaceName +
-            ", tuple = " + tuple +
-            ", operations = " + operations + ")",
+    IProtoRequest upsert =
+        new IProtoUpsert(spaceId, spaceName, indexBase, tuple, operations, streamId);
+    assertEquals(
+        "IProtoUpsert(syncId = "
+            + upsert.getSyncId()
+            + ", spaceId = "
+            + spaceId
+            + ", indexId = "
+            + indexBase
+            + ", spaceName = "
+            + spaceName
+            + ", tuple = "
+            + tuple
+            + ", operations = "
+            + operations
+            + ")",
         upsert.toString());
 
     // watch
     String eventKey = "eventKey";
     IProtoRequest watch = new IProtoWatch(eventKey);
-    assertEquals("IProtoWatch(key = " + eventKey + ")",
-        watch.toString());
+    assertEquals("IProtoWatch(key = " + eventKey + ")", watch.toString());
   }
 }

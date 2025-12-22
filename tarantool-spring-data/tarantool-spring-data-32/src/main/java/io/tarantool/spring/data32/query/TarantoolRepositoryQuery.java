@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -11,16 +11,14 @@ import org.springframework.data.repository.query.RepositoryQuery;
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.spring.data.query.ProxyTarantoolRepositoryQuery;
 
-/**
- * {@link RepositoryQuery} using String based function name to call function in Tarantool.
- */
-public class TarantoolRepositoryQuery
-    implements RepositoryQuery {
+/** {@link RepositoryQuery} using String based function name to call function in Tarantool. */
+public class TarantoolRepositoryQuery implements RepositoryQuery {
 
   private final ProxyTarantoolRepositoryQuery proxy;
   private final TarantoolQueryMethodImpl queryMethod;
 
-  public TarantoolRepositoryQuery(TarantoolCrudClient client, TarantoolQueryMethodImpl queryMethod) {
+  public TarantoolRepositoryQuery(
+      TarantoolCrudClient client, TarantoolQueryMethodImpl queryMethod) {
     this.queryMethod = queryMethod;
     this.proxy = new ProxyTarantoolRepositoryQuery(client, queryMethod);
   }

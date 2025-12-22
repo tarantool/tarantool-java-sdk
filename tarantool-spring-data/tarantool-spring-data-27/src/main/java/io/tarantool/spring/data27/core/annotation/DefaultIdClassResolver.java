@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,14 +12,13 @@ import org.springframework.util.Assert;
 import io.tarantool.spring.data.core.annotation.IdClass;
 import io.tarantool.spring.data.core.annotation.IdClassResolver;
 
-/**
- * Default implementation of {@link IdClassResolver}.
- */
+/** Default implementation of {@link IdClassResolver}. */
 public enum DefaultIdClassResolver implements IdClassResolver {
   INSTANCE;
 
   public static final String ANNOTATION_TYPE_EXCEPTION =
-      "The class of a composite identifier specified in the @IdClass annotation cannot be annotation!";
+      "The class of a composite identifier specified in the @IdClass annotation cannot be"
+          + " annotation!";
 
   @Nullable
   @Override

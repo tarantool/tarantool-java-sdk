@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,7 +18,8 @@ import org.springframework.lang.Nullable;
 import io.tarantool.spring.data.core.annotation.IdClassResolver;
 import io.tarantool.spring.data27.core.annotation.DefaultIdClassResolver;
 
-public class TarantoolMappingContext<E extends KeyValuePersistentEntity<?, P>, P extends KeyValuePersistentProperty<P>>
+public class TarantoolMappingContext<
+        E extends KeyValuePersistentEntity<?, P>, P extends KeyValuePersistentProperty<P>>
     extends KeyValueMappingContext<E, P> {
 
   private final IdClassResolver idClassResolver;
@@ -31,7 +32,8 @@ public class TarantoolMappingContext<E extends KeyValuePersistentEntity<?, P>, P
   }
 
   /**
-   * Configures the {@link KeySpaceResolver} to be used if not explicit key space is annotated to the domain type.
+   * Configures the {@link KeySpaceResolver} to be used if not explicit key space is annotated to
+   * the domain type.
    *
    * @param fallbackKeySpaceResolver can be {@literal null}.
    */
@@ -44,13 +46,15 @@ public class TarantoolMappingContext<E extends KeyValuePersistentEntity<?, P>, P
   @SuppressWarnings("unchecked")
   @Override
   public <T> E createPersistentEntity(TypeInformation<T> typeInformation) {
-    final Class<?> idClassTypeValue = this.idClassResolver.resolveIdClassType(typeInformation.getType());
+    final Class<?> idClassTypeValue =
+        this.idClassResolver.resolveIdClassType(typeInformation.getType());
     if (idClassTypeValue == null) {
-      return (E) new BasicKeyValuePersistentEntity<T, P>(typeInformation, this.fallbackKeySpaceResolver);
+      return (E)
+          new BasicKeyValuePersistentEntity<T, P>(typeInformation, this.fallbackKeySpaceResolver);
     }
-    return (E) new BasicKeyValueCompositePersistentEntity<>(typeInformation,
-        this.fallbackKeySpaceResolver,
-        idClassTypeValue);
+    return (E)
+        new BasicKeyValueCompositePersistentEntity<>(
+            typeInformation, this.fallbackKeySpaceResolver, idClassTypeValue);
   }
 
   @SuppressWarnings("unchecked")

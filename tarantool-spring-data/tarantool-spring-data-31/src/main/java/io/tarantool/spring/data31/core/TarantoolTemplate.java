@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,14 +24,19 @@ public class TarantoolTemplate extends KeyValueTemplate {
     super(adapter, new TarantoolMappingContext<>());
   }
 
-  public TarantoolTemplate(KeyValueAdapter adapter,
-      MappingContext<? extends KeyValuePersistentEntity<?, ?>, ?
-          extends KeyValuePersistentProperty<?>> mappingContext) {
+  public TarantoolTemplate(
+      KeyValueAdapter adapter,
+      MappingContext<
+              ? extends KeyValuePersistentEntity<?, ?>, ? extends KeyValuePersistentProperty<?>>
+          mappingContext) {
     super(adapter, mappingContext);
   }
 
-  public TarantoolTemplate(KeyValueAdapter adapter,
-      MappingContext<? extends KeyValuePersistentEntity<?, ?>, ? extends KeyValuePersistentProperty<?>> mappingContext,
+  public TarantoolTemplate(
+      KeyValueAdapter adapter,
+      MappingContext<
+              ? extends KeyValuePersistentEntity<?, ?>, ? extends KeyValuePersistentProperty<?>>
+          mappingContext,
       IdentifierGenerator identifierGenerator) {
     super(adapter, mappingContext, identifierGenerator);
   }

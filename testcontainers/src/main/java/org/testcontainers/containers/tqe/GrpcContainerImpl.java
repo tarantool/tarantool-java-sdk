@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -32,7 +32,8 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> implements GrpcContainer<GrpcContainerImpl> {
+public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl>
+    implements GrpcContainer<GrpcContainerImpl> {
 
   /*
   /**********************************************************
@@ -46,7 +47,8 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
   /* Constants
   /**********************************************************
   */
-  private static final String GRPC_ERROR_MSG = "Grpc node configuration is invalid. See logs for details.";
+  private static final String GRPC_ERROR_MSG =
+      "Grpc node configuration is invalid. See logs for details.";
 
   /*
   /**********************************************************
@@ -67,16 +69,17 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
 
   private boolean started;
 
-  public GrpcContainerImpl(DockerImageName image, Path configPath, String node, Duration startupTimeout) {
+  public GrpcContainerImpl(
+      DockerImageName image, Path configPath, String node, Duration startupTimeout) {
     super(image);
     validateConfigPath(configPath);
     this.configPath = configPath;
     this.node = node;
     this.startupTimeout = startupTimeout;
     final GrpcConfiguration parsedConfig = ConfigurationUtils.readGrpcFromFile(configPath);
-      this.roles = resolveRoles(parsedConfig, configPath);
-      this.corePort = resolveCorePort(parsedConfig, configPath);
-      this.grpcPorts = resolveGrpcPorts(parsedConfig, configPath);
+    this.roles = resolveRoles(parsedConfig, configPath);
+    this.corePort = resolveCorePort(parsedConfig, configPath);
+    this.grpcPorts = resolveGrpcPorts(parsedConfig, configPath);
   }
 
   @Override
@@ -105,7 +108,7 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
   protected void configure() {
     final Set<Integer> allExposedPorts = new LinkedHashSet<>(this.grpcPorts);
     allExposedPorts.add(this.corePort);
-    withExposedPorts(allExposedPorts.toArray(new Integer[]{}));
+    withExposedPorts(allExposedPorts.toArray(new Integer[] {}));
     final String CONFIG_PATH_IN_CONTAINER =
         DEFAULT_TQE_DATA_DIR.toAbsolutePath().resolve(this.configPath.getFileName()).toString();
     withCopyFileToContainer(MountableFile.forHostPath(this.configPath), CONFIG_PATH_IN_CONTAINER);
@@ -141,7 +144,8 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
 
   @Override
   public Set<InetSocketAddress> grpcAddresses(String customHost) {
-    return this.grpcPorts.stream().map(port -> new InetSocketAddress(customHost, getMappedPort(port)))
+    return this.grpcPorts.stream()
+        .map(port -> new InetSocketAddress(customHost, getMappedPort(port)))
         .collect(Collectors.toSet());
   }
 
@@ -156,46 +160,58 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
   }
 
   private static void validateConfigPath(Path configPath) {
-    if (configPath == null || !Files.exists(configPath) || !Files.isRegularFile(configPath) || configPath.endsWith(
-        ".yml")) {
-      LOGGER.error("Invalid config file. Config path is null or not exists or not regular or not having '.yml' "
-          + "extension: {}", configPath);
+    if (configPath == null
+        || !Files.exists(configPath)
+        || !Files.isRegularFile(configPath)
+        || configPath.endsWith(".yml")) {
+      LOGGER.error(
+          "Invalid config file. Config path is null or not exists or not regular or not having"
+              + " '.yml' extension: {}",
+          configPath);
       throw new ContainerLaunchException(GRPC_ERROR_MSG);
     }
   }
 
-  /**
-   * Gets 'core_port' parameter (required) from configuration.
-   */
+  /** Gets 'core_port' parameter (required) from configuration. */
   private static int resolveCorePort(GrpcConfiguration config, Path configPath) {
-    return config.getCorePort().orElseThrow(() -> {
-      LOGGER.error("'core_port' not specified in: {}", configPath);
-      return new ContainerLaunchException(GRPC_ERROR_MSG);
-    }).intValue();
+    return config
+        .getCorePort()
+        .orElseThrow(
+            () -> {
+              LOGGER.error("'core_port' not specified in: {}", configPath);
+              return new ContainerLaunchException(GRPC_ERROR_MSG);
+            })
+        .intValue();
   }
 
   /**
-   * Gets all grpc ports from configuration. If 'grpc_port' parameter is not specified (deprecated), finds ports in
-   * 'grpc_listen.[n].uri' parameters (required)
+   * Gets all grpc ports from configuration. If 'grpc_port' parameter is not specified (deprecated),
+   * finds ports in 'grpc_listen.[n].uri' parameters (required)
    */
   private static Set<Integer> resolveGrpcPorts(GrpcConfiguration config, Path configPath) {
     final Set<Integer> grpcPorts = new LinkedHashSet<>();
-    config.getGrpcPort().ifPresentOrElse(
-        a -> LOGGER.warn("'grpc_port' parameter is deprecate. Use 'listen.uri' parameters! Skipping..."),
-        () -> LOGGER.warn("'grpc_port' is not specified. Try parse listen parameter...")
-    );
+    config
+        .getGrpcPort()
+        .ifPresentOrElse(
+            a ->
+                LOGGER.warn(
+                    "'grpc_port' parameter is deprecate. Use 'listen.uri' parameters! Skipping..."),
+            () -> LOGGER.warn("'grpc_port' is not specified. Try parse listen parameter..."));
 
     final Set<GrpcListen> grpcListen = config.getGrpcListen().orElseGet(Set::of);
-    final Set<Integer> listenPorts = grpcListen.stream().filter(Objects::nonNull)
-        .map(GrpcListen::getGrpcHost)
-        .filter(Optional::isPresent)
-        .map(s -> HostPort.parse(s.get()).getPort())
-        .collect(Collectors.toSet());
+    final Set<Integer> listenPorts =
+        grpcListen.stream()
+            .filter(Objects::nonNull)
+            .map(GrpcListen::getGrpcHost)
+            .filter(Optional::isPresent)
+            .map(s -> HostPort.parse(s.get()).getPort())
+            .collect(Collectors.toSet());
 
     grpcPorts.addAll(listenPorts);
 
     if (grpcPorts.isEmpty()) {
-      LOGGER.error("No 'grpc_listen' uris parameters or grpc port parameter configuration specified in: {}",
+      LOGGER.error(
+          "No 'grpc_listen' uris parameters or grpc port parameter configuration specified in: {}",
           configPath);
       throw new ContainerLaunchException(GRPC_ERROR_MSG);
     }
@@ -203,10 +219,12 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl> imple
   }
 
   /**
-   * Gets all grpc roles for this node. At least one of roles must be specified in configuration (required).
+   * Gets all grpc roles for this node. At least one of roles must be specified in configuration
+   * (required).
    */
   private static Set<GrpcRole> resolveRoles(GrpcConfiguration config, Path configPath) {
-    final Optional<Boolean> isPublisher = config.getPublisher().flatMap(PublisherConfig::getEnabled);
+    final Optional<Boolean> isPublisher =
+        config.getPublisher().flatMap(PublisherConfig::getEnabled);
     final Set<GrpcRole> roles = new LinkedHashSet<>();
     if (isPublisher.isPresent() && isPublisher.get()) {
       roles.add(GrpcRole.PUBLISHER);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -18,8 +18,7 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.spring.data.ProxyTarantoolCrudKeyValueAdapter;
 import io.tarantool.spring.data.mapping.model.CompositeKey;
 
-public class TarantoolCrudKeyValueAdapter
-    extends AbstractKeyValueAdapter {
+public class TarantoolCrudKeyValueAdapter extends AbstractKeyValueAdapter {
 
   private final ProxyTarantoolCrudKeyValueAdapter adapter;
 
@@ -89,7 +88,7 @@ public class TarantoolCrudKeyValueAdapter
   }
 
   /**
-   * Convert the identifier to the form required by the tarantool-java-ee driver.
+   * Convert the identifier to the form required by the tarantool-java-sdk driver.
    *
    * @param id identifier object
    * @return identifier in the required form
@@ -111,7 +110,7 @@ public class TarantoolCrudKeyValueAdapter
     final JsonFormat jsonFormatAnnotation =
         AnnotatedElementUtils.findMergedAnnotation(id.getClass(), JsonFormat.class);
 
-    return jsonFormatAnnotation != null &&
-        JsonFormat.Shape.ARRAY.equals(jsonFormatAnnotation.shape());
+    return jsonFormatAnnotation != null
+        && JsonFormat.Shape.ARRAY.equals(jsonFormatAnnotation.shape());
   }
 }

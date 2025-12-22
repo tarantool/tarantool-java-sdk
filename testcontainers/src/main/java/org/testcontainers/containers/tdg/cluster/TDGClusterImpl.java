@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -16,12 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.tdg.TDGContainer;
-import org.testcontainers.containers.tdg.TDGContainerImpl;
 import org.testcontainers.containers.tdg.configuration.TDGConfigurator;
 
 /**
- * Base implementation of {@link TDGCluster} that uses {@link TDGConfigurator} to configure TDG nodes. Helps to
- * manipulate {@link TDGContainer}.
+ * Base implementation of {@link TDGCluster} that uses {@link TDGConfigurator} to configure TDG
+ * nodes. Helps to manipulate {@link TDGContainer}.
  */
 public class TDGClusterImpl implements TDGCluster {
 
@@ -36,7 +35,7 @@ public class TDGClusterImpl implements TDGCluster {
   private boolean isClosed;
 
   public TDGClusterImpl(TDGConfigurator configurator) {
-    this(configurator,  Duration.ofMinutes(1));
+    this(configurator, Duration.ofMinutes(1));
   }
 
   public TDGClusterImpl(TDGConfigurator configurator, Duration startupTimeout) {
@@ -60,31 +59,39 @@ public class TDGClusterImpl implements TDGCluster {
   @Override
   public synchronized void start() {
     if (this.isClosed) {
-      throw new IllegalStateException("TDG cluster already closed. Please, create new TDG cluster instance");
+      throw new IllegalStateException(
+          "TDG cluster already closed. Please, create new TDG cluster instance");
     }
-    LOGGER.info("TDG cluster [name = {}, count = {}] is starting...", this.configurator.clusterName(),
+    LOGGER.info(
+        "TDG cluster [name = {}, count = {}] is starting...",
+        this.configurator.clusterName(),
         this.nodes.size());
     final CountDownLatch latch = new CountDownLatch(this.nodes.size());
     final AtomicReference<Exception> failedToStart = new AtomicReference<>();
 
     for (TDGContainer<?> container : this.nodes.values()) {
-      new Thread(() -> {
-        try {
-          container.start();
-        } catch (Exception e) {
-          LOGGER.error("Error starting TDG container [container_name='{}']", container.node(), e);
-          failedToStart.set(e);
-        } finally {
-          latch.countDown();
-        }
-      }).start();
+      new Thread(
+              () -> {
+                try {
+                  container.start();
+                } catch (Exception e) {
+                  LOGGER.error(
+                      "Error starting TDG container [container_name='{}']", container.node(), e);
+                  failedToStart.set(e);
+                } finally {
+                  latch.countDown();
+                }
+              })
+          .start();
     }
 
     try {
       latch.await(this.startupTimeout.getSeconds(), TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new ContainerLaunchException(
-          "TDG cluster[cluster_name='" + this.configurator.clusterName() + "'] cannot start. See logs for details.");
+          "TDG cluster[cluster_name='"
+              + this.configurator.clusterName()
+              + "'] cannot start. See logs for details.");
     }
 
     if (failedToStart.get() != null) {
@@ -92,8 +99,10 @@ public class TDGClusterImpl implements TDGCluster {
     }
 
     if (this.configurator.configured()) {
-      LOGGER.warn("TDG cluster [name = {}, count = {}] already configured", this.configurator.clusterName(),
-            this.nodes.size());
+      LOGGER.warn(
+          "TDG cluster [name = {}, count = {}] already configured",
+          this.configurator.clusterName(),
+          this.nodes.size());
       return;
     }
 

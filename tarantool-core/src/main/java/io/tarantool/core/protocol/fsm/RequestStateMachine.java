@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -25,16 +25,21 @@ import io.tarantool.core.protocol.IProtoResponse;
 
 public class RequestStateMachine extends AbstractIProtoStateMachine {
 
-  private final static Logger log = LoggerFactory.getLogger(RequestStateMachine.class);
+  private static final Logger log = LoggerFactory.getLogger(RequestStateMachine.class);
   private final Consumer<IProtoMessage> pushConsumer;
   private final Timer timerService;
   private final long timeout;
   private final CompletableFuture<IProtoResponse> promise;
   private Timeout timer;
 
-  public RequestStateMachine(Connection connection, long syncId, IProtoRequest request,
-      CompletableFuture<IProtoResponse> promise, IProtoRequestOpts opts,
-      Map<Long, IProtoStateMachine> fsmRegistry, Timer timerService) {
+  public RequestStateMachine(
+      Connection connection,
+      long syncId,
+      IProtoRequest request,
+      CompletableFuture<IProtoResponse> promise,
+      IProtoRequestOpts opts,
+      Map<Long, IProtoStateMachine> fsmRegistry,
+      Timer timerService) {
     super(connection, request, fsmRegistry);
     request.setSyncId(syncId);
     this.pushConsumer = opts.getPushHandler();
@@ -47,19 +52,27 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
   @Override
   public void start() {
     // TODO: remove string format
-    this.timer = runAfter(timeout, () ->
-        kill(new TimeoutException(String.format("Request timeout: %s; timeout = %sms", request, timeout))));
+    this.timer =
+        runAfter(
+            timeout,
+            () ->
+                kill(
+                    new TimeoutException(
+                        String.format("Request timeout: %s; timeout = %sms", request, timeout))));
 
     promise.whenComplete((iProtoResponse, throwable) -> this.timer.cancel());
 
-    connection.send(request).handle((Void r, Throwable ex) -> {
-      if (ex != null) {
-        log.debug(ex.toString(), ex);
-        fsmRegistry.remove(request.getSyncId());
-        promise.completeExceptionally(ex);
-      }
-      return null;
-    });
+    connection
+        .send(request)
+        .handle(
+            (Void r, Throwable ex) -> {
+              if (ex != null) {
+                log.debug(ex.toString(), ex);
+                fsmRegistry.remove(request.getSyncId());
+                promise.completeExceptionally(ex);
+              }
+              return null;
+            });
   }
 
   @Override
@@ -94,10 +107,6 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
       return null;
     }
 
-    return timerService.newTimeout(
-        timeoutHandler -> cb.run(),
-        after,
-        TimeUnit.MILLISECONDS
-    );
+    return timerService.newTimeout(timeoutHandler -> cb.run(), after, TimeUnit.MILLISECONDS);
   }
 }

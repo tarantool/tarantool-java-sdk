@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,8 +12,8 @@ import io.tarantool.mapping.Tuple;
 public class ProxyTarantoolCrudKeyValueAdapter {
 
   public static final String POTENTIAL_PERFORMANCE_ISSUES_EXCEPTION_MESSAGE =
-      "Not supported due to potential performance issues when working with large datasets. Please, use the method " +
-          "implementation with pagination.";
+      "Not supported due to potential performance issues when working with large datasets. Please,"
+          + " use the method implementation with pagination.";
 
   private final TarantoolCrudClient client;
 

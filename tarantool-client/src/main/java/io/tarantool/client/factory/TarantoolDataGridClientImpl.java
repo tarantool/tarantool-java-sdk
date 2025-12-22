@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -26,10 +26,13 @@ import io.tarantool.pool.PoolEventListener;
 import io.tarantool.pool.TripleConsumer;
 
 /**
- * <p>Class implementing {@link TarantoolClientImpl} and {@link TarantoolDataGridClient}.</p>
- * <p>To use this class correctly, you can follow this example:</p>
- * <blockquote><pre>{@code
+ * Class implementing {@link TarantoolClientImpl} and {@link TarantoolDataGridClient}.
  *
+ * <p>To use this class correctly, you can follow this example:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * // Creates crud client with default settings.
  * TarantoolDataGridClient client = TarantoolDataGridClientImpl.builder().build();
  * ...
@@ -37,7 +40,9 @@ import io.tarantool.pool.TripleConsumer;
  * TarantoolDataGridSpace space = client.space("spaceName");
  * ...
  *
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
@@ -46,12 +51,14 @@ import io.tarantool.pool.TripleConsumer;
  * @see TarantoolBalancer
  * @see HeartbeatOpts
  */
-public class TarantoolDataGridClientImpl extends TarantoolClientImpl implements TarantoolDataGridClient {
+public class TarantoolDataGridClientImpl extends TarantoolClientImpl
+    implements TarantoolDataGridClient {
 
   private final boolean useTdg1Context;
   private final Map<String, Object> credentials;
 
-  protected TarantoolDataGridClientImpl(List<InstanceConnectionGroup> groups,
+  protected TarantoolDataGridClientImpl(
+      List<InstanceConnectionGroup> groups,
       Map<ChannelOption<?>, Object> channelOptions,
       int nThreads,
       ManagedResource<Timer> timerResource,
@@ -68,8 +75,12 @@ public class TarantoolDataGridClientImpl extends TarantoolClientImpl implements 
       boolean useTdg1Context,
       Map<String, Object> credentials,
       PoolEventListener poolEventListener)
-      throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-    super(groups,
+      throws InvocationTargetException,
+          NoSuchMethodException,
+          InstantiationException,
+          IllegalAccessException {
+    super(
+        groups,
         channelOptions,
         nThreads,
         timerResource,
@@ -88,42 +99,43 @@ public class TarantoolDataGridClientImpl extends TarantoolClientImpl implements 
     this.credentials = credentials;
     if (useTdg1Context) {
       this.eval(
-          String.join(System.getProperty("line.separator"),
-          "repository = {}",
-          "repository.put = function(...)",
-            "require('common.request_context').init({})",
-            "local rep = require('input_processor.server').new().repository",
-            "local data, err = rep:put(...)",
-            "require('common.request_context').clear()",
-            "return data, err",
-          "end",
-          "repository.find = function(...)",
-            "require('common.request_context').init({})",
-            "local rep = require('input_processor.server').new().repository",
-            "local data, err = rep:find(...)",
-            "require('common.request_context').clear()",
-            "return data, err",
-          "end",
-          "repository.update = function(...)",
-            "require('common.request_context').init({})",
-            "local rep = require('input_processor.server').new().repository",
-            "local data, err = rep:update(...)",
-            "require('common.request_context').clear()",
-            "return data, err",
-          "end",
-          "repository.delete = function(...)",
-            "require('common.request_context').init({})",
-            "local rep = require('input_processor.server').new().repository",
-            "local data, err = rep:delete(...)",
-            "require('common.request_context').clear()",
-            "return data, err",
-          "end"
-          )).join();
+              String.join(
+                  System.getProperty("line.separator"),
+                  "repository = {}",
+                  "repository.put = function(...)",
+                  "require('common.request_context').init({})",
+                  "local rep = require('input_processor.server').new().repository",
+                  "local data, err = rep:put(...)",
+                  "require('common.request_context').clear()",
+                  "return data, err",
+                  "end",
+                  "repository.find = function(...)",
+                  "require('common.request_context').init({})",
+                  "local rep = require('input_processor.server').new().repository",
+                  "local data, err = rep:find(...)",
+                  "require('common.request_context').clear()",
+                  "return data, err",
+                  "end",
+                  "repository.update = function(...)",
+                  "require('common.request_context').init({})",
+                  "local rep = require('input_processor.server').new().repository",
+                  "local data, err = rep:update(...)",
+                  "require('common.request_context').clear()",
+                  "return data, err",
+                  "end",
+                  "repository.delete = function(...)",
+                  "require('common.request_context').init({})",
+                  "local rep = require('input_processor.server').new().repository",
+                  "local data, err = rep:delete(...)",
+                  "require('common.request_context').clear()",
+                  "return data, err",
+                  "end"))
+          .join();
     }
   }
 
-/**
-   * <p> Creates new builder for {@link TarantoolDataGridClientImpl} class.</p>
+  /**
+   * Creates new builder for {@link TarantoolDataGridClientImpl} class.
    *
    * @return {@link TarantoolDataGridClientBuilder} object.
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,13 +35,17 @@ public class PaginationUtils {
   /**
    * A general method for retrieving data for paginated queries.
    *
-   * @param query       query
+   * @param query query
    * @param pageRequest {@link TarantoolPageable}
-   * @param pageSize    page size
+   * @param pageSize page size
    * @return selection result.
    */
-  public static List<?> doPaginationQuery(final KeyValueQuery<?> query, TarantoolPageable<?> pageRequest,
-      int pageSize, KeyValueOperations keyValueOperations, Class<?> targetType) {
+  public static List<?> doPaginationQuery(
+      final KeyValueQuery<?> query,
+      TarantoolPageable<?> pageRequest,
+      int pageSize,
+      KeyValueOperations keyValueOperations,
+      Class<?> targetType) {
 
     TarantoolCriteria criteria = (TarantoolCriteria) query.getCriteria();
     PaginationDirection paginationDirection = pageRequest.getPaginationDirection();
@@ -54,8 +58,10 @@ public class PaginationUtils {
     return IterableConverter.toList(keyValueOperations.find(query, targetType));
   }
 
-
-  public static Page<?> doPageQuery(Pageable pageable, KeyValueQuery<?> query, KeyValueOperations keyValueOperations,
+  public static Page<?> doPageQuery(
+      Pageable pageable,
+      KeyValueQuery<?> query,
+      KeyValueOperations keyValueOperations,
       Class<?> targetType) {
     if (pageable.isUnpaged()) {
       return new TarantoolPageImpl<>();
@@ -65,7 +71,8 @@ public class PaginationUtils {
     int pageSize = resultSliceParams.getPageSize();
 
     // non transactional calls
-    List<?> content = doPaginationQuery(query, resultSliceParams, pageSize, keyValueOperations, targetType);
+    List<?> content =
+        doPaginationQuery(query, resultSliceParams, pageSize, keyValueOperations, targetType);
 
     if (content.isEmpty()) {
       return new TarantoolPageImpl<>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -30,8 +30,7 @@ import io.tarantool.spring.data33.utils.TarantoolTestSupport;
 @Timeout(5)
 public class TarantoolEmptyPropertiesTest {
 
-  @Autowired
-  private TarantoolProperties springParsedProperties;
+  @Autowired private TarantoolProperties springParsedProperties;
 
   @BeforeAll
   static void beforeAll() throws IOException {
@@ -49,7 +48,9 @@ public class TarantoolEmptyPropertiesTest {
 
   @AfterAll
   static void afterAll() throws IOException {
-    Files.deleteIfExists(TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(Constants.DEFAULT_PROPERTY_FILE_NAME));
+    Files.deleteIfExists(
+        TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR.resolve(
+            Constants.DEFAULT_PROPERTY_FILE_NAME));
   }
 
   @EnableTarantoolRepositories

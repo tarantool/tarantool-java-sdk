@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -40,11 +40,11 @@ public class BoxErrorStackItem {
         mapStruct.get(MP_ERROR_MESSAGE).asStringValue().asString(),
         mapStruct.get(MP_ERROR_ERRNO).asIntegerValue().asLong(),
         mapStruct.get(MP_ERROR_ERRCODE).asIntegerValue().asLong(),
-        fields != null ? fields.asMapValue() : null
-    );
+        fields != null ? fields.asMapValue() : null);
   }
 
-  private BoxErrorStackItem(String type,
+  private BoxErrorStackItem(
+      String type,
       long line,
       String file,
       String message,
@@ -91,15 +91,26 @@ public class BoxErrorStackItem {
   @Override
   public String toString() {
     if (sb == null) {
-      sb = new StringBuilder("BoxErrorStackItem{")
-          .append("type='").append(type).append('\'')
-          .append(", line=").append(line)
-          .append(", file='").append(file).append('\'')
-          .append(", message='").append(message).append('\'')
-          .append(", errno=").append(errno)
-          .append(", code=").append(code)
-          .append(", details=").append(details)
-          .append('}');
+      sb =
+          new StringBuilder("BoxErrorStackItem{")
+              .append("type='")
+              .append(type)
+              .append('\'')
+              .append(", line=")
+              .append(line)
+              .append(", file='")
+              .append(file)
+              .append('\'')
+              .append(", message='")
+              .append(message)
+              .append('\'')
+              .append(", errno=")
+              .append(errno)
+              .append(", code=")
+              .append(code)
+              .append(", details=")
+              .append(details)
+              .append('}');
     }
     return sb.toString();
   }

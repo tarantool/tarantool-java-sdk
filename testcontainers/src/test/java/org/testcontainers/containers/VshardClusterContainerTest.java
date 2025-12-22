@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -39,18 +39,16 @@ class VshardClusterContainerTest {
 
     VshardClusterContainer notEqualContainer =
         new VshardClusterContainer(
-            "vshard_cluster/Dockerfile",
-            dockerRegistry + "vshard-cluster-java",
-            "vshard_cluster/instances.yaml",
-            "vshard_cluster/config.yaml",
-            "tarantool/tarantool")
+                "vshard_cluster/Dockerfile",
+                dockerRegistry + "vshard-cluster-java",
+                "vshard_cluster/instances.yaml",
+                "vshard_cluster/config.yaml",
+                "tarantool/tarantool")
             .withRouterPort(3302);
 
     return Stream.of(
         Arguments.of(
-            Arrays.asList(firstEqualContainer, firstEqualContainer),
-            notEqualContainer,
-            1_000),
+            Arrays.asList(firstEqualContainer, firstEqualContainer), notEqualContainer, 1_000),
         Arguments.of(
             Arrays.asList(firstEqualContainer, firstEqualContainer),
             secondNotEqualContainer,
@@ -59,7 +57,9 @@ class VshardClusterContainerTest {
 
   @ParameterizedTest
   @MethodSource("dataForTestEqualsAndHashCode")
-  void testEqualsAndHashCode(List<VshardClusterContainer> equalContainers, VshardClusterContainer notEqualContainer,
+  void testEqualsAndHashCode(
+      List<VshardClusterContainer> equalContainers,
+      VshardClusterContainer notEqualContainer,
       int iterationCount) {
     for (int i = 0; i < iterationCount; i++) {
       for (VshardClusterContainer container : equalContainers) {

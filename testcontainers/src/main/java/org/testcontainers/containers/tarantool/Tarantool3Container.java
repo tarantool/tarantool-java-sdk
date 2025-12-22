@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -31,8 +31,8 @@ import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 
-public class Tarantool3Container extends GenericContainer<Tarantool3Container> implements
-    TarantoolContainer<Tarantool3Container> {
+public class Tarantool3Container extends GenericContainer<Tarantool3Container>
+    implements TarantoolContainer<Tarantool3Container> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Tarantool3Container.class);
 
@@ -117,7 +117,8 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
 
   @Override
   public InetSocketAddress mappedAddress() {
-    return new InetSocketAddress(getHost(), getMappedPort(TarantoolContainer.DEFAULT_TARANTOOL_PORT));
+    return new InetSocketAddress(
+        getHost(), getMappedPort(TarantoolContainer.DEFAULT_TARANTOOL_PORT));
   }
 
   @Override
@@ -150,17 +151,27 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
       this.mountDataDirectory = Utils.createTempDirectory(this.node);
       final String mountPathString = this.mountDataDirectory.toAbsolutePath().toString();
 
-      addFileSystemBind(mountPathString, TarantoolContainer.DEFAULT_DATA_DIR.toAbsolutePath().toString(),
-          BindMode.READ_WRITE, SelinuxContext.SHARED);
+      addFileSystemBind(
+          mountPathString,
+          TarantoolContainer.DEFAULT_DATA_DIR.toAbsolutePath().toString(),
+          BindMode.READ_WRITE,
+          SelinuxContext.SHARED);
 
       if (this.configPath != null && Files.isRegularFile(this.configPath)) {
-        final Path configPathInContainer = TarantoolContainer.DEFAULT_DATA_DIR.resolve(this.configPath.getFileName());
+        final Path configPathInContainer =
+            TarantoolContainer.DEFAULT_DATA_DIR.resolve(this.configPath.getFileName());
 
-        LOGGER.info("Copy tarantool configuration file from '{}' into '{}'", this.configPath, configPathInContainer);
-        withCopyFileToContainer(MountableFile.forHostPath(this.configPath),
+        LOGGER.info(
+            "Copy tarantool configuration file from '{}' into '{}'",
+            this.configPath,
+            configPathInContainer);
+        withCopyFileToContainer(
+            MountableFile.forHostPath(this.configPath),
             configPathInContainer.toAbsolutePath().toString());
       } else {
-        LOGGER.warn("Path to tarantool config file is 'null', directory or doesn't exist. Passed path: '{}'",
+        LOGGER.warn(
+            "Path to tarantool config file is 'null', directory or doesn't exist. Passed path:"
+                + " '{}'",
             this.configPath);
       }
 
@@ -169,11 +180,15 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
       } else if (this.migrationsPath == null) {
         LOGGER.warn("Migrations path doesn't passed or 'null'. Skipped...");
       } else {
-        final Path migrationsPathInContainer = TarantoolContainer.DEFAULT_DATA_DIR.resolve(this.migrationsPath.getFileName());
-        LOGGER.info("Copy tarantool migrations directory from '{}' into '{}'", this.migrationsPath,
+        final Path migrationsPathInContainer =
+            TarantoolContainer.DEFAULT_DATA_DIR.resolve(this.migrationsPath.getFileName());
+        LOGGER.info(
+            "Copy tarantool migrations directory from '{}' into '{}'",
+            this.migrationsPath,
             migrationsPathInContainer);
 
-        withCopyFileToContainer(MountableFile.forHostPath(this.migrationsPath),
+        withCopyFileToContainer(
+            MountableFile.forHostPath(this.migrationsPath),
             migrationsPathInContainer.toAbsolutePath().toString());
       }
 
@@ -190,12 +205,18 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
 
       if (this.etcdAddresses.isEmpty()) {
         LOGGER.warn(
-            "Tarantool will use the configuration from the local file system because no etcd cluster addresses were "
-                + "passed");
-        withEnv("TT_CONFIG",
-            TarantoolContainer.DEFAULT_DATA_DIR.resolve(this.configPath.getFileName()).toAbsolutePath().toString());
+            "Tarantool will use the configuration from the local file system because no etcd"
+                + " cluster addresses were passed");
+        withEnv(
+            "TT_CONFIG",
+            TarantoolContainer.DEFAULT_DATA_DIR
+                .resolve(this.configPath.getFileName())
+                .toAbsolutePath()
+                .toString());
       } else {
-        LOGGER.warn("Tarantool will use the configuration from the etcd cluster. Endpoints : {}", this.etcdAddresses);
+        LOGGER.warn(
+            "Tarantool will use the configuration from the etcd cluster. Endpoints : {}",
+            this.etcdAddresses);
         withEnv("TT_CONFIG_ETCD_ENDPOINTS", joinEtcdAddresses(this.etcdAddresses));
         withEnv("TT_CONFIG_ETCD_PREFIX", this.etcdPrefix);
       }
@@ -219,7 +240,8 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
       throw new IllegalStateException("Container is already closed. Please create new container");
     }
 
-    LOGGER.debug("Starting Tarantool3 container[instance={}, uuid={}]", this.node, this.instanceUuid);
+    LOGGER.debug(
+        "Starting Tarantool3 container[instance={}, uuid={}]", this.node, this.instanceUuid);
     super.start();
   }
 
@@ -255,16 +277,25 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container> i
       return false;
     }
     Tarantool3Container that = (Tarantool3Container) o;
-    return Objects.equals(instanceUuid, that.instanceUuid) && Objects.equals(node, that.node)
-        && Objects.equals(etcdAddresses, that.etcdAddresses) && Objects.equals(etcdPrefix,
-        that.etcdPrefix) && Objects.equals(mountDataDirectory, that.mountDataDirectory)
-        && Objects.equals(configPath, that.configPath) && Objects.equals(migrationsPath,
-        that.migrationsPath);
+    return Objects.equals(instanceUuid, that.instanceUuid)
+        && Objects.equals(node, that.node)
+        && Objects.equals(etcdAddresses, that.etcdAddresses)
+        && Objects.equals(etcdPrefix, that.etcdPrefix)
+        && Objects.equals(mountDataDirectory, that.mountDataDirectory)
+        && Objects.equals(configPath, that.configPath)
+        && Objects.equals(migrationsPath, that.migrationsPath);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), instanceUuid, node, etcdAddresses, etcdPrefix, mountDataDirectory, configPath,
+    return Objects.hash(
+        super.hashCode(),
+        instanceUuid,
+        node,
+        etcdAddresses,
+        etcdPrefix,
+        mountDataDirectory,
+        configPath,
         migrationsPath);
   }
 }

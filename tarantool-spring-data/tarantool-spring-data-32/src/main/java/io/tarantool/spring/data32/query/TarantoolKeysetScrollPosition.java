@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,7 +24,8 @@ final class TarantoolKeysetScrollPosition implements TarantoolScrollPosition {
 
   private final Object cursor;
 
-  TarantoolKeysetScrollPosition(Pair<String, ?> indexKey, PaginationDirection direction, @Nullable Object cursor) {
+  TarantoolKeysetScrollPosition(
+      Pair<String, ?> indexKey, PaginationDirection direction, @Nullable Object cursor) {
 
     Assert.notNull(direction, "PaginationDirection must not be null");
     Assert.notNull(indexKey, "indexKey must not be null");
@@ -35,7 +36,8 @@ final class TarantoolKeysetScrollPosition implements TarantoolScrollPosition {
   }
 
   /**
-   * Creates a new {@link TarantoolKeysetScrollPosition} from a key set and {@link PaginationDirection}.
+   * Creates a new {@link TarantoolKeysetScrollPosition} from a key set and {@link
+   * PaginationDirection}.
    *
    * @param indexKey must not be {@literal null}.
    * @return will never be {@literal null}.
@@ -104,7 +106,9 @@ final class TarantoolKeysetScrollPosition implements TarantoolScrollPosition {
     if (!(o instanceof TarantoolKeysetScrollPosition that)) {
       return false;
     }
-    return indexKey.equals(that.indexKey) && direction == that.direction && Objects.equals(cursor, that.cursor);
+    return indexKey.equals(that.indexKey)
+        && direction == that.direction
+        && Objects.equals(cursor, that.cursor);
   }
 
   @Override

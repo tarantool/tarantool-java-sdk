@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -43,8 +43,8 @@ public class IProtoUpdate extends IProtoBaseRequest {
   private byte[] rawKey;
   private byte[] rawOperations;
 
-
-  public IProtoUpdate(final Integer spaceId,
+  public IProtoUpdate(
+      final Integer spaceId,
       final String spaceName,
       final Integer indexId,
       final String indexName,
@@ -60,7 +60,8 @@ public class IProtoUpdate extends IProtoBaseRequest {
     this.setStreamId(streamId);
   }
 
-  public IProtoUpdate(final Integer spaceId,
+  public IProtoUpdate(
+      final Integer spaceId,
       final String spaceName,
       final Integer indexId,
       final String indexName,
@@ -87,26 +88,26 @@ public class IProtoUpdate extends IProtoBaseRequest {
     packer.addPayload(RAW_MAP_HEADER_WITH_FOUR_ITEMS);
 
     if (spaceId != null) {
-      packer.addPayload(RAW_IPROTO_SPACE_ID);  // key
-      packer.packInt(spaceId);                 // value
+      packer.addPayload(RAW_IPROTO_SPACE_ID); // key
+      packer.packInt(spaceId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_SPACE_NAME);  // key
-      packer.packString(spaceName);              // value
+      packer.addPayload(RAW_IPROTO_SPACE_NAME); // key
+      packer.packString(spaceName); // value
     }
 
     if (indexId != null) {
-      packer.addPayload(RAW_IPROTO_INDEX_ID);  // key
-      packer.packInt(indexId);                 // value
+      packer.addPayload(RAW_IPROTO_INDEX_ID); // key
+      packer.packInt(indexId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_INDEX_NAME);  // key
-      packer.packString(indexName);              // value
+      packer.addPayload(RAW_IPROTO_INDEX_NAME); // key
+      packer.packString(indexName); // value
     }
 
     packer.addPayload(RAW_IPROTO_KEY); // key
-    packValue(packer, rawKey, key);    // value
+    packValue(packer, rawKey, key); // value
 
-    packer.addPayload(RAW_IPROTO_TUPLE);           // key
-    packValue(packer, rawOperations, operations);  // value
+    packer.addPayload(RAW_IPROTO_TUPLE); // key
+    packValue(packer, rawOperations, operations); // value
 
     return getPacketFromBase(packer);
   }

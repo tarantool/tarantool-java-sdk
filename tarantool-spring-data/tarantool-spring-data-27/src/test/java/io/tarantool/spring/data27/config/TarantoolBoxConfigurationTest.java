@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -31,11 +31,9 @@ import io.tarantool.spring.data27.config.properties.TarantoolProperties;
 @SpringBootTest(classes = {TarantoolBoxConfigurationTest.Config.class})
 public class TarantoolBoxConfigurationTest extends GenericTarantoolConfigurationTest {
 
-  @MockBean
-  TarantoolBoxClient client;
+  @MockBean TarantoolBoxClient client;
 
-  @Autowired
-  private TarantoolBoxConfiguration tarantoolBoxConfiguration;
+  @Autowired private TarantoolBoxConfiguration tarantoolBoxConfiguration;
 
   @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
   @RepeatedTest(10)
@@ -49,7 +47,8 @@ public class TarantoolBoxConfigurationTest extends GenericTarantoolConfiguration
     } else {
       assertEquals(properties.getConnectionGroups().size(), boxClientBuilder.getGroups().size());
       List<InstanceConnectionGroup> connectionGroupsFromBuilder = boxClientBuilder.getGroups();
-      List<InstanceConnectionGroup> connectionGroupsFromProperty = properties.getInstanceConnectionGroups();
+      List<InstanceConnectionGroup> connectionGroupsFromProperty =
+          properties.getInstanceConnectionGroups();
 
       assertNotNull(connectionGroupsFromBuilder);
       assertNotNull(connectionGroupsFromProperty);
@@ -72,9 +71,12 @@ public class TarantoolBoxConfigurationTest extends GenericTarantoolConfiguration
       assertNull(boxClientBuilder.getHeartbeatOpts());
     } else {
       HeartbeatOpts builderHeartbeatOpts = boxClientBuilder.getHeartbeatOpts();
-      assertEquals(propertiesHeartbeatOpts.getPingInterval(), builderHeartbeatOpts.getPingInterval());
-      assertEquals(propertiesHeartbeatOpts.getDeathThreshold(), builderHeartbeatOpts.getDeathThreshold());
-      assertEquals(propertiesHeartbeatOpts.getInvalidationThreshold(),
+      assertEquals(
+          propertiesHeartbeatOpts.getPingInterval(), builderHeartbeatOpts.getPingInterval());
+      assertEquals(
+          propertiesHeartbeatOpts.getDeathThreshold(), builderHeartbeatOpts.getDeathThreshold());
+      assertEquals(
+          propertiesHeartbeatOpts.getInvalidationThreshold(),
           builderHeartbeatOpts.getInvalidationThreshold());
       assertEquals(propertiesHeartbeatOpts.getWindowSize(), builderHeartbeatOpts.getWindowSize());
     }
@@ -89,7 +91,8 @@ public class TarantoolBoxConfigurationTest extends GenericTarantoolConfiguration
     assertEquals(properties.getHost(), boxClientBuilder.getHost());
     assertEquals(properties.getPassword(), boxClientBuilder.getPassword());
     assertEquals(properties.isFetchSchema(), boxClientBuilder.isFetchSchema());
-    assertEquals(properties.isIgnoreOldSchemaVersion(), boxClientBuilder.isIgnoreOldSchemaVersion());
+    assertEquals(
+        properties.isIgnoreOldSchemaVersion(), boxClientBuilder.isIgnoreOldSchemaVersion());
 
     testProperties = writeTestPropertiesYaml(DEFAULT_PROPERTY_FILE_NAME);
   }

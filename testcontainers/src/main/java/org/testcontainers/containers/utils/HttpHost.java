@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -62,7 +62,12 @@ public class HttpHost {
     if (this.credentials == null) {
       return this.scheme + "://" + this.address.getHostString() + ":" + this.address.getPort();
     }
-    return this.scheme + "://" + this.credentials.string() + "@" + this.address.getHostString() + ":"
+    return this.scheme
+        + "://"
+        + this.credentials.string()
+        + "@"
+        + this.address.getHostString()
+        + ":"
         + this.address.getPort();
   }
 
@@ -72,8 +77,9 @@ public class HttpHost {
       return false;
     }
     HttpHost httpHost = (HttpHost) o;
-    return Objects.equals(credentials, httpHost.credentials) && Objects.equals(address,
-        httpHost.address) && Objects.equals(scheme, httpHost.scheme);
+    return Objects.equals(credentials, httpHost.credentials)
+        && Objects.equals(address, httpHost.address)
+        && Objects.equals(scheme, httpHost.scheme);
   }
 
   @Override
@@ -86,7 +92,13 @@ public class HttpHost {
     if (this.credentials == null) {
       return this.scheme + "://" + this.address.getHostString() + ":" + this.address.getPort();
     }
-    return this.scheme + "://" + this.credentials + "@" + this.address.getHostString() + ":" + this.address.getPort();
+    return this.scheme
+        + "://"
+        + this.credentials
+        + "@"
+        + this.address.getHostString()
+        + ":"
+        + this.address.getPort();
   }
 
   public static class Credentials {

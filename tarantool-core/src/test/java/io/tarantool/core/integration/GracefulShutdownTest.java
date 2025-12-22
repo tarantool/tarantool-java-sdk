@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -35,9 +35,7 @@ public class GracefulShutdownTest extends BaseTest {
 
   private static InetSocketAddress address;
 
-  @Container
-  private static final TarantoolContainer tt = new TarantoolContainer()
-      .withEnv(ENV_MAP);
+  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -46,7 +44,9 @@ public class GracefulShutdownTest extends BaseTest {
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
+    client
+        .connect(address, 3_000)
+        .get(); // todo https://github.com/tarantool/tarantool-java-ee/issues/412
     return client;
   }
 
@@ -97,7 +97,6 @@ public class GracefulShutdownTest extends BaseTest {
             otherExceptions++;
           }
         }
-
       }
       if (killTTAfterFutures <= 0 && !killed) {
         try {
@@ -115,6 +114,8 @@ public class GracefulShutdownTest extends BaseTest {
     assertTrue(requestFinishedByShutdown > 0);
     assertTrue(connectionNotEstablished >= 0);
     assertEquals(0, otherExceptions);
-    assertEquals(failedFutures, connectionClosedByShutdown + requestFinishedByShutdown + connectionNotEstablished);
+    assertEquals(
+        failedFutures,
+        connectionClosedByShutdown + requestFinishedByShutdown + connectionNotEstablished);
   }
 }

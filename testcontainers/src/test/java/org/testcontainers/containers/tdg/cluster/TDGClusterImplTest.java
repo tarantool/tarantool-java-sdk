@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -26,16 +26,21 @@ import org.testcontainers.utility.DockerImageName;
 
 class TDGClusterImplTest {
 
-  private static final DockerImageName TDG_IMAGE = DockerImageName.parse(System.getenv().getOrDefault(
-      "TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
+  private static final DockerImageName TDG_IMAGE =
+      DockerImageName.parse(
+          System.getenv().getOrDefault("TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
 
   private static final Path ROOT_CONFIG_PATH;
 
   static {
     try {
-      ROOT_CONFIG_PATH = Paths.get(
-          Objects.requireNonNull(TDGClusterImplTest.class.getClassLoader().getResource(
-              "tdg/test-cluster-configuration")).toURI());
+      ROOT_CONFIG_PATH =
+          Paths.get(
+              Objects.requireNonNull(
+                      TDGClusterImplTest.class
+                          .getClassLoader()
+                          .getResource("tdg/test-cluster-configuration"))
+                  .toURI());
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
@@ -66,8 +71,10 @@ class TDGClusterImplTest {
 
       final TDGContainer<?> core = c.core().getValue();
 
-      final List<User> users = IntStream.range(1, 100).mapToObj(i -> new User(i, String.valueOf(i)))
-          .collect(Collectors.toList());
+      final List<User> users =
+          IntStream.range(1, 100)
+              .mapToObj(i -> new User(i, String.valueOf(i)))
+              .collect(Collectors.toList());
       final List<User> sentUsers = Utils.sendUsers(users, core);
       Assertions.assertEquals(users, sentUsers);
 

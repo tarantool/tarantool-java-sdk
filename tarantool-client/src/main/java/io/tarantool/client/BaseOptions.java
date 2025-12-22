@@ -1,42 +1,43 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.client;
 
 /**
- * <p>The class implements base options for operations.</p>
+ * The class implements base options for operations.
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
  */
 public class BaseOptions implements Options {
 
-  /**
-   * Default {@link BaseOptions#timeout} value.
-   */
+  /** Default {@link BaseOptions#timeout} value. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
    */
   private final long timeout;
 
   /**
-   * <p> Stream id for operation.</p>
-   * <p> Default value: null.</p>
+   * Stream id for operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: null.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
   /**
-   * <p> This constructor creates options based on the passed parameters.</p>
+   * This constructor creates options based on the passed parameters.
    *
-   * @param timeout  see also: {@link #timeout}.
+   * @param timeout see also: {@link #timeout}.
    * @param streamId see also: {@link #streamId}.
    * @see BaseOptions.Builder#build()
    */
@@ -46,7 +47,7 @@ public class BaseOptions implements Options {
   }
 
   /**
-   * <p> Creates new builder for {@link BaseOptions} class.</p>
+   * Creates new builder for {@link BaseOptions} class.
    *
    * @return {@link BaseOptions} class builder object.
    */
@@ -55,7 +56,7 @@ public class BaseOptions implements Options {
   }
 
   /**
-   * <p> Returns timeout of operation.</p>
+   * Returns timeout of operation.
    *
    * @return {@link BaseOptions#timeout} value in milliseconds.
    */
@@ -64,18 +65,17 @@ public class BaseOptions implements Options {
   }
 
   /**
-   * <p> Returns stream id of operation.</p>
+   * Returns stream id of operation.
    *
-   * @return null - if {@link BaseOptions#streamId} is null, otherwise - {@link BaseOptions#streamId} value.
+   * @return null - if {@link BaseOptions#streamId} is null, otherwise - {@link
+   *     BaseOptions#streamId} value.
    */
   public Long getStreamId() {
     return this.streamId;
   }
 
-  /**
-   * <p> A specific builder for {@link BaseOptions} class.</p>
-   */
-  static public class Builder {
+  /** A specific builder for {@link BaseOptions} class. */
+  public static class Builder {
 
     /**
      * @see BaseOptions#timeout
@@ -88,31 +88,29 @@ public class BaseOptions implements Options {
     private Long streamId;
 
     /**
-     * <p> Sets the {@link BaseOptions#timeout} parameter (in milliseconds) when constructing an instance of a
-     * builder class. The following example creates a {@link BaseOptions} object with a specified
-     * {@link BaseOptions#timeout} parameter:
+     * Sets the {@link BaseOptions#timeout} parameter (in milliseconds) when constructing an
+     * instance of a builder class. The following example creates a {@link BaseOptions} object with
+     * a specified {@link BaseOptions#timeout} parameter:
+     *
      * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                               .builder()
+     *                               .withTimeout(2_000L)   // OK!
+     *                               .build();
      *
      *
-     *      BaseOptions options = BaseOptions
-     *                                    .builder()
-     *                                    .withTimeout(2_000L)   // OK!
-     *                                    .build();
      *
+     * }</pre>
      *
-     *      }
-     * </pre>
      * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                              .builder()
+     *                              .withTimeout(-1L) // Wrong! Throws exception!
+     *                              .build();
      *
      *
-     *      BaseOptions options = BaseOptions
-     *                                   .builder()
-     *                                   .withTimeout(-1L) // Wrong! Throws exception!
-     *                                   .build();
      *
-     *
-     *     }
-     * </pre>
+     * }</pre>
      *
      * @param timeout see {@link BaseOptions#timeout} field.
      * @return {@link BaseOptions.Builder} object.
@@ -127,30 +125,29 @@ public class BaseOptions implements Options {
     }
 
     /**
-     * <p> Sets the {@link BaseOptions#streamId} parameter when constructing an instance of a builder class. The
-     * following example creates a {@link BaseOptions} object with a specified {@link BaseOptions#streamId} parameter:
+     * Sets the {@link BaseOptions#streamId} parameter when constructing an instance of a builder
+     * class. The following example creates a {@link BaseOptions} object with a specified {@link
+     * BaseOptions#streamId} parameter:
+     *
      * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                               .builder()
+     *                               .withStreamId(5L)   // OK!
+     *                               .build();
      *
      *
-     *      BaseOptions options = BaseOptions
-     *                                    .builder()
-     *                                    .withStreamId(5L)   // OK!
-     *                                    .build();
      *
+     * }</pre>
      *
-     *      }
-     * </pre>
      * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                              .builder()
+     *                              .withStreamId(-10L) // Wrong! Throws exception!
+     *                              .build();
      *
      *
-     *      BaseOptions options = BaseOptions
-     *                                   .builder()
-     *                                   .withStreamId(-10L) // Wrong! Throws exception!
-     *                                   .build();
      *
-     *
-     *     }
-     * </pre>
+     * }</pre>
      *
      * @param streamId see {@link BaseOptions#streamId} field.
      * @return {@link BaseOptions.Builder} object.
@@ -165,7 +162,7 @@ public class BaseOptions implements Options {
     }
 
     /**
-     * <p> Builds specific {@link BaseOptions} class instance with parameters.</p>
+     * Builds specific {@link BaseOptions} class instance with parameters.
      *
      * @return {@link BaseOptions} object.
      */

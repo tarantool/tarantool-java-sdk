@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -29,8 +29,7 @@ public class IProtoResponseImpl implements IProtoMessage {
   protected Long syncId;
   protected Map<Integer, Value> bodyMap;
 
-  public IProtoResponseImpl() {
-  }
+  public IProtoResponseImpl() {}
 
   public IProtoResponseImpl(MapValue header, MapValue body) {
     this.header = header;
@@ -46,14 +45,8 @@ public class IProtoResponseImpl implements IProtoMessage {
   }
 
   protected static Map<Integer, Value> convertMap(MapValue map) {
-    return map
-        .map()
-        .entrySet()
-        .stream()
-        .collect(Collectors.toMap(
-            e -> ((IntegerValue) e.getKey()).asInt(),
-            Map.Entry::getValue
-        ));
+    return map.map().entrySet().stream()
+        .collect(Collectors.toMap(e -> ((IntegerValue) e.getKey()).asInt(), Map.Entry::getValue));
   }
 
   @Override
@@ -62,14 +55,10 @@ public class IProtoResponseImpl implements IProtoMessage {
       this.stringBuilder = new StringBuilder();
     }
 
-    this.stringBuilder
-        .append("IProtoResponseImpl(header = ")
-        .append(getHeader().toJson());
+    this.stringBuilder.append("IProtoResponseImpl(header = ").append(getHeader().toJson());
 
     if (getBody() != null) {
-      this.stringBuilder
-          .append(", body = ")
-          .append(getBody().toJson());
+      this.stringBuilder.append(", body = ").append(getBody().toJson());
     }
 
     this.stringBuilder.append(")");

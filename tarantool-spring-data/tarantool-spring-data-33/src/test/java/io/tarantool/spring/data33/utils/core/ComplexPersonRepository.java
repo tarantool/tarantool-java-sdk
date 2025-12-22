@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -13,5 +13,5 @@ import io.tarantool.spring.data33.utils.entity.CompositePersonKey;
 
 public interface ComplexPersonRepository
     extends PagingAndSortingRepository<ComplexPerson, CompositePersonKey>,
-    GenericRepositoryMethods<ComplexPerson, CompositePersonKey>,
-    GenericPaginationMethods<ComplexPerson, CompositePersonKey> {}
+        GenericRepositoryMethods<ComplexPerson, CompositePersonKey>,
+        GenericPaginationMethods<ComplexPerson, CompositePersonKey> {}

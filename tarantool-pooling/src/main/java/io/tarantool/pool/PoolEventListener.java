@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,7 +10,7 @@ package io.tarantool.pool;
  *
  * <p>The listener is optional. All callbacks are invoked with the tag and index of the affected
  * connection. Default implementations are no-ops so callers may override only needed.
- * Implementations must keep callbacks non-blocking.</p>
+ * Implementations must keep callbacks non-blocking.
  */
 public interface PoolEventListener {
 

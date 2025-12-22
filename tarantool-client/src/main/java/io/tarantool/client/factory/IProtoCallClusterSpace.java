@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,21 +21,19 @@ import io.tarantool.pool.IProtoClientPool;
 abstract class IProtoCallClusterSpace extends AbstractTarantoolSpace implements TarantoolSpace {
 
   /**
-   * <p>The balancer used when sending requests.</p>
+   * The balancer used when sending requests.
    *
    * @see TarantoolBalancer
    */
   protected final TarantoolBalancer balancer;
 
-  /**
-   * <p>Space name.</p>
-   */
+  /** Space name. */
   protected final String spaceName;
 
   /**
-   * <p> This constructor creates {@link IProtoCallClusterSpace} based on the passed parameters.</p>
+   * This constructor creates {@link IProtoCallClusterSpace} based on the passed parameters.
    *
-   * @param balancer  see also: {@link #balancer}.
+   * @param balancer see also: {@link #balancer}.
    * @param spaceName see also: {@link #spaceName}.
    */
   public IProtoCallClusterSpace(TarantoolBalancer balancer, String spaceName) {
@@ -44,7 +42,8 @@ abstract class IProtoCallClusterSpace extends AbstractTarantoolSpace implements 
   }
 
   /**
-   * <p>Converts arguments array to list of arguments by adding the space name to the beginning of the list.</p>
+   * Converts arguments array to list of arguments by adding the space name to the beginning of the
+   * list.
    *
    * @param arguments array of arguments.
    * @return list of key and options.
@@ -56,31 +55,31 @@ abstract class IProtoCallClusterSpace extends AbstractTarantoolSpace implements 
   }
 
   /**
-   * <p>Sends a low-level call request based on the passed parameters.</p>
+   * Sends a low-level call request based on the passed parameters.
    *
-   * @param options      {@link Options} object.
+   * @param options {@link Options} object.
    * @param functionName crud function name.
-   * @param args         list of arguments.
+   * @param args list of arguments.
    * @return if success - {@link CompletableFuture} with {@link IProtoResponse} object, otherwise -
-   * {@link CompletableFuture} with exception.
+   *     {@link CompletableFuture} with exception.
    */
-  public CompletableFuture<IProtoResponse> iprotoCall(Options options, String functionName, Object... args) {
+  public CompletableFuture<IProtoResponse> iprotoCall(
+      Options options, String functionName, Object... args) {
     if (options == null) {
       throw new IllegalArgumentException("options can't be null");
     }
 
-    return balancer.getNext()
+    return balancer
+        .getNext()
         .thenCompose(
-            c -> c.call(functionName,
-                TarantoolJacksonMapping.toValue(
-                    withSpaceName(args)
-                ),
-                null,
-                IProtoRequestOpts.empty()
-                    .withRequestTimeout(options.getTimeout())
-                    .withStreamId(options.getStreamId())
-            )
-        );
+            c ->
+                c.call(
+                    functionName,
+                    TarantoolJacksonMapping.toValue(withSpaceName(args)),
+                    null,
+                    IProtoRequestOpts.empty()
+                        .withRequestTimeout(options.getTimeout())
+                        .withStreamId(options.getStreamId())));
   }
 
   @Override

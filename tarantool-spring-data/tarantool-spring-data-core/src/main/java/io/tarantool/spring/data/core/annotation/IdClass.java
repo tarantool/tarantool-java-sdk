@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,9 +10,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/**
- * Annotation that allows you to mark domain classes that contain a composite key.
- */
+/** Annotation that allows you to mark domain classes that contain a composite key. */
 @Target({TYPE})
 @Retention(RUNTIME)
 public @interface IdClass {

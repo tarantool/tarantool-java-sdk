@@ -1,15 +1,14 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
 package io.tarantool.core.connection.exceptions;
 
 import io.netty.channel.ChannelException;
-
 import io.netty.handler.timeout.IdleStateEvent;
 
-final public class IdleTimeoutException extends ChannelException {
+public final class IdleTimeoutException extends ChannelException {
 
   private final IdleStateEvent event;
 

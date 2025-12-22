@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -16,12 +16,12 @@ import io.tarantool.core.connection.exceptions.IdleTimeoutException;
 import io.tarantool.core.protocol.IProtoResponse;
 
 /**
- * Basic Tarantool server response handler. Dispatches incoming message either to an error or a normal result handler.
+ * Basic Tarantool server response handler. Dispatches incoming message either to an error or a
+ * normal result handler.
  *
  * @author Ivan Bannikov
  */
-public class IncomingIProtoMessageHandler
-    extends SimpleChannelInboundHandler<IProtoResponse> {
+public class IncomingIProtoMessageHandler extends SimpleChannelInboundHandler<IProtoResponse> {
 
   private final BiConsumer<IProtoResponse, Throwable> messageHandler;
 

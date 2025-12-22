@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -76,18 +76,15 @@ import io.tarantool.core.protocol.requests.SelectAfterMode;
 public class IProtoClientImpl implements IProtoClient {
 
   public static final IProtoAuth.AuthType DEFAULT_AUTH_TYPE = IProtoAuth.AuthType.CHAP_SHA1;
-  public static final IProtoRequestOpts DEFAULT_REQUEST_OPTS = IProtoRequestOpts
-      .empty()
-      .withRequestTimeout(5000);
-  public static final WatcherOptions DEFAULT_WATCHER_OPTS = WatcherOptions
-      .builder()
-      .build();
+  public static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
+      IProtoRequestOpts.empty().withRequestTimeout(5000);
+  public static final WatcherOptions DEFAULT_WATCHER_OPTS = WatcherOptions.builder().build();
   private static final Set<IProtoFeature> FEATURES_SET_ENUM = EnumSet.allOf(IProtoFeature.class);
-  private static final List<Integer> FEATURES_LIST_INT = Arrays.stream(IProtoFeature.values())
-      .map(Enum::ordinal)
-      .collect(Collectors.toList());
+  private static final List<Integer> FEATURES_LIST_INT =
+      Arrays.stream(IProtoFeature.values()).map(Enum::ordinal).collect(Collectors.toList());
   private static final int DML_TUPLE_EXTENSION_INT = IProtoFeature.DML_TUPLE_EXTENSION.ordinal();
-  private static final int CALL_RET_TUPLE_EXTENSION_INT = IProtoFeature.CALL_RET_TUPLE_EXTENSION.ordinal();
+  private static final int CALL_RET_TUPLE_EXTENSION_INT =
+      IProtoFeature.CALL_RET_TUPLE_EXTENSION.ordinal();
   private static final String CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS =
       "Call connect before getting server details";
   private static final String SHUTDOWN_EVENT_KEY = "box.shutdown";
@@ -112,12 +109,12 @@ public class IProtoClientImpl implements IProtoClient {
   private Counter ignoredResponsesCounter;
   private Consumer<IProtoResponse> ignoredPacketsHandler;
 
-  public IProtoClientImpl(ConnectionFactory factory,
-      Timer timerService) {
+  public IProtoClientImpl(ConnectionFactory factory, Timer timerService) {
     this(factory, timerService, DEFAULT_WATCHER_OPTS, null, null, false);
   }
 
-  public IProtoClientImpl(ConnectionFactory factory,
+  public IProtoClientImpl(
+      ConnectionFactory factory,
       Timer timerService,
       WatcherOptions watcherOpts,
       MeterRegistry metricsRegistry,
@@ -130,11 +127,12 @@ public class IProtoClientImpl implements IProtoClient {
       responseErrorCounter = metricsRegistry.get("response.errors").counter();
       ignoredResponsesCounter = metricsRegistry.get("response.ignored").counter();
     }
-    this.connection = factory
-        .create(flushConsolidationHandler, this::handleIdleTimeout)
-        .listen(this::handleMessage)
-        .onClose(ConnectionCloseEvent.CLOSE_BY_REMOTE, this::handleClose)
-        .onClose(ConnectionCloseEvent.CLOSE_BY_CLIENT, this::handleClose);
+    this.connection =
+        factory
+            .create(flushConsolidationHandler, this::handleIdleTimeout)
+            .listen(this::handleMessage)
+            .onClose(ConnectionCloseEvent.CLOSE_BY_REMOTE, this::handleClose)
+            .onClose(ConnectionCloseEvent.CLOSE_BY_CLIENT, this::handleClose);
     this.fsmRegistry = new ConcurrentHashMap<>();
     this.watchers = new ConcurrentHashMap<>();
     this.syncIdSequence = new AtomicLong(0);
@@ -151,25 +149,29 @@ public class IProtoClientImpl implements IProtoClient {
     clientFeaturesEnum = FEATURES_SET_ENUM;
     clientFeaturesList = FEATURES_LIST_INT;
     if (!useTupleExtension) {
-      clientFeaturesEnum = FEATURES_SET_ENUM.stream()
-          .filter(
-              feature -> !feature.equals(IProtoFeature.DML_TUPLE_EXTENSION) &&
-                  !feature.equals(IProtoFeature.CALL_RET_TUPLE_EXTENSION)
-          )
-          .collect(Collectors.toSet());
-      clientFeaturesList = FEATURES_LIST_INT.stream()
-          .filter(
-              feature -> !feature.equals(DML_TUPLE_EXTENSION_INT) &&
-                  !feature.equals(CALL_RET_TUPLE_EXTENSION_INT)
-          )
-          .collect(Collectors.toList());
+      clientFeaturesEnum =
+          FEATURES_SET_ENUM.stream()
+              .filter(
+                  feature ->
+                      !feature.equals(IProtoFeature.DML_TUPLE_EXTENSION)
+                          && !feature.equals(IProtoFeature.CALL_RET_TUPLE_EXTENSION))
+              .collect(Collectors.toSet());
+      clientFeaturesList =
+          FEATURES_LIST_INT.stream()
+              .filter(
+                  feature ->
+                      !feature.equals(DML_TUPLE_EXTENSION_INT)
+                          && !feature.equals(CALL_RET_TUPLE_EXTENSION_INT))
+              .collect(Collectors.toList());
     }
     clientFeaturesEnum = Collections.unmodifiableSet(clientFeaturesEnum);
 
     serverProtocolVersion = new CompletableFuture<>();
     serverFeatures = new CompletableFuture<>();
-    serverProtocolVersion.completeExceptionally(new ClientException(CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS));
-    serverFeatures.completeExceptionally(new ClientException(CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS));
+    serverProtocolVersion.completeExceptionally(
+        new ClientException(CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS));
+    serverFeatures.completeExceptionally(
+        new ClientException(CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS));
   }
 
   @Override
@@ -178,7 +180,8 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<Void> connect(InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
+  public CompletableFuture<Void> connect(
+      InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
     if (gracefulShutdown) {
       // it does not send watch message if connection is not connected,
       // it sends immediately after successful connect
@@ -189,10 +192,11 @@ public class IProtoClientImpl implements IProtoClient {
     serverFeatures = new CompletableFuture<>();
     return connection
         .connect(address, timeoutMs)
-        .thenRun(() -> {
-          updateWatchers();
-          updateServerInfo();
-        });
+        .thenRun(
+            () -> {
+              updateWatchers();
+              updateServerInfo();
+            });
   }
 
   @Override
@@ -201,52 +205,68 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> authorize(String user, String password, IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> authorize(
+      String user, String password, IProtoRequestOpts opts) {
     return authorize(user, password, opts, DEFAULT_AUTH_TYPE);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> authorize(String user, String password, IProtoAuth.AuthType authType) {
+  public CompletableFuture<IProtoResponse> authorize(
+      String user, String password, IProtoAuth.AuthType authType) {
     return authorize(user, password, DEFAULT_REQUEST_OPTS, authType);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> authorize(String user, String password, IProtoRequestOpts opts,
-      IProtoAuth.AuthType authType) {
+  public CompletableFuture<IProtoResponse> authorize(
+      String user, String password, IProtoRequestOpts opts, IProtoAuth.AuthType authType) {
     Optional<Greeting> greeting = connection.getGreeting();
     if (!greeting.isPresent()) {
       CompletableFuture<IProtoResponse> promise = new CompletableFuture<>();
       promise.completeExceptionally(new ClientException("No greeting, connect firstly!"));
       return promise;
     }
-    return runRequest(new IProtoAuth(
-        user,
-        password,
-        greeting.get().getSalt(),
-        authType
-    ), opts);
+    return runRequest(new IProtoAuth(user, password, greeting.get().getSalt(), authType), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> select(int spaceId,
-      int indexId,
-      ArrayValue key,
-      int limit,
-      int offset,
-      BoxIterator iterator) {
-    return select(spaceId, null, indexId, null, key, limit, offset, iterator,
-        false, null, null, DEFAULT_REQUEST_OPTS);
+  public CompletableFuture<IProtoResponse> select(
+      int spaceId, int indexId, ArrayValue key, int limit, int offset, BoxIterator iterator) {
+    return select(
+        spaceId,
+        null,
+        indexId,
+        null,
+        key,
+        limit,
+        offset,
+        iterator,
+        false,
+        null,
+        null,
+        DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> select(int spaceId, int indexId, byte[] key, int limit, int offset,
-      BoxIterator iterator) {
-    return select(spaceId, null, indexId, null, key, limit, offset, iterator,
-        false, null, null, DEFAULT_REQUEST_OPTS);
+  public CompletableFuture<IProtoResponse> select(
+      int spaceId, int indexId, byte[] key, int limit, int offset, BoxIterator iterator) {
+    return select(
+        spaceId,
+        null,
+        indexId,
+        null,
+        key,
+        limit,
+        offset,
+        iterator,
+        false,
+        null,
+        null,
+        DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> select(Integer spaceId,
+  public CompletableFuture<IProtoResponse> select(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
       String indexName,
@@ -258,24 +278,26 @@ public class IProtoClientImpl implements IProtoClient {
       byte[] after,
       SelectAfterMode afterMode,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoSelect(
-        spaceId,
-        spaceName,
-        indexId,
-        indexName,
-        limit,
-        offset,
-        iterator.getCode(),
-        key,
-        opts.getStreamId(),
-        fetchPosition,
-        after,
-        afterMode
-    ), opts);
+    return runRequest(
+        new IProtoSelect(
+            spaceId,
+            spaceName,
+            indexId,
+            indexName,
+            limit,
+            offset,
+            iterator.getCode(),
+            key,
+            opts.getStreamId(),
+            fetchPosition,
+            after,
+            afterMode),
+        opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> select(Integer spaceId,
+  public CompletableFuture<IProtoResponse> select(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
       String indexName,
@@ -287,20 +309,21 @@ public class IProtoClientImpl implements IProtoClient {
       byte[] after,
       SelectAfterMode afterMode,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoSelect(
-        spaceId,
-        spaceName,
-        indexId,
-        indexName,
-        limit,
-        offset,
-        iterator.getCode(),
-        key,
-        opts.getStreamId(),
-        fetchPosition,
-        after,
-        afterMode
-    ), opts);
+    return runRequest(
+        new IProtoSelect(
+            spaceId,
+            spaceName,
+            indexId,
+            indexName,
+            limit,
+            offset,
+            iterator.getCode(),
+            key,
+            opts.getStreamId(),
+            fetchPosition,
+            after,
+            afterMode),
+        opts);
   }
 
   @Override
@@ -314,21 +337,16 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> insert(Integer spaceId,
-      String spaceName,
-      ArrayValue tuple,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> insert(
+      Integer spaceId, String spaceName, ArrayValue tuple, IProtoRequestOpts opts) {
     return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> insert(Integer spaceId,
-      String spaceName,
-      byte[] tuple,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> insert(
+      Integer spaceId, String spaceName, byte[] tuple, IProtoRequestOpts opts) {
     return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.getStreamId()), opts);
   }
-
 
   @Override
   public CompletableFuture<IProtoResponse> replace(int spaceId, ArrayValue tuple) {
@@ -341,25 +359,19 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> replace(Integer spaceId,
-      String spaceName,
-      ArrayValue tuple,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> replace(
+      Integer spaceId, String spaceName, ArrayValue tuple, IProtoRequestOpts opts) {
     return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> replace(Integer spaceId,
-      String spaceName,
-      byte[] tuple,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> replace(
+      Integer spaceId, String spaceName, byte[] tuple, IProtoRequestOpts opts) {
     return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> delete(int spaceId,
-      int indexId,
-      ArrayValue key) {
+  public CompletableFuture<IProtoResponse> delete(int spaceId, int indexId, ArrayValue key) {
     return delete(spaceId, null, indexId, null, key, DEFAULT_REQUEST_OPTS);
   }
 
@@ -369,92 +381,106 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> delete(Integer spaceId,
+  public CompletableFuture<IProtoResponse> delete(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
       String indexName,
       ArrayValue key,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
+    return runRequest(
+        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> delete(Integer spaceId,
+  public CompletableFuture<IProtoResponse> delete(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
       String indexName,
       byte[] key,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
+    return runRequest(
+        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> update(int spaceId,
-      int indexId,
-      ArrayValue key,
-      ArrayValue operations) {
+  public CompletableFuture<IProtoResponse> update(
+      int spaceId, int indexId, ArrayValue key, ArrayValue operations) {
     return update(spaceId, null, indexId, null, key, operations, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> update(int spaceId, int indexId, byte[] key, byte[] operations) {
+  public CompletableFuture<IProtoResponse> update(
+      int spaceId, int indexId, byte[] key, byte[] operations) {
     return update(spaceId, null, indexId, null, key, operations, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> update(Integer spaceId,
+  public CompletableFuture<IProtoResponse> update(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
       String indexName,
       ArrayValue key,
       ArrayValue operations,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoUpdate(spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
+    return runRequest(
+        new IProtoUpdate(
+            spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
         opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> update(Integer spaceId,
+  public CompletableFuture<IProtoResponse> update(
+      Integer spaceId,
       String spaceName,
       Integer indexId,
-      String indexName, byte[] key, byte[] operations,
+      String indexName,
+      byte[] key,
+      byte[] operations,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoUpdate(spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
+    return runRequest(
+        new IProtoUpdate(
+            spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
         opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> upsert(int spaceId,
-      int indexBase,
-      ArrayValue tuple,
-      ArrayValue operations) {
+  public CompletableFuture<IProtoResponse> upsert(
+      int spaceId, int indexBase, ArrayValue tuple, ArrayValue operations) {
     return upsert(spaceId, null, indexBase, tuple, operations, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> upsert(int spaceId, int indexBase, byte[] tuple, byte[] operations) {
+  public CompletableFuture<IProtoResponse> upsert(
+      int spaceId, int indexBase, byte[] tuple, byte[] operations) {
     return upsert(spaceId, null, indexBase, tuple, operations, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> upsert(Integer spaceId,
+  public CompletableFuture<IProtoResponse> upsert(
+      Integer spaceId,
       String spaceName,
       Integer indexBaseId,
       ArrayValue tuple,
       ArrayValue operations,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
+    return runRequest(
+        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
         opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> upsert(Integer spaceId,
+  public CompletableFuture<IProtoResponse> upsert(
+      Integer spaceId,
       String spaceName,
       Integer indexBaseId,
       byte[] tuple,
       byte[] operations,
       IProtoRequestOpts opts) {
-    return runRequest(new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
+    return runRequest(
+        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
         opts);
   }
 
@@ -469,16 +495,14 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> call(String function, ArrayValue args, IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> call(
+      String function, ArrayValue args, IProtoRequestOpts opts) {
     return runRequest(new IProtoCall(function, args, opts.getStreamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> call(
-      String function,
-      byte[] args,
-      byte[] formats,
-      IProtoRequestOpts opts) {
+      String function, byte[] args, byte[] formats, IProtoRequestOpts opts) {
     return runRequest(new IProtoCall(function, args, formats, opts.getStreamId()), opts);
   }
 
@@ -493,18 +517,14 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> eval(String expression,
-      ArrayValue args,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> eval(
+      String expression, ArrayValue args, IProtoRequestOpts opts) {
     return runRequest(new IProtoEval(expression, args, opts.getStreamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> eval(
-      String expression,
-      byte[] args,
-      byte[] formats,
-      IProtoRequestOpts opts) {
+      String expression, byte[] args, byte[] formats, IProtoRequestOpts opts) {
     return runRequest(new IProtoEval(expression, args, formats, opts.getStreamId()), opts);
   }
 
@@ -514,15 +534,14 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> begin(Long streamId, long streamTimeout, TransactionIsolationLevel level) {
+  public CompletableFuture<IProtoResponse> begin(
+      Long streamId, long streamTimeout, TransactionIsolationLevel level) {
     return begin(streamId, streamTimeout, level, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> begin(Long streamId,
-      long streamTimeout,
-      TransactionIsolationLevel level,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> begin(
+      Long streamId, long streamTimeout, TransactionIsolationLevel level, IProtoRequestOpts opts) {
     return runRequest(new IProtoBegin(streamId, streamTimeout, level), opts);
   }
 
@@ -547,54 +566,50 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(long statementId,
-      ArrayValue sqlBind,
-      ArrayValue options) {
+  public CompletableFuture<IProtoResponse> execute(
+      long statementId, ArrayValue sqlBind, ArrayValue options) {
     return execute(statementId, sqlBind, options, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(long statementId, byte[] sqlBind, byte[] options) {
+  public CompletableFuture<IProtoResponse> execute(
+      long statementId, byte[] sqlBind, byte[] options) {
     return execute(statementId, sqlBind, options, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(long statementId,
-      ArrayValue sqlBind,
-      ArrayValue options,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> execute(
+      long statementId, ArrayValue sqlBind, ArrayValue options, IProtoRequestOpts opts) {
     return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(long statementId, byte[] sqlBind, byte[] options,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> execute(
+      long statementId, byte[] sqlBind, byte[] options, IProtoRequestOpts opts) {
     return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(String statementText,
-      ArrayValue sqlBind,
-      ArrayValue options) {
+  public CompletableFuture<IProtoResponse> execute(
+      String statementText, ArrayValue sqlBind, ArrayValue options) {
     return execute(statementText, sqlBind, options, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(String statementText, byte[] sqlBind, byte[] options) {
+  public CompletableFuture<IProtoResponse> execute(
+      String statementText, byte[] sqlBind, byte[] options) {
     return execute(statementText, sqlBind, options, DEFAULT_REQUEST_OPTS);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(String statementText,
-      ArrayValue sqlBind,
-      ArrayValue options,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> execute(
+      String statementText, ArrayValue sqlBind, ArrayValue options, IProtoRequestOpts opts) {
     return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.getStreamId()), opts);
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> execute(String statementText, byte[] sqlBind, byte[] options,
-      IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> execute(
+      String statementText, byte[] sqlBind, byte[] options, IProtoRequestOpts opts) {
     return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.getStreamId()), opts);
   }
 
@@ -624,24 +639,28 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public CompletableFuture<IProtoResponse> id(int protocolVersion, List<Integer> features, IProtoRequestOpts opts) {
+  public CompletableFuture<IProtoResponse> id(
+      int protocolVersion, List<Integer> features, IProtoRequestOpts opts) {
     return runRequest(new IProtoId(protocolVersion, features), opts);
   }
 
   /**
-   * If key exists then add new callback to watcher for this key, otherwise create new watcher with passed callback.
-   * When client is offline it just stores callbacks and watchers and will send IPROTO_WATCH requests after connecting.
-   * When client is online it will send subscription requests immediately.
+   * If key exists then add new callback to watcher for this key, otherwise create new watcher with
+   * passed callback. When client is offline it just stores callbacks and watchers and will send
+   * IPROTO_WATCH requests after connecting. When client is online it will send subscription
+   * requests immediately.
    */
   @Override
   public void watch(String key, Consumer<IProtoResponse> callback) {
-    watchers.compute(key, (k, watcher) -> {
-      if (watcher == null) {
-        watcher = new Watcher();
-      }
-      watcher.addRawCallback(callback);
-      return watcher;
-    });
+    watchers.compute(
+        key,
+        (k, watcher) -> {
+          if (watcher == null) {
+            watcher = new Watcher();
+          }
+          watcher.addRawCallback(callback);
+          return watcher;
+        });
     if (isConnected()) {
       updateWatchers();
     }
@@ -664,11 +683,13 @@ public class IProtoClientImpl implements IProtoClient {
    * */
   @Override
   public void unwatch(String key) {
-    watchers.computeIfPresent(key, (k, watcher) -> {
-      fsmRegistry.remove(watcher.getSyncId());
-      toUnwatch.add(k);
-      return watcher;
-    });
+    watchers.computeIfPresent(
+        key,
+        (k, watcher) -> {
+          fsmRegistry.remove(watcher.getSyncId());
+          toUnwatch.add(k);
+          return watcher;
+        });
     if (isConnected()) {
       updateWatchers();
     }
@@ -681,8 +702,8 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
-  public IProtoClient onClose(ConnectionCloseEvent event,
-      BiConsumer<IProtoClient, Throwable> callback) {
+  public IProtoClient onClose(
+      ConnectionCloseEvent event, BiConsumer<IProtoClient, Throwable> callback) {
     connection.onClose(event, (c, exc) -> callback.accept(this, exc));
     return this;
   }
@@ -729,8 +750,8 @@ public class IProtoClientImpl implements IProtoClient {
 
   @Override
   public boolean hasTupleExtension() {
-    return getClientFeatures().contains(DML_TUPLE_EXTENSION) &&
-        getServerFeatures().contains(DML_TUPLE_EXTENSION);
+    return getClientFeatures().contains(DML_TUPLE_EXTENSION)
+        && getServerFeatures().contains(DML_TUPLE_EXTENSION);
   }
 
   @Override
@@ -763,14 +784,9 @@ public class IProtoClientImpl implements IProtoClient {
       WatcherStateMachine fsm = watcher.getStateContext();
       if (fsm == null) {
         long syncId = allocateSyncIds(1);
-        fsm = new WatcherStateMachine(
-            watcherEntry.getKey(),
-            syncId,
-            watcher,
-            connection,
-            watcherOpts,
-            timerService
-        );
+        fsm =
+            new WatcherStateMachine(
+                watcherEntry.getKey(), syncId, watcher, connection, watcherOpts, timerService);
         watcher.setStateContext(fsm);
         watcher.setSyncId(syncId);
         fsmRegistry.put(syncId, fsm);
@@ -783,13 +799,14 @@ public class IProtoClientImpl implements IProtoClient {
       request.setSyncId(syncId);
       connection
           .send(request)
-          .whenComplete((v, exc) -> {
-            if (exc != null) {
-              log.warn("could not send unwatch packet: %s", exc);
-              return;
-            }
-            toUnwatch.remove(key);
-          });
+          .whenComplete(
+              (v, exc) -> {
+                if (exc != null) {
+                  log.warn("could not send unwatch packet: %s", exc);
+                  return;
+                }
+                toUnwatch.remove(key);
+              });
     }
   }
 
@@ -842,13 +859,15 @@ public class IProtoClientImpl implements IProtoClient {
 
   private void handleClose(Connection conn, Throwable exc) {
     failAllRequests(exc);
-    watchers.forEach((key, watcher) -> {
-      fsmRegistry.remove(watcher.getSyncId());
-      watcher.setStateContext(null);
-    });
+    watchers.forEach(
+        (key, watcher) -> {
+          fsmRegistry.remove(watcher.getSyncId());
+          watcher.setStateContext(null);
+        });
   }
 
-  private CompletableFuture<IProtoResponse> runRequest(IProtoRequest request, IProtoRequestOpts opts) {
+  private CompletableFuture<IProtoResponse> runRequest(
+      IProtoRequest request, IProtoRequestOpts opts) {
     // init request metrics
     LongTaskTimer.Sample currentRequest = null;
     if (requestTimer != null) {
@@ -859,24 +878,26 @@ public class IProtoClientImpl implements IProtoClient {
     // init request context
     CompletableFuture<IProtoResponse> resultPromise = new CompletableFuture<>();
     long syncId = allocateSyncIds(1);
-    RequestStateMachine stateContext = new RequestStateMachine(connection, syncId, request, resultPromise, opts,
-        fsmRegistry, timerService);
+    RequestStateMachine stateContext =
+        new RequestStateMachine(
+            connection, syncId, request, resultPromise, opts, fsmRegistry, timerService);
 
     // when completed stop timeout timer and metrics
     LongTaskTimer.Sample finalCurrentRequest = currentRequest;
     CompletableFuture<IProtoResponse> promiseWithStoppers =
-        resultPromise.whenComplete((IProtoResponse resp, Throwable ex) -> {
-          if (responseErrorCounter != null) {
-            if (finalCurrentRequest != null) {
-              finalCurrentRequest.stop();
-            }
-            if (ex != null) {
-              responseErrorCounter.increment();
-            } else {
-              responseSuccessCounter.increment();
-            }
-          }
-        });
+        resultPromise.whenComplete(
+            (IProtoResponse resp, Throwable ex) -> {
+              if (responseErrorCounter != null) {
+                if (finalCurrentRequest != null) {
+                  finalCurrentRequest.stop();
+                }
+                if (ex != null) {
+                  responseErrorCounter.increment();
+                } else {
+                  responseSuccessCounter.increment();
+                }
+              }
+            });
 
     stateContext.runOnce();
     log.debug("Request \"{}\" created", request);
@@ -897,25 +918,26 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   private void updateServerInfo() {
-    id(PROTOCOL_VERSION, clientFeaturesList).whenComplete(
-        (response, ex) -> {
-          if (ex != null) {
-            this.serverProtocolVersion.completeExceptionally(ex);
-            this.serverFeatures.completeExceptionally(ex);
-          }
-          this.serverProtocolVersion.complete(response.getBodyIntegerValue(IPROTO_VERSION).asInt());
-          ArrayValue rawFeatures = response.getBodyArrayValue(IPROTO_FEATURES);
-          EnumSet<IProtoFeature> serverFeatures = EnumSet.noneOf(IProtoFeature.class);
-          // Since there are a small number of features, the complexity is linear
-          for (Value rawFeature : rawFeatures) {
-            int featureNumber = rawFeature.asIntegerValue().asInt();
-            if (featureNumber < FEATURES_SET_ENUM.size()) {
-              serverFeatures.add(IProtoFeature.valueOf(featureNumber));
-            }
-          }
-          this.serverFeatures.complete(serverFeatures);
-        }
-    );
+    id(PROTOCOL_VERSION, clientFeaturesList)
+        .whenComplete(
+            (response, ex) -> {
+              if (ex != null) {
+                this.serverProtocolVersion.completeExceptionally(ex);
+                this.serverFeatures.completeExceptionally(ex);
+              }
+              this.serverProtocolVersion.complete(
+                  response.getBodyIntegerValue(IPROTO_VERSION).asInt());
+              ArrayValue rawFeatures = response.getBodyArrayValue(IPROTO_FEATURES);
+              EnumSet<IProtoFeature> serverFeatures = EnumSet.noneOf(IProtoFeature.class);
+              // Since there are a small number of features, the complexity is linear
+              for (Value rawFeature : rawFeatures) {
+                int featureNumber = rawFeature.asIntegerValue().asInt();
+                if (featureNumber < FEATURES_SET_ENUM.size()) {
+                  serverFeatures.add(IProtoFeature.valueOf(featureNumber));
+                }
+              }
+              this.serverFeatures.complete(serverFeatures);
+            });
   }
 
   private void handleIdleTimeout(Connection connection, Throwable exc) {

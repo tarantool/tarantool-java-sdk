@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -21,9 +21,7 @@ import org.jsonschema2pojo.Schema;
 import org.jsonschema2pojo.rules.DefaultRule;
 import org.jsonschema2pojo.rules.RuleFactory;
 
-/**
- * Implementation of {@link DefaultRule} that ignore default values
- */
+/** Implementation of {@link DefaultRule} that ignore default values */
 public class WithoutDefaultRule extends DefaultRule {
 
   private final RuleFactory ruleFactory;
@@ -35,20 +33,22 @@ public class WithoutDefaultRule extends DefaultRule {
 
   /**
    * Applies this schema rule to take the required code generation steps.
-   * <p>
-   * Default values are implemented by assigning an expression to the given field (so when instances of the generated
-   * POJO are created, its fields will then contain their default values).
-   * <p>
-   * Collections (Lists and Sets) are initialized to an empty collection, even when no default value is present in the
-   * schema (node is null).
+   *
+   * <p>Default values are implemented by assigning an expression to the given field (so when
+   * instances of the generated POJO are created, its fields will then contain their default
+   * values).
+   *
+   * <p>Collections (Lists and Sets) are initialized to an empty collection, even when no default
+   * value is present in the schema (node is null).
    *
    * @param nodeName the name of the property which has (or may have) a default
-   * @param node     the default node (may be null if no default node was present for this property)
-   * @param field    the Java field that has added to a generated type to represent this property
+   * @param node the default node (may be null if no default node was present for this property)
+   * @param field the Java field that has added to a generated type to represent this property
    * @return field, which will have an init expression is appropriate
    */
   @Override
-  public JFieldVar apply(String nodeName, JsonNode node, JsonNode parent, JFieldVar field, Schema currentSchema) {
+  public JFieldVar apply(
+      String nodeName, JsonNode node, JsonNode parent, JFieldVar field, Schema currentSchema) {
 
     String fieldType = field.type().fullName();
 

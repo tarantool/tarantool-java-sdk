@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -26,8 +26,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class UtilsTest {
 
-  @TempDir
-  private static Path TEMP_DIR;
+  @TempDir private static Path TEMP_DIR;
 
   @Test
   @EnabledIf(value = "isUnzipAvailable", disabledReason = "Утилита `unzip` не установлена на хосте")
@@ -68,14 +67,19 @@ class UtilsTest {
 
     final List<Path> unzippedFiles = Arrays.asList(unzippedFile1, unzippedFile2, unzippedFile3);
     for (int i = 0; i < unzippedFiles.size(); i++) {
-      Assertions.assertTrue(PathUtils.directoryAndFileContentEquals(files.get(i), unzippedFiles.get(i)));
+      Assertions.assertTrue(
+          PathUtils.directoryAndFileContentEquals(files.get(i), unzippedFiles.get(i)));
     }
   }
 
   private static void execUnzip(Path source, Path target) {
     try {
-      final ProcessBuilder pb = new ProcessBuilder("unzip", source.toAbsolutePath().toString(), "-d",
-          target.toAbsolutePath().toString());
+      final ProcessBuilder pb =
+          new ProcessBuilder(
+              "unzip",
+              source.toAbsolutePath().toString(),
+              "-d",
+              target.toAbsolutePath().toString());
       final Process process = pb.start();
       if (process.waitFor() != 0) {
         process.destroyForcibly();
@@ -109,17 +113,13 @@ class UtilsTest {
         Arguments.of("MY_IMAGE", "", "my-registry/my-image:latest"),
         Arguments.of(null, "default", "default"),
         Arguments.of("", "default", "default"),
-        Arguments.of("EMPTY_VAR", "default", "default")
-    );
+        Arguments.of("EMPTY_VAR", "default", "default"));
   }
 
   @ParameterizedTest
   @MethodSource("positiveResolveContainerImageParams")
   void testResolveContainerImage_Positive(
-      String propertyName,
-      String defaultValue,
-      String expected
-  ) {
+      String propertyName, String defaultValue, String expected) {
     // Arrange
     String propValue = null;
     if (propertyName != null && propertyName.equals("MY_IMAGE")) {
@@ -137,25 +137,22 @@ class UtilsTest {
     }
   }
 
-
   private static Stream<Arguments> negativeResolveContainerImageParams() {
     return Stream.of(
         // propertyName, defaultValue, expectedExceptionMessage
         Arguments.of(null, null),
         Arguments.of("", ""),
         Arguments.of("", null),
-        Arguments.of(null, "")
-    );
+        Arguments.of(null, ""));
   }
 
   @ParameterizedTest
   @MethodSource("negativeResolveContainerImageParams")
-  void testResolveContainerImage_Negative(
-      String propertyName,
-      String defaultValue
-  ) {
-    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-        () -> Utils.resolveContainerImage(propertyName, defaultValue));
+  void testResolveContainerImage_Negative(String propertyName, String defaultValue) {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> Utils.resolveContainerImage(propertyName, defaultValue));
     assertEquals("Both propertyName and defaultImageName are null or empty", ex.getMessage());
   }
 }

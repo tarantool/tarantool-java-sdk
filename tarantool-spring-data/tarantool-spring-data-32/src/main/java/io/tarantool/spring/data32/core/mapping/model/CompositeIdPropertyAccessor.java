@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,9 +17,7 @@ import org.springframework.util.ReflectionUtils;
 
 import io.tarantool.spring.data.mapping.model.CompositeKey;
 
-/**
- * Class that allows to convert {@code @Id} annotated fields in an entity into a composite key.
- */
+/** Class that allows to convert {@code @Id} annotated fields in an entity into a composite key. */
 public class CompositeIdPropertyAccessor extends TargetAwareIdentifierAccessor {
 
   private final Map<Field, Field> entityIdClassFields;
@@ -28,9 +26,8 @@ public class CompositeIdPropertyAccessor extends TargetAwareIdentifierAccessor {
 
   private final Object target;
 
-  public CompositeIdPropertyAccessor(Object target,
-      @NonNull Map<Field, Field> entityIdClassFields,
-      Class<?> idClassType) {
+  public CompositeIdPropertyAccessor(
+      Object target, @NonNull Map<Field, Field> entityIdClassFields, Class<?> idClassType) {
 
     super(target);
     this.target = target;
@@ -42,23 +39,29 @@ public class CompositeIdPropertyAccessor extends TargetAwareIdentifierAccessor {
   public Object getIdentifier() {
     try {
       return generateIdentifier();
-    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+    } catch (InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }
 
   /**
-   * Generates a composite identifier from those marked with the {@code @Id} annotation in a domain class based on
-   * fields, specified in the composite key class.
+   * Generates a composite identifier from those marked with the {@code @Id} annotation in a domain
+   * class based on fields, specified in the composite key class.
    *
    * @return identifier
    * @throws IllegalAccessException if the class or its nullary constructor is not accessible.
-   * @throws InstantiationException if this {@code Class} represents an abstract class, an interface, an array class, a
-   *                                primitive type, or void; or if the class has no nullary constructor; or if the
-   *                                instantiation fails for some other reason.
+   * @throws InstantiationException if this {@code Class} represents an abstract class, an
+   *     interface, an array class, a primitive type, or void; or if the class has no nullary
+   *     constructor; or if the instantiation fails for some other reason.
    */
   private Object generateIdentifier()
-      throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+      throws InstantiationException,
+          IllegalAccessException,
+          NoSuchMethodException,
+          InvocationTargetException {
     Assert.notNull(this.target, "target object must be not null!");
     Object compositeKey = idClassType.getDeclaredConstructor().newInstance();
     for (Map.Entry<Field, Field> fieldPair : this.entityIdClassFields.entrySet()) {
@@ -68,13 +71,15 @@ public class CompositeIdPropertyAccessor extends TargetAwareIdentifierAccessor {
   }
 
   /**
-   * Write the composite primary key fields provided in the entity to the class which implements {@link CompositeKey}.
+   * Write the composite primary key fields provided in the entity to the class which implements
+   * {@link CompositeKey}.
    *
-   * @param compositeKey      object of the composite key into which the values are written.
-   * @param entityField       field from the represented entity.
+   * @param compositeKey object of the composite key into which the values are written.
+   * @param entityField field from the represented entity.
    * @param compositeKeyField field from the composite key class.
    */
-  private void writeValuesFromEntityId(Object compositeKey, Field entityField, Field compositeKeyField) {
+  private void writeValuesFromEntityId(
+      Object compositeKey, Field entityField, Field compositeKeyField) {
     ReflectionUtils.makeAccessible(entityField);
     ReflectionUtils.makeAccessible(compositeKeyField);
 

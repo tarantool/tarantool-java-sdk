@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -12,45 +12,45 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * TODO: Rename this class to a more elegant name.
- */
+/** TODO: Rename this class to a more elegant name. */
 public class OnlyKeyValueOptions implements OptionsMap {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OnlyKeyValueOptions.class);
-  /**
-   * <p>Default value for {@link #timeout}.</p>
-   */
+
+  /** Default value for {@link #timeout}. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * connector to Tarantool and the time when the answer will come from Tarantool to connector.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the connector to Tarantool and the time when the answer will come from Tarantool
+   * to connector.
    */
   private final Long timeout;
 
   /**
-   * <p> Stream id for count operation.</p>
-   * <p> Default value: {@code null}.</p>
+   * Stream id for count operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: {@code null}.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
-  /**
-   * <p>A map containing the correspondence between option names and their meanings.</p>
-   */
+  /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> options;
 
   /**
-   * <p>Creates a {@link OnlyKeyValueOptions} object with the given parameters.</p>
+   * Creates a {@link OnlyKeyValueOptions} object with the given parameters.
    *
-   * @param timeout  {@link #timeout}
+   * @param timeout {@link #timeout}
    * @param streamId {@link #streamId}
-   * @param options  {@link #options}
+   * @param options {@link #options}
    * @see OnlyKeyValueOptions
    */
   public OnlyKeyValueOptions(Long timeout, Long streamId, Map<String, Object> options) {
@@ -61,7 +61,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link Builder} object
    */
@@ -70,7 +70,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
   }
 
   /**
-   * <p>Returns value of timeout option.</p>
+   * Returns value of timeout option.
    *
    * @return {@link #timeout} value.
    */
@@ -80,7 +80,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
   }
 
   /**
-   * <p>Returns value of stream id option.</p>
+   * Returns value of stream id option.
    *
    * @return {@link #streamId} value.
    */
@@ -90,7 +90,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
   }
 
   /**
-   * <p>Returns an immutable option map for the count operation.</p>
+   * Returns an immutable option map for the count operation.
    *
    * @return {@link Map} object.
    */
@@ -100,29 +100,23 @@ public class OnlyKeyValueOptions implements OptionsMap {
   }
 
   /**
-   * <p>Builder class for {@link OnlyKeyValueOptions}.</p>
+   * Builder class for {@link OnlyKeyValueOptions}.
    *
    * @see OnlyKeyValueOptions
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link OnlyKeyValueOptions#options}.</p>
-     */
+    /** See also: {@link OnlyKeyValueOptions#options}. */
     private final Map<String, Object> options = new HashMap<>();
 
-    /**
-     * <p>See also: {@link OnlyKeyValueOptions#timeout}.</p>
-     */
+    /** See also: {@link OnlyKeyValueOptions#timeout}. */
     private long timeout = DEFAULT_TIMEOUT;
 
-    /**
-     * <p>See also: {@link OnlyKeyValueOptions#streamId}.</p>
-     */
+    /** See also: {@link OnlyKeyValueOptions#streamId}. */
     private Long streamId;
 
     /**
-     * <p>Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.</p>
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
      *
      * @param timeout value of timeout option.
      * @return {@link Builder} object.
@@ -139,7 +133,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
     }
 
     /**
-     * <p>Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.
      *
      * @param streamId value of stream id option
      * @return {@link Builder} object
@@ -156,9 +150,10 @@ public class OnlyKeyValueOptions implements OptionsMap {
     }
 
     /**
-     * <p>Adds options by name into {@link #options} map. Name parameter should not be equal {@code null}.</p>
+     * Adds options by name into {@link #options} map. Name parameter should not be equal {@code
+     * null}.
      *
-     * @param name  name of option
+     * @param name name of option
      * @param value value of option
      * @see OnlyKeyValueOptions
      * @see Builder
@@ -172,9 +167,9 @@ public class OnlyKeyValueOptions implements OptionsMap {
     }
 
     /**
-     * <p>Sets options by name and value. OptionName parameter should not be equal {@code null}.</p>
+     * Sets options by name and value. OptionName parameter should not be equal {@code null}.
      *
-     * @param optionName  name of option
+     * @param optionName name of option
      * @param optionValue value of option
      * @return {@link Builder}
      * @see OnlyKeyValueOptions
@@ -185,7 +180,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
     }
 
     /**
-     * <p>Builds object of {@link OnlyKeyValueOptions} class.</p>
+     * Builds object of {@link OnlyKeyValueOptions} class.
      *
      * @return {@link OnlyKeyValueOptions} object
      * @see OnlyKeyValueOptions

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -33,8 +33,8 @@ public class IProtoWatch extends IProtoBaseRequest {
     preparePacker(packer);
     packer.addPayload(RAW_MAP_HEADER_WITH_ONE_ITEM);
 
-    packer.addPayload(RAW_IPROTO_EVENT_KEY);  // key
-    packer.packString(eventKey);              // value
+    packer.addPayload(RAW_IPROTO_EVENT_KEY); // key
+    packer.packString(eventKey); // value
 
     return getPacketFromBase(packer);
   }
@@ -65,10 +65,7 @@ public class IProtoWatch extends IProtoBaseRequest {
   public String toString() {
     if (this.stringBuilder == null) {
       this.stringBuilder = new StringBuilder();
-      this.stringBuilder
-          .append("IProtoWatch(key = ")
-          .append(eventKey)
-          .append(")");
+      this.stringBuilder.append("IProtoWatch(key = ").append(eventKey).append(")");
     }
     return this.stringBuilder.toString();
   }

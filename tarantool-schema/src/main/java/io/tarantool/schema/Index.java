@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -24,8 +24,7 @@ public class Index {
   Map<String, Object> opts;
   List<Object> parts;
 
-  public Index() {
-  }
+  public Index() {}
 
   public int getSpaceId() {
     return spaceId;
@@ -123,13 +122,21 @@ public class Index {
 
   @Override
   public String toString() {
-    return "Index{" +
-        "spaceId=" + spaceId +
-        ", indexId=" + indexId +
-        ", name='" + name + '\'' +
-        ", type='" + type + '\'' +
-        ", opts=" + opts +
-        ", parts=" + parts +
-        '}';
+    return "Index{"
+        + "spaceId="
+        + spaceId
+        + ", indexId="
+        + indexId
+        + ", name='"
+        + name
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + ", opts="
+        + opts
+        + ", parts="
+        + parts
+        + '}';
   }
 }

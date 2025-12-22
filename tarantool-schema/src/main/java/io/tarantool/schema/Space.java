@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -159,15 +159,25 @@ public class Space {
 
   @Override
   public String toString() {
-    return "Space{" +
-        "id=" + id +
-        ", owner=" + owner +
-        ", name='" + name + '\'' +
-        ", engine='" + engine + '\'' +
-        ", fieldCount=" + fieldCount +
-        ", flags=" + flags +
-        ", format=" + format +
-        ", indexes=" + indexes +
-        '}';
+    return "Space{"
+        + "id="
+        + id
+        + ", owner="
+        + owner
+        + ", name='"
+        + name
+        + '\''
+        + ", engine='"
+        + engine
+        + '\''
+        + ", fieldCount="
+        + fieldCount
+        + ", flags="
+        + flags
+        + ", format="
+        + format
+        + ", indexes="
+        + indexes
+        + '}';
   }
 }

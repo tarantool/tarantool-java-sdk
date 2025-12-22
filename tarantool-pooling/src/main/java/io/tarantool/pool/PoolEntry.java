@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -33,9 +33,9 @@ import io.tarantool.core.protocol.IProtoResponse;
 
 /**
  * Client/connection controller for pool.
- * <p>
- * This class manages its own instance of {@link io.tarantool.core.IProtoClient}, starts heartbeats if need, controls
- * invalidation and reconnection process.
+ *
+ * <p>This class manages its own instance of {@link io.tarantool.core.IProtoClient}, starts
+ * heartbeats if need, controls invalidation and reconnection process.
  *
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
  */
@@ -46,31 +46,26 @@ final class PoolEntry {
    *
    * @see io.tarantool.core.protocol.IProtoRequestOpts
    */
-  private static final IProtoRequestOpts firstPingOpts = IProtoRequestOpts
-      .empty()
-      .withRequestTimeout(1000);
+  private static final IProtoRequestOpts firstPingOpts =
+      IProtoRequestOpts.empty().withRequestTimeout(1000);
 
-  /**
-   * Logger instance.
-   */
+  /** Logger instance. */
   private static final Logger log = LoggerFactory.getLogger(PoolEntry.class);
 
-  /**
-   * Deque for sliding window.
-   */
+  /** Deque for sliding window. */
   private final ArrayDeque<Integer> window;
 
   /**
    * Atomic variable passed from pool for counting unavailable connections.
-   * <p>
-   * When connection becomes unavailable, PoolEntry increments it.
+   *
+   * <p>When connection becomes unavailable, PoolEntry increments it.
    */
   private final AtomicInteger unavailable;
 
   /**
    * Atomic variable passed from pool for counting connections in reconnecting state.
-   * <p>
-   * When connection is being closed and reconnect started, PoolEntry increments it.
+   *
+   * <p>When connection is being closed and reconnect started, PoolEntry increments it.
    */
   private final AtomicInteger reconnecting;
 
@@ -81,9 +76,7 @@ final class PoolEntry {
    */
   private final HeartbeatOpts heartbeatOpts;
 
-  /**
-   * Instance of {@link io.tarantool.core.IProtoClient}.
-   */
+  /** Instance of {@link io.tarantool.core.IProtoClient}. */
   private final IProtoClient client;
 
   /**
@@ -93,170 +86,138 @@ final class PoolEntry {
    */
   private final IProtoRequestOpts heartbeatPingOpts;
 
-  /**
-   * Instance of {@link io.tarantool.pool.InstanceConnectionGroup}.
-   */
+  /** Instance of {@link io.tarantool.pool.InstanceConnectionGroup}. */
   private final InstanceConnectionGroup group;
 
-  /**
-   * Tag from group.
-   */
+  /** Tag from group. */
   private final String tag;
 
   /**
    * Instance of netty HashedWheelTimer.
-   * <p>
-   * Required for heartbeats and reconnecting tasks.
+   *
+   * <p>Required for heartbeats and reconnecting tasks.
    */
   private final Timer timerService;
 
-  /**
-   * Flag for graceful shutdown handling.
-   */
+  /** Flag for graceful shutdown handling. */
   private final boolean gracefulShutdown;
 
-  /**
-   * Death threshold from {@link io.tarantool.pool.HeartbeatOpts}.
-   */
+  /** Death threshold from {@link io.tarantool.pool.HeartbeatOpts}. */
   private final int deathThreshold;
 
-  /**
-   * Count of ping failed, computed from window size and percent of failures.
-   */
+  /** Count of ping failed, computed from window size and percent of failures. */
   private final int failedPingsThreshold;
 
-  /**
-   * Index of entry within group.
-   */
+  /** Index of entry within group. */
   private final int index;
 
-  /**
-   * Window size from {@link io.tarantool.pool.HeartbeatOpts}.
-   */
+  /** Window size from {@link io.tarantool.pool.HeartbeatOpts}. */
   private final int windowSize;
 
-  /**
-   * Time in milliseconds after that reconnect task will be executed.
-   */
+  /** Time in milliseconds after that reconnect task will be executed. */
   private final long reconnectAfter;
 
   /**
-   * Function that send IProto packet that will be sent to tarantool. The response of this packet will be considered as
-   * pong result.
+   * Function that send IProto packet that will be sent to tarantool. The response of this packet
+   * will be considered as pong result.
    */
-  private final BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>> pingFunction;
+  private final BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>>
+      pingFunction;
 
-  /**
-   * Parameter that will say tarantool not to use Tuple Extension.
-   */
+  /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
 
-  /**
-   * Metrics registry.
-   */
+  /** Metrics registry. */
   private final MeterRegistry metricsRegistry;
 
-  /**
-   * Optional listener for pool events.
-   */
+  /** Optional listener for pool events. */
   private final PoolEventListener poolEventListener;
+
   /**
    * Connection future.
-   * <p>
-   * It will be returned to all out clients wanting to obtain this client. It is recreated only if client is
-   * reconnected.
+   *
+   * <p>It will be returned to all out clients wanting to obtain this client. It is recreated only
+   * if client is reconnected.
    */
   private CompletableFuture<IProtoClient> connectFuture;
-  /**
-   * Last heartbeat state/event.
-   */
+
+  /** Last heartbeat state/event. */
   private HeartbeatEvent lastHeartbeatEvent;
-  /**
-   * Heartbeat timer/task.
-   */
+
+  /** Heartbeat timer/task. */
   private Timeout heartbeatTask;
-  /**
-   * Reconnection task.
-   */
+
+  /** Reconnection task. */
   private Timeout reconnectTask;
-  /**
-   * Flag signaling if heartbeat started or not.
-   */
+
+  /** Flag signaling if heartbeat started or not. */
   private boolean isHeartbeatStarted;
+
   /**
    * Flag signaling if connection is available or not.
-   * <p>
-   * When connection comes to invalidated state or killed, pool entry is locked and connection will not be returned to
-   * outer client.
+   *
+   * <p>When connection comes to invalidated state or killed, pool entry is locked and connection
+   * will not be returned to outer client.
    */
   private boolean isLocked;
-  /**
-   * Count of failed pings occurred in invalidated state.
-   */
+
+  /** Count of failed pings occurred in invalidated state. */
   private int currentDeathPings;
-  /**
-   * Count of failed pings within window.
-   */
+
+  /** Count of failed pings within window. */
   private int currentFailedPings;
-  /**
-   * Unix timestamp for correcting ping scheduling.
-   */
+
+  /** Unix timestamp for correcting ping scheduling. */
   private long lastPingTs;
+
   /**
    * Connect timeout in milliseconds.
-   * <p>
-   * Sets by pool.
+   *
+   * <p>Sets by pool.
    */
   private long connectTimeout;
-  /**
-   * Count of successul connect attempts.
-   */
+
+  /** Count of successul connect attempts. */
   private Counter connectSuccess;
 
-  /**
-   * Count of failed connect attempts.
-   */
+  /** Count of failed connect attempts. */
   private Counter connectErrors;
 
-  /**
-   * Time of connect.
-   */
+  /** Time of connect. */
   private LongTaskTimer connectTime;
 
-  /**
-   * Count of successful heartbeat ping requests.
-   */
+  /** Count of successful heartbeat ping requests. */
   private Counter heartbeatSuccess;
 
-  /**
-   * Count of failed heartbeat ping requests.
-   */
+  /** Count of failed heartbeat ping requests. */
   private Counter heartbeatErrors;
 
-  /**
-   * Time of ping request.
-   */
+  /** Time of ping request. */
   private LongTaskTimer heartbeatTime;
 
   /**
    * Constructor for PoolEntry.
    *
-   * @param factory               instance of {@link io.tarantool.core.connection.ConnectionFactory}
-   * @param timerService          instance of HashedWheelTimer
-   * @param group                 instance of {@link io.tarantool.pool.InstanceConnectionGroup}
-   * @param index                 index of pool entry within group
-   * @param gracefulShutdown      a boolean flag for graceful shutdown
-   * @param connectTimeout        connection timeout in milliseconds
-   * @param reconnectAfter        reconnect time in milliseconds
-   * @param heartbeatOpts         options for heartbeats, instance of {@link io.tarantool.pool.HeartbeatOpts}
-   * @param watcherOpts           options for connection watcher, instance of {@link io.tarantool.core.WatcherOptions}
-   * @param unavailable           atomic variable to count unavailable clients
-   * @param reconnecting          atomic variable to count client in reconnecting state
-   * @param registry              instance of {@code io.micrometer.core.instrument.MeterRegistry}
-   * @param ignoredPacketsHandler callback for accepting packets which were ignored by IProtoClient connections.
-   * @param useTupleExtension     use TUPLE_EXT feature if true.
+   * @param factory instance of {@link io.tarantool.core.connection.ConnectionFactory}
+   * @param timerService instance of HashedWheelTimer
+   * @param group instance of {@link io.tarantool.pool.InstanceConnectionGroup}
+   * @param index index of pool entry within group
+   * @param gracefulShutdown a boolean flag for graceful shutdown
+   * @param connectTimeout connection timeout in milliseconds
+   * @param reconnectAfter reconnect time in milliseconds
+   * @param heartbeatOpts options for heartbeats, instance of {@link
+   *     io.tarantool.pool.HeartbeatOpts}
+   * @param watcherOpts options for connection watcher, instance of {@link
+   *     io.tarantool.core.WatcherOptions}
+   * @param unavailable atomic variable to count unavailable clients
+   * @param reconnecting atomic variable to count client in reconnecting state
+   * @param registry instance of {@code io.micrometer.core.instrument.MeterRegistry}
+   * @param ignoredPacketsHandler callback for accepting packets which were ignored by IProtoClient
+   *     connections.
+   * @param useTupleExtension use TUPLE_EXT feature if true.
    */
-  public PoolEntry(ConnectionFactory factory,
+  public PoolEntry(
+      ConnectionFactory factory,
       Timer timerService,
       InstanceConnectionGroup group,
       int index,
@@ -272,8 +233,14 @@ final class PoolEntry {
       boolean useTupleExtension,
       PoolEventListener poolEventListener) {
     this.metricsRegistry = registry;
-    this.client = new IProtoClientImpl(
-        factory, timerService, watcherOpts, registry, group.getFlushConsolidationHandler(), useTupleExtension);
+    this.client =
+        new IProtoClientImpl(
+            factory,
+            timerService,
+            watcherOpts,
+            registry,
+            group.getFlushConsolidationHandler(),
+            useTupleExtension);
     // heartbeat related
     this.isHeartbeatStarted = false;
     this.lastHeartbeatEvent = HeartbeatEvent.KILL;
@@ -287,9 +254,8 @@ final class PoolEntry {
       this.pingFunction = null;
     } else {
       this.heartbeatOpts = heartbeatOpts;
-      this.heartbeatPingOpts = IProtoRequestOpts
-          .empty()
-          .withRequestTimeout(heartbeatOpts.getPingInterval());
+      this.heartbeatPingOpts =
+          IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
       this.deathThreshold = heartbeatOpts.getDeathThreshold();
       this.failedPingsThreshold = heartbeatOpts.getInvalidationThreshold();
       this.windowSize = heartbeatOpts.getWindowSize();
@@ -329,8 +295,8 @@ final class PoolEntry {
 
   /**
    * Method for locking pool entry.
-   * <p>
-   * Also increments count of unavailable clients.
+   *
+   * <p>Also increments count of unavailable clients.
    */
   public void lock() {
     if (!isLocked) {
@@ -341,8 +307,8 @@ final class PoolEntry {
 
   /**
    * Method for unlocking pool entry.
-   * <p>
-   * Also decrements count of unavailable clients and cancels reconnect task.
+   *
+   * <p>Also decrements count of unavailable clients and cancels reconnect task.
    */
   public void unlock() {
     if (isLocked) {
@@ -361,17 +327,13 @@ final class PoolEntry {
     return isLocked;
   }
 
-  /**
-   * Closes client and stops heartbeat and reconnect tasks if started.
-   */
+  /** Closes client and stops heartbeat and reconnect tasks if started. */
   public void close() {
     stopReconnectTask();
     shutdown();
   }
 
-  /**
-   * Closes client and stops heartbeat task is started.
-   */
+  /** Closes client and stops heartbeat task is started. */
   public void shutdown() {
     connectFuture = null;
     stopHeartbeat();
@@ -404,15 +366,18 @@ final class PoolEntry {
     this.connectTimeout = timeout;
   }
 
-  /**
-   * Heartbeat starter.
-   */
+  /** Heartbeat starter. */
   public void startHeartbeat() {
     if (isHeartbeatStarted || heartbeatOpts == null) {
       return;
     }
-    log.info("heartbeat: start for {}/{}: failures = {}, interval = {}, death pings = {}",
-        tag, index, failedPingsThreshold, heartbeatOpts.getPingInterval(), deathThreshold);
+    log.info(
+        "heartbeat: start for {}/{}: failures = {}, interval = {}, death pings = {}",
+        tag,
+        index,
+        failedPingsThreshold,
+        heartbeatOpts.getPingInterval(),
+        deathThreshold);
     isHeartbeatStarted = true;
     window.clear();
     // heartbeat is being started immediately after first check so it is
@@ -422,16 +387,11 @@ final class PoolEntry {
     currentDeathPings = 0;
     currentFailedPings = 0;
     fire(HeartbeatEvent.ACTIVATE);
-    heartbeatTask = timerService.newTimeout(
-        this::ping,
-        heartbeatOpts.getPingInterval(),
-        TimeUnit.MILLISECONDS
-    );
+    heartbeatTask =
+        timerService.newTimeout(this::ping, heartbeatOpts.getPingInterval(), TimeUnit.MILLISECONDS);
   }
 
-  /**
-   * Heartbeat stopper.
-   */
+  /** Heartbeat stopper. */
   public void stopHeartbeat() {
     isHeartbeatStarted = false;
     if (heartbeatTask != null) {
@@ -448,35 +408,30 @@ final class PoolEntry {
   private CompletableFuture<IProtoClient> internalConnect() {
     log.info("connect {}/{}", tag, index);
     LongTaskTimer.Sample timer = startTimer(connectTime);
-    CompletableFuture<?> future = client.connect(
-        group.getAddress(),
-        connectTimeout,
-        gracefulShutdown
-    );
+    CompletableFuture<?> future =
+        client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
     String user = group.getUser();
-    connectFuture = future
-        .thenCompose(greeting -> {
-          stopTimer(timer);
-          if (user != null) {
-            return client.authorize(
-                user,
-                group.getPassword(),
-                group.getAuthType()
-            );
-          }
-          return client.ping(firstPingOpts);
-        })
-        .thenApply(r -> client)
-        .whenComplete(this::onConnectComplete);
+    connectFuture =
+        future
+            .thenCompose(
+                greeting -> {
+                  stopTimer(timer);
+                  if (user != null) {
+                    return client.authorize(user, group.getPassword(), group.getAuthType());
+                  }
+                  return client.ping(firstPingOpts);
+                })
+            .thenApply(r -> client)
+            .whenComplete(this::onConnectComplete);
     return connectFuture;
   }
 
   /**
    * Callback for {@link java.util.concurrent.CompletableFuture#whenComplete}.
-   * <p>
-   * Handles connection error if occurred, starts heartbeat.
    *
-   * @param r   any result of connection operation
+   * <p>Handles connection error if occurred, starts heartbeat.
+   *
+   * @param r any result of connection operation
    * @param exc exception occurred during connection process
    */
   private void onConnectComplete(Object r, Throwable exc) {
@@ -500,7 +455,7 @@ final class PoolEntry {
   /**
    * Handler for connection close.
    *
-   * @param r   connection instance
+   * @param r connection instance
    * @param exc exception which led to connection close
    */
   private void handleConnectError(Object r, Throwable exc) {
@@ -516,19 +471,15 @@ final class PoolEntry {
     connectAfter();
   }
 
-  /**
-   * Reconnect task scheduler.
-   */
+  /** Reconnect task scheduler. */
   private void connectAfter() {
     log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
     if (reconnectTask == null) {
       reconnecting.incrementAndGet();
     }
-    reconnectTask = timerService.newTimeout(
-        timeout -> internalConnect(),
-        reconnectAfter,
-        TimeUnit.MILLISECONDS
-    );
+    reconnectTask =
+        timerService.newTimeout(
+            timeout -> internalConnect(), reconnectAfter, TimeUnit.MILLISECONDS);
     emit(listener -> listener.onReconnectScheduled(tag, index, reconnectAfter));
   }
 
@@ -540,16 +491,16 @@ final class PoolEntry {
   private void ping(Timeout handler) {
     lastPingTs = System.currentTimeMillis();
     LongTaskTimer.Sample timer = startTimer(heartbeatTime);
-    pingFunction.apply(client, heartbeatPingOpts)
-        .whenComplete((r, exc) -> {
-          stopTimer(timer);
-          pong(r, exc);
-        });
+    pingFunction
+        .apply(client, heartbeatPingOpts)
+        .whenComplete(
+            (r, exc) -> {
+              stopTimer(timer);
+              pong(r, exc);
+            });
   }
 
-  /**
-   * Schedules next ping.
-   */
+  /** Schedules next ping. */
   private void nextPing() {
     long delta = heartbeatOpts.getPingInterval() - (System.currentTimeMillis() - lastPingTs);
     if (delta <= 0) {
@@ -563,7 +514,7 @@ final class PoolEntry {
    * Handler for ping response.
    *
    * @param result result of ping operation
-   * @param exc    exception
+   * @param exc exception
    */
   private void pong(IProtoResponse result, Throwable exc) {
     nextPing();
@@ -579,9 +530,8 @@ final class PoolEntry {
           return;
         }
       }
-    } else if (!result.isBodyEmpty() && !result.getBodyArrayValue(IPROTO_DATA)
-        .get(0)
-        .equals(ImmutableBooleanValueImpl.TRUE)) {
+    } else if (!result.isBodyEmpty()
+        && !result.getBodyArrayValue(IPROTO_DATA).get(0).equals(ImmutableBooleanValueImpl.TRUE)) {
       failure = 1;
     }
     incHeartbeatCounters(failure);
@@ -638,9 +588,9 @@ final class PoolEntry {
 
   /**
    * Metrics initializations.
-   * <p>
-   * When registry is passed to {@link PoolEntry} constructor, metrics for heartbeats and connect are created and
-   * registered in this registry.
+   *
+   * <p>When registry is passed to {@link PoolEntry} constructor, metrics for heartbeats and connect
+   * are created and registered in this registry.
    */
   private void initMetrics() {
     if (metricsRegistry == null) {
@@ -700,9 +650,7 @@ final class PoolEntry {
     }
   }
 
-  /**
-   * Stops reconnecting task if it is active.
-   */
+  /** Stops reconnecting task if it is active. */
   private void stopReconnectTask() {
     if (reconnectTask != null) {
       reconnecting.decrementAndGet();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -27,8 +27,11 @@ public class HostPort {
 
   private static final String PORT_GROUP = "port";
 
-  private static final Pattern PATTERN = Pattern.compile(
-      String.format("(?:(?<%s>[\\w.-]+)://)?(?<%s>[\\w.-]+):(?<%s>\\d+)$", SCHEMA_GROUP, HOST_GROUP, PORT_GROUP));
+  private static final Pattern PATTERN =
+      Pattern.compile(
+          String.format(
+              "(?:(?<%s>[\\w.-]+)://)?(?<%s>[\\w.-]+):(?<%s>\\d+)$",
+              SCHEMA_GROUP, HOST_GROUP, PORT_GROUP));
 
   /*
   /**********************************************************
@@ -74,8 +77,10 @@ public class HostPort {
       return false;
     }
     HostPort hostPort = (HostPort) o;
-    return port == hostPort.port && Objects.equals(raw, hostPort.raw) && Objects.equals(host,
-        hostPort.host) && Objects.equals(schema, hostPort.schema);
+    return port == hostPort.port
+        && Objects.equals(raw, hostPort.raw)
+        && Objects.equals(host, hostPort.host)
+        && Objects.equals(schema, hostPort.schema);
   }
 
   @Override

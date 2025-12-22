@@ -1,0 +1,19 @@
+commit-msg:
+  scripts:
+    commitlint.sh:
+      runner: bash
+
+pre-commit:
+  parallel: true
+  commands:
+    lint_autoformat:
+      glob: "*.java"
+      run: |
+       # Run formatting check, suppress output
+        if ! ./mvnw spotless:check > /dev/null 2>&1; then
+          ./mvnw spotless:apply > /dev/null 2>&1
+          git add -u
+          echo "Code was reformatted by Spotless. Please review, add, and commit again."
+          exit 1
+        fi
+      stage_fixed: true

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -67,7 +67,8 @@ public class ConfigurationUtils {
 
   static {
     mapper = new YAMLMapper();
-    mapper.enable(SerializationFeature.INDENT_OUTPUT)
+    mapper
+        .enable(SerializationFeature.INDENT_OUTPUT)
         .setSerializationInclusion(Include.NON_NULL)
         .setSerializationInclusion(Include.NON_EMPTY);
     mapper.registerModule(new Jdk8Module());
@@ -86,9 +87,7 @@ public class ConfigurationUtils {
     }
   }
 
-  /**
-   * Converts {@link Tarantool3Configuration} instance into raw string representation
-   */
+  /** Converts {@link Tarantool3Configuration} instance into raw string representation */
   public static String writeAsString(Tarantool3Configuration configuration) {
     try {
       return mapper.writeValueAsString(configuration);
@@ -113,9 +112,7 @@ public class ConfigurationUtils {
     }
   }
 
-  /**
-   * Reads {@link GrpcConfiguration} instance from configuration file.
-   */
+  /** Reads {@link GrpcConfiguration} instance from configuration file. */
   public static GrpcConfiguration readGrpcFromFile(Path configPath) {
     try {
       return mapper.readValue(configPath.toFile(), GrpcConfiguration.class);
@@ -124,9 +121,7 @@ public class ConfigurationUtils {
     }
   }
 
-  /**
-   * Reads configuration from file in string representation
-   */
+  /** Reads configuration from file in string representation */
   public static String readRawFromFile(Path path) {
     try {
       return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
@@ -136,61 +131,75 @@ public class ConfigurationUtils {
   }
 
   /**
-   * Creates {@link Tarantool3Configuration} instance with simple cluster configuration with passed router, shard, and
-   * replica counts
+   * Creates {@link Tarantool3Configuration} instance with simple cluster configuration with passed
+   * router, shard, and replica counts
    *
-   * @param routerCount  count of routers
-   * @param shardCount   count of shards
+   * @param routerCount count of routers
+   * @param shardCount count of shards
    * @param replicaCount count of replicas in one shard
    */
   @SuppressWarnings("unchecked")
-  public static Tarantool3Configuration generateSimpleConfiguration(int routerCount, int shardCount,
-      int replicaCount) {
-    final Credentials credentials = Credentials.builder()
-        .withUsers(Users.builder()
-            .withAdditionalProperty(DEFAULT_TEST_SUPER_USER, UsersProperty.builder()
-                .withPassword(DEFAULT_TEST_SUPER_USER_PWD.toString())
-                .withRoles(Collections.singletonList("super"))
-                .build())
-            .withAdditionalProperty("storage", UsersProperty.builder()
-                .withPassword("secret")
-                .withRoles(Collections.singletonList("sharding"))
-                .build())
-            .withAdditionalProperty("replicator", UsersProperty.builder()
-                .withPassword("secret")
-                .withRoles(Collections.singletonList("replication"))
-                .build())
-            .build())
-        .build();
+  public static Tarantool3Configuration generateSimpleConfiguration(
+      int routerCount, int shardCount, int replicaCount) {
+    final Credentials credentials =
+        Credentials.builder()
+            .withUsers(
+                Users.builder()
+                    .withAdditionalProperty(
+                        DEFAULT_TEST_SUPER_USER,
+                        UsersProperty.builder()
+                            .withPassword(DEFAULT_TEST_SUPER_USER_PWD.toString())
+                            .withRoles(Collections.singletonList("super"))
+                            .build())
+                    .withAdditionalProperty(
+                        "storage",
+                        UsersProperty.builder()
+                            .withPassword("secret")
+                            .withRoles(Collections.singletonList("sharding"))
+                            .build())
+                    .withAdditionalProperty(
+                        "replicator",
+                        UsersProperty.builder()
+                            .withPassword("secret")
+                            .withRoles(Collections.singletonList("replication"))
+                            .build())
+                    .build())
+            .build();
 
     final ReplicasetsBuilderBase<?> routerReplicasetsBuilder = Replicasets.builder();
     for (int i = 1; i <= routerCount; i++) {
       final String routerName = "router-" + i;
       final String uri = routerName + ":" + DEFAULT_IPROTO_TARANTOOL_PORT;
       final String localhostUri = "localhost:" + DEFAULT_IPROTO_TARANTOOL_PORT;
-      routerReplicasetsBuilder.withAdditionalProperty(routerName, ReplicasetsProperty.builder()
-          .withLeader(routerName)
-          .withInstances(Instances.builder()
-              .withAdditionalProperty(routerName, InstancesProperty.builder()
-                  .withIproto(Iproto.builder()
-                      .withAdvertise(Advertise.builder().withClient(uri).build())
-                      .withListen(
-                          Arrays.asList(
-                              Listen.builder().withUri(localhostUri).build(),
-                              Listen.builder().withUri(uri).build()
-                          )
-                      ).build())
-                  .build())
-              .build())
-          .build());
+      routerReplicasetsBuilder.withAdditionalProperty(
+          routerName,
+          ReplicasetsProperty.builder()
+              .withLeader(routerName)
+              .withInstances(
+                  Instances.builder()
+                      .withAdditionalProperty(
+                          routerName,
+                          InstancesProperty.builder()
+                              .withIproto(
+                                  Iproto.builder()
+                                      .withAdvertise(Advertise.builder().withClient(uri).build())
+                                      .withListen(
+                                          Arrays.asList(
+                                              Listen.builder().withUri(localhostUri).build(),
+                                              Listen.builder().withUri(uri).build()))
+                                      .build())
+                              .build())
+                      .build())
+              .build());
     }
 
-    final GroupsProperty routerGroup = GroupsProperty.builder()
-        .withReplication(Replication.builder().withFailover(Failover.MANUAL).build())
-        .withSharding(Sharding.builder().withRoles(Collections.singleton(Role.ROUTER)).build())
-        .withRoles(Collections.singletonList("roles.crud-router"))
-        .withReplicasets(routerReplicasetsBuilder.build())
-        .build();
+    final GroupsProperty routerGroup =
+        GroupsProperty.builder()
+            .withReplication(Replication.builder().withFailover(Failover.MANUAL).build())
+            .withSharding(Sharding.builder().withRoles(Collections.singleton(Role.ROUTER)).build())
+            .withRoles(Collections.singletonList("roles.crud-router"))
+            .withReplicasets(routerReplicasetsBuilder.build())
+            .build();
 
     // r<number_of_shard>-s<number_of_storage> format
     final ReplicasetsBuilderBase<?> shardReplicasetsBuilder = Replicasets.builder();
@@ -203,36 +212,46 @@ public class ConfigurationUtils {
         final String replicaName = shardPrefix + "-s" + j;
         final String uri = replicaName + ":" + DEFAULT_IPROTO_TARANTOOL_PORT;
         final String localhostUri = "localhost:" + DEFAULT_IPROTO_TARANTOOL_PORT;
-        instancesBuilder.withAdditionalProperty(replicaName, InstancesProperty.builder()
-            .withIproto(Iproto.builder()
-                .withAdvertise(Advertise.builder().withClient(uri).build())
-                .withListen(
-                    Arrays.asList(
-                        Listen.builder().withUri(uri).build(),
-                        Listen.builder().withUri(localhostUri).build()
-                    )
-                ).build())
-            .build());
+        instancesBuilder.withAdditionalProperty(
+            replicaName,
+            InstancesProperty.builder()
+                .withIproto(
+                    Iproto.builder()
+                        .withAdvertise(Advertise.builder().withClient(uri).build())
+                        .withListen(
+                            Arrays.asList(
+                                Listen.builder().withUri(uri).build(),
+                                Listen.builder().withUri(localhostUri).build()))
+                        .build())
+                .build());
       }
 
-      final ReplicasetsProperty replicaset = replicasetBuilder.withInstances(instancesBuilder.build()).build();
+      final ReplicasetsProperty replicaset =
+          replicasetBuilder.withInstances(instancesBuilder.build()).build();
       shardReplicasetsBuilder.withAdditionalProperty(shardPrefix, replicaset);
     }
-    final GroupsProperty shardsGroup = GroupsProperty.builder()
-        .withReplication(Replication.builder().withFailover(Failover.ELECTION).build())
-        .withRoles(Collections.singletonList("roles.crud-storage"))
-        .withSharding(Sharding.builder().withRoles(Collections.singleton(Role.STORAGE)).build())
-        .withReplicasets(shardReplicasetsBuilder.build())
-        .build();
+    final GroupsProperty shardsGroup =
+        GroupsProperty.builder()
+            .withReplication(Replication.builder().withFailover(Failover.ELECTION).build())
+            .withRoles(Collections.singletonList("roles.crud-storage"))
+            .withSharding(Sharding.builder().withRoles(Collections.singleton(Role.STORAGE)).build())
+            .withReplicasets(shardReplicasetsBuilder.build())
+            .build();
 
-    final io.tarantool.autogen.iproto.Iproto iproto = io.tarantool.autogen.iproto.Iproto.builder()
-        .withAdvertise(
-            io.tarantool.autogen.iproto.advertise.Advertise.builder()
-                .withSharding(
-                    io.tarantool.autogen.iproto.advertise.sharding.Sharding.builder().withLogin("storage").build())
-                .withPeer(io.tarantool.autogen.iproto.advertise.peer.Peer.builder().withLogin("replicator").build())
-                .build()
-        ).build();
+    final io.tarantool.autogen.iproto.Iproto iproto =
+        io.tarantool.autogen.iproto.Iproto.builder()
+            .withAdvertise(
+                io.tarantool.autogen.iproto.advertise.Advertise.builder()
+                    .withSharding(
+                        io.tarantool.autogen.iproto.advertise.sharding.Sharding.builder()
+                            .withLogin("storage")
+                            .build())
+                    .withPeer(
+                        io.tarantool.autogen.iproto.advertise.peer.Peer.builder()
+                            .withLogin("replicator")
+                            .build())
+                    .build())
+            .build();
 
     return Tarantool3Configuration.builder()
         .withCredentials(credentials)
@@ -240,31 +259,31 @@ public class ConfigurationUtils {
             Groups.builder()
                 .withAdditionalProperty("routers", routerGroup)
                 .withAdditionalProperty("storages", shardsGroup)
-                .build()
-        )
+                .build())
         .withIproto(iproto)
         .build();
-
   }
 
-  /**
-   * Returns all instance names of all groups and replicasets from passed configuration
-   */
+  /** Returns all instance names of all groups and replicasets from passed configuration */
   public static List<String> parseInstances(Tarantool3Configuration configuration) {
-    return configuration.getGroups().orElseThrow(IllegalArgumentException::new).getAdditionalProperties().values()
+    return configuration
+        .getGroups()
+        .orElseThrow(IllegalArgumentException::new)
+        .getAdditionalProperties()
+        .values()
         .stream()
-        .filter(g -> {
-          if (g == null) {
-            throw new IllegalArgumentException("group section value is null");
-          }
-          return true;
-        })
-        .flatMap(gp -> parseInstances(gp).stream()).collect(Collectors.toList());
+        .filter(
+            g -> {
+              if (g == null) {
+                throw new IllegalArgumentException("group section value is null");
+              }
+              return true;
+            })
+        .flatMap(gp -> parseInstances(gp).stream())
+        .collect(Collectors.toList());
   }
 
-  /**
-   * Returns names of all instances that have passed role.
-   */
+  /** Returns names of all instances that have passed role. */
   public static List<String> findInstancesWithRole(Tarantool3Configuration config, String role) {
     final Map<String, List<String>> rolesByInstanceName = parseRolesByInstanceNames(config);
     return rolesByInstanceName.entrySet().stream()
@@ -273,31 +292,37 @@ public class ConfigurationUtils {
         .collect(Collectors.toList());
   }
 
-  /**
-   * Returns all instance names in passed replicaset
-   */
+  /** Returns all instance names in passed replicaset */
   private static Set<String> parseInstances(ReplicasetsProperty replicaset) {
-    return replicaset.getInstances().orElseThrow(IllegalArgumentException::new).getAdditionalProperties().keySet();
+    return replicaset
+        .getInstances()
+        .orElseThrow(IllegalArgumentException::new)
+        .getAdditionalProperties()
+        .keySet();
   }
 
-  /**
-   * Returns all instance names in passed group
-   */
+  /** Returns all instance names in passed group */
   private static Set<String> parseInstances(GroupsProperty group) {
-    return group.getReplicasets().orElseThrow(IllegalArgumentException::new).getAdditionalProperties().values().stream()
-        .filter(r -> {
-          if (r == null) {
-            throw new IllegalArgumentException("replicaset section value is null");
-          }
-          return true;
-        })
-        .flatMap(rp -> parseInstances(rp).stream()).collect(Collectors.toSet());
+    return group
+        .getReplicasets()
+        .orElseThrow(IllegalArgumentException::new)
+        .getAdditionalProperties()
+        .values()
+        .stream()
+        .filter(
+            r -> {
+              if (r == null) {
+                throw new IllegalArgumentException("replicaset section value is null");
+              }
+              return true;
+            })
+        .flatMap(rp -> parseInstances(rp).stream())
+        .collect(Collectors.toSet());
   }
 
-  /**
-   * Returns map with keys are instance name, values are lists of these key's roles
-   */
-  private static Map<String, List<String>> parseRolesByInstanceNames(Tarantool3Configuration config) {
+  /** Returns map with keys are instance name, values are lists of these key's roles */
+  private static Map<String, List<String>> parseRolesByInstanceNames(
+      Tarantool3Configuration config) {
     final Map<String, List<String>> rolesByInstanceNames = new HashMap<>();
 
     final List<String> globalRoles = config.getRoles().orElseGet(ArrayList::new);
@@ -306,13 +331,17 @@ public class ConfigurationUtils {
     for (GroupsProperty group : groups.getAdditionalProperties().values()) {
       final List<String> groupRoles = group.getRoles().orElseGet(ArrayList::new);
 
-      final Replicasets replicasets = group.getReplicasets().orElseThrow(IllegalArgumentException::new);
+      final Replicasets replicasets =
+          group.getReplicasets().orElseThrow(IllegalArgumentException::new);
       for (ReplicasetsProperty replicaset : replicasets.getAdditionalProperties().values()) {
         final List<String> replicasetRoles = replicaset.getRoles().orElseGet(ArrayList::new);
 
-        final Instances instances = replicaset.getInstances().orElseThrow(IllegalArgumentException::new);
-        for (Entry<String, InstancesProperty> instanceEntry : instances.getAdditionalProperties().entrySet()) {
-          final List<String> instanceRoles = instanceEntry.getValue().getRoles().orElseGet(ArrayList::new);
+        final Instances instances =
+            replicaset.getInstances().orElseThrow(IllegalArgumentException::new);
+        for (Entry<String, InstancesProperty> instanceEntry :
+            instances.getAdditionalProperties().entrySet()) {
+          final List<String> instanceRoles =
+              instanceEntry.getValue().getRoles().orElseGet(ArrayList::new);
           instanceRoles.addAll(replicasetRoles);
           instanceRoles.addAll(groupRoles);
           instanceRoles.addAll(globalRoles);
@@ -328,23 +357,37 @@ public class ConfigurationUtils {
    *
    * @param bootstrapTimeout bootstrap success timeout
    */
-  public static void bootstrap(HostPort uri, TarantoolContainer<?> router, Duration bootstrapTimeout,
-      CharSequence user, CharSequence password) {
+  public static void bootstrap(
+      HostPort uri,
+      TarantoolContainer<?> router,
+      Duration bootstrapTimeout,
+      CharSequence user,
+      CharSequence password) {
 
-    final StringBuilder sb = new StringBuilder(user)
-        .append(":")
-        .append(password)
-        .append("@")
-        .append(uri.getHost())
-        .append(":")
-        .append(uri.getPort());
+    final StringBuilder sb =
+        new StringBuilder(user)
+            .append(":")
+            .append(password)
+            .append("@")
+            .append(uri.getHost())
+            .append(":")
+            .append(uri.getPort());
 
     LOGGER.info("Start cluster bootstrap in '{}' container", router);
     try {
-      Unreliables.retryUntilSuccess((int) bootstrapTimeout.getSeconds(), TimeUnit.SECONDS, () ->
-          Utils.execExceptionally(LOGGER, router.getContainerInfo(),
-              "vshard bootstrap failed", "tt", "replicaset", "vshard", "bootstrap", sb.toString())
-      );
+      Unreliables.retryUntilSuccess(
+          (int) bootstrapTimeout.getSeconds(),
+          TimeUnit.SECONDS,
+          () ->
+              Utils.execExceptionally(
+                  LOGGER,
+                  router.getContainerInfo(),
+                  "vshard bootstrap failed",
+                  "tt",
+                  "replicaset",
+                  "vshard",
+                  "bootstrap",
+                  sb.toString()));
     } catch (Exception exc) {
       throw new ContainerLaunchException("Timed out waiting for cluster to bootstrap", exc);
     }

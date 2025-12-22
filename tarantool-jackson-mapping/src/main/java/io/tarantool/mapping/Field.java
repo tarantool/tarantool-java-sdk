@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -23,10 +23,15 @@ public class Field {
   Object constraint;
   Object foreignKey;
 
-  public Field() {
-  }
+  public Field() {}
 
-  public Field(String name, String type, Boolean isNullable, String collation, Object constraint, Object foreignKey) {
+  public Field(
+      String name,
+      String type,
+      Boolean isNullable,
+      String collation,
+      Object constraint,
+      Object foreignKey) {
     this.name = name;
     this.type = type;
     this.isNullable = isNullable;
@@ -140,14 +145,22 @@ public class Field {
 
   @Override
   public String toString() {
-    return "Field{" +
-        "name='" + name + '\'' +
-        ", type='" + type + '\'' +
-        ", isNullable=" + isNullable +
-        ", collation='" + collation + '\'' +
-        ", constraint=" + constraint +
-        ", foreignKey=" + foreignKey +
-        '}';
+    return "Field{"
+        + "name='"
+        + name
+        + '\''
+        + ", type='"
+        + type
+        + '\''
+        + ", isNullable="
+        + isNullable
+        + ", collation='"
+        + collation
+        + '\''
+        + ", constraint="
+        + constraint
+        + ", foreignKey="
+        + foreignKey
+        + '}';
   }
-
 }

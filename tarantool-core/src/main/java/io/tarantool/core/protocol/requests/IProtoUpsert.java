@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -41,7 +41,8 @@ public class IProtoUpsert extends IProtoBaseRequest {
   private byte[] rawTuple;
   private byte[] rawOperations;
 
-  public IProtoUpsert(final Integer spaceId,
+  public IProtoUpsert(
+      final Integer spaceId,
       final String spaceName,
       int indexBase,
       ArrayValue tuple,
@@ -55,7 +56,8 @@ public class IProtoUpsert extends IProtoBaseRequest {
     this.setStreamId(streamId);
   }
 
-  public IProtoUpsert(final Integer spaceId,
+  public IProtoUpsert(
+      final Integer spaceId,
       final String spaceName,
       int indexBase,
       byte[] tuple,
@@ -80,21 +82,21 @@ public class IProtoUpsert extends IProtoBaseRequest {
     packer.addPayload(RAW_MAP_HEADER_WITH_FOUR_ITEMS);
 
     if (spaceId != null) {
-      packer.addPayload(RAW_IPROTO_SPACE_ID);  // key
-      packer.packInt(spaceId);                 // value
+      packer.addPayload(RAW_IPROTO_SPACE_ID); // key
+      packer.packInt(spaceId); // value
     } else {
-      packer.addPayload(RAW_IPROTO_SPACE_NAME);  // key
-      packer.packString(spaceName);              // value
+      packer.addPayload(RAW_IPROTO_SPACE_NAME); // key
+      packer.packString(spaceName); // value
     }
 
-    packer.addPayload(RAW_IPROTO_INDEX_BASE);  // key
-    packer.packInt(indexBase);                 // value
+    packer.addPayload(RAW_IPROTO_INDEX_BASE); // key
+    packer.packInt(indexBase); // value
 
-    packer.addPayload(RAW_IPROTO_TUPLE);   // key
-    packValue(packer, rawTuple, tuple);    // value
+    packer.addPayload(RAW_IPROTO_TUPLE); // key
+    packValue(packer, rawTuple, tuple); // value
 
-    packer.addPayload(RAW_IPROTO_OPS);           // key
-    packValue(packer, rawOperations, operations);  // value
+    packer.addPayload(RAW_IPROTO_OPS); // key
+    packValue(packer, rawOperations, operations); // value
 
     return getPacketFromBase(packer);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -28,25 +28,24 @@ public class DatetimeTest {
   @Test
   public void testDatetimeAdd() {
     LocalDateTime dt = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
-    LocalDateTime updatedDt = dt.plus(new Interval()
-        .setYear(1)
-        .setMonth(-3)
-        .setWeek(3)
-        .setDay(4)
-        .setHour(-5)
-        .setMin(5)
-        .setSec(6)
-        .setNsec(-3)
-    );
+    LocalDateTime updatedDt =
+        dt.plus(
+            new Interval()
+                .setYear(1)
+                .setMonth(-3)
+                .setWeek(3)
+                .setDay(4)
+                .setHour(-5)
+                .setMin(5)
+                .setSec(6)
+                .setNsec(-3));
     assertEquals(LocalDateTime.parse("1970-10-25T19:05:05.999999997"), updatedDt);
   }
 
   public static Stream<Arguments> dataForTestDatetimeAddAdjust() {
     return Stream.of(
         Arguments.of(
-            LocalDate.of(2020, 1, 31),
-            new Interval().setMonth(1),
-            LocalDate.of(2020, 2, 29)),
+            LocalDate.of(2020, 1, 31), new Interval().setMonth(1), LocalDate.of(2020, 2, 29)),
         Arguments.of(
             LocalDate.of(2020, 1, 31),
             new Interval().setMonth(1).setAdjust(Adjust.NoneAdjust),
@@ -130,8 +129,7 @@ public class DatetimeTest {
         Arguments.of(
             LocalDateTime.parse("2011-12-31T00:00:00"),
             new Interval().setYear(-2).setMonth(-2).setAdjust(Adjust.ExcessAdjust),
-            LocalDateTime.parse("2009-10-31T00:00:00"))
-    );
+            LocalDateTime.parse("2009-10-31T00:00:00")));
   }
 
   @ParameterizedTest
@@ -143,26 +141,28 @@ public class DatetimeTest {
   @Test
   public void testDatetimeAddSubSymmetric() {
     LocalDateTime dt = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC);
-    LocalDateTime updatedDtPlus = dt.plus(new Interval()
-        .setYear(1)
-        .setMonth(-3)
-        .setWeek(3)
-        .setDay(4)
-        .setHour(-5)
-        .setMin(5)
-        .setSec(6)
-        .setNsec(-3)
-    );
-    LocalDateTime updatedDtMinus = dt.minus(new Interval()
-        .setYear(-1)
-        .setMonth(3)
-        .setWeek(-3)
-        .setDay(-4)
-        .setHour(5)
-        .setMin(-5)
-        .setSec(-6)
-        .setNsec(3)
-    );
+    LocalDateTime updatedDtPlus =
+        dt.plus(
+            new Interval()
+                .setYear(1)
+                .setMonth(-3)
+                .setWeek(3)
+                .setDay(4)
+                .setHour(-5)
+                .setMin(5)
+                .setSec(6)
+                .setNsec(-3));
+    LocalDateTime updatedDtMinus =
+        dt.minus(
+            new Interval()
+                .setYear(-1)
+                .setMonth(3)
+                .setWeek(-3)
+                .setDay(-4)
+                .setHour(5)
+                .setMin(-5)
+                .setSec(-6)
+                .setNsec(3));
     assertEquals(LocalDateTime.parse("1970-10-25T19:05:05.999999997"), updatedDtPlus);
     assertEquals(LocalDateTime.parse("1970-10-25T19:05:05.999999997"), updatedDtMinus);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -45,16 +45,14 @@ public class IProtoAuth extends IProtoBaseRequest {
     preparePacker(packer);
     packer.addPayload(RAW_MAP_HEADER_WITH_TWO_ITEMS);
 
-    packer.addPayload(RAW_IPROTO_USER_NAME);  // key
-    packer.packString(user);                  // value
+    packer.addPayload(RAW_IPROTO_USER_NAME); // key
+    packer.packString(user); // value
 
     packer.addPayload(RAW_IPROTO_TUPLE);
 
     if (authType == AuthType.PAP_SHA256) {
-      packer.packValue(ValueFactory.newArray(
-          authType.getRawAuthTypeName(),
-          ValueFactory.newString(password)
-      ));
+      packer.packValue(
+          ValueFactory.newArray(authType.getRawAuthTypeName(), ValueFactory.newString(password)));
     } else {
       byte[] scramble;
       MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -67,10 +65,8 @@ public class IProtoAuth extends IProtoBaseRequest {
         scramble[i] ^= step1[i];
       }
 
-      packer.packValue(ValueFactory.newArray(
-          authType.getRawAuthTypeName(),
-          ValueFactory.newBinary(scramble)
-      ));
+      packer.packValue(
+          ValueFactory.newArray(authType.getRawAuthTypeName(), ValueFactory.newBinary(scramble)));
     }
 
     return getPacketFromBase(packer);
@@ -81,10 +77,10 @@ public class IProtoAuth extends IProtoBaseRequest {
     Map<Value, Value> map = new HashMap<>();
     map.put(MP_IPROTO_USER_NAME, ValueFactory.newString(user));
     if (authType == AuthType.PAP_SHA256) {
-      map.put(MP_IPROTO_TUPLE, ValueFactory.newArray(
-          ValueFactory.newString(authType.toString()),
-          ValueFactory.newString(password)
-      ));
+      map.put(
+          MP_IPROTO_TUPLE,
+          ValueFactory.newArray(
+              ValueFactory.newString(authType.toString()), ValueFactory.newString(password)));
     } else {
       byte[] scramble;
       MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
@@ -97,10 +93,10 @@ public class IProtoAuth extends IProtoBaseRequest {
         scramble[i] ^= step1[i];
       }
 
-      map.put(MP_IPROTO_TUPLE, ValueFactory.newArray(
-          ValueFactory.newString(authType.toString()),
-          ValueFactory.newBinary(scramble)
-      ));
+      map.put(
+          MP_IPROTO_TUPLE,
+          ValueFactory.newArray(
+              ValueFactory.newString(authType.toString()), ValueFactory.newBinary(scramble)));
     }
 
     return ValueFactory.newMap(map);

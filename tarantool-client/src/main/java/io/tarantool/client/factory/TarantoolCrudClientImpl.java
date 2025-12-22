@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -27,10 +27,13 @@ import io.tarantool.pool.PoolEventListener;
 import io.tarantool.pool.TripleConsumer;
 
 /**
- * <p>Class implementing {@link TarantoolClientImpl} and {@link TarantoolCrudClient}.</p>
- * <p>To use this class correctly, you can follow this example:</p>
- * <blockquote><pre>{@code
+ * Class implementing {@link TarantoolClientImpl} and {@link TarantoolCrudClient}.
  *
+ * <p>To use this class correctly, you can follow this example:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * // Creates crud client with default settings.
  * TarantoolCrudClient crudClient = TarantoolCrudClientImpl.builder().build();
  * ...
@@ -38,7 +41,9 @@ import io.tarantool.pool.TripleConsumer;
  * TarantoolCrudSpace space = crudClient.space("spaceName");
  * ...
  *
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/bitgorbovsky">Ivan Bannikov</a>
@@ -51,34 +56,35 @@ import io.tarantool.pool.TripleConsumer;
 final class TarantoolCrudClientImpl extends TarantoolClientImpl implements TarantoolCrudClient {
 
   /**
-   * <p> This constructor creates {@link TarantoolCrudClientImpl} based on the passed parameters.</p>
+   * This constructor creates {@link TarantoolCrudClientImpl} based on the passed parameters.
    *
-   * @param groups                see groups in{@link TarantoolCrudClientBuilder}.
-   * @param channelOptions        see channelOptions in{@link TarantoolCrudClientBuilder}.
-   * @param nThreads              see nThreads in{@link TarantoolCrudClientBuilder}.
-   * @param timerResource         see timerService in{@link TarantoolCrudClientBuilder}.
-   * @param gracefulShutdown      see gracefulShutdown in{@link TarantoolCrudClientBuilder}.
-   * @param balancerClass         see balancerClass in{@link TarantoolCrudClientBuilder}.
-   * @param heartbeatOpts         see heartbeatOpts in{@link TarantoolCrudClientBuilder}.
-   * @param watcherOpts           see watcherOpts in{@link TarantoolCrudClientBuilder}.
-   * @param connectTimeout        see connectTimeout in{@link TarantoolCrudClientBuilder}.
-   * @param reconnectAfter        see reconnectAfter in{@link TarantoolCrudClientBuilder}.
-   * @param metricsRegistry       see metricsRegistry in{@link TarantoolCrudClientBuilder}.
+   * @param groups see groups in{@link TarantoolCrudClientBuilder}.
+   * @param channelOptions see channelOptions in{@link TarantoolCrudClientBuilder}.
+   * @param nThreads see nThreads in{@link TarantoolCrudClientBuilder}.
+   * @param timerResource see timerService in{@link TarantoolCrudClientBuilder}.
+   * @param gracefulShutdown see gracefulShutdown in{@link TarantoolCrudClientBuilder}.
+   * @param balancerClass see balancerClass in{@link TarantoolCrudClientBuilder}.
+   * @param heartbeatOpts see heartbeatOpts in{@link TarantoolCrudClientBuilder}.
+   * @param watcherOpts see watcherOpts in{@link TarantoolCrudClientBuilder}.
+   * @param connectTimeout see connectTimeout in{@link TarantoolCrudClientBuilder}.
+   * @param reconnectAfter see reconnectAfter in{@link TarantoolCrudClientBuilder}.
+   * @param metricsRegistry see metricsRegistry in{@link TarantoolCrudClientBuilder}.
    * @param ignoredPacketsHandler see ignoredPacketsHandler in{@link TarantoolCrudClientBuilder}.
-   * @param sslContext            see sslContext in{@link TarantoolCrudClientBuilder}.
-   * @param useTupleExtension     see useTupleExtension in{@link TarantoolCrudClientBuilder}.
-   * @throws NoSuchMethodException     if a matching method is not found.
-   * @throws IllegalArgumentException  if the number of actual and formal parameters differ; if an unwrapping conversion
-   *                                   for primitive arguments fails; or if, after possible unwrapping, a parameter
-   *                                   value cannot be converted to the corresponding formal parameter type by a method
-   *                                   invocation conversion; if this constructor pertains to an enum type.
-   * @throws InstantiationException    if the class that declares the underlying constructor represents an abstract
-   *                                   class.
+   * @param sslContext see sslContext in{@link TarantoolCrudClientBuilder}.
+   * @param useTupleExtension see useTupleExtension in{@link TarantoolCrudClientBuilder}.
+   * @throws NoSuchMethodException if a matching method is not found.
+   * @throws IllegalArgumentException if the number of actual and formal parameters differ; if an
+   *     unwrapping conversion for primitive arguments fails; or if, after possible unwrapping, a
+   *     parameter value cannot be converted to the corresponding formal parameter type by a method
+   *     invocation conversion; if this constructor pertains to an enum type.
+   * @throws InstantiationException if the class that declares the underlying constructor represents
+   *     an abstract class.
    * @throws InvocationTargetException if the underlying constructor throws an exception.
-   * @throws IllegalAccessException    if this {@code Constructor} object is enforcing Java language access control and
-   *                                   the underlying constructor is inaccessible.
+   * @throws IllegalAccessException if this {@code Constructor} object is enforcing Java language
+   *     access control and the underlying constructor is inaccessible.
    */
-  TarantoolCrudClientImpl(List<InstanceConnectionGroup> groups,
+  TarantoolCrudClientImpl(
+      List<InstanceConnectionGroup> groups,
       Map<ChannelOption<?>, Object> channelOptions,
       int nThreads,
       ManagedResource<Timer> timerResource,
@@ -93,8 +99,12 @@ final class TarantoolCrudClientImpl extends TarantoolClientImpl implements Taran
       SslContext sslContext,
       boolean useTupleExtension,
       PoolEventListener poolEventListener)
-      throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-    super(groups,
+      throws InvocationTargetException,
+          NoSuchMethodException,
+          InstantiationException,
+          IllegalAccessException {
+    super(
+        groups,
         channelOptions,
         nThreads,
         timerResource,
@@ -112,7 +122,7 @@ final class TarantoolCrudClientImpl extends TarantoolClientImpl implements Taran
   }
 
   /**
-   * <p> Creates new builder for {@link TarantoolCrudClientImpl} class.</p>
+   * Creates new builder for {@link TarantoolCrudClientImpl} class.
    *
    * @return {@link TarantoolCrudClientBuilder} object.
    */

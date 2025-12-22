@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -17,28 +17,37 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 
 /**
- * <p> The class implements options for the CRUD operation
- * <a href="https://github.com/tarantool/crud#count"> count()</a>.</p>
- * <p>The following options are available:</p>
- * <p>Common options:</p>
+ * The class implements options for the CRUD operation <a
+ * href="https://github.com/tarantool/crud#count">count()</a>.
+ *
+ * <p>The following options are available:
+ *
+ * <p>Common options:
+ *
  * <ul>
- *     <li>{@link #timeout}.</li>
- *     <li>{@link #streamId}.</li>
+ *   <li>{@link #timeout}.
+ *   <li>{@link #streamId}.
  * </ul>
- * <p>Crud options:</p>
+ *
+ * <p>Crud options:
+ *
  * <ul>
- * <li>{@value YIELD_EVERY}.</li>
- * <li>{@value TIMEOUT}.</li>
- * <li>{@value BUCKET_ID}.</li>
- * <li>{@value FORCE_MAP_CALL}.</li>
- * <li>{@value FULLSCAN}.</li>
- * <li>{@value MODE}.</li>
- * <li>{@value PREFER_REPLICA}.</li>
- * <li>{@value BALANCE}.</li>
- * <li>{@value VSHARD_ROUTER}.</li>
+ *   <li>{@value YIELD_EVERY}.
+ *   <li>{@value TIMEOUT}.
+ *   <li>{@value BUCKET_ID}.
+ *   <li>{@value FORCE_MAP_CALL}.
+ *   <li>{@value FULLSCAN}.
+ *   <li>{@value MODE}.
+ *   <li>{@value PREFER_REPLICA}.
+ *   <li>{@value BALANCE}.
+ *   <li>{@value VSHARD_ROUTER}.
  * </ul>
- * <p>Examples:</p>
- * <blockquote><pre>{@code
+ *
+ * <p>Examples:
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -53,8 +62,13 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *  CountOptions options = new CountOptions(timeout, null, options);
  *
  *  int count = space.count(conditions, options).get();
- * }</pre></blockquote>
- * <blockquote><pre>{@code
+ * }</pre>
+ *
+ * </blockquote>
+ *
+ * <blockquote>
+ *
+ * <pre>{@code
  * <<Example 2>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
@@ -69,7 +83,9 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *                                          .build();
  *
  *  int count = space.count(conditions, options).get();
- * }</pre></blockquote>
+ * }</pre>
+ *
+ * </blockquote>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  * @author <a href="https://github.com/nickkkccc">Nikolay Belonogov</a>
@@ -82,93 +98,97 @@ public class CountOptions implements CrudOptions {
   private static final Logger LOGGER = LoggerFactory.getLogger(CountOptions.class);
 
   /**
-   * <p>Number of tuples processed to yield after, {@value YIELD_EVERY} should
-   * be &#62; 0, default value is 1_000.</p>
+   * Number of tuples processed to yield after, {@value YIELD_EVERY} should be &#62; 0, default
+   * value is 1_000.
    */
   private static final String YIELD_EVERY = "yield_every";
 
   /**
-   * <p>{@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master
-   * discovery timeout (in milliseconds).</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * router to Tarantool instance and the time when the answer will come from Tarantool instance to router.</p>
+   * {@link TarantoolCrudClient#call(String) vshard.call} timeout and vshard master discovery
+   * timeout (in milliseconds).
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the router to Tarantool instance and the time when the answer will come from
+   * Tarantool instance to router.
    */
   private static final String TIMEOUT = "timeout";
 
-  /**
-   * <p>Bucket ID.</p>
-   */
+  /** Bucket ID. */
   private static final String BUCKET_ID = "bucket_id";
 
   /**
-   * <p>If <tt>true</tt> then the map call is performed without any optimizations even,
-   * default value is <tt>false</tt>.</p>
+   * If <tt>true</tt> then the map call is performed without any optimizations even, default value
+   * is <tt>false</tt>.
    */
   private static final String FORCE_MAP_CALL = "force_map_call";
 
   /**
-   * <p>If <tt>true</tt> then a critical log entry will be skipped on potentially long count, see avoiding
-   * <a href="https://github.com/tarantool/crud/blob/master/doc/select.md#avoiding-full-scan">full scan</a>.</p>
+   * If <tt>true</tt> then a critical log entry will be skipped on potentially long count, see
+   * avoiding <a
+   * href="https://github.com/tarantool/crud/blob/master/doc/select.md#avoiding-full-scan">full
+   * scan</a>.
    */
   private static final String FULLSCAN = "fullscan";
 
   /**
-   * <p>If {@link Mode#WRITE write} is specified then count is performed on master, default value is {@link Mode#WRITE
-   * write}.</p>
+   * If {@link Mode#WRITE write} is specified then count is performed on master, default value is
+   * {@link Mode#WRITE write}.
    */
   private static final String MODE = "mode";
 
   /**
-   * <p>If <tt>true</tt> then the preferred target is one of the replicas, default value is <tt>false</tt>.</p>
+   * If <tt>true</tt> then the preferred target is one of the replicas, default value is
+   * <tt>false</tt>.
    */
   private static final String PREFER_REPLICA = "prefer_replica";
 
   /**
-   * <p>Use replica according to
-   * <a href="https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_api/#router-api-call">vshard
-   * load balancing policy</a>, default value is <tt>false</tt>.</p>
+   * Use replica according to <a
+   * href="https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_api/#router-api-call">vshard
+   * load balancing policy</a>, default value is <tt>false</tt>.
    */
   private static final String BALANCE = "balance";
 
   /**
-   * <p>Cartridge vshard group name. Set this parameter if your space is not a part of
-   * the default vshard cluster.</p>
+   * Cartridge vshard group name. Set this parameter if your space is not a part of the default
+   * vshard cluster.
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
-  /**
-   * <p>Default value for {@link #timeout}.</p>
-   */
+  /** Default value for {@link #timeout}. */
   public static final long DEFAULT_TIMEOUT = 5_000;
 
   /**
-   * <p> The time after which the request is considered invalid (in milliseconds).</p>
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.</p>
-   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a message from the
-   * connector to Tarantool and the time when the answer will come from Tarantool to connector.</p>
+   * The time after which the request is considered invalid (in milliseconds).
+   *
+   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   *
+   * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
+   * message from the connector to Tarantool and the time when the answer will come from Tarantool
+   * to connector.
    */
   private final Long timeout;
 
   /**
-   * <p> Stream id for count operation.</p>
-   * <p> Default value: {@code null}.</p>
+   * Stream id for count operation.
    *
-   * @see <a href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
-   * documentation</a>
+   * <p>Default value: {@code null}.
+   *
+   * @see <a
+   *     href="https://www.tarantool.io/ru/doc/latest/dev_guide/internals/iproto/streams/">Tarantool
+   *     documentation</a>
    */
   private final Long streamId;
 
-  /**
-   * <p>A map containing the correspondence between option names and their meanings.</p>
-   */
+  /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> crudOptions;
 
   /**
-   * <p>Creates a {@link CountOptions} object with the given parameters.</p>
+   * Creates a {@link CountOptions} object with the given parameters.
    *
-   * @param timeout  {@link #timeout}
+   * @param timeout {@link #timeout}
    * @param streamId {@link #streamId}
-   * @param options  {@link #crudOptions}
+   * @param options {@link #crudOptions}
    * @see CountOptions
    */
   public CountOptions(Long timeout, Long streamId, Map<String, Object> options) {
@@ -179,7 +199,7 @@ public class CountOptions implements CrudOptions {
   }
 
   /**
-   * <p>Creates new builder instance of this class.</p>
+   * Creates new builder instance of this class.
    *
    * @return {@link Builder} object
    */
@@ -188,7 +208,7 @@ public class CountOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of timeout option.</p>
+   * Returns value of timeout option.
    *
    * @return {@link #timeout} value.
    */
@@ -198,7 +218,7 @@ public class CountOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns value of stream id option.</p>
+   * Returns value of stream id option.
    *
    * @return {@link #streamId} value.
    */
@@ -208,7 +228,7 @@ public class CountOptions implements CrudOptions {
   }
 
   /**
-   * <p>Returns an immutable option map for the count operation.</p>
+   * Returns an immutable option map for the count operation.
    *
    * @return {@link Map} object.
    */
@@ -218,25 +238,19 @@ public class CountOptions implements CrudOptions {
   }
 
   /**
-   * <p>Builder class for {@link CountOptions}.</p>
+   * Builder class for {@link CountOptions}.
    *
    * @see CountOptions
    */
   public static class Builder {
 
-    /**
-     * <p>See also: {@link CountOptions#crudOptions}.</p>
-     */
+    /** See also: {@link CountOptions#crudOptions}. */
     private final Map<String, Object> options = new HashMap<>();
 
-    /**
-     * <p>See also: {@link CountOptions#timeout}.</p>
-     */
+    /** See also: {@link CountOptions#timeout}. */
     private long timeout = DEFAULT_TIMEOUT;
 
-    /**
-     * <p>See also: {@link CountOptions#streamId}.</p>
-     */
+    /** See also: {@link CountOptions#streamId}. */
     private Long streamId;
 
     public Builder() {
@@ -244,7 +258,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.</p>
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
      *
      * @param timeout value of timeout option.
      * @return {@link Builder} object.
@@ -261,7 +275,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #streamId} option. StreamId parameter should be greater or equal 0.
      *
      * @param streamId value of stream id option
      * @return {@link Builder} object
@@ -278,7 +292,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.</p>
+     * Sets value of {@link #TIMEOUT} option. Timeout parameter should be greater or equal 0.
      *
      * @param timeout value of {@link #TIMEOUT} option
      * @return {@link Builder} object
@@ -291,9 +305,10 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Adds options by name into {@link #options} map. Name parameter should not be equal {@code null}.</p>
+     * Adds options by name into {@link #options} map. Name parameter should not be equal {@code
+     * null}.
      *
-     * @param name  name of option
+     * @param name name of option
      * @param value value of option
      * @see CountOptions
      * @see Builder
@@ -307,7 +322,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.</p>
+     * Sets value of {@link #BUCKET_ID} option. BucketId parameter should be greater or equal 0.
      *
      * @param bucketId value of {@link #BUCKET_ID} option
      * @return {@link Builder} object
@@ -323,7 +338,8 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FORCE_MAP_CALL} options to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #FORCE_MAP_CALL} options to <tt>true</tt>. Default value -
+     * <tt>false</tt>.
      *
      * @return {@link Builder} object
      * @see #FORCE_MAP_CALL
@@ -335,7 +351,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #FULLSCAN} option to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #FULLSCAN} option to <tt>true</tt>. Default value - <tt>false</tt>.
      *
      * @return {@link Builder}
      * @see #FULLSCAN
@@ -347,7 +363,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #MODE} option. Default value - {@link Mode#WRITE}.</p>
+     * Sets value of {@link #MODE} option. Default value - {@link Mode#WRITE}.
      *
      * @param mode value of {@link #MODE} option
      * @return {@link Builder}
@@ -361,7 +377,8 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #PREFER_REPLICA} option to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #PREFER_REPLICA} option to <tt>true</tt>. Default value -
+     * <tt>false</tt>.
      *
      * @return {@link Builder}
      * @see #PREFER_REPLICA
@@ -373,7 +390,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #BALANCE} option to <tt>true</tt>. Default value - <tt>false</tt>.</p>
+     * Sets value of {@link #BALANCE} option to <tt>true</tt>. Default value - <tt>false</tt>.
      *
      * @return {@link Builder}
      * @see #BALANCE
@@ -385,9 +402,9 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #VSHARD_ROUTER} option.</p>
+     * Sets value of {@link #VSHARD_ROUTER} option.
      *
-     * @param vshardRouter value of {@link  #VSHARD_ROUTER} option
+     * @param vshardRouter value of {@link #VSHARD_ROUTER} option
      * @return {@link Builder}
      * @see #VSHARD_ROUTER
      * @see CountOptions
@@ -398,8 +415,8 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets value of {@link #YIELD_EVERY} option. YieldEvery parameter should be greater 0. Default value -
-     * 1_000.</p>
+     * Sets value of {@link #YIELD_EVERY} option. YieldEvery parameter should be greater 0. Default
+     * value - 1_000.
      *
      * @param yieldEvery value of {@link #YIELD_EVERY} option
      * @return {@link Builder}
@@ -412,9 +429,9 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Sets options by name and value. OptionName parameter should not be equal {@code null}.</p>
+     * Sets options by name and value. OptionName parameter should not be equal {@code null}.
      *
-     * @param optionName  name of option
+     * @param optionName name of option
      * @param optionValue value of option
      * @return {@link Builder}
      * @see CountOptions
@@ -425,7 +442,7 @@ public class CountOptions implements CrudOptions {
     }
 
     /**
-     * <p>Builds object of {@link CountOptions} class.</p>
+     * Builds object of {@link CountOptions} class.
      *
      * @return {@link CountOptions} object
      * @see CountOptions

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -36,8 +36,7 @@ import io.tarantool.spring.data32.repository.config.EnableTarantoolRepositories;
 @TestPropertySource(properties = {DEFAULT_PROPERTY_FILE_LOCATION_CLASSPATH})
 abstract class CrudConfigurations extends BaseIntegrationTest {
 
-  @Autowired
-  protected TarantoolCrudClient client;
+  @Autowired protected TarantoolCrudClient client;
 
   private static InstanceConnectionGroup groupFromJavaConfig;
 
@@ -46,14 +45,15 @@ abstract class CrudConfigurations extends BaseIntegrationTest {
   @BeforeAll
   protected static void beforeAll() throws IOException {
     BaseIntegrationTest.beforeAll();
-    groupFromJavaConfig = InstanceConnectionGroup.builder()
-        .withHost(clusterContainer.getHost())
-        .withPort(clusterContainer.getPort())
-        .withUser(DEFAULT_CRUD_USERNAME)
-        .withPassword(DEFAULT_CRUD_PASSWORD)
-        .withTag(DEFAULT_TAG)
-        .withSize(4)
-        .build();
+    groupFromJavaConfig =
+        InstanceConnectionGroup.builder()
+            .withHost(clusterContainer.getHost())
+            .withPort(clusterContainer.getPort())
+            .withUser(DEFAULT_CRUD_USERNAME)
+            .withPassword(DEFAULT_CRUD_PASSWORD)
+            .withTag(DEFAULT_TAG)
+            .withSize(4)
+            .build();
   }
 
   @BeforeEach
@@ -68,8 +68,7 @@ abstract class CrudConfigurations extends BaseIntegrationTest {
 
     @Bean
     TarantoolCrudClientBuilder crudClientBuilder() {
-      return TarantoolFactory.crud()
-          .withGroups(Collections.singletonList(groupFromJavaConfig));
+      return TarantoolFactory.crud().withGroups(Collections.singletonList(groupFromJavaConfig));
     }
   }
 

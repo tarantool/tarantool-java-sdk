@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -20,10 +20,7 @@ public abstract class AbstractIProtoStateMachine implements IProtoStateMachine {
   protected boolean calledOnce;
 
   protected AbstractIProtoStateMachine(
-      Connection connection,
-      IProtoRequest request,
-      Map<Long, IProtoStateMachine> fsmRegistry
-  ) {
+      Connection connection, IProtoRequest request, Map<Long, IProtoStateMachine> fsmRegistry) {
     this.connection = connection;
     this.fsmRegistry = fsmRegistry;
     this.request = request;

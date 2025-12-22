@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -10,7 +10,6 @@ import org.msgpack.value.IntegerValue;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.StringValue;
 import org.msgpack.value.Value;
-
 
 public interface IProtoMessage {
 

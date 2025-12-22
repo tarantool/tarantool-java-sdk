@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -32,7 +32,8 @@ public @interface Field {
   String value() default "";
 
   /**
-   * The target Tarantool space field for storing the marked class field. Alias for {@link #value()}.
+   * The target Tarantool space field for storing the marked class field. Alias for {@link
+   * #value()}.
    *
    * @return the name of a field in space
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 VK Company Limited.
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
  * All Rights Reserved.
  */
 
@@ -9,27 +9,23 @@ import io.tarantool.client.ClientType;
 import io.tarantool.client.TarantoolClient;
 
 /**
- * <p>Implements a contract for a client working with spaces through
- * <a href="https://www.tarantool.io/en/tdg/latest/development/iproto/#tdg-iproto-repository">
- *   TDG repository interface</a>
- * </p>
+ * Implements a contract for a client working with spaces through <a
+ * href="https://www.tarantool.io/en/tdg/latest/development/iproto/#tdg-iproto-repository">TDG
+ * repository interface</a>
  *
  * @author <a href="https://github.com/ArtDu">Artyom Dubinin</a>
  */
 public interface TarantoolDataGridClient extends TarantoolClient {
 
-  /**
-   * <p>Default username for TDG clients.</p>
-   */
+  /** Default username for TDG clients. */
   String DEFAULT_TDG_USERNAME = "tdg_service_user";
 
-  /**
-   * <p>Default password for TDG admin username.</p>
-   */
+  /** Default password for TDG admin username. */
   String DEFAULT_TDG_PASSWORD = "";
 
   /**
-   * <p>Function returns  {@link TarantoolDataGridSpace space} with the name specified as the input argument.</p>
+   * Function returns {@link TarantoolDataGridSpace space} with the name specified as the input
+   * argument.
    *
    * @param name name of the {@link TarantoolDataGridSpace space} that was requested.
    * @return {@link TarantoolDataGridSpace} object.
@@ -37,7 +33,7 @@ public interface TarantoolDataGridClient extends TarantoolClient {
   TarantoolDataGridSpace space(String name);
 
   /**
-   * <p>Returns {@link ClientType} of this client.</p>
+   * Returns {@link ClientType} of this client.
    *
    * @return {@link ClientType} object
    */
