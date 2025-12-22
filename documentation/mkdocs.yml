@@ -2,6 +2,8 @@ site_name: Tarantool Java SDK
 copyright: Copyright ©️ 2025 VK Tech
 repo_name: tarantool/tarantool-java-sdk
 repo_url: https://github.com/tarantool/tarantool-java-sdk
+strict: true
+
 extra:
   language: ru
   generator: false
@@ -17,6 +19,8 @@ extra:
 plugins:
   - drawio:
       darkmode: true
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
 
 theme:
   features:
@@ -90,6 +94,11 @@ nav:
               - documentation/client/arch/connection-to-multiple-nodes.md
               - documentation/client/arch/call.md
               - documentation/client/arch/tuple_pojo_mapping.md
+      - Tarantool Testcontainers:
+          - documentation/testcontainers/index.md
+          - documentation/testcontainers/single-node-testcontainers-arch.md
+          - documentation/testcontainers/single-node-testcontainers-standard-impl.md
+          - documentation/testcontainers/single-node-testcontainers-standard-impl-example.md
 
 markdown_extensions:
   - tables
@@ -111,6 +120,9 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 exclude_docs: |
   venv

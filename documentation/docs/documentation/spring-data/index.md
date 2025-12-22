@@ -70,9 +70,9 @@ Tarantool можно найти
 
 ???+ note "Заметка"
 
-    Также стоит ознакомиться с модулем [tarantool-java-sdk/testcontainers](testcontainers/index.md),
-    который позволит уменьшить временные затраты на использование `Tarantool` с `testcontainers` в 
-    Java.
+    Также стоит ознакомиться с модулем 
+    [tarantool-java-sdk/testcontainers](../testcontainers/index.md), который позволит уменьшить 
+    временные затраты на использование `Tarantool` с `testcontainers` в Java.
 
 ### Загрузка библиотеки на рабочую машину
 
