@@ -83,6 +83,7 @@ nav:
               - documentation/client/arch/index.md
               - documentation/client/arch/high-level-arch.md
               - documentation/client/arch/heartbeat.md
+              - documentation/client/arch/balancer.md
 
 markdown_extensions:
   - tables
