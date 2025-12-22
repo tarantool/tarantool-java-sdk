@@ -1,5 +1,5 @@
 ---
-title: TarantoolContainer. Примеры
+title: Примеры
 ---
 
 ## Пример 1. Запуск узла Tarantool 3.x

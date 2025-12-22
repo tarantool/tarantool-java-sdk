@@ -1,5 +1,5 @@
 ---
-title: TarantoolDB. Архитектура
+title: Архитектура
 ---
 
 ## TDBCluster

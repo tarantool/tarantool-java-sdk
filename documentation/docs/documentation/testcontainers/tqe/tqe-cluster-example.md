@@ -1,5 +1,5 @@
 ---
-title: TQE. Примеры
+title: Примеры
 ---
 
 ## Примеры использования TQE Testcontainers

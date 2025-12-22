@@ -1,5 +1,5 @@
 ---
-title: TQE. Архитектура
+title: Архитектура
 ---
 
 ## TQE testcontainers
@@ -34,8 +34,8 @@ java --> CG
 
 `TQE testcontainers` представлены следующими интерфейсами:
 
-- [TarantoolContainer](./single-node-testcontainers-arch.md) - используется для создания кластера
-  Tarantool
+- [TarantoolContainer](../single/single-node-testcontainers-arch.md) - используется для создания
+  кластера Tarantool
 - [GrpcContainer](#grpccontainer) - используется для создания узлов grpc подписчика(consumer)
   /издателя(publisher)
 - [TQECluster](#tqecluster) - используется для запуска/перезапуска и остановки кластера TQE
@@ -67,7 +67,7 @@ java --> CG
 ### TQEConfigurator
 
 `TQEConfigurator` - интерфейс, позволяющий настраивать узлы TQE
-кластер ([grpc-точки](#grpccontainer), [Tarantool кластер](./single-node-testcontainers-arch.md)).
+кластер ([grpc-точки](#grpccontainer), [Tarantool кластер](../single/single-node-testcontainers-arch.md)).
 
 #### FileTQEConfigurator
 
