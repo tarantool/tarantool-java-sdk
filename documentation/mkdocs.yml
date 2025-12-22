@@ -99,6 +99,9 @@ nav:
           - documentation/testcontainers/single-node-testcontainers-arch.md
           - documentation/testcontainers/single-node-testcontainers-standard-impl.md
           - documentation/testcontainers/single-node-testcontainers-standard-impl-example.md
+          - documentation/testcontainers/tdb-cluster-testcontainers-arch.md
+          - documentation/testcontainers/tdb2-cluster-testcontainers-standard-impl.md
+          - documentation/testcontainers/tdb2-cluster-testcontainers-standard-impl-example.md
 
 markdown_extensions:
   - tables
