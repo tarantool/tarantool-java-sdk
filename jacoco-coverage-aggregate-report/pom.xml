@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.baeldung.jacoco-coverage-aggregation</groupId>
+  <artifactId>jacoco-coverage-aggregate-report</artifactId>
+  <name>jacoco-coverage-aggregate-report</name>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>io.tarantool</groupId>
+    <artifactId>tarantool-java-ee</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-balancer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-jackson-mapping</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-pooling</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-schema</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>testcontainers</artifactId>
+    </dependency>
+  </dependencies>
+</project>

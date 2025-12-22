@@ -1,0 +1,43 @@
+[
+  {
+    "type": "record",
+    "name": "User",
+    "fields": [
+      {
+        "name": "age",
+        "type": "int"
+      },
+      {
+        "name": "name",
+        "type": [
+          "null",
+          "string"
+        ],
+        "default": null
+      }
+    ],
+    "indexes": ["age"]
+  },
+  {
+    "type": "record",
+    "name": "person",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int"
+      },
+      {
+        "name": "is_married",
+        "type": [
+          "null",
+          "boolean"
+        ]
+      },
+      {
+        "name": "name",
+        "type": "string"
+      }
+    ],
+    "indexes": ["id"]
+  }
+]

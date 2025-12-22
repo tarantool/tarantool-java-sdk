@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>testcontainers</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+
+  <parent>
+    <groupId>io.tarantool</groupId>
+    <artifactId>tarantool-java-ee</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
+    <maven.compiler.release>17</maven.compiler.release>
+    <jetcd.version>0.8.6</jetcd.version>
+    <grpc.version>1.76.0</grpc.version>
+    <protobuf.version>3.25.8</protobuf.version>
+    <protobuf-plugin.version>0.6.1</protobuf-plugin.version>
+    <apache.http-client.version>5.5</apache.http-client.version>
+    <instancio.version>5.5.1</instancio.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.etcd</groupId>
+      <artifactId>jetcd-launcher</artifactId>
+      <version>${jetcd.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>testcontainers-java-tarantool</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.client5/httpclient5 -->
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${apache.http-client.version}</version>
+    </dependency>
+
+    <!-- Test -->
+    <!-- https://mvnrepository.com/artifact/io.etcd/jetcd-launcher -->
+    <dependency>
+      <groupId>io.etcd</groupId>
+      <artifactId>jetcd-core</artifactId>
+      <version>${jetcd.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.instancio</groupId>
+      <artifactId>instancio-core</artifactId>
+      <version>${instancio.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- grpc -->
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- End test -->
+  </dependencies>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.7.0</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>${jsonschema2pojo.version}</version>
+        <configuration>
+          <sourceDirectory>${basedir}/src/main/resources/tarantool/Tarantool3Configuration.yaml
+          </sourceDirectory>
+          <targetPackage>io.tarantool.autogen</targetPackage>
+          <useInnerClassBuilders>true</useInnerClassBuilders>
+          <generateBuilders>true</generateBuilders>
+          <useBigDecimals>true</useBigDecimals>
+          <useBigIntegers>true</useBigIntegers>
+          <includeGeneratedAnnotation>false</includeGeneratedAnnotation>
+          <includeConstructors>true</includeConstructors>
+          <usePrimitives>false</usePrimitives>
+          <useOptionalForGetters>true</useOptionalForGetters>
+          <inclusionLevel>NON_EMPTY</inclusionLevel>
+          <customRuleFactory>io.tarantool.CustomRuleFactory</customRuleFactory>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>io.tarantool</groupId>
+            <artifactId>testcontainers-autogen</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>${protobuf-plugin.version}</version>
+        <configuration>
+          <protoTestSourceRoot>${project.basedir}/src/test/proto</protoTestSourceRoot>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>
+            io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-compile</goal>
+              <goal>test-compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

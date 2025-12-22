@@ -1,0 +1,261 @@
+syntax = "proto3";
+
+package tarantool.queue_ee;
+
+import "messages/message.proto";
+
+option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v2/server/protocol";
+
+// Сервер публикации сообщений брокера очередей
+service PublisherService {
+  // Публикация сообщения в очередь
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  // Публикация сообщений в очередь через двусторонний стрим
+  rpc PublishStream(stream PublishStreamRequest) returns (stream PublishStreamResponse);
+
+  // Публикация набора сообщений в очередь
+  rpc PublishBatch(PublishBatchRequest) returns (PublishBatchResponse);
+  // Публикация набора сообщений в очередь через двусторонний стрим
+  rpc PublishBatchStream(
+    stream PublishBatchStreamRequest
+    ) returns (
+    stream PublishBatchStreamResponse
+    );
+
+  // Публикация сообщения на указанные шарды очереди
+  rpc Broadcast(BroadcastRequest) returns (BroadcastResponse);
+}
+
+// Режим дедупликации сообщения
+enum Deduplication {
+  DEDUPLICATION_UNSPECIFIED = 0;
+  DEDUPLICATION_BASIC = 1;
+  DEDUPLICATION_EXTENDED = 2;
+  DEDUPLICATION_KEEP_FIRST = 3;
+  DEDUPLICATION_KEEP_LATEST = 4;
+}
+
+// Запрос на публикацию сообщения в очередь
+message PublishRequest {
+  // Название очереди в которой необходимо опубликовать сообщение
+  string queue = 1;
+
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди на консьюмерах
+  optional string routing_key = 2;
+
+  // Ключ шардирования
+  // необходим для распределения данных в системе
+  optional string sharding_key = 3;
+
+  // Ключ дедупликации
+  // необходим для проверки повторных сообщений,
+  // если не указан, то проверка не производится
+  optional string deduplication_key = 4;
+
+  // Произвольные данные в бинарном формате, содержит тело сообщения
+  bytes payload = 5;
+
+  // Произвольные данные в бинарном формате,
+  // содержит дополнительные для сообщения данные,
+  // необходимые для отладки и трассировки
+  map<string, string> metadata = 6 [deprecated = true];
+
+  // Произвольные данные в формате списка из пар ключ-значения
+  repeated Pair metadata_pairs = 7;
+
+  // Режим дедупликации сообщения
+  Deduplication deduplication = 8;
+}
+
+// Запрос на публикация набора сообщений в очередь
+message PublishBatchRequest {
+  // Название очереди в которой необходимо опубликовать сообщения
+  string queue = 1;
+
+  // Ключ шардирования
+  // необходим для распределения данных в системе
+  optional string sharding_key = 2;
+
+  // Набор сообщений
+  repeated BatchRequestMessage messages = 3;
+
+  // Содержит дополнительные данные необходимые для отладки и трассировки
+  map<string, string> metadata = 4 [deprecated = true];
+
+  // Произвольные данные в формате списка из пар ключ-значения
+  repeated Pair metadata_pairs = 5;
+
+  // Режим дедупликации сообщения
+  Deduplication deduplication = 8;
+}
+
+// Набор сообщений
+message BatchRequestMessage {
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди на консьюмерах
+  optional string routing_key = 1;
+
+  // Ключ дедупликации
+  // Необходим для проверки повторных сообщений,
+  // если не указан, то проверка не производится
+  optional string deduplication_key = 2;
+
+  // Произвольные данные в бинарном формате, содержит тело сообщения
+  bytes payload = 3;
+
+  // Произвольные данные в бинарном формате,
+  // содержит дополнительные для сообщения данные,
+  // необходимые для отладки и трассировки
+  map<string, string> metadata = 4 [deprecated = true];
+
+  // Произвольные данные в формате списка из пар ключ-значения
+  repeated Pair metadata_pairs = 5;
+}
+
+// Ответ на публикацию набора сообщений
+message PublishBatchResponse {
+  // Идентификаторы сообщений
+  repeated uint64 ids = 1;
+  // Содержит дополнительные данные необходимые для отладки и трассировки
+  map<string, string> metadata = 2 [deprecated = true];
+  // Флаги наличия дубликатов
+  repeated bool is_duplicates = 3;
+}
+
+// Ответ на публикацию сообщения
+message PublishResponse {
+  // Идентификатор сообщения добавленного в очередь
+  // (возможно не нужно)
+  uint64 id = 1;
+  // Содержит дополнительные данные необходимые для отладки и трассировки
+  map<string, string> metadata = 2 [deprecated = true];
+  // Если true, то был дубликат сообщения
+  bool is_duplicate = 3;
+}
+
+// Зарос на публикацию сообщения через двусторонний стрим
+message PublishStreamRequest {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  // Запрос на публикацию сообщения
+  PublishRequest request = 2;
+}
+
+// Ответ на публикацию сообщения через двусторонний стрим
+message PublishStreamResponse {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  oneof result {
+    // Сообщение об успешной публикации
+    PublishResponse success = 2;
+    // Сообщение об ошибке публикации
+    Error error = 3;
+  }
+}
+
+// Запрос на публикацию набора сообщений через двусторонний стрим
+message PublishBatchStreamRequest {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  // Запрос на публикацию набора сообщений
+  PublishBatchRequest request = 2;
+}
+
+// Ответ на публикацию набора сообщений через двусторонний стрим
+message PublishBatchStreamResponse {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  oneof result {
+    // Сообщение об успешной публикации
+    PublishBatchResponse success = 2;
+    // Сообщение об ошибке публикации
+    Error error = 3;
+  }
+}
+
+// Запрос на рассылку сообщения на указанные шарды
+message BroadcastRequest {
+  // Название очереди, в которую необходимо опубликовать сообщение
+  string queue = 1;
+
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди на консьюмерах
+  optional string routing_key = 2;
+
+  // Ключ дедупликации
+  // необходим для проверки повторных сообщений,
+  // если не указан, то проверка не производится
+  optional string deduplication_key = 3;
+
+  // Произвольные данные в бинарном формате, содержит тело сообщения
+  bytes payload = 4;
+
+  // Произвольные данные в бинарном формате,
+  // содержит дополнительные для сообщения данные,
+  // необходимые для отладки и трассировки
+  map<string, string> metadata = 5 [deprecated = true];
+
+  // Список с названиями репликасетов, на которые нужно опубликовать сообщение.
+  // По умолчанию рассылка происходит на все шарды.
+  repeated string replicasets = 6;
+
+  // Максимальное время на рассылку сообщения
+  optional uint64 timeout = 7;
+
+  // Произвольные данные в формате списка из пар ключ-значения
+  repeated Pair metadata_pairs = 8;
+
+  // Режим дедупликации сообщения
+  Deduplication deduplication = 9;
+}
+
+// Сообщение об успешной публикации
+message Success {
+  // Идентификатор сообщения добавленного в очередь
+  uint64 id = 1;
+  // Флаги наличия дубликатов
+  bool is_duplicate = 2;
+}
+
+// Сообщение об ошибке публикации
+message Error {
+  // Код ошибки
+  uint32 code = 1;
+  // Сообщение об ошибке
+  string message = 2;
+}
+
+// Ответ репликасета на публикацию сообщения
+message ReplicasetResponse {
+  // Сообщение с результатами публикации сообщения
+  oneof result {
+    // Сообщение об успешной публикации
+    Success success = 1;
+
+    // Сообщение об ошибке публикации
+    Error error = 2;
+  }
+}
+
+// Ответ на рассылку сообщения
+message BroadcastResponse {
+  // Код завершения рассылки:
+  // 0 - Успешная публикация
+  // 1 - Ошибка на роутере
+  // 2 - Ошибка на репликасете
+  uint32 code = 1;
+
+  // Сообщение об ошибке
+  optional string error = 2;
+
+  // Набор ответов с шардов
+  map<string, ReplicasetResponse> replicasets = 3;
+
+  // Содержит дополнительные данные необходимые для отладки и трассировки
+  map<string, string> metadata = 4 [deprecated = true];
+}

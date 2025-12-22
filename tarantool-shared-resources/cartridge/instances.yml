@@ -1,0 +1,23 @@
+testapp.router-1:
+  advertise_uri: 0.0.0.0:3301
+  http_port: 8081
+
+testapp.router-2:
+  advertise_uri: 0.0.0.0:3302
+  http_port: 8082
+
+testapp.s1-master:
+  advertise_uri: 0.0.0.0:3303
+  http_port: 8083
+
+testapp.s1-replica:
+  advertise_uri: 0.0.0.0:3304
+  http_port: 8084
+
+testapp.s2-master:
+  advertise_uri: 0.0.0.0:3305
+  http_port: 8085
+
+testapp.s2-replica:
+  advertise_uri: 0.0.0.0:3306
+  http_port: 8086

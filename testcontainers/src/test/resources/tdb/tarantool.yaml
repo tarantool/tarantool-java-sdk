@@ -1,0 +1,88 @@
+# Правильный конфиг для тестов
+credentials:
+  users:
+    test-super:
+      password: test
+      roles:
+        - super
+    admin:
+      password: secret-cluster-cookie
+      roles:
+        - super
+    replicator:
+      password: secret
+      roles:
+        - replication
+    storage:
+      password: secret
+      roles:
+        - sharding
+iproto:
+  advertise:
+    peer:
+      login: replicator
+    sharding:
+      login: storage
+sharding:
+  bucket_count: 30000
+roles_cfg:
+  roles.metrics-export:
+    http:
+      - endpoints:
+          - format: prometheus
+            path: /metrics
+        listen: 8081
+groups:
+  routers:
+    replication:
+      failover: manual
+    sharding:
+      roles:
+        - router
+    roles:
+      - roles.crud-router
+      - roles.metrics-export
+      - roles.dictionary-router
+    roles_cfg:
+      roles.crud-router:
+        stats: true
+        stats_driver: metrics
+        stats_quantiles: true
+        stats_quantile_tolerated_error: 0.001
+        stats_quantile_age_buckets_count: 5
+        stats_quantile_max_age_time: 180
+    replicasets:
+      router-msk:
+        leader: router-msk
+        instances:
+          router-msk:
+            iproto:
+              listen:
+                - uri: 'router-msk:3301'
+              advertise:
+                client: 'router-msk:3301'
+  storages:
+    replication:
+      failover: election
+    sharding:
+      roles:
+        - storage
+    roles:
+      - roles.crud-storage
+      - roles.metrics-export
+      - roles.dictionary-storage
+    replicasets:
+      storage-1:
+        instances:
+          storage-1-msk:
+            iproto:
+              listen:
+                - uri: 'storage-1-msk:3301'
+              advertise:
+                client: 'storage-1-msk:3301'
+          storage-1-spb:
+            iproto:
+              listen:
+                - uri: 'storage-1-spb:3301'
+              advertise:
+                client: 'storage-1-spb:3301'

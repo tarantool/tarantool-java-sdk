@@ -1,0 +1,57 @@
+replicasets:
+  # core replicaset
+  5e47bf8e-57f5-4166-96ba-e16f964fb82b: # UUID набора реплик
+    master:
+      - dee26aab-0190-461d-9121-56b96b881a59
+    alias: core
+    roles:
+      core: true
+      runner: true
+      connector: true
+      vshard-router: true
+    all_rw: false
+
+  #  rs-1
+  5e47bf8e-57f5-4166-96ba-e16f964fb82c: # UUID набора реплик
+    master:
+      - dee26aab-0190-461d-9121-56b96b881a60
+    alias: rs-1
+    roles:
+      storage: true
+    all_rw: false
+
+  #  rs-2
+  5e47bf8e-57f5-4166-96ba-e16f964fb83c: # UUID набора реплик
+    master:
+      - dee26aab-0190-461d-9121-56b96b881a70
+    alias: rs-2
+    roles:
+      storage: true
+    all_rw: false
+
+servers:
+  # core
+  dee26aab-0190-461d-9121-56b96b881a59:
+    uri: core:3301
+    disabled: false
+    replicaset_uuid: 5e47bf8e-57f5-4166-96ba-e16f964fb82b
+
+  # rs-1
+  dee26aab-0190-461d-9121-56b96b881a60:
+    uri: s1-1:3301
+    disabled: false
+    replicaset_uuid: 5e47bf8e-57f5-4166-96ba-e16f964fb82c
+  dee26aab-0190-461d-9121-56b96b881a61:
+    uri: s1-2:3301
+    disabled: false
+    replicaset_uuid: 5e47bf8e-57f5-4166-96ba-e16f964fb82c
+
+  # rs-2
+  dee26aab-0190-461d-9121-56b96b881a70:
+    uri: s2-1:3301
+    disabled: false
+    replicaset_uuid: 5e47bf8e-57f5-4166-96ba-e16f964fb83c
+  dee26aab-0190-461d-9121-56b96b881a71:
+    uri: s2-2:3301
+    disabled: false
+    replicaset_uuid: 5e47bf8e-57f5-4166-96ba-e16f964fb83c
