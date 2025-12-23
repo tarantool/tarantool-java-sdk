@@ -586,5 +586,6 @@
     <module>testcontainers</module>
     <module>jacoco-coverage-aggregate-report</module>
     <module>testcontainers-autogen</module>
+    <module>documentation</module>
   </modules>
 </project>

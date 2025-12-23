@@ -32,3 +32,8 @@ markdown сошлитесь на схему как на обычную markdown-
 ```markdown
 ![](../../../../assets/<some-paths>/schema.drawio)
 ```
+
+### Code Snippets
+
+Сейчас документация настроена на то, что пути snippet файлов обрабатываются относительно директории
+`docs/documentation/examples`
