@@ -94,6 +94,11 @@ nav:
               - documentation/client/arch/connection-to-multiple-nodes.md
               - documentation/client/arch/call.md
               - documentation/client/arch/tuple_pojo_mapping.md
+          - Примеры использования:
+              - documentation/client/examples/index.md
+              - Подключение к узлам:
+                  - documentation/client/examples/connection/index.md
+                  - documentation/client/examples/connection/single-node.md
       - Tarantool Testcontainers:
           - documentation/testcontainers/index.md
           - Одиночный узел:
