@@ -10,7 +10,7 @@
   <groupId>io.tarantool</groupId>
   <artifactId>tarantool-java-sdk</artifactId>
   <packaging>pom</packaging>
-  <version>1.5.0</version>
+  <version>2.0.0-SNAPSHOT</version>
 
   <licenses>
     <license>
@@ -67,7 +67,7 @@
     <connection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</connection>
     <developerConnection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</developerConnection>
     <url>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</url>
-    <tag>1.5.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
@@ -287,47 +287,47 @@
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-client</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-core</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-pooling</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-jackson-mapping</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-schema</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-balancer</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-spring-data</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>tarantool-spring-data-core</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>io.tarantool</groupId>
         <artifactId>testcontainers</artifactId>
-        <version>1.5.0</version>
+        <version>2.0.0-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
       <dependency>
