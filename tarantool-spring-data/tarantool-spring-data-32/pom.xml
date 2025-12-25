@@ -2,6 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <name>tarantool-spring-data-32</name>
+  <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework</description>
+  <url>https://tarantool.io</url>
+
   <parent>
     <groupId>io.tarantool</groupId>
     <artifactId>tarantool-spring-data</artifactId>

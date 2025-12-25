@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-12-25
+
 - Change deprecated API to actual variant:
     - Netty:
         - `NioEventLoopGroup` &rarr; `MultiThreadIoEventLoopGroup`
@@ -56,6 +58,7 @@
     * Bump grpc-stub version from 1.75.0 to 1.76.0
     * Bump instancio-core version from 5.5.0 to 5.5.1
     * Bump commons-io version from 2.16.1 to 2.20.0
+    * Bump junit-jupiter version from 5.13.3 to 5.13.4
 
   Maven:
     * Bump maven-surefire-plugin from 3.5.3 to 3.5.4

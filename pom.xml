@@ -25,6 +25,44 @@
     <url>https://tarantool.io/</url>
   </organization>
 
+  <developers>
+    <developer>
+      <id>bitgorbovsky</id>
+      <name>Ivan Bannikov</name>
+      <email>Bit.Gorbovsky@gmail.com</email>
+      <organization>Tarantool</organization>
+      <organizationUrl>https://tarantool.io/</organizationUrl>
+    </developer>
+    <developer>
+      <id>ArtDub</id>
+      <name>Artyom Dubinin</name>
+      <email>rusartdub@gmail.com</email>
+      <organization>Tarantool</organization>
+      <organizationUrl>https://tarantool.io/</organizationUrl>
+    </developer>
+    <developer>
+      <id>nickkkccc</id>
+      <name>Nikolay Belonogov</name>
+      <email>nickolaybeliy15@gmail.com</email>
+      <organization>Tarantool</organization>
+      <organizationUrl>https://tarantool.io/</organizationUrl>
+    </developer>
+    <developer>
+      <id>dkasimovskiy</id>
+      <name>Dmitry Kasimovskiy</name>
+      <email>dmitry.kasimovsky@yandex.ru</email>
+      <organization>Tarantool</organization>
+      <organizationUrl>https://tarantool.io/</organizationUrl>
+    </developer>
+    <developer>
+      <id>alex-pvl</id>
+      <name>Aleksandr Pavlyuk</name>
+      <email>s_pavlyuk1@icloud.com</email>
+      <organization>Tarantool</organization>
+      <organizationUrl>https://tarantool.io/</organizationUrl>
+    </developer>
+  </developers>
+
   <scm>
     <connection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</connection>
     <developerConnection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</developerConnection>
@@ -488,7 +526,7 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central-portal-snapshots</publishingServerId>
-              <deploymentName>io.tarantool.testcontainers-java-tarantool</deploymentName>
+              <deploymentName>io.tarantool.tarantool-java-sdk</deploymentName>
               <waitUntil>uploaded</waitUntil>
             </configuration>
           </plugin>
@@ -506,7 +544,7 @@
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
-              <deploymentName>io.tarantool.testcontainers-java-tarantool</deploymentName>
+              <deploymentName>io.tarantool.tarantool-java-sdk</deploymentName>
               <waitUntil>uploaded</waitUntil>
             </configuration>
           </plugin>

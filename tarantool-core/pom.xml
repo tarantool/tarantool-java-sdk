@@ -3,8 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <name>tarantool-core</name>
-  <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework
-  </description>
+  <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework</description>
   <url>https://tarantool.io</url>
 
   <properties>
