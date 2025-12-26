@@ -1,0 +1,69 @@
+name: release-documentation
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Git tag to deploy
+        required: true
+        type: string
+
+# Мы хотим чтобы deploy в ветку gh-pages
+# происходили консистентно друг за другом
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy release documentation
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: documentation
+    steps:
+      - name: Validate semver tag  format
+        id: validate-tag
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+
+          if [[ ! $TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌Tag '$TAG' doesn't match semver format"
+            echo "Examples: 1.2.3, 3.0.1"
+            exit 1
+          fi
+          
+          MAJOR_MINOR=$(echo $TAG | cut -d. -f1-2)
+          VERSION="${MAJOR_MINOR}.*"
+          echo "✅ Valid tag: $TAG"
+          echo "Version for docs: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Checkout repository with tag
+        uses: actions/checkout@v6
+        with:
+          ref: "${{ github.event.inputs.tag }}"
+          fetch-depth: 0
+
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Deploy documentation
+        run: |
+          mike deploy "${{ steps.validate-tag.outputs.version }}" --update-aliases --push
+#        env:
+#          # Для дебага, если нужно
+#          MIKE_VERBOSE: 1
