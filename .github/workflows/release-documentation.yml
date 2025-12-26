@@ -21,9 +21,6 @@ jobs:
   deploy:
     name: Deploy release documentation
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: documentation
     steps:
       - name: Validate semver tag  format
         id: validate-tag
@@ -63,6 +60,7 @@ jobs:
 
       - name: Deploy documentation
         run: |
+          cd documentation
           mike deploy "${{ steps.validate-tag.outputs.version }}" --update-aliases --push
 #        env:
 #          # Для дебага, если нужно
