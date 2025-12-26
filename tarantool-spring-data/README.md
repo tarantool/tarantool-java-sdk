@@ -1,89 +1,85 @@
 # Spring Data Tarantool
 
-**Spring Data Tarantool** - модуль [Spring Data](https://spring.io/projects/spring-data), который
-упрощает создание
-приложений на базе [Spring](https://spring.io), использующих [Tarantool](https://www.tarantool.io) в
-качестве хранилища
-данных.
+**Spring Data Tarantool** is a [Spring Data](https://spring.io/projects/spring-data) module that
+simplifies creating
+applications based on [Spring](https://spring.io) using [Tarantool](https://www.tarantool.io) as a
+data storage.
 
-## Особенности
+## Features
 
-- Реализация CRUD методов для классов моделей данных, специфичных для работы с кластером Tarantool
-  через библиотеку
-  [tarantool/crud](https://github.com/tarantool/crud)
-- Работа с хранимыми процедурами и скриптами LUA через динамические методы
-- Возможность интеграции пользовательского кода репозитория
-- Возможности гибкой настройки доступа к Tarantool (настройка через Java-объекты и файлы
-  конфигурации
+- Implementation of CRUD methods for data model classes specific to working with Tarantool clusters
+  through the
+  [tarantool/crud](https://github.com/tarantool/crud) library
+- Working with stored procedures and LUA scripts via dynamic methods
+- Ability to integrate custom repository code
+- Flexible access configuration to Tarantool (configuration via Java objects and config files
   (.properties / .yaml))
-- Удобная интеграция с инфраструктурой Spring
-- Автоматическая реализация интерфейса `Repository`, используя `@EnableTarantoolRepositories`, в том
-  числе, включая
-  поддержку пользовательских запросов
+- Convenient integration with Spring infrastructure
+- Automatic implementation of the `Repository` interface using `@EnableTarantoolRepositories`, including
+  support for custom queries
 
-## Статус проекта
+## Project Status
 
-| Версия tarantool-java-sdk | Версия tarantool-spring-data |            Версия Spring Boot             |
-|:------------------------:|:----------------------------:|:-----------------------------------------:|
-|          1.0.0           |            1.0.0             |                  2.7.18                   |
-|          1.1.x           |            1.1.x             |          2.7.18 / 3.1.10 / 3.2.4          |
-|          1.2.x           |            1.2.x             |          2.7.18 / 3.1.10 / 3.2.4          |
-|          1.3.x           |            1.3.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.11 / 3.4.5  |
-|          1.4.x           |            1.4.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10 |
+| tarantool-java-sdk Version | tarantool-spring-data Version |            Spring Boot Version             |
+|:--------------------------:|:-----------------------------:|:------------------------------------------:|
+|           1.0.0            |             1.0.0             |                   2.7.18                   |
+|           1.1.x            |             1.1.x             |          2.7.18 / 3.1.10 / 3.2.4           |
+|           1.2.x            |             1.2.x             |          2.7.18 / 3.1.10 / 3.2.4           |
+|           1.3.x            |             1.3.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.11 / 3.4.5   |
+|           1.4.x            |             1.4.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10  |
 
-### Версия Tarantool и поддерживаемые модули-клиенты
+### Tarantool Version and Supported Client Modules
 
-| Версия Tarantool | CRUD API (кластер) | BOX API (один экземпляр) |
-|:----------------:|:------------------:|:------------------------:|
-|      2.11.x      |         Да         |     Да (ограничено*)     |
-|       3.x        |         Да         |     Да (ограничено*)     |
+| Tarantool Version | CRUD API (cluster) | BOX API (single instance) |
+|:-----------------:|:------------------:|:-------------------------:|
+|      2.11.x       |         Yes        |      Yes (limited*)       |
+|       3.x         |         Yes        |      Yes (limited*)       |
 
-*Поддерживается только конфигурация и получение spring bean `TarantoolBoxClient`.
+*Only configuration and getting spring bean `TarantoolBoxClient` is supported.
 
-| Версия Tarantool Data Grid |     Repository API     |
-|:--------------------------:|:----------------------:|
-|            1.x             |    Да (ограничено*)    |
-|            2.x             |    Да (ограничено*)    |
+| Tarantool Data Grid Version | Repository API |
+|:---------------------------:|:--------------:|
+|             1.x             |   Yes (limited*) |
+|             2.x             |   Yes (limited*) |
 
-*В релизе 1.4.0 добавлен экспериментальная версия клиента для Tarantool Data Grid,
-с поддержкой CRUD операций.
-
+*Experimental version of the client for Tarantool Data Grid added in release 1.4.0,
+with CRUD operation support.
 
 > [!TIP]
-> - Больше о `crud` клиенте можно узнать:
+> - Learn more about the `crud` client:
     >
-- Кластерный API на стороне
-  tarantool ([`github.com/tarantool/crud`](https://github.com/tarantool/crud))
->   - Java прокси клиент к
+- Cluster API on the tarantool side
+  ([`github.com/tarantool/crud`](https://github.com/tarantool/crud))
+>   - Java proxy client to
       tarantool/crud ([`Java CRUD Client`](../tarantool-client/src/main/java/io/tarantool/client/crud)).
-> - Больше о `box` клиенте можно узнать:
+> - Learn more about the `box` client:
     >
-- Внутренний модуль box для работы в Tarantool lua
+- Internal box module for working in Tarantool lua
   runtime [`Submodule box.space`](https://www.tarantool.io/en/doc/2.11/reference/reference_lua/box_space/).
->   - Имплементация box модуля для работы с инстансом Tarantool в
+>   - Implementation of the box module for working with a Tarantool instance in
       Java [`Java BOX Client`](../tarantool-client/src/main/java/io/tarantool/client/box).  
-      > Имеет схожий API c `Submodule box.space`, но не является им или прокси к нему.
+      > Has a similar API to `Submodule box.space`, but is not it or a proxy to it.
 
 > [!IMPORTANT]
-> Работа c BOX API (`Java BOX Client`) на данным момент осуществляется **только** через интерфейс
+> Working with BOX API (`Java BOX Client`) is currently performed **only** through the interface
 > [`TarantoolBoxClient`](../tarantool-client/src/main/java/io/tarantool/client/box/TarantoolBoxClient.java)
-> (можете добавить его как bean и работать в контексте Spring). Возможность работы
-> через `Repository` и
-> `@EnableTarantoolRepositories` на данный момент не реализована.
+> (you can add it as a bean and work in the Spring context). The ability to work
+> through `Repository` and
+> `@EnableTarantoolRepositories` is not implemented at this time.
 
 > [!IMPORTANT] 
 > #### Spring Data 3.4.x
-> Проверена работа 
+> Verified operation of 
 > [repository fragments SPI](https://github.com/spring-projects/spring-data-commons/wiki/Spring-Data-2024.1-Release-Notes#repository-fragments-spi).
-> Дополнительная информация по [ссылке](https://github.com/spring-projects/spring-data-commons/pull/3093).
+> Additional information [here](https://github.com/spring-projects/spring-data-commons/pull/3093).
 
-## Начало работы с Spring Data Tarantool
+## Getting Started with Spring Data Tarantool
 
-- [Предварительные требования](doc/instructions/prepare.md)
-- [Конфигурирование клиентов](doc/instructions/configuration.md)
-- [Работа с Repository](./doc/instructions/tarantool_repository.md)
-- [Работа с пользовательскими методами-запросами](./doc/instructions/derived_methods.md)
-- [Работа с LUA и хранимыми процедурами](./doc/instructions/query_lua.md)
-- [Пагинация. Pageable, Page, Slice](./doc/instructions/page-slice-pageable.md)
-- [Пагинация. Scroll API (spring-data v3.1 и выше)](./doc/instructions/scroll-api.md)
+- [Prerequisites](doc/instructions/prepare.md)
+- [Client Configuration](doc/instructions/configuration.md)
+- [Working with Repository](./doc/instructions/tarantool_repository.md)
+- [Working with Custom Query Methods](./doc/instructions/derived_methods.md)
+- [Working with LUA and Stored Procedures](./doc/instructions/query_lua.md)
+- [Pagination. Pageable, Page, Slice](./doc/instructions/page-slice-pageable.md)
+- [Pagination. Scroll API (spring-data v3.1 and higher)](./doc/instructions/scroll-api.md)
 - [Sort](./doc/instructions/sort.md)

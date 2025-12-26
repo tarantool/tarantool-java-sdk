@@ -1,27 +1,27 @@
-## Модуль Testcontainers для Tarantool
+## Tarantool Testcontainers Module
 
-В данном проекте содержится реализация модуля `testcontainers` для `Tarantool`.
+This project contains the implementation of the `testcontainers` module for `Tarantool`.
 
-Поддерживаемые варианты использования:
+Supported usage scenarios:
 
-| Название            | Версия продукта                                            |
+| Name                | Product Version                                            |
 |---------------------|------------------------------------------------------------|
-| Один узел Tarantool | <ul><li>[x] 3.x </li><li>[ ] 2.11.x</li></ul>              |
-| Кластер TDB         | <ul><li>[x] 3.x </li><li>[x] 2.x</li><li>[ ] 1.x</li></ul> |
-| Кластер TQE         | <ul><li>[x] 2.x </li><li>[ ] 3.x</li></ul>                 |
+| Single Tarantool Node | <ul><li>[x] 3.x </li><li>[ ] 2.11.x</li></ul>              |
+| TDB Cluster         | <ul><li>[x] 3.x </li><li>[x] 2.x</li><li>[ ] 1.x</li></ul> |
+| TQE Cluster         | <ul><li>[x] 2.x </li><li>[ ] 3.x</li></ul>                 |
 
-### Архитектура
+### Architecture
 
-Информацию об архитектуре модуля, можно найти:
+Information about the module architecture can be found:
 
-* [Архитектура решения "Один узел Tarantool"](doc/001-single-node-testcontainers-arch.md)
-* [Архитектура решения "Кластер TDB"](./doc/004-tdb-cluster-testcontainers-arch.md)
-* [Архитектура решения «Кластер TQE»](doc/007-tqe-cluster-arch.md)
+* [Architecture of "Single Tarantool Node" solution](doc/001-single-node-testcontainers-arch.md)
+* [Architecture of "TDB Cluster" solution](./doc/004-tdb-cluster-testcontainers-arch.md)
+* [Architecture of "TQE Cluster" solution](doc/007-tqe-cluster-arch.md)
 
-### Примеры использования
+### Usage Examples
 
-Примеры использования модуля можно найти:
+Usage examples of the module can be found:
 
-* [Пример использования testcontainers для одного узла Tarantool](./doc/003-single-node-testcontainers-standard-impl-example.md)
-* [Пример использования testcontainers для кластера TDB](./doc/006-tdb2-cluster-testcontainers-standart-impl-example.md)
-* [Пример использования testcontainers для кластера TQE](doc/008-tqe-cluster-example.md)
+* [Example of using testcontainers for a single Tarantool node](./doc/003-single-node-testcontainers-standard-impl-example.md)
+* [Example of using testcontainers for a TDB cluster](./doc/006-tdb2-cluster-testcontainers-standart-impl-example.md)
+* [Example of using testcontainers for a TQE cluster](doc/008-tqe-cluster-example.md)
