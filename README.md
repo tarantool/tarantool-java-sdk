@@ -2,17 +2,16 @@
 
 # Tarantool Java SDK
 
-Набор библиотек для взаимодействия из Java с Tarantool.
-Для работы с Tarantool используется фреймворк
-[Netty](https://netty.io) для асинхронного программирования и библиотекa
-[MessagePack](https://github.com/msgpack/msgpack-java) для сериализации и
-десериализации данных.
+A set of libraries for interacting with Tarantool from Java.
+For working with Tarantool, the [Netty](https://netty.io) framework is used for asynchronous programming and the
+[MessagePack](https://github.com/msgpack/msgpack-java) library for serialization and
+deserialization of data.
 
-## Начало работы
+## Getting Started
 
-Необходимо скачать и установить библиотеку по [инструкции](INSTALL.md).
+You need to download and install the library according to the [instructions](INSTALL.md).
 
-### Использование библиотеки
+### Using the Library
 
 ```xml
 <dependency>
@@ -22,6 +21,6 @@
 </dependency>
 ```
 
-## Документация
+## Documentation
 
-- [Релиз](RELEASING.md)
+- [Release](RELEASING.md)

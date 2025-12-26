@@ -1,8 +1,8 @@
-## Документация
+## Documentation
 
-### Локальная сборка
+### Local Build
 
-Для того чтобы развернуть сайт локально на текущей ветке/теге:
+To deploy the site locally on the current branch/tag:
 
 1.  ```bash
     git checkout <branch/tag>
@@ -23,11 +23,10 @@
     mkdocs serve 
     ```
 
-### Схемы
+### Schemas
 
-Документация поддерживает схемы формата `.drawio`. Поместите свою схему в каталог `assets`. В тексте
-markdown сошлитесь на схему как на обычную markdown-картинку. Путь к изображению должен быть
-относительным:
+Documentation supports `.drawio` format schemas. Place your schema in the `assets` directory. In the markdown text,
+refer to the schema as a regular markdown image. The path to the image must be relative:
 
 ```markdown
 ![](../../../../assets/<some-paths>/schema.drawio)
