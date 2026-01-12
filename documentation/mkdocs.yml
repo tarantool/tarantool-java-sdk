@@ -33,7 +33,14 @@ plugins:
           link: "/en/"
           name: 🇺🇸 EN
           build: true
-
+          nav_translations:
+            Главная: Home
+            Документация: Documentation
+            Высокоуровневый клиент: High-Level Client
+            Архитектура: Architecture
+            Одиночный узел: Single Node
+            Кластер TarantoolDB: TarantoolDB Cluster
+            Кластер TQE: TQE Cluster
   - drawio:
       darkmode: true
   - plantuml:
@@ -85,9 +92,9 @@ theme:
       quote: octicons/quote-16
 
 nav:
-  - Home:
+  - Главная:
       - index.md
-  - Documentation:
+  - Документация:
       - documentation/index.md
       - Spring Data:
           - documentation/spring-data/index.md
@@ -98,9 +105,9 @@ nav:
           - documentation/spring-data/query-lua.md
           - documentation/spring-data/page-slice-pageable.md
           - documentation/spring-data/scroll-api.md
-      - High-Level Client:
+      - Высокоуровневый клиент:
           - documentation/client/index.md
-          - Architecture:
+          - Архитектура:
               - documentation/client/arch/index.md
               - documentation/client/arch/high-level-arch.md
               - documentation/client/arch/heartbeat.md
@@ -113,17 +120,17 @@ nav:
               - documentation/client/arch/tuple_pojo_mapping.md
       - Tarantool Testcontainers:
           - documentation/testcontainers/index.md
-          - Single Node:
+          - Одиночный узел:
               - documentation/testcontainers/single/index.md
               - documentation/testcontainers/single/single-node-testcontainers-arch.md
               - documentation/testcontainers/single/single-node-testcontainers-standard-impl.md
               - documentation/testcontainers/single/single-node-testcontainers-standard-impl-example.md
-          - TarantoolDB Cluster:
+          - Кластер TarantoolDB:
               - documentation/testcontainers/tdb/index.md
               - documentation/testcontainers/tdb/tdb-cluster-testcontainers-arch.md
               - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl.md
               - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example.md
-          - TQE Cluster:
+          - Кластер TQE:
               - documentation/testcontainers/tqe/index.md
               - documentation/testcontainers/tqe/tqe-cluster-arch.md
               - documentation/testcontainers/tqe/tqe-cluster-example.md
