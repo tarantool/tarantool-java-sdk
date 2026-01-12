@@ -2,6 +2,7 @@ site_name: Tarantool Java SDK
 copyright: Copyright ©️ 2025 VK Tech
 repo_name: tarantool/tarantool-java-sdk
 repo_url: https://github.com/tarantool/tarantool-java-sdk
+site_url: https://tarantool.github.io/tarantool-java-sdk/
 strict: true
 
 extra:
@@ -25,11 +26,14 @@ plugins:
       languages:
         - locale: ru
           default: true
+          link: "/"
           name: 🇷🇺 RU
           build: true
         - locale: en
+          link: "/en/"
           name: 🇺🇸 EN
           build: true
+
   - drawio:
       darkmode: true
   - plantuml:
