@@ -34,7 +34,7 @@ jobs:
 
       - name: Publish to Maven Central
         run: |
-          ./mvnw -B clean deploy -PsonatypeRelease -DskipTests -pl '!jacoco-coverage-aggregate-report'
+          ./mvnw -B clean deploy -PsonatypeRelease -DskipTests -pl '!jacoco-coverage-aggregate-report,!documentation'
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USER }}
           MAVEN_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
