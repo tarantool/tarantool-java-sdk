@@ -1,0 +1,34 @@
+---
+title: Connection to single instance Tarantool
+---
+
+To connect to a single instance, run the following code:
+
+=== "tarantool-java-sdk"
+
+    ```java title="Connection to single instance Tarantool"
+    --8<-- "client/TarantoolSingleInstanceConnectionTJSDKExample.java:tarantool-single-instance-tjsdk"
+    ```
+
+    ```java title="Parent abstract class to create docker container"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    ```    
+ 
+    ```java title="Class to create container"
+    --8<-- "testcontainers/utils/TarantoolSingleNodeConfigUtils.java:create-single-instance"
+    ```
+
+=== "cartridge-driver"
+
+    ```java title="Connection to single instance Tarantool"
+    --8<-- "client/TarantoolSingleInstanceConnectionCartridgeDriverExample.java:tarantool-single-instance-cartridge-driver"
+    ```
+
+    ```java title="Parent abstract class to create docker container"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    ```    
+ 
+    ```java title="Class to create container"
+    --8<-- "testcontainers/utils/TarantoolSingleNodeConfigUtils.java:create-single-instance"
+    ```
+    

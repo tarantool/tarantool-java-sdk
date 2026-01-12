@@ -3,6 +3,7 @@ copyright: Copyright ©️ 2025 VK Tech
 repo_name: tarantool/tarantool-java-sdk
 repo_url: https://github.com/tarantool/tarantool-java-sdk
 site_url: https://tarantool.github.io/tarantool-java-sdk/
+docs_dir: doc-src
 strict: true
 
 extra:
@@ -41,10 +42,14 @@ plugins:
             Одиночный узел: Single Node
             Кластер TarantoolDB: TarantoolDB Cluster
             Кластер TQE: TQE Cluster
+            Примеры использования: Usage examples
+            Подключение к узлам: Connecting to nodes
   - drawio:
       darkmode: true
   - plantuml:
       puml_url: https://www.plantuml.com/plantuml/
+      # в секундах(in seconds)
+      request_timeout: 300
 
 theme:
   features:
@@ -95,51 +100,56 @@ nav:
   - Главная:
       - index.md
   - Документация:
-      - documentation/index.md
+      - pages/index.md
       - Spring Data:
-          - documentation/spring-data/index.md
-          - documentation/spring-data/configuration.md
-          - documentation/spring-data/repository.md
-          - documentation/spring-data/derived-methods.md
-          - documentation/spring-data/sort.md
-          - documentation/spring-data/query-lua.md
-          - documentation/spring-data/page-slice-pageable.md
-          - documentation/spring-data/scroll-api.md
+          - pages/spring-data/index.md
+          - pages/spring-data/configuration.md
+          - pages/spring-data/repository.md
+          - pages/spring-data/derived-methods.md
+          - pages/spring-data/sort.md
+          - pages/spring-data/query-lua.md
+          - pages/spring-data/page-slice-pageable.md
+          - pages/spring-data/scroll-api.md
       - Высокоуровневый клиент:
-          - documentation/client/index.md
+          - pages/client/index.md
           - Архитектура:
-              - documentation/client/arch/index.md
-              - documentation/client/arch/high-level-arch.md
-              - documentation/client/arch/heartbeat.md
-              - documentation/client/arch/balancer.md
-              - documentation/client/arch/connection-pool.md
-              - documentation/client/arch/instance-connection-group.md
-              - documentation/client/arch/exception-handling.md
-              - documentation/client/arch/connection-to-multiple-nodes.md
-              - documentation/client/arch/call.md
-              - documentation/client/arch/tuple_pojo_mapping.md
+              - pages/client/arch/index.md
+              - pages/client/arch/high-level-arch.md
+              - pages/client/arch/heartbeat.md
+              - pages/client/arch/balancer.md
+              - pages/client/arch/connection-pool.md
+              - pages/client/arch/instance-connection-group.md
+              - pages/client/arch/exception-handling.md
+              - pages/client/arch/connection-to-multiple-nodes.md
+              - pages/client/arch/call.md
+              - pages/client/arch/tuple_pojo_mapping.md
+          - Примеры использования:
+              - pages/client/examples/index.md
+              - Подключение к узлам:
+                  - pages/client/examples/connection/index.md
+                  - pages/client/examples/connection/single-node.md
       - Tarantool Testcontainers:
-          - documentation/testcontainers/index.md
+          - pages/testcontainers/index.md
           - Одиночный узел:
-              - documentation/testcontainers/single/index.md
-              - documentation/testcontainers/single/single-node-testcontainers-arch.md
-              - documentation/testcontainers/single/single-node-testcontainers-standard-impl.md
-              - documentation/testcontainers/single/single-node-testcontainers-standard-impl-example.md
+              - pages/testcontainers/single/index.md
+              - pages/testcontainers/single/single-node-testcontainers-arch.md
+              - pages/testcontainers/single/single-node-testcontainers-standard-impl.md
+              - pages/testcontainers/single/single-node-testcontainers-standard-impl-example.md
           - Кластер TarantoolDB:
-              - documentation/testcontainers/tdb/index.md
-              - documentation/testcontainers/tdb/tdb-cluster-testcontainers-arch.md
-              - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl.md
-              - documentation/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example.md
+              - pages/testcontainers/tdb/index.md
+              - pages/testcontainers/tdb/tdb-cluster-testcontainers-arch.md
+              - pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl.md
+              - pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example.md
           - Кластер TQE:
-              - documentation/testcontainers/tqe/index.md
-              - documentation/testcontainers/tqe/tqe-cluster-arch.md
-              - documentation/testcontainers/tqe/tqe-cluster-example.md
+              - pages/testcontainers/tqe/index.md
+              - pages/testcontainers/tqe/tqe-cluster-arch.md
+              - pages/testcontainers/tqe/tqe-cluster-example.md
 
 markdown_extensions:
+  - md_in_html
   - tables
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - footnotes
@@ -153,11 +163,19 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __spanz
       pygments_lang_class: true
+      default_lang: java
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: doc-src/java/src
   - def_list
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 exclude_docs: |
   venv
