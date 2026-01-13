@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testcontainers.single.CreateSingleNode;
+import testcontainers.single.SingleNodeConfigUtils;
 
 import io.tarantool.client.box.TarantoolBoxClient;
 import io.tarantool.client.factory.TarantoolBoxClientBuilder;
@@ -36,8 +36,8 @@ public class SingleNodeConnectionNewConnectorTest extends SingleNodeConnection {
         InstanceConnectionGroup.builder()
             .withHost(nodeAddress.getHostName())
             .withPort(nodeAddress.getPort())
-            .withUser(CreateSingleNode.LOGIN)
-            .withPassword(CreateSingleNode.PWD.toString())
+            .withUser(SingleNodeConfigUtils.LOGIN)
+            .withPassword(SingleNodeConfigUtils.PWD.toString())
             .build();
 
     final TarantoolBoxClientBuilder clientBuilder =

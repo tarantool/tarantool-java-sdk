@@ -27,7 +27,7 @@ import io.tarantool.autogen.groups.groupsProperty.replicasets.replicasetsPropert
 import io.tarantool.autogen.groups.groupsProperty.replicasets.replicasetsProperty.instances.instancesProperty.iproto.Iproto;
 import io.tarantool.autogen.groups.groupsProperty.replicasets.replicasetsProperty.instances.instancesProperty.iproto.listen.Listen;
 
-public class CreateSingleNode {
+public class SingleNodeConfigUtils {
 
   public static final String NODE = "test-node";
 
@@ -55,7 +55,7 @@ public class CreateSingleNode {
                   listen:
                   - uri: "0.0.0.0:3301"
    */
-  public static Path createSingleNodeConfig(Path tempDir) throws IOException {
+  public static Path createConfig(Path tempDir) throws IOException {
     final Path pathToConfigFile = Files.createFile(tempDir.resolve("config.yaml"));
 
     final Credentials credentials =

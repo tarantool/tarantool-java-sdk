@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
 import org.testcontainers.utility.DockerImageName;
-import testcontainers.single.CreateSingleNode;
+import testcontainers.single.SingleNodeConfigUtils;
 
 public abstract class SingleNodeConnection {
 
@@ -43,7 +43,7 @@ public abstract class SingleNodeConnection {
 
   protected static TarantoolContainer<Tarantool3Container> createSingleNodeContainer(Path tempPath)
       throws IOException {
-    final Path pathToConfig = CreateSingleNode.createSingleNodeConfig(tempPath);
+    final Path pathToConfig = SingleNodeConfigUtils.createConfig(tempPath);
     return new Tarantool3Container(image, "test-node").withConfigPath(pathToConfig);
   }
 }

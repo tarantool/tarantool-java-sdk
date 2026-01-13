@@ -15,7 +15,7 @@ To connect to a single node, run the following code:
     ```    
  
     ```java title="Class to create container"
-    --8<-- "src/testcontainers/single/CreateSingleNode.java:create-single-node"
+    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
     ```
 
 === "cartridge-java"
@@ -29,6 +29,6 @@ To connect to a single node, run the following code:
     ```    
  
     ```java title="Class to create container"
-    --8<-- "src/testcontainers/single/CreateSingleNode.java:create-single-node"
+    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
     ```
     

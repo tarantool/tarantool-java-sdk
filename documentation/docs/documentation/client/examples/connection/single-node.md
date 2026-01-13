@@ -15,7 +15,7 @@ title: Подключение к одиночному узлу
     ```    
  
     ```java title="Класс, который создает контейнер"
-    --8<-- "src/testcontainers/single/CreateSingleNode.java:create-single-node"
+    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
     ```
 
 === "cartridge-java"
@@ -29,6 +29,6 @@ title: Подключение к одиночному узлу
     ```    
  
     ```java title="Класс, который создает контейнер"
-    --8<-- "src/testcontainers/single/CreateSingleNode.java:create-single-node"
+    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
     ```
     

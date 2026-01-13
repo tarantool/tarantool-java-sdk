@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testcontainers.single.CreateSingleNode;
+import testcontainers.single.SingleNodeConfigUtils;
 
 import io.tarantool.driver.api.TarantoolClient;
 import io.tarantool.driver.api.TarantoolClientFactory;
@@ -45,7 +45,7 @@ public class SingleNodeConnectionCartridgeJavaTest extends SingleNodeConnection 
 
     return TarantoolClientFactory.createClient()
         .withAddress(nodeAddress.getHostName(), nodeAddress.getPort())
-        .withCredentials(CreateSingleNode.LOGIN, CreateSingleNode.PWD.toString())
+        .withCredentials(SingleNodeConfigUtils.LOGIN, SingleNodeConfigUtils.PWD.toString())
         .build();
   }
 }
