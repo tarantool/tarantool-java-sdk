@@ -20,9 +20,11 @@ import testcontainers.single.CreateSingleNode;
 
 public abstract class SingleNodeConnection {
 
+  protected static final String TARANTOOL_TAG = "3.6.0";
+
   @TempDir protected static Path TEMP_DIR;
 
-  private static final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.4.1");
+  private static final DockerImageName image = DockerImageName.parse("tarantool/tarantool:" + TARANTOOL_TAG);
 
   protected static TarantoolContainer<Tarantool3Container> CONTAINER;
 
@@ -33,7 +35,7 @@ public abstract class SingleNodeConnection {
   }
 
   @AfterAll
-  static void afterAll() throws IOException {
+  static void afterAll() {
     CONTAINER.stop();
   }
 

@@ -32,7 +32,7 @@ public class SingleNodeConnectionCartridgeJavaTest extends SingleNodeConnection 
       final Object object = result.get(0);
 
       Assertions.assertInstanceOf(String.class, object);
-      Assertions.assertTrue(((String) object).contains("3.4.1"));
+      Assertions.assertTrue(((String) object).contains(TARANTOOL_TAG));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

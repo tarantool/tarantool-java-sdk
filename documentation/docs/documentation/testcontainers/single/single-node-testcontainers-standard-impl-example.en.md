@@ -143,7 +143,7 @@ public class TestClass {
 }
 ```
 
-Let's create a container for `Tarantool 3.4.1` and start it:
+Let's create a container for `Tarantool 3.6.0` and start it:
 
 ```java
 import java.io.IOException;
@@ -188,7 +188,7 @@ public class TestClass {
   public void test() throws IOException, InterruptedException {
     final Path pathToConfigFile = createSimpleTestConfigFile(tempDir);
 
-    final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.4.1");
+    final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.6.0");
 
     // NODE must match the instance name in the configuration file
     try (TarantoolContainer<Tarantool3Container> container = new Tarantool3Container(image, NODE)
@@ -250,10 +250,10 @@ public class TestClass {
 As a result of the execution, you will get similar logs:
 
 ```
-15:15:31.769 [main] INFO  tc.tarantool/tarantool:3.4.1 - Creating container for image: tarantool/tarantool:3.4.1
-15:15:32.185 [main] INFO  tc.tarantool/tarantool:3.4.1 - Container tarantool/tarantool:3.4.1 is starting: eb542dfac096dead65b1f00e39f1926d4dfc8267dd0e8b3a7f4ecae62d02d306
+15:15:31.769 [main] INFO  tc.tarantool/tarantool:3.6.0 - Creating container for image: tarantool/tarantool:3.6.0
+15:15:32.185 [main] INFO  tc.tarantool/tarantool:3.6.0 - Container tarantool/tarantool:3.6.0 is starting: eb542dfac096dead65b1f00e39f1926d4dfc8267dd0e8b3a7f4ecae62d02d306
 15:15:32.382 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: started
-15:15:32.395 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.364 [1] main/104/interactive main.cc:497 I> Tarantool 3.4.1-0-g0b3c0eb8c0b Linux-aarch64-RelWithDebInfo
+15:15:32.395 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.364 [1] main/104/interactive main.cc:497 I> Tarantool 3.6.0-0-g0b3c0eb8c0b Linux-aarch64-RelWithDebInfo
 15:15:32.395 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.364 [1] main/104/interactive main.cc:499 I> log level 5 (INFO)
 15:15:32.395 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.364 [1] main/104/interactive gc.c:131 I> wal/engine cleanup is paused
 15:15:32.396 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.365 [1] main/104/interactive tuple.c:411 I> mapping 268435456 bytes for memtx tuple arena...
@@ -295,5 +295,5 @@ As a result of the execution, you will get similar logs:
 15:15:32.420 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.389 [1] main/104/interactive box.cc:444 I> box switched to rw
 15:15:32.420 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.389 [1] main/107/gc gc.c:319 I> wal/engine cleanup is resumed
 15:15:32.421 [docker-java-stream-1077198046] INFO  o.t.c.tarantool.Tarantool3Container - [test-node] STDERR: 2025-08-27 12:15:32.391 [1] main main.cc:1072 I> entering the event loop
-15:15:32.451 [main] INFO  tc.tarantool/tarantool:3.4.1 - Container tarantool/tarantool:3.4.1 started in PT0.682201S
+15:15:32.451 [main] INFO  tc.tarantool/tarantool:3.6.0 - Container tarantool/tarantool:3.6.0 started in PT0.682201S
 ```

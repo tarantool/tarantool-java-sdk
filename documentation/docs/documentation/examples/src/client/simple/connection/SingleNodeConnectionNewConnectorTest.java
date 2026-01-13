@@ -50,7 +50,7 @@ public class SingleNodeConnectionNewConnectorTest extends SingleNodeConnection {
       final List<String> results = response.get();
 
       Assertions.assertEquals(1, results.size());
-      Assertions.assertTrue(results.get(0).contains("3.4.1"));
+      Assertions.assertTrue(results.get(0).contains(TARANTOOL_TAG));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
