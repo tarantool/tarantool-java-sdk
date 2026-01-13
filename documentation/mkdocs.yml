@@ -161,6 +161,7 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __spanz
       pygments_lang_class: true
+      default_lang: java
   - pymdownx.inlinehilite
   - pymdownx.snippets:
       check_paths: true

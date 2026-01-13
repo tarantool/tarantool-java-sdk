@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package testcontainers.single;
+package testcontainers.utils;
 
 // --8<-- [start:create-single-node]
 

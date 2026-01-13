@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package client.simple.connection;
+package client.examples.connection.single;
 
 // --8<-- [start:new-simple-connection]
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testcontainers.single.SingleNodeConfigUtils;
+import testcontainers.utils.SingleNodeConfigUtils;
 
 import io.tarantool.client.box.TarantoolBoxClient;
 import io.tarantool.client.factory.TarantoolBoxClientBuilder;
@@ -21,7 +21,7 @@ import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.mapping.TarantoolResponse;
 import io.tarantool.pool.InstanceConnectionGroup;
 
-public class SingleNodeConnectionNewConnectorTest extends SingleNodeConnection {
+public class SingleNodeConnectionNewConnectorExample extends SingleNodeConnectionAbstractExample {
 
   @Test
   @Override

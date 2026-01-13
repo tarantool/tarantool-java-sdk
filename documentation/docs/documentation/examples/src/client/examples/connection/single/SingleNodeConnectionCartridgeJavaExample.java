@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package client.simple.connection;
+package client.examples.connection.single;
 
 // --8<-- [start:old-simple-connection]
 
@@ -12,14 +12,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import testcontainers.single.SingleNodeConfigUtils;
+import testcontainers.utils.SingleNodeConfigUtils;
 
 import io.tarantool.driver.api.TarantoolClient;
 import io.tarantool.driver.api.TarantoolClientFactory;
 import io.tarantool.driver.api.TarantoolResult;
 import io.tarantool.driver.api.tuple.TarantoolTuple;
 
-public class SingleNodeConnectionCartridgeJavaTest extends SingleNodeConnection {
+public class SingleNodeConnectionCartridgeJavaExample extends SingleNodeConnectionAbstractExample {
 
   @Test
   @Override

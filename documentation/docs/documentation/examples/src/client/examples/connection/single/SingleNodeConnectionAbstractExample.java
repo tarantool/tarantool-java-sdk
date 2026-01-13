@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package client.simple.connection;
+package client.examples.connection.single;
 
 // --8<-- [start:single-node-connection]
 
@@ -16,15 +16,16 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
 import org.testcontainers.utility.DockerImageName;
-import testcontainers.single.SingleNodeConfigUtils;
+import testcontainers.utils.SingleNodeConfigUtils;
 
-public abstract class SingleNodeConnection {
+public abstract class SingleNodeConnectionAbstractExample {
 
   protected static final String TARANTOOL_TAG = "3.6.0";
 
   @TempDir protected static Path TEMP_DIR;
 
-  private static final DockerImageName image = DockerImageName.parse("tarantool/tarantool:" + TARANTOOL_TAG);
+  private static final DockerImageName image =
+      DockerImageName.parse("tarantool/tarantool:" + TARANTOOL_TAG);
 
   protected static TarantoolContainer<Tarantool3Container> CONTAINER;
 

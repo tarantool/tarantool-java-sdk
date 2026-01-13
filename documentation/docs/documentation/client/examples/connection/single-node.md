@@ -7,28 +7,27 @@ title: Подключение к одиночному узлу
 === "tarantool-java-sdk"
 
     ```java title="Подключение к одному узлу Tarantool"
-    --8<-- "src/client/simple/connection/SingleNodeConnectionNewConnectorTest.java:new-simple-connection"
+    --8<-- "src/client/examples/connection/single/SingleNodeConnectionNewConnectorExample.java:new-simple-connection"
     ```
 
     ```java title="Родительский класс с созданием контейнера"
-    --8<-- "src/client/simple/connection/SingleNodeConnection.java:single-node-connection"
+    --8<-- "src/client/examples/connection/single/SingleNodeConnectionAbstractExample.java:single-node-connection"
     ```    
  
     ```java title="Класс, который создает контейнер"
-    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
+    --8<-- "src/testcontainers/utils/SingleNodeConfigUtils.java:create-single-node"
     ```
 
 === "cartridge-java"
 
     ```java title="Подключение к одному узлу Tarantool"
-    --8<-- "src/client/simple/connection/SingleNodeConnectionCartridgeJavaTest.java:old-simple-connection"
+    --8<-- "src/client/examples/connection/single/SingleNodeConnectionCartridgeJavaExample.java:old-simple-connection"
     ```
 
     ```java title="Родительский класс с созданием контейнера"
-    --8<-- "src/client/simple/connection/SingleNodeConnection.java:single-node-connection"
+    --8<-- "src/client/examples/connection/single/SingleNodeConnectionAbstractExample.java:single-node-connection"
     ```    
  
     ```java title="Класс, который создает контейнер"
-    --8<-- "src/testcontainers/single/SingleNodeConfigUtils.java:create-single-node"
+    --8<-- "src/testcontainers/utils/SingleNodeConfigUtils.java:create-single-node"
     ```
-    
