@@ -23,9 +23,9 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 
 ## Project Status
 
-| tarantool-java-sdk Version | tarantool-spring-data Version |            Spring Boot Version             |
-|:-------------------------:|:----------------------------:|:-----------------------------------------:|
-|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10 |
+| tarantool-java-sdk Version | tarantool-spring-data Version |                Spring Boot Version                |
+|:-------------------------:|:----------------------------:|:-------------------------------------------------:|
+|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10 / 3.5.7 |
 
 ### Tarantool Version and Supported Client Modules
 
@@ -88,7 +88,7 @@ Include the module in your project as follows:
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-34</artifactId>
+    <artifactId>tarantool-spring-data-35</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>
