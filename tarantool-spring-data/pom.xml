@@ -23,6 +23,7 @@
     <module>tarantool-spring-data-32</module>
     <module>tarantool-spring-data-33</module>
     <module>tarantool-spring-data-34</module>
+    <module>tarantool-spring-data-35</module>
   </modules>
 
   <properties>
