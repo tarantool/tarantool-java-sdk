@@ -195,7 +195,7 @@ stop
     
       @Test
       public void testCloseWithSafeMount() {
-        final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.4.1");
+        final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.6.0");
         final Path pathToConfigFile = Paths.get("path/to/config.yaml");
     
         try (TarantoolContainer<Tarantool3Container> container = new Tarantool3Container(image,
@@ -228,7 +228,7 @@ stop
     
       @Test
       public void testCloseWithRemoveMount() {
-        final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.4.1");
+        final DockerImageName image = DockerImageName.parse("tarantool/tarantool:3.6.0");
         final Path pathToConfigFile = Paths.get("path/to/config.yaml");
     
         try (TarantoolContainer<Tarantool3Container> container = new Tarantool3Container(image,
