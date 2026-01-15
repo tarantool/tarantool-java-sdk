@@ -10,7 +10,7 @@ on:
 jobs:
   publish-snapshot:
     if: "!contains(github.event.head_commit.message, '[maven-release-plugin]')"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04-self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
