@@ -18,7 +18,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy dev documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04-self-hosted
     defaults:
       run:
         working-directory: documentation
