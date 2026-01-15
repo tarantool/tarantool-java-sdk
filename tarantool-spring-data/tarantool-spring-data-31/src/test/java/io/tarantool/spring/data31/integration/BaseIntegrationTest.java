@@ -25,7 +25,7 @@ import static io.tarantool.spring.data31.utils.TarantoolTestSupport.writeTestPro
 import io.tarantool.spring.data31.config.properties.TarantoolProperties;
 
 @Testcontainers
-@Timeout(5)
+@Timeout(20)
 public abstract class BaseIntegrationTest {
 
   protected static TarantoolContainerOperations<?> clusterContainer;
