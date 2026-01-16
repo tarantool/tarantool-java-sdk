@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>tarantool-spring-data-35</name>
+  <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework</description>
+  <url>https://tarantool.io</url>
+
+  <parent>
+    <groupId>io.tarantool</groupId>
+    <artifactId>tarantool-spring-data</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>tarantool-spring-data-35</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <spring.boot.version>3.5.7</spring.boot.version>
+    <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
+    <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring.boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-spring-data-core</artifactId>
+    </dependency>
+  </dependencies>
+</project>
