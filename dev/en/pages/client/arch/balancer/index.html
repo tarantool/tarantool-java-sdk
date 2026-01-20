@@ -1,0 +1,1152 @@
+
+<!DOCTYPE html>
+
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<link href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/balancer/" rel="canonical"/>
+<link href="../heartbeat/" rel="prev"/>
+<link href="../connection-pool/" rel="next"/>
+<link href="../../../../../pages/client/arch/balancer/" hreflang="ru" rel="alternate"/>
+<link href="./" hreflang="en" rel="alternate"/>
+<link href="../../../../../assets/images/favicon.png" rel="icon"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.0" name="generator"/>
+<title>Balancing - Tarantool Java SDK</title>
+<link href="../../../../../assets/stylesheets/main.618322db.min.css" rel="stylesheet"/>
+<link href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
+<style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.5%201.75v11.5c0%20.138.112.25.25.25h3.17a.75.75%200%200%201%200%201.5H2.75A1.75%201.75%200%200%201%201%2013.25V1.75C1%20.784%201.784%200%202.75%200h8.5C12.216%200%2013%20.784%2013%201.75v7.736a.75.75%200%200%201-1.5%200V1.75a.25.25%200%200%200-.25-.25h-8.5a.25.25%200%200%200-.25.25m13.274%209.537zl-4.557%204.45a.75.75%200%200%201-1.055-.008l-1.943-1.95a.75.75%200%200%201%201.062-1.058l1.419%201.425%204.026-3.932a.75.75%200%201%201%201.048%201.074M4.75%204h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M4%207.75A.75.75%200%200%201%204.75%207h2a.75.75%200%200%201%200%201.5h-2A.75.75%200%200%201%204%207.75%22/%3E%3C/svg%3E');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+<style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%203C6.5%203%202%206.6%202%2011c0%202.1%201%204.1%202.8%205.5%200%20.6-.4%202.2-2.8%204.5%200%200%203.5%200%206.5-2.5%201.1.3%202.3.5%203.5.5%205.5%200%2010-3.6%2010-8s-4.5-8-10-8m1%2012h-2v-2h2zm1.8-5c-.3.4-.7.6-1.1.8-.3.2-.4.3-.5.5-.2.2-.2.4-.2.7h-2c0-.5.1-.8.3-1.1.2-.2.6-.5%201.1-.8.3-.1.5-.3.6-.5s.2-.5.2-.7c0-.3-.1-.5-.3-.7s-.5-.3-.8-.3-.5.1-.7.2q-.3.15-.3.6h-2c.1-.7.4-1.3.9-1.7s1.2-.5%202.1-.5%201.7.2%202.2.6.8%201%20.8%201.7q.15.6-.3%201.2%22/%3E%3C/svg%3E');}</style>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback" rel="stylesheet"/>
+<style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+<link href="../../../../../css/drawio-darkmode.css" rel="stylesheet"/>
+<link href="../../../../../assets/mkdocs_puml/puml.css" rel="stylesheet"/>
+<link href="../../../../../assets/mkdocs_puml/interaction.css" rel="stylesheet"/>
+<link href="../../../../../css/drawio-darkmode.css" rel="stylesheet"/>
+<link href="../../../../../assets/mkdocs_puml/puml.css" rel="stylesheet"/>
+<link href="../../../../../assets/mkdocs_puml/interaction.css" rel="stylesheet"/>
+<script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+</head>
+<body data-md-color-accent="indigo" data-md-color-primary="indigo" data-md-color-scheme="slate" dir="ltr">
+<input autocomplete="off" class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+<input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+<label class="md-overlay" for="__drawer"></label>
+<div data-md-component="skip">
+<a class="md-skip" href="#balancers">
+          Skip to content
+        </a>
+</div>
+<div data-md-component="announce">
+</div>
+<div data-md-color-scheme="default" data-md-component="outdated" hidden="">
+</div>
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+<nav aria-label="Header" class="md-header__inner md-grid">
+<a aria-label="Tarantool Java SDK" class="md-header__button md-logo" data-md-component="logo" href="../../../../" title="Tarantool Java SDK">
+<svg fill="none" height="52" viewbox="0 0 52 52" width="52" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M19.819 8.58729C22.8355 6.8491 24.3438 5.98 26 5.98C27.6562 5.98 29.1645 6.8491 32.181 8.58729L38.019 11.9512C41.0355 13.6894 42.5438 14.5585 43.3719 15.99C44.2 17.4215 44.2 19.1597 44.2 22.6361V29.3639C44.2 32.8403 44.2 34.5785 43.3719 36.01C42.5438 37.4415 41.0355 38.3106 38.019 40.0488L32.181 43.4127C29.1645 45.1509 27.6562 46.02 26 46.02C24.3438 46.02 22.8355 45.1509 19.819 43.4127L13.981 40.0488C10.9645 38.3106 9.45621 37.4415 8.6281 36.01C7.8 34.5785 7.8 32.8403 7.8 29.3639V22.6361C7.8 19.1597 7.8 17.4215 8.6281 15.99C9.45621 14.5585 10.9645 13.6894 13.981 11.9512L19.819 8.58729ZM18.46 18.98C18.0292 18.98 17.68 19.3292 17.68 19.76V22.5141C17.68 22.9449 18.0292 23.2941 18.46 23.2941H23.063C23.4937 23.2941 23.843 23.6433 23.843 24.0741V34.84C23.843 35.2708 24.1922 35.62 24.623 35.62H27.377C27.8078 35.62 28.157 35.2708 28.157 34.84V24.0741C28.157 23.6433 28.5063 23.2941 28.937 23.2941H33.54C33.9708 23.2941 34.32 22.9449 34.32 22.5141V19.76C34.32 19.3292 33.9708 18.98 33.54 18.98H18.46Z" fill="white" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M0 24.7213C0 13.0676 0 7.2407 3.62035 3.62035C7.2407 0 13.0676 0 24.7213 0H27.2787C38.9324 0 44.7593 0 48.3796 3.62035C52 7.2407 52 13.0676 52 24.7213V27.2787C52 38.9324 52 44.7593 48.3796 48.3796C44.7593 52 38.9324 52 27.2787 52H24.7213C13.0676 52 7.2407 52 3.62035 48.3796C0 44.7593 0 38.9324 0 27.2787V24.7213ZM24.7213 1.56H27.2787C33.1497 1.56 37.396 1.56331 40.6338 1.99863C43.8268 2.42792 45.8045 3.25142 47.2766 4.72344C48.7486 6.19546 49.5721 8.17319 50.0014 11.3662C50.4367 14.604 50.44 18.8503 50.44 24.7213V27.2787C50.44 33.1497 50.4367 37.396 50.0014 40.6338C49.5721 43.8268 48.7486 45.8045 47.2766 47.2766C45.8045 48.7486 43.8268 49.5721 40.6338 50.0014C37.396 50.4367 33.1497 50.44 27.2787 50.44H24.7213C18.8503 50.44 14.604 50.4367 11.3662 50.0014C8.17319 49.5721 6.19546 48.7486 4.72344 47.2766C3.25142 45.8045 2.42792 43.8268 1.99863 40.6338C1.56331 37.396 1.56 33.1497 1.56 27.2787V24.7213C1.56 18.8503 1.56331 14.604 1.99863 11.3662C2.42792 8.17319 3.25142 6.19546 4.72344 4.72344C6.19546 3.25142 8.17319 2.42792 11.3662 1.99863C14.604 1.56331 18.8503 1.56 24.7213 1.56Z" fill="white" fill-rule="evenodd"></path>
+</svg>
+</a>
+<label class="md-header__button md-icon" for="__drawer">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+</label>
+<div class="md-header__title" data-md-component="header-title">
+<div class="md-header__ellipsis">
+<div class="md-header__topic">
+<span class="md-ellipsis">
+            Tarantool Java SDK
+          </span>
+</div>
+<div class="md-header__topic" data-md-component="header-topic">
+<span class="md-ellipsis">
+            
+              Balancing
+            
+          </span>
+</div>
+</div>
+</div>
+<form class="md-header__option" data-md-component="palette">
+<input aria-label="" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="slate" id="__palette_0" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_1" hidden="" title="">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+</label>
+<input aria-label="" class="md-option" data-md-color-accent="indigo" data-md-color-media="" data-md-color-primary="indigo" data-md-color-scheme="default" id="__palette_1" name="__palette" type="radio"/>
+<label class="md-header__button md-icon" for="__palette_0" hidden="" title="">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+</label>
+</form>
+<script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+<div class="md-header__option">
+<div class="md-select">
+<button aria-label="Select language" class="md-header__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"></path></svg>
+</button>
+<div class="md-select__inner">
+<ul class="md-select__list">
+<li class="md-select__item">
+<a class="md-select__link" href="../../../../../pages/client/arch/balancer/" hreflang="ru">
+              🇷🇺 RU
+            </a>
+</li>
+<li class="md-select__item">
+<a class="md-select__link" href="./" hreflang="en">
+              🇺🇸 EN
+            </a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="md-header__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tarantool/tarantool-java-sdk" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    tarantool/tarantool-java-sdk
+  </div>
+</a>
+</div>
+</nav>
+<nav aria-label="Tabs" class="md-tabs" data-md-component="tabs">
+<div class="md-grid">
+<ul class="md-tabs__list">
+<li class="md-tabs__item">
+<a class="md-tabs__link" href="../../../../">
+          
+  
+  
+    
+  
+  Home
+
+        </a>
+</li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="../../../">
+          
+  
+  
+    
+  
+  Documentation
+
+        </a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<div class="md-container" data-md-component="container">
+<main class="md-main" data-md-component="main">
+<div class="md-main__inner md-grid">
+<div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Navigation" class="md-nav md-nav--primary md-nav--lifted" data-md-level="0">
+<label class="md-nav__title" for="__drawer">
+<a aria-label="Tarantool Java SDK" class="md-nav__button md-logo" data-md-component="logo" href="../../../../" title="Tarantool Java SDK">
+<svg fill="none" height="52" viewbox="0 0 52 52" width="52" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M19.819 8.58729C22.8355 6.8491 24.3438 5.98 26 5.98C27.6562 5.98 29.1645 6.8491 32.181 8.58729L38.019 11.9512C41.0355 13.6894 42.5438 14.5585 43.3719 15.99C44.2 17.4215 44.2 19.1597 44.2 22.6361V29.3639C44.2 32.8403 44.2 34.5785 43.3719 36.01C42.5438 37.4415 41.0355 38.3106 38.019 40.0488L32.181 43.4127C29.1645 45.1509 27.6562 46.02 26 46.02C24.3438 46.02 22.8355 45.1509 19.819 43.4127L13.981 40.0488C10.9645 38.3106 9.45621 37.4415 8.6281 36.01C7.8 34.5785 7.8 32.8403 7.8 29.3639V22.6361C7.8 19.1597 7.8 17.4215 8.6281 15.99C9.45621 14.5585 10.9645 13.6894 13.981 11.9512L19.819 8.58729ZM18.46 18.98C18.0292 18.98 17.68 19.3292 17.68 19.76V22.5141C17.68 22.9449 18.0292 23.2941 18.46 23.2941H23.063C23.4937 23.2941 23.843 23.6433 23.843 24.0741V34.84C23.843 35.2708 24.1922 35.62 24.623 35.62H27.377C27.8078 35.62 28.157 35.2708 28.157 34.84V24.0741C28.157 23.6433 28.5063 23.2941 28.937 23.2941H33.54C33.9708 23.2941 34.32 22.9449 34.32 22.5141V19.76C34.32 19.3292 33.9708 18.98 33.54 18.98H18.46Z" fill="white" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M0 24.7213C0 13.0676 0 7.2407 3.62035 3.62035C7.2407 0 13.0676 0 24.7213 0H27.2787C38.9324 0 44.7593 0 48.3796 3.62035C52 7.2407 52 13.0676 52 24.7213V27.2787C52 38.9324 52 44.7593 48.3796 48.3796C44.7593 52 38.9324 52 27.2787 52H24.7213C13.0676 52 7.2407 52 3.62035 48.3796C0 44.7593 0 38.9324 0 27.2787V24.7213ZM24.7213 1.56H27.2787C33.1497 1.56 37.396 1.56331 40.6338 1.99863C43.8268 2.42792 45.8045 3.25142 47.2766 4.72344C48.7486 6.19546 49.5721 8.17319 50.0014 11.3662C50.4367 14.604 50.44 18.8503 50.44 24.7213V27.2787C50.44 33.1497 50.4367 37.396 50.0014 40.6338C49.5721 43.8268 48.7486 45.8045 47.2766 47.2766C45.8045 48.7486 43.8268 49.5721 40.6338 50.0014C37.396 50.4367 33.1497 50.44 27.2787 50.44H24.7213C18.8503 50.44 14.604 50.4367 11.3662 50.0014C8.17319 49.5721 6.19546 48.7486 4.72344 47.2766C3.25142 45.8045 2.42792 43.8268 1.99863 40.6338C1.56331 37.396 1.56 33.1497 1.56 27.2787V24.7213C1.56 18.8503 1.56331 14.604 1.99863 11.3662C2.42792 8.17319 3.25142 6.19546 4.72344 4.72344C6.19546 3.25142 8.17319 2.42792 11.3662 1.99863C14.604 1.56331 18.8503 1.56 24.7213 1.56Z" fill="white" fill-rule="evenodd"></path>
+</svg>
+</a>
+    Tarantool Java SDK
+  </label>
+<div class="md-nav__source">
+<a class="md-source" data-md-component="source" href="https://github.com/tarantool/tarantool-java-sdk" title="Go to repository">
+<div class="md-source__icon md-icon">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</div>
+<div class="md-source__repository">
+    tarantool/tarantool-java-sdk
+  </div>
+</a>
+</div>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_1" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../../">
+<span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+</a>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_1_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../">
+<span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="true" aria-labelledby="__nav_2_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Documentation
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../spring-data/">
+<span class="md-ellipsis">
+    
+  
+    Spring Data
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Spring Data
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/configuration/">
+<span class="md-ellipsis">
+    
+  
+    Client Configuration
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/repository/">
+<span class="md-ellipsis">
+    
+  
+    Repository API
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/derived-methods/">
+<span class="md-ellipsis">
+    
+  
+    Dynamic Queries
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/sort/">
+<span class="md-ellipsis">
+    
+  
+    Sorting
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/query-lua/">
+<span class="md-ellipsis">
+    
+  
+    Stored Procedures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/page-slice-pageable/">
+<span class="md-ellipsis">
+    
+  
+    Pagination
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../spring-data/scroll-api/">
+<span class="md-ellipsis">
+    
+  
+    Pagination (Scroll API)
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2_3" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../">
+<span class="md-ellipsis">
+    
+  
+    High-Level Client
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="true" aria-labelledby="__nav_2_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    High-Level Client
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_2_3_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_3_2" id="__nav_2_3_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="true" aria-labelledby="__nav_2_3_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_2_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../high-level-arch/">
+<span class="md-ellipsis">
+    
+  
+    Interaction with Tarantool Java SDK
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../heartbeat/">
+<span class="md-ellipsis">
+    
+  
+    Heartbeat Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Balancing
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Balancing
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#balancers">
+<span class="md-ellipsis">
+      
+        Balancers
+      
+    </span>
+</a>
+<nav aria-label="Balancers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#concept">
+<span class="md-ellipsis">
+      
+        Concept
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#available-default-implementations">
+<span class="md-ellipsis">
+      
+        Available Default Implementations
+      
+    </span>
+</a>
+<nav aria-label="Available Default Implementations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tarantoolroundrobinbalancer">
+<span class="md-ellipsis">
+      
+        TarantoolRoundRobinBalancer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tarantooldistributingroundrobinbalancer">
+<span class="md-ellipsis">
+      
+        TarantoolDistributingRoundRobinBalancer
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#client-balancing-configuration">
+<span class="md-ellipsis">
+      
+        Client Balancing Configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-balancers">
+<span class="md-ellipsis">
+      
+        Custom Balancers
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../connection-pool/">
+<span class="md-ellipsis">
+    
+  
+    Connection Pool
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../instance-connection-group/">
+<span class="md-ellipsis">
+    
+  
+    Connection Group
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../exception-handling/">
+<span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../connection-to-multiple-nodes/">
+<span class="md-ellipsis">
+    
+  
+    Connecting to Multiple Nodes
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../call/">
+<span class="md-ellipsis">
+    
+  
+    Stored Procedures
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../tuple_pojo_mapping/">
+<span class="md-ellipsis">
+    
+  
+    Data Mapping
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3_3" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../examples/">
+<span class="md-ellipsis">
+    
+  
+    Usage examples
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_3_3" id="__nav_2_3_3_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_2_3_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage examples
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_3_3_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../examples/connection/">
+<span class="md-ellipsis">
+    
+  
+    Connecting to nodes
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_3_3_2" id="__nav_2_3_3_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_3_3_2_label" class="md-nav" data-md-level="4">
+<label class="md-nav__title" for="__nav_2_3_3_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Connecting to nodes
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../examples/connection/single-node/">
+<span class="md-ellipsis">
+    
+  
+    Connection to single instance Tarantool
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_4" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../testcontainers/">
+<span class="md-ellipsis">
+    
+  
+    Tarantool Testcontainers
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_2_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Tarantool Testcontainers
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_4_2" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../testcontainers/single/">
+<span class="md-ellipsis">
+    
+  
+    Single Node
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_4_2" id="__nav_2_4_2_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_4_2_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_2_4_2">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Single Node
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/single/single-node-testcontainers-arch/">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/single/single-node-testcontainers-standard-impl/">
+<span class="md-ellipsis">
+    
+  
+    Standard Implementation of TarantoolContainer
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/single/single-node-testcontainers-standard-impl-example/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_4_3" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../testcontainers/tdb/">
+<span class="md-ellipsis">
+    
+  
+    TarantoolDB Cluster
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_4_3" id="__nav_2_4_3_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_4_3_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_2_4_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    TarantoolDB Cluster
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/tdb/tdb-cluster-testcontainers-arch/">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/">
+<span class="md-ellipsis">
+    
+  
+    Standard Implementation
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle" id="__nav_2_4_4" type="checkbox"/>
+<div class="md-nav__link md-nav__container">
+<a class="md-nav__link" href="../../../testcontainers/tqe/">
+<span class="md-ellipsis">
+    
+  
+    TQE Cluster
+  
+
+    
+  </span>
+</a>
+<label class="md-nav__link" for="__nav_2_4_4" id="__nav_2_4_4_label" tabindex="0">
+<span class="md-nav__icon md-icon"></span>
+</label>
+</div>
+<nav aria-expanded="false" aria-labelledby="__nav_2_4_4_label" class="md-nav" data-md-level="3">
+<label class="md-nav__title" for="__nav_2_4_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    TQE Cluster
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/tqe/tqe-cluster-arch/">
+<span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../../testcontainers/tqe/tqe-cluster-example/">
+<span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+<div class="md-sidebar__scrollwrap">
+<div class="md-sidebar__inner">
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#balancers">
+<span class="md-ellipsis">
+      
+        Balancers
+      
+    </span>
+</a>
+<nav aria-label="Balancers" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#concept">
+<span class="md-ellipsis">
+      
+        Concept
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#available-default-implementations">
+<span class="md-ellipsis">
+      
+        Available Default Implementations
+      
+    </span>
+</a>
+<nav aria-label="Available Default Implementations" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tarantoolroundrobinbalancer">
+<span class="md-ellipsis">
+      
+        TarantoolRoundRobinBalancer
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#tarantooldistributingroundrobinbalancer">
+<span class="md-ellipsis">
+      
+        TarantoolDistributingRoundRobinBalancer
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#client-balancing-configuration">
+<span class="md-ellipsis">
+      
+        Client Balancing Configuration
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#custom-balancers">
+<span class="md-ellipsis">
+      
+        Custom Balancers
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+</div>
+<div class="md-content" data-md-component="content">
+<nav aria-label="Navigation" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="../../../../">
+<span class="md-ellipsis">
+    About the Project
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../../../">
+<span class="md-ellipsis">
+    Documentation
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../../">
+<span class="md-ellipsis">
+    High-Level Client
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="../">
+<span class="md-ellipsis">
+    Architecture
+  </span>
+</a>
+</li>
+</ol>
+</nav>
+<article class="md-content__inner md-typeset">
+<h1>Balancing</h1>
+<h2 id="balancers">Balancers</h2>
+<p>The <code>Balancer</code> is a <code>TarantoolClient</code> component designed to distribute requests
+between Tarantool nodes.</p>
+<h3 id="concept">Concept</h3>
+<p>The balancer abstraction in <code>Tarantool Java EE</code> is represented by the <code>TarantoolBalancer</code> interface.
+Let's look at how balancing works in the Java client:</p>
+<figure id="balancer">
+<figcaption>How the balancer works</figcaption>
+<div class="mxgraph" data-mxgraph='{"toolbar-position": "bottom", "toolbar-nohide": "0", "tooltips": "1", "border": 5, "resize": "1", "edit": "_blank", "lightbox": "1", "toolbar": "pages tags zoom layers lightbox", "xml": "&lt;mxfile host=\"Electron\" agent=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36\" version=\"27.0.9\"&gt;\n  &lt;diagram name=\"\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u2014 1\" id=\"9wd-OknL7rSZnOqgLphC\"&gt;\n    &lt;mxGraphModel dx=\"1775\" dy=\"1252\" grid=\"1\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"1\" arrows=\"1\" fold=\"1\" page=\"1\" pageScale=\"1\" pageWidth=\"100\" pageHeight=\"100\" math=\"0\" shadow=\"0\"&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\"0\"/&gt;\n        &lt;mxCell id=\"1\" parent=\"0\"/&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-65\" value=\"Tarantool\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=none;verticalAlign=top;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry y=\"-245\" width=\"170\" height=\"230\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-1\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-43\" target=\"zxByFAXrsgrrTxBR9P66-18\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-9\" value=\"\u0417\u0430\u043f\u0440\u043e\u0441&amp;lt;div&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f (2)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-1\"&gt;\n          &lt;mxGeometry x=\"-0.0921\" y=\"-1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-46\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-14\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-43\" target=\"zxByFAXrsgrrTxBR9P66-65\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-15\" value=\"&amp;lt;span style=&amp;quot;&amp;quot;&amp;gt;\u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430 call/eval \u0437\u0430\u043f\u0440\u043e\u0441\u0430&amp;amp;nbsp;&amp;lt;/span&amp;gt;&amp;lt;div style=&amp;quot;&amp;quot;&amp;gt;\u043d\u0430 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u043d\u043e\u043c \u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0438 (6)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-14\"&gt;\n          &lt;mxGeometry x=\"-0.4573\" y=\"2\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint y=\"-18\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-43\" value=\"TarantoolClient\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;verticalAlign=middle;strokeColor=#82b366;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"-350\" y=\"-470\" width=\"150\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-2\" value=\"Node-1\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"55\" y=\"-215\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-3\" value=\"Node-2\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"55\" y=\"-125\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-4\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-5\" target=\"zxByFAXrsgrrTxBR9P66-18\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-7\" value=\"\u041f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u0435&amp;amp;nbsp;&amp;lt;div&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f (4)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-4\"&gt;\n          &lt;mxGeometry x=\"-0.0208\" y=\"-2\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-6\" y=\"17\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-5\" value=\"IProtoClientPool\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"-70\" y=\"-320\" width=\"110\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-2\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-18\" target=\"zxByFAXrsgrrTxBR9P66-43\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-8\" value=\"\u041f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u0435&amp;lt;div&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f (5)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-2\"&gt;\n          &lt;mxGeometry x=\"0.1344\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"48\" y=\"-9\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-3\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-18\" target=\"zxByFAXrsgrrTxBR9P66-5\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-6\" value=\"\u0417\u0430\u043f\u0440\u043e\u0441&amp;amp;nbsp;&amp;lt;span style=&amp;quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&amp;quot;&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f,&amp;lt;/span&amp;gt;&amp;lt;div&amp;gt;\u0438\u0441\u0445\u043e\u0434\u044f \u0438\u0437&amp;amp;nbsp;&amp;lt;span style=&amp;quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&amp;quot;&amp;gt;\u0430\u043b\u0433\u043e\u0440\u0438\u0442\u043c\u043e\u0432&amp;amp;nbsp;&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;&amp;lt;div&amp;gt;&amp;lt;span style=&amp;quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&amp;quot;&amp;gt;\u0431\u0430\u043b\u0430\u043d\u0441\u0438\u0440\u043e\u0432\u043a\u0438 (3)&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-3\"&gt;\n          &lt;mxGeometry x=\"0.0238\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"3\" y=\"-25\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-17\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-18\" target=\"zxByFAXrsgrrTxBR9P66-51\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-18\" value=\"Balancer\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#A26666;strokeColor=#6F0000;fontColor=#ffffff;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"-350\" y=\"-320\" width=\"150\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"7jExU3cN4XbpIhtpT97m-3\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-51\" target=\"zxByFAXrsgrrTxBR9P66-65\" edge=\"1\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"7jExU3cN4XbpIhtpT97m-5\" value=\"\u041e\u0442\u043f\u0440\u0430\u0432\u043a\u0430 space-specific \u0437\u0430\u043f\u0440\u043e\u0441\u0430&amp;amp;nbsp;&amp;lt;div&amp;gt;\u043d\u0430 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u043d\u043e\u043c \u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0438 (6)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" parent=\"7jExU3cN4XbpIhtpT97m-3\" vertex=\"1\" connectable=\"0\"&gt;\n          &lt;mxGeometry x=\"-0.0385\" y=\"1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint y=\"-14\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-10\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-51\" target=\"zxByFAXrsgrrTxBR9P66-55\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-11\" value=\"\u0412\u043e\u0437\u0432\u0440\u0430\u0442 CompletableFuture&amp;amp;lt;?&amp;amp;gt;&amp;lt;div&amp;gt;\u043d\u0430 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u0435 \u0440\u0435\u0437\u0443\u043b\u044c&amp;lt;span style=&amp;quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&amp;quot;&amp;gt;\u0442\u0430\u0442\u0430 (7)&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"2NBB5M8wE2fRZZQgNxB9-10\"&gt;\n          &lt;mxGeometry x=\"-0.2404\" y=\"-2\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-26\" y=\"-18\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-16\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-51\" target=\"zxByFAXrsgrrTxBR9P66-18\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-51\" value=\"TarantoolCrud/BoxSpace&amp;lt;div&amp;gt;(Person)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"-350\" y=\"-160\" width=\"150\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-55\" value=\"Java code\" style=\"shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#000000;fontColor=#000000;strokeColor=#000000;\" parent=\"1\" vertex=\"1\"&gt;\n          &lt;mxGeometry x=\"-550\" y=\"-280\" width=\"30\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-68\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-55\" target=\"zxByFAXrsgrrTxBR9P66-51\" edge=\"1\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-440\" y=\"-100\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"-285\" y=\"-170\" as=\"targetPoint\"/&gt;\n            &lt;Array as=\"points\"&gt;\n              &lt;mxPoint x=\"-440\" y=\"-250\"/&gt;\n              &lt;mxPoint x=\"-440\" y=\"-130\"/&gt;\n              &lt;mxPoint x=\"-350\" y=\"-130\"/&gt;\n            &lt;/Array&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-69\" value=\"Space specific&amp;lt;div&amp;gt;\u0437\u0430\u043f\u0440\u043e\u0441\u044b (1)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" parent=\"zxByFAXrsgrrTxBR9P66-68\" vertex=\"1\" connectable=\"0\"&gt;\n          &lt;mxGeometry x=\"0.4105\" y=\"-4\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"40\" y=\"-24\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"zxByFAXrsgrrTxBR9P66-84\" value=\"&amp;lt;span&amp;gt;Call/eval&amp;lt;/span&amp;gt;&amp;lt;div&amp;gt;&amp;lt;span&amp;gt;\u0437\u0430\u043f\u0440\u043e\u0441\u044b (1)&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-55\" target=\"zxByFAXrsgrrTxBR9P66-43\" edge=\"1\"&gt;\n          &lt;mxGeometry x=\"0.7867\" y=\"-20\" width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-50\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint y=\"-50\" as=\"targetPoint\"/&gt;\n            &lt;Array as=\"points\"&gt;\n              &lt;mxPoint x=\"-440\" y=\"-250\"/&gt;\n              &lt;mxPoint x=\"-440\" y=\"-440\"/&gt;\n            &lt;/Array&gt;\n            &lt;mxPoint as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-12\" style=\"edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;\" edge=\"1\" parent=\"1\" source=\"zxByFAXrsgrrTxBR9P66-43\" target=\"zxByFAXrsgrrTxBR9P66-55\"&gt;\n          &lt;mxGeometry relative=\"1\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-13\" value=\"\u0412\u043e\u0437\u0432\u0440\u0430\u0442 CompletableFuture&amp;amp;lt;?&amp;amp;gt;&amp;lt;div&amp;gt;\u043d\u0430 \u043f\u043e\u043b\u0443\u0447\u0435\u043d\u0438\u0435 \u0440\u0435\u0437\u0443\u043b\u044c&amp;lt;span style=&amp;quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&amp;quot;&amp;gt;\u0442\u0430\u0442\u0430 (7)&amp;lt;/span&amp;gt;&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-450\" y=\"-470\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-18\" value=\"\u0417\u0430\u043f\u0440\u043e\u0441&amp;lt;div&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f (2)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-380\" y=\"-215\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"19\" y=\"7\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"2NBB5M8wE2fRZZQgNxB9-19\" value=\"\u041f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u0435&amp;lt;div&amp;gt;\u0441\u043e\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u044f (5)&amp;lt;/div&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=none;\" vertex=\"1\" connectable=\"0\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-190\" y=\"-210\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;"}' style="max-width:100%;border:1px solid transparent;"></div></figure>
+<ol>
+<li>The programmer executes a request through the API of high-level clients (<code>TarantoolClient</code>,
+   <code>TarantoolCrudClient</code> or <code>TarantoolBoxClient</code>)</li>
+<li>The high-level client requests a connection to execute the request from <code>TarantoolBalancer</code></li>
+<li>The balancer, using its logic, requests an available node from the connection pool (<code>IProtoClientPool</code>)
+   Node availability is determined using the <a href="../heartbeat/">heartbeat</a> mechanism</li>
+<li>The connection pool returns an available connection to the balancer</li>
+<li>The balancer provides the high-level client with a connection</li>
+<li>The high-level client executes the request through the provided connection</li>
+<li>The high-level client returns a <code>CompletableFuture&lt;?&gt;</code> with the result to the calling code</li>
+</ol>
+<details class="warning" open="open">
+<summary>Important</summary>
+<p>The actual connection to the node via the selected connection occurs upon the first selection.</p>
+<p>If the connection is unavailable, the balancer will attempt to select the next one from the available. If there is 
+no available connection, the client will throw a <code>NoAvailableClientsException</code>.</p>
+</details>
+<h3 id="available-default-implementations">Available Default Implementations</h3>
+<p>By default, the following types of balancers are available:</p>
+<h4 id="tarantoolroundrobinbalancer">TarantoolRoundRobinBalancer</h4>
+<figure id="round-robin-balancer">
+<figcaption>How the balancer works</figcaption>
+<div class="mxgraph" data-mxgraph='{"toolbar-position": "bottom", "toolbar-nohide": "0", "tooltips": "1", "border": 5, "resize": "1", "edit": "_blank", "lightbox": "1", "toolbar": "pages tags zoom layers lightbox", "xml": "&lt;mxfile host=\"Electron\" agent=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36\" version=\"27.0.9\"&gt;\n  &lt;diagram name=\"\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u2014 1\" id=\"p-6GdHOBzvLHMKwX6Gx9\"&gt;\n    &lt;mxGraphModel dx=\"2113\" dy=\"1129\" grid=\"1\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"1\" arrows=\"1\" fold=\"1\" page=\"1\" pageScale=\"1\" pageWidth=\"350\" pageHeight=\"790\" math=\"0\" shadow=\"0\"&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\"0\"/&gt;\n        &lt;mxCell id=\"1\" parent=\"0\"/&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-1\" value=\"TarantoolRoundRobinBalancer\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-330\" y=\"365\" width=\"200\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-2\" value=\"IProtoClientPool\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-30\" y=\"20\" width=\"230\" height=\"750\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-3\" value=\"Node-1\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"270\" y=\"220\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-5\" value=\"Node-2\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"270\" y=\"525\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-6\" value=\"InstanceConnectionGroup-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-5\" y=\"60\" width=\"185\" height=\"380\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-7\" value=\"PoolEntry-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"30\" y=\"100\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-8\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"40\" y=\"130\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-9\" value=\"PoolEntry-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"30\" y=\"215\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-10\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"40\" y=\"245\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-13\" value=\"InstanceConnectionGroup-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-5\" y=\"480\" width=\"185\" height=\"270\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-14\" value=\"PoolEntry-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"30\" y=\"520\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-15\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"40\" y=\"550\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-18\" value=\"PoolEntry-3\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"30\" y=\"330\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-19\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"40\" y=\"360\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-23\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-19\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"10\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-24\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-10\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"10\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-25\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-8\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"10\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-26\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-15\" target=\"EC2_PuojYjPAR6kKhmU2-5\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"10\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-27\" value=\"PoolEntry-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"30\" y=\"640\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-28\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"40\" y=\"670\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-30\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-28\" target=\"EC2_PuojYjPAR6kKhmU2-5\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"430\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"10\" y=\"380\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-31\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;2&amp;lt;/font&amp;gt;\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-28\"&gt;\n          &lt;mxGeometry x=\"-0.2986\" width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-230\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"-180\" y=\"350\" as=\"targetPoint\"/&gt;\n            &lt;mxPoint y=\"-1\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-32\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-15\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-220\" y=\"620\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"120\" y=\"845\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-36\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;1&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-32\"&gt;\n          &lt;mxGeometry x=\"0.0705\" y=\"-1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-30\" y=\"-42\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-33\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-19\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-200\" y=\"380\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"140\" y=\"485\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-39\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;5&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-33\"&gt;\n          &lt;mxGeometry x=\"0.1374\" y=\"1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-37\" y=\"7\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-34\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-10\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"40\" y=\"380\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"280\" y=\"385\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-37\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;4&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-34\"&gt;\n          &lt;mxGeometry x=\"0.103\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-33\" y=\"24\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-35\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-8\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-40\" y=\"220\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"200\" y=\"225\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-38\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;3&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-35\"&gt;\n          &lt;mxGeometry x=\"0.051\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-29\" y=\"36\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;"}' style="max-width:100%;border:1px solid transparent;"></div></figure>
+<p>This implementation of the <code>TarantoolBalancer</code> interface performs connection selection according to the following
+algorithm:</p>
+<ol>
+<li>Selection of the group of connections with which the balancing starts (the order is not deterministic).</li>
+<li>Connection selection within the group is performed in order from first to last.</li>
+<li>After the last connection in the current group, the balancer moves to connections belonging to
+   another group.</li>
+</ol>
+<h4 id="tarantooldistributingroundrobinbalancer">TarantoolDistributingRoundRobinBalancer</h4>
+<figure id="round-robin-balancer">
+<figcaption>How the balancer works</figcaption>
+<div class="mxgraph" data-mxgraph='{"toolbar-position": "bottom", "toolbar-nohide": "0", "tooltips": "1", "border": 5, "resize": "1", "edit": "_blank", "lightbox": "1", "toolbar": "pages tags zoom layers lightbox", "xml": "&lt;mxfile host=\"Electron\" agent=\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.9 Chrome/134.0.6998.205 Electron/35.4.0 Safari/537.36\" version=\"27.0.9\"&gt;\n  &lt;diagram name=\"\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u2014 1\" id=\"p-6GdHOBzvLHMKwX6Gx9\"&gt;\n    &lt;mxGraphModel dx=\"1604\" dy=\"790\" grid=\"1\" gridSize=\"10\" guides=\"1\" tooltips=\"1\" connect=\"1\" arrows=\"1\" fold=\"1\" page=\"1\" pageScale=\"1\" pageWidth=\"370\" pageHeight=\"790\" math=\"0\" shadow=\"0\"&gt;\n      &lt;root&gt;\n        &lt;mxCell id=\"0\"/&gt;\n        &lt;mxCell id=\"1\" parent=\"0\"/&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-1\" value=\"TarantoolDistributingRoundRobinBalancer\" style=\"rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-350\" y=\"365\" width=\"240\" height=\"60\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-2\" value=\"IProtoClientPool\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#dae8fc;strokeColor=#6c8ebf;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"-10\" y=\"20\" width=\"230\" height=\"750\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-3\" value=\"Node-1\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"290\" y=\"220\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-5\" value=\"Node-2\" style=\"shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"290\" y=\"525\" width=\"60\" height=\"80\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-6\" value=\"InstanceConnectionGroup-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"15\" y=\"60\" width=\"185\" height=\"380\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-7\" value=\"PoolEntry-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"50\" y=\"100\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-8\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"60\" y=\"130\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-9\" value=\"PoolEntry-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"50\" y=\"215\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-10\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"60\" y=\"245\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-13\" value=\"InstanceConnectionGroup-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"15\" y=\"480\" width=\"185\" height=\"270\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-14\" value=\"PoolEntry-1\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"50\" y=\"520\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-15\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"60\" y=\"550\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-18\" value=\"PoolEntry-3\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#d5e8d4;strokeColor=#82b366;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"50\" y=\"330\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-19\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"60\" y=\"360\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-23\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-19\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"30\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-24\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-10\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"30\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-25\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-8\" target=\"EC2_PuojYjPAR6kKhmU2-3\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"30\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-26\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-15\" target=\"EC2_PuojYjPAR6kKhmU2-5\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"30\" y=\"350\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-27\" value=\"PoolEntry-2\" style=\"rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#e1d5e7;strokeColor=#9673a6;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"50\" y=\"640\" width=\"120\" height=\"90\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-28\" value=\"IProtoClient&amp;lt;div&amp;gt;(Connection)&amp;lt;/div&amp;gt;\" style=\"rounded=0;whiteSpace=wrap;html=1;\" vertex=\"1\" parent=\"1\"&gt;\n          &lt;mxGeometry x=\"60\" y=\"670\" width=\"100\" height=\"50\" as=\"geometry\"/&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-30\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-28\" target=\"EC2_PuojYjPAR6kKhmU2-5\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"430\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"30\" y=\"380\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-31\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;4&amp;lt;/font&amp;gt;\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-28\"&gt;\n          &lt;mxGeometry x=\"-0.3032\" width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-210\" y=\"400\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"-160\" y=\"350\" as=\"targetPoint\"/&gt;\n            &lt;mxPoint as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-32\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-15\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-200\" y=\"620\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"140\" y=\"845\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-36\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;2&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-32\"&gt;\n          &lt;mxGeometry x=\"0.0705\" y=\"-1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-30\" y=\"-42\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-33\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-19\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-180\" y=\"380\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"160\" y=\"485\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-39\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;5&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-33\"&gt;\n          &lt;mxGeometry x=\"0.1374\" y=\"1\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-37\" y=\"7\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-34\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-10\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"60\" y=\"380\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"300\" y=\"385\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-37\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;3&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-34\"&gt;\n          &lt;mxGeometry x=\"0.103\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-33\" y=\"24\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-35\" value=\"\" style=\"endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;\" edge=\"1\" parent=\"1\" source=\"EC2_PuojYjPAR6kKhmU2-1\" target=\"EC2_PuojYjPAR6kKhmU2-8\"&gt;\n          &lt;mxGeometry width=\"50\" height=\"50\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-20\" y=\"220\" as=\"sourcePoint\"/&gt;\n            &lt;mxPoint x=\"220\" y=\"225\" as=\"targetPoint\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n        &lt;mxCell id=\"EC2_PuojYjPAR6kKhmU2-38\" value=\"&amp;lt;font style=&amp;quot;font-size: 24px;&amp;quot;&amp;gt;1&amp;lt;/font&amp;gt;\" style=\"edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];\" vertex=\"1\" connectable=\"0\" parent=\"EC2_PuojYjPAR6kKhmU2-35\"&gt;\n          &lt;mxGeometry x=\"0.051\" relative=\"1\" as=\"geometry\"&gt;\n            &lt;mxPoint x=\"-29\" y=\"36\" as=\"offset\"/&gt;\n          &lt;/mxGeometry&gt;\n        &lt;/mxCell&gt;\n      &lt;/root&gt;\n    &lt;/mxGraphModel&gt;\n  &lt;/diagram&gt;\n&lt;/mxfile&gt;"}' style="max-width:100%;border:1px solid transparent;"></div></figure>
+<p>This implementation of the <code>TarantoolBalancer</code> interface performs connection selection according to the following
+algorithm:</p>
+<ol>
+<li>Selection of the group of connections with which the balancing starts (the order is not deterministic).</li>
+<li>Selection of the first connection in the first group.</li>
+<li>Moving to the next group and selecting the first connection.</li>
+<li>Repeat step 3, selecting the next connection in the group.</li>
+</ol>
+<h3 id="client-balancing-configuration">Client Balancing Configuration</h3>
+<p>To configure balancing in the client, use the <code>TarantoolFactory</code> API, for example:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__spanz-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kd">final</span><span class="w"> </span><span class="n">TarantoolCrudClient</span><span class="w"> </span><span class="n">crudClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TarantoolFactory</span><span class="p">.</span><span class="na">crud</span><span class="p">()</span>
+</span><span id="__spanz-0-2"><a href="#__codelineno-0-2" id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">    </span><span class="p">.</span><span class="na">withBalancerClass</span><span class="p">(</span><span class="n">TarantoolRoundRobinBalancer</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+</span><span id="__spanz-0-3"><a href="#__codelineno-0-3" id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="c1">//... other settings</span>
+</span><span id="__spanz-0-4"><a href="#__codelineno-0-4" id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</span></code></pre></div>
+<h3 id="custom-balancers">Custom Balancers</h3>
+<p>To use your own balancer, create a class that implements the
+<code>TarantoolBalancer</code> interface.</p>
+<details class="warning" open="open">
+<summary>Important</summary>
+<p>The custom class implementing <code>TarantoolBalancer</code> must have a default constructor 
+and a constructor with the signature <code>public &lt;constructorName&gt;(IProtoClientPool pool) {...}</code>.</p>
+</details>
+</article>
+</div>
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+</div>
+<button class="md-top md-icon" data-md-component="top" hidden="" type="button">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"></path></svg>
+  Back to top
+</button>
+</main>
+<footer class="md-footer">
+<nav aria-label="Footer" class="md-footer__inner md-grid">
+<a aria-label="Previous: Heartbeat Architecture" class="md-footer__link md-footer__link--prev" href="../heartbeat/">
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+</div>
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Previous
+              </span>
+<div class="md-ellipsis">
+                Heartbeat Architecture
+              </div>
+</div>
+</a>
+<a aria-label="Next: Connection Pool" class="md-footer__link md-footer__link--next" href="../connection-pool/">
+<div class="md-footer__title">
+<span class="md-footer__direction">
+                Next
+              </span>
+<div class="md-ellipsis">
+                Connection Pool
+              </div>
+</div>
+<div class="md-footer__button md-icon">
+<svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+</div>
+</a>
+</nav>
+<div class="md-footer-meta md-typeset">
+<div class="md-footer-meta__inner md-grid">
+<div class="md-copyright">
+<div class="md-copyright__highlight">
+      Copyright ©️ 2025 VK Tech
+    </div>
+</div>
+<div class="md-social">
+<a class="md-social__link" href="https://github.com/tarantool/tarantool-java-sdk" rel="noopener" target="_blank" title="github.com">
+<svg viewbox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+</a>
+<a class="md-social__link" href="https://www.tarantool.io/ru/" rel="noopener" target="_blank" title="www.tarantool.io">
+<svg fill="none" height="52" viewbox="0 0 52 52" width="52" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M19.819 8.58729C22.8355 6.8491 24.3438 5.98 26 5.98C27.6562 5.98 29.1645 6.8491 32.181 8.58729L38.019 11.9512C41.0355 13.6894 42.5438 14.5585 43.3719 15.99C44.2 17.4215 44.2 19.1597 44.2 22.6361V29.3639C44.2 32.8403 44.2 34.5785 43.3719 36.01C42.5438 37.4415 41.0355 38.3106 38.019 40.0488L32.181 43.4127C29.1645 45.1509 27.6562 46.02 26 46.02C24.3438 46.02 22.8355 45.1509 19.819 43.4127L13.981 40.0488C10.9645 38.3106 9.45621 37.4415 8.6281 36.01C7.8 34.5785 7.8 32.8403 7.8 29.3639V22.6361C7.8 19.1597 7.8 17.4215 8.6281 15.99C9.45621 14.5585 10.9645 13.6894 13.981 11.9512L19.819 8.58729ZM18.46 18.98C18.0292 18.98 17.68 19.3292 17.68 19.76V22.5141C17.68 22.9449 18.0292 23.2941 18.46 23.2941H23.063C23.4937 23.2941 23.843 23.6433 23.843 24.0741V34.84C23.843 35.2708 24.1922 35.62 24.623 35.62H27.377C27.8078 35.62 28.157 35.2708 28.157 34.84V24.0741C28.157 23.6433 28.5063 23.2941 28.937 23.2941H33.54C33.9708 23.2941 34.32 22.9449 34.32 22.5141V19.76C34.32 19.3292 33.9708 18.98 33.54 18.98H18.46Z" fill="white" fill-rule="evenodd"></path>
+<path clip-rule="evenodd" d="M0 24.7213C0 13.0676 0 7.2407 3.62035 3.62035C7.2407 0 13.0676 0 24.7213 0H27.2787C38.9324 0 44.7593 0 48.3796 3.62035C52 7.2407 52 13.0676 52 24.7213V27.2787C52 38.9324 52 44.7593 48.3796 48.3796C44.7593 52 38.9324 52 27.2787 52H24.7213C13.0676 52 7.2407 52 3.62035 48.3796C0 44.7593 0 38.9324 0 27.2787V24.7213ZM24.7213 1.56H27.2787C33.1497 1.56 37.396 1.56331 40.6338 1.99863C43.8268 2.42792 45.8045 3.25142 47.2766 4.72344C48.7486 6.19546 49.5721 8.17319 50.0014 11.3662C50.4367 14.604 50.44 18.8503 50.44 24.7213V27.2787C50.44 33.1497 50.4367 37.396 50.0014 40.6338C49.5721 43.8268 48.7486 45.8045 47.2766 47.2766C45.8045 48.7486 43.8268 49.5721 40.6338 50.0014C37.396 50.4367 33.1497 50.44 27.2787 50.44H24.7213C18.8503 50.44 14.604 50.4367 11.3662 50.0014C8.17319 49.5721 6.19546 48.7486 4.72344 47.2766C3.25142 45.8045 2.42792 43.8268 1.99863 40.6338C1.56331 37.396 1.56 33.1497 1.56 27.2787V24.7213C1.56 18.8503 1.56331 14.604 1.99863 11.3662C2.42792 8.17319 3.25142 6.19546 4.72344 4.72344C6.19546 3.25142 8.17319 2.42792 11.3662 1.99863C14.604 1.56331 18.8503 1.56 24.7213 1.56Z" fill="white" fill-rule="evenodd"></path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+<div class="md-dialog" data-md-component="dialog">
+<div class="md-dialog__inner md-typeset"></div>
+</div>
+<script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "navigation.tracking", "navigation.path", "navigation.indexes", "navigation.top", "navigation.footer", "content.footnote.tooltips", "content.code.copy", "content.code.select", "content.code.annotate"], "search": "../../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+<script src="../../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+<script src="../../../../../assets/mkdocs_puml/puml.js"></script>
+<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+<script src="../../../../../assets/mkdocs_puml/interaction.js"></script>
+<script src="../../../../../assets/mkdocs_puml/puml.js"></script>
+<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+<script src="../../../../../assets/mkdocs_puml/interaction.js"></script>
+<script src="https://viewer.diagrams.net/js/viewer-static.min.js"></script></body>
+</html>
