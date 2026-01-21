@@ -7,20 +7,20 @@ using the `crud` module:
 
 === "tarantool-java-sdk"
 
-    ```title="Подключенние к кластеру при помощи TJSDK"
+    ```title="Connect to cluster using TJSDK"
     --8<-- "client/TarantoolDBClusterConnectionTJSDKExample.java:all"
     ```
 
-    ```title="Абстрактный класс для создания кластера в docker"
+    ```title="Abstract class to create cluster in docker"
     --8<-- "client/TarantoolDBClusterConnectionAbstractExample.java:all"
     ```
 
 === "cartridge-driver"
 
-    ```title="Подключенние к кластеру при помощи Cartridge java"
+    ```title="Connect to cluster using cartridge-driver"
     --8<-- "client/TarantoolDBClusterConnectionCartridgeDriverExample.java:all"
     ```
 
-    ```title="Абстрактный класс для создания кластера в docker"
+    ```title="Abstract class to create cluster in docker"
     --8<-- "client/TarantoolDBClusterConnectionAbstractExample.java:all"
     ```
