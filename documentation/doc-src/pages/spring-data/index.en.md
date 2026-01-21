@@ -25,7 +25,7 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 
 | tarantool-java-sdk Version | tarantool-spring-data Version |                Spring Boot Version                |
 |:-------------------------:|:----------------------------:|:-------------------------------------------------:|
-|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10 / 3.5.7 |
+|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8 |
 
 ### Tarantool Version and Supported Client Modules
 
