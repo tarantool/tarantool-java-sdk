@@ -5,10 +5,12 @@
 
 package client;
 
-// --8<-- [start:tarantool-single-instance-cartridge-driver]
+// --8<-- [start:all]
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,20 +21,30 @@ import io.tarantool.driver.api.TarantoolClientFactory;
 import io.tarantool.driver.api.TarantoolResult;
 import io.tarantool.driver.api.tuple.TarantoolTuple;
 
-public class TarantoolSingleInstanceConnectionCartridgeDriverExample
-    extends TarantoolSingleInstanceConnectionAbstractExample {
+public class TarantoolCallCartridgeDriverExample extends TarantoolCallEvalAbstractExample {
 
   @Test
-  protected void simpleConnection() {
+  @SuppressWarnings("unchecked")
+  void simpleCall() {
     try (TarantoolClient<TarantoolTuple, TarantoolResult<TarantoolTuple>> client = setupClient()) {
-      final List<?> result = client.eval("return _TARANTOOL").join();
+      loadFunctions();
 
-      Assertions.assertEquals(1, result.size());
+      final List<?> helloWorldReturns = client.call(HELLO_WORLD_FUNCTION).join();
+      Assertions.assertEquals(1, helloWorldReturns.size());
+      Assertions.assertEquals(HELLO_WORLD_FUNCTION_RETURNS, helloWorldReturns.get(0));
 
-      final Object object = result.get(0);
+      // convert returning lua map into Java pojo representing as map
+      final String name = "Petya";
+      final int age = 25;
 
-      Assertions.assertInstanceOf(String.class, object);
-      Assertions.assertTrue(((String) object).contains(TARANTOOL_TAG));
+      final List<?> resultAsMap = client.call(SOME_MAP_FUNCTION, Arrays.asList(name, age)).join();
+
+      Assertions.assertEquals(1, resultAsMap.size());
+      Assertions.assertInstanceOf(Map.class, resultAsMap.get(0));
+      final Map<String, Object> castedResult = (Map<String, Object>) resultAsMap.get(0);
+      Assertions.assertEquals(name, castedResult.get("name"));
+      Assertions.assertEquals(age, castedResult.get("age"));
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -50,4 +62,5 @@ public class TarantoolSingleInstanceConnectionCartridgeDriverExample
         .build();
   }
 }
-// --8<-- [end:tarantool-single-instance-cartridge-driver]
+
+// --8<-- [end:all]

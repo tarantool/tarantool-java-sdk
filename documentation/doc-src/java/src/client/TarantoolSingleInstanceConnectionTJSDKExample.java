@@ -25,7 +25,6 @@ public class TarantoolSingleInstanceConnectionTJSDKExample
     extends TarantoolSingleInstanceConnectionAbstractExample {
 
   @Test
-  @Override
   protected void simpleConnection() {
     // Получаем адрес и порт из докера
     // Gets address and port from docker

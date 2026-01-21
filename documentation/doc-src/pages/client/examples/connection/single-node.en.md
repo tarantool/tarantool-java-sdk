@@ -11,7 +11,7 @@ To connect to a single instance, run the following code:
     ```
 
     ```java title="Parent abstract class to create docker container"
-    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:all"
     ```    
  
     ```java title="Class to create container"
@@ -25,7 +25,7 @@ To connect to a single instance, run the following code:
     ```
 
     ```java title="Parent abstract class to create docker container"
-    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:all"
     ```    
  
     ```java title="Class to create container"

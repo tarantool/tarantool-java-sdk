@@ -11,7 +11,7 @@ title: Подключение к одиночному узлу
     ```
 
     ```java title="Родительский класс с созданием контейнера"
-    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:all"
     ```    
  
     ```java title="Класс, который создает контейнер"
@@ -25,7 +25,7 @@ title: Подключение к одиночному узлу
     ```
 
     ```java title="Родительский класс с созданием контейнера"
-    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:tarantool-single-instance-abstract"
+    --8<-- "client/TarantoolSingleInstanceConnectionAbstractExample.java:all"
     ```    
  
     ```java title="Класс, который создает контейнер"
