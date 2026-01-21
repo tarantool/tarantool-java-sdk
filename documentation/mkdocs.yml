@@ -128,6 +128,7 @@ nav:
               - Подключение к узлам:
                   - pages/client/examples/connection/index.md
                   - pages/client/examples/connection/single-node.md
+                  - pages/client/examples/connection/crud-cluster.md
       - Tarantool Testcontainers:
           - pages/testcontainers/index.md
           - Одиночный узел:
