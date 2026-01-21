@@ -5,7 +5,7 @@
 
 package client;
 
-// --8<-- [start:tarantool-single-instance-abstract]
+// --8<-- [start:all]
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,12 +40,10 @@ public abstract class TarantoolSingleInstanceConnectionAbstractExample {
     CONTAINER.stop();
   }
 
-  protected abstract void simpleConnection();
-
   protected static TarantoolContainer<Tarantool3Container> createSingleNodeContainer(Path tempPath)
       throws IOException {
     final Path pathToConfig = TarantoolSingleNodeConfigUtils.createConfig(tempPath);
     return new Tarantool3Container(image, "test-node").withConfigPath(pathToConfig);
   }
 }
-// --8<-- [end:tarantool-single-instance-abstract]
+// --8<-- [end:all]

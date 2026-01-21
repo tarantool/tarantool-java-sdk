@@ -17,7 +17,7 @@ title: Подключение к класетру Tarantool через crud
 
 === "cartridge-driver"
 
-    ```title="Подключенние к кластеру при помощи Cartridge java"
+    ```title="Подключенние к кластеру при помощи cartridge-driver"
     --8<-- "client/TarantoolDBClusterConnectionCartridgeDriverExample.java:all"
     ```
 

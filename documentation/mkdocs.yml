@@ -44,6 +44,7 @@ plugins:
             Кластер TQE: TQE Cluster
             Примеры использования: Usage examples
             Подключение к узлам: Connecting to nodes
+            Хранимые процедуры: Stored procedures
   - drawio:
       darkmode: true
   - plantuml:
@@ -129,6 +130,9 @@ nav:
                   - pages/client/examples/connection/index.md
                   - pages/client/examples/connection/single-node.md
                   - pages/client/examples/connection/crud-cluster.md
+              - Хранимые процедуры:
+                  - pages/client/examples/call/index.md
+                  - pages/client/examples/call/call.md
       - Tarantool Testcontainers:
           - pages/testcontainers/index.md
           - Одиночный узел:
