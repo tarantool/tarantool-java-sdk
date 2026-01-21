@@ -23,6 +23,7 @@
     <module>tarantool-spring-data-32</module>
     <module>tarantool-spring-data-33</module>
     <module>tarantool-spring-data-34</module>
+    <module>tarantool-spring-data-35</module>
   </modules>
 
   <properties>
@@ -62,6 +63,12 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- Driver dependency for all spring data modules-->
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-client</artifactId>
+    </dependency>
+
     <!--spring data key value module-->
     <dependency>
       <groupId>org.springframework.data</groupId>
@@ -92,12 +99,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
-    </dependency>
-
-    <!-- Driver dependency for all spring data modules-->
-    <dependency>
-      <groupId>io.tarantool</groupId>
-      <artifactId>tarantool-client</artifactId>
     </dependency>
 
     <!-- Test -->

@@ -23,9 +23,9 @@ hide:
 
 ## Статус проекта
 
-| Версия tarantool-java-sdk | Версия tarantool-spring-data |            Версия Spring Boot             |
-|:-------------------------:|:----------------------------:|:-----------------------------------------:|
-|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10 |
+| Версия tarantool-java-sdk | Версия tarantool-spring-data |                Версия Spring Boot                 |
+|:-------------------------:|:----------------------------:|:-------------------------------------------------:|
+|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8 |
 
 ### Версия Tarantool и поддерживаемые модули-клиенты
 
@@ -84,11 +84,11 @@ Tarantool можно найти
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter</artifactId>
-    <version>3.4.12</version>
+    <version>3.5.8</version>
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-34</artifactId>
+    <artifactId>tarantool-spring-data-35</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>
