@@ -1,0 +1,36 @@
+name: Refactoring issue
+description: Any issue for refactoring code
+title: ":hammer: "
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this refactoring issue!
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: input
+    id: issue-target
+    attributes:
+      label: Target module to refactor
+      description: Specify the target module to refactor
+      placeholder: core
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue description
+      description: Please, describe issue
+    validations:
+      required: true
