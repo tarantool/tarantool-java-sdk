@@ -99,6 +99,20 @@
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/"/>
     </url>
     <url>
+        <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/call/"/>
+    </url>
+    <url>
+        <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/call/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/call/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/call/call/"/>
+    </url>
+    <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/</loc>
         <lastmod>2026-01-21</lastmod>
         <changefreq>daily</changefreq>
@@ -356,6 +370,20 @@
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/"/>
+    </url>
+    <url>
+        <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/call/"/>
+    </url>
+    <url>
+        <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/call/</loc>
+        <lastmod>2026-01-21</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/call/"/>
+        <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/call/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/</loc>
