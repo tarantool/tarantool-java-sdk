@@ -5,7 +5,7 @@
 
 package client;
 
-// --8<-- [start:tarantool-single-instance-tjsdk]
+// --8<-- [start:all]
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -56,4 +56,4 @@ public class TarantoolSingleInstanceConnectionTJSDKExample
     }
   }
 }
-// --8<-- [end:tarantool-single-instance-tjsdk]
+// --8<-- [end:all]

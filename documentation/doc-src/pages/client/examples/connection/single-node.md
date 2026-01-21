@@ -7,7 +7,7 @@ title: Подключение к одиночному узлу
 === "tarantool-java-sdk"
 
     ```java title="Подключение к одному узлу Tarantool"
-    --8<-- "client/TarantoolSingleInstanceConnectionTJSDKExample.java:tarantool-single-instance-tjsdk"
+    --8<-- "client/TarantoolSingleInstanceConnectionTJSDKExample.java:all"
     ```
 
     ```java title="Родительский класс с созданием контейнера"
@@ -21,7 +21,7 @@ title: Подключение к одиночному узлу
 === "cartridge-driver"
 
     ```java title="Подключение к одному узлу Tarantool"
-    --8<-- "client/TarantoolSingleInstanceConnectionCartridgeDriverExample.java:tarantool-single-instance-cartridge-driver"
+    --8<-- "client/TarantoolSingleInstanceConnectionCartridgeDriverExample.java:all"
     ```
 
     ```java title="Родительский класс с созданием контейнера"

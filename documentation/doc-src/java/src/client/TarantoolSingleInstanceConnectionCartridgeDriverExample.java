@@ -5,7 +5,7 @@
 
 package client;
 
-// --8<-- [start:tarantool-single-instance-cartridge-driver]
+// --8<-- [start:all]
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -50,4 +50,4 @@ public class TarantoolSingleInstanceConnectionCartridgeDriverExample
         .build();
   }
 }
-// --8<-- [end:tarantool-single-instance-cartridge-driver]
+// --8<-- [end:all]
