@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Spring-data
+- Add `tarantool-spring-data-35` module with support for Spring Boot 3.5.x and Spring Data 3.5 
+
+### Dependencies
+- Updated dependencies:
+  Compile:
+    * Bump spring-boot version from 3.4.11 to 3.4.13 in tarantool-spring-data-34
+
 ## [1.5.0] - 2025-12-25
 
 - Change deprecated API to actual variant:
