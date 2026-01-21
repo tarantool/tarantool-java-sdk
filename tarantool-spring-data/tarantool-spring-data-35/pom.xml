@@ -18,7 +18,7 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring.boot.version>3.5.7</spring.boot.version>
+    <spring.boot.version>3.5.8</spring.boot.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
