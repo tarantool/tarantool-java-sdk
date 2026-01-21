@@ -47,7 +47,7 @@ plugins:
   - drawio:
       darkmode: true
   - plantuml:
-      puml_url: https://www.plantuml.com/plantuml/
+      puml_url: http://localhost:7036
       # в секундах(in seconds)
       request_timeout: 300
 

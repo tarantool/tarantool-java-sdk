@@ -13,8 +13,11 @@ To deploy documentation locally on current branch/tag:
     source venv/bin/activate
     pip install -r requirements.txt
     ```
-
-2. Build or serve site:
+2. Requires `docker`. Start the render server locally:
+   ```shell
+   docker run -d -p 7036:8080 plantuml/plantuml-server:jetty-v1.2026.0
+   ```
+3. Build or serve site:
 
    ```shell
    mkdocs build

@@ -13,8 +13,11 @@
     source venv/bin/activate
     pip install -r requirements.txt
     ```
-
-2. Соберите или запустите сайт:
+2. Необходим `docker`. Запустите сервер рендеринга локально:
+   ```shell
+   docker run -d -p 7036:8080 plantuml/plantuml-server:jetty-v1.2026.0
+   ```
+3. Соберите или запустите сайт:
 
    ```shell
    mkdocs build
