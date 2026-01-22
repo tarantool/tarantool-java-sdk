@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Bug fixes
+
+- Fix a memory leak due to the use of a local thread pool
+
 ### Spring-data
 - Add `tarantool-spring-data-35` module with support for Spring Boot 3.5.x and Spring Data 3.5 
 
