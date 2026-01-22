@@ -1,0 +1,397 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Tarantool 2.11.x configuration",
+  "type": "object",
+  "properties": {
+    "background": {
+      "type": "boolean",
+      "description": "Since Tarantool 1.6.2. Start the server as a background task. For this to work, the 'log' and 'pid_file' parameters must be non-zero.",
+      "additionalProperties": false
+    },
+    "custom_proc_title": {
+      "type": "string",
+      "description": "For versions from 1.6.7. and higher. Adds the specified string to the name of the server process (as shown in the COMMAND column for the ps -ef and top -c commands.",
+      "additionalProperties": false
+    },
+    "listen": {
+      "type": "string",
+      "description": "Starting from version 2.10.0, you can specify several URIs, and the port number is always stored as an integer value. Example: '127.0.0.1:3301, /unix.sock, 3302', '127.0.0.1:3301', '/unix.sock', '3302'. Not empty.",
+      "additionalProperties": false
+    },
+    "memtx_dir": {
+      "type": "string",
+      "description": "For versions from 1.7.4. and higher. The directory where memtx stores snapshot files (.snap). May refer to work_dir. If not specified, defaults to work_dir.",
+      "additionalProperties": false
+    },
+    "pid_file": {
+      "type": "string",
+      "description": "For versions from 1.4.9. and higher. Storing the process ID in this file. May refer to work_dir. Typically the value 'tarantool.pid' is used",
+      "additionalProperties": false
+    },
+    "read_only": {
+      "type": "boolean",
+      "description": "For versions from 1.7.1. and higher. To put the server instance into read-only mode, run the command box.cfg{read_only=true...}. After this, any requests to change persistent data with the error ER_READONLY will not be executed. Read-only mode should be used in master-replica replication. Read-only mode does not affect requests to change data in spaces that are considered temporary. Although read-only mode prevents the server from writing to WAL files, diagnostic information is still written to the log module.",
+      "additionalProperties": false
+    },
+    "sql_cache_size": {
+      "type": "integer",
+      "default": 5242880,
+      "description": "The maximum number of bytes in cache for prepared SQL statements. (box.info.sql().cache.size).",
+      "additionalProperties": false
+    },
+    "vinyl_dir": {
+      "type": "string",
+      "description": "For versions from 1.7.1. and higher. The directory where vinyl files or subdirectories are stored. May refer to work_dir. If not specified, defaults to work_dir.",
+      "default": ".",
+      "additionalProperties": false
+    },
+    "vinyl_timeout": {
+      "type": "number",
+      "description": "For versions from 1.7.5. and higher. The vinyl database engine has a scheduler that does the merging. When vinyl does not have enough available memory, the scheduler will not be able to maintain the merge rate to match the incoming update requests. In such a situation, the request may time out after vinyl_timeout seconds. This rarely happens because vinyl typically handles the load on insert operations when there is not enough speed to merge. The merge can be started automatically using index_object:compact().",
+      "default": 60,
+      "additionalProperties": false
+    },
+    "username": {
+      "type": "string",
+      "default": null,
+      "description": "For versions from 1.4.9. and higher. The UNIX username that the system switches to after startup.",
+      "additionalProperties": false
+    },
+    "wal_dir": {
+      "type": "string",
+      "default": ".",
+      "description": "For versions from 1.6.2. and higher. The directory where write-ahead log files (.xlog) are stored. May refer to work_dir. Sometimes wal_dir and memtx_dir are set to different values so that WAL files and snapshot files are stored on different drives. If not specified, defaults to work_dir.",
+      "additionalProperties": false
+    },
+    "work_dir": {
+      "type": "string",
+      "description": "For versions from 1.4.9. and higher. The directory where the working database files are stored. The server instance is switched to work_dir using chdir(2) after startup. May refer to the current directory. If not specified, default = current directory.",
+      "additionalProperties": false
+    },
+    "worker_pool_threads": {
+      "type": "integer",
+      "description": "For versions from 1.7.5. and higher. The maximum number of threads used during the execution of certain internal processes (currently socket.getaddrinfo() and coio_call()).",
+      "additionalProperties": false
+    },
+    "strip_core": {
+      "type": "boolean",
+      "description": "For versions from 2.2.2. and higher. Specifies whether coredump files should include memory allocated for tuples. (These files can take up a lot of space if Tarantool is running under high load). If set to true, memory allocated for tuples is NOT included in coredump files. In older versions of Tarantool, the default was false.",
+      "additionalProperties": false
+    },
+    "memtx_use_mvcc_engine": {
+      "type": "boolean",
+      "description": "Since version 2.6.1. Enables transactional manager if set to true",
+      "additionalProperties": false
+    },
+    "memtx_memory": {
+      "type": "number",
+      "description": "For versions from 1.7.4. and higher. The amount of memory that Tarantool allocates for actually storing tuples. When the limit is reached, INSERT or UPDATE queries will fail, producing an ER_MEMORY_ISSUE error. The server does not exceed its memtx_memory memory limit when distributing tuples, but there is additional memory that is used to store indexes and connection information. Depending on the running configuration and load, Tarantool may consume 20% more than the memtx_memory limit.",
+      "additionalProperties": false
+    },
+    "memtx_max_tuple_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The size of the largest memory allocation block for the memtx database engine. It can be increased if there is a need to store large tuples. See also vinyl_max_tuple_size.",
+      "additionalProperties": false
+    },
+    "memtx_min_tuple_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. Smallest memory allocation block size. It can be reduced if the tuples are very small. The value must be between 8 and 1,048,280 inclusive.",
+      "additionalProperties": false
+    },
+    "memtx_allocator": {
+      "type": "string",
+      "enum": [
+        "system",
+        "small"
+      ],
+      "description": "Since version 2.10.0. Specifies the allocator used for memtx tuples. The possible values are system and small:\n\nsystem is based on the malloc function. This allocator allocates memory as needed, checking that the quota is not exceeded.\nsmall is a special slab allocator. Note that this allocator is prone to unresolvable fragmentation on specific workloads, so you can switch to system in such cases.",
+      "additionalProperties": false
+    },
+    "slab_alloc_factor": {
+      "type": "number",
+      "description": "A multiplier for calculating the sizes of memory blocks in which tuples are stored. Decreasing the value may result in less memory wasted depending on the total amount of available memory and the distribution of element sizes. Valid values: from 1 to 2.",
+      "additionalProperties": false
+    },
+    "slab_alloc_granularity": {
+      "type": "integer",
+      "description": "Since version 2.8.1. Specifies the granularity (in bytes) of memory allocation in the small allocator. The value of slab_alloc_granularity should be a power of two and should be greater than or equal to 4. Below are few recommendations on how to adjust the slab_alloc_granularity value:\n\nTo store small tuples of approximately the same size, set slab_alloc_granularity to 4 bytes to save memory.\nTo store tuples of different sizes, you can increase the slab_alloc_granularity value. This results in allocating tuples from the same mempool.",
+      "additionalProperties": false
+    },
+    "vinyl_bloom_fpr": {
+      "type": "number",
+      "description": "For versions from 1.7.4. and higher. The Bloom Filter False Positive Rate is the appropriate probability that the Bloom Filter will produce an erroneous result. The vinyl_bloom_fpr setting is the default value for one of the parameters in the space_object:create_index() Parameters table.",
+      "additionalProperties": false
+    },
+    "vinyl_cache": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. Cache size for vinyl database engine. The cache size can be changed dynamically.",
+      "additionalProperties": false
+    },
+    "vinyl_max_tuple_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.5. and higher. The size of the largest memory allocation block for the vinyl database engine. It can be increased if there is a need to store large tuples. See also memtx_max_tuple_size.",
+      "additionalProperties": false
+    },
+    "vinyl_memory": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The maximum number of bytes of RAM that vinyl uses.",
+      "additionalProperties": false
+    },
+    "vinyl_page_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. Page size in bytes. A page is a read/write block for operations on a vinyl disk. The vinyl_page_size setting is the default value for one of the parameters in the space_object:create_index() Parameters table.",
+      "additionalProperties": false
+    },
+    "vinyl_range_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The maximum range size for the vinyl index, in bytes. The maximum size of a range influences the decision about how to split a range.\n\nIf vinyl_range_size is either nil or non-0, this value is used as the default value for the range_size parameter in the space_object:create_index() Parameters table.\n\nIf vinyl_range_size is nil or 0 and range_size is not specified when the index is created, then Tarantool itself sets this value later as a result performance assessments. To find out the current value, use index_object:stat().range_size.",
+      "additionalProperties": false
+    },
+    "vinyl_run_count_per_level": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. Maximum number of runs per log-structured tree level with vinyl merging. The vinyl_run_count_per_level setting is the default value for one of the parameters in the space_object:create_index() Parameters table.",
+      "additionalProperties": false
+    },
+    "vinyl_run_size_ratio": {
+      "type": "number",
+      "description": "For versions from 1.7.4. and higher. The ratio of the sizes of different levels of a log-structured tree with merging. The vinyl_run_size_ratio setting is the default value for one of the parameters in the space_object:create_index() Parameters table.",
+      "additionalProperties": false
+    },
+    "vinyl_read_threads": {
+      "type": "integer",
+      "description": "For versions from 1.7.5. and higher. The maximum number of read threads that vinyl can use for simultaneous operations such as I/O and compression.",
+      "additionalProperties": false
+    },
+    "vinyl_write_threads": {
+      "type": "integer",
+      "description": "For versions from 1.7.5. and higher. The maximum number of write streams that vinyl can use for simultaneous operations such as I/O and compression.",
+      "additionalProperties": false
+    },
+    "checkpoint_interval": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The time interval between checkpointing daemon actions in seconds. If checkpoint_interval is greater than zero and a database change is in progress, the checkpoint daemon will call box.snapshot() every checkpoint_interval seconds, creating a new snapshot file each time. If the value of the checkpoint_interval parameter is zero, then the checkpointing daemon is disabled.",
+      "additionalProperties": false
+    },
+    "checkpoint_count": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The maximum number of snapshots that can be in the memtx_dir directory before the checkpointing daemon deletes old snapshots. If checkpoint_count is zero, the checkpoint daemon does not delete old snapshots.",
+      "additionalProperties": false
+    },
+    "checkpoint_wal_threshold": {
+      "type": "integer",
+      "description": "For versions from 2.1.2. and higher. The threshold for the total size in bytes of all WAL files created since the last checkpoint. Once the configured threshold is exceeded, the WAL thread notifies the checkpoint daemon that it should create a new checkpoint and delete old WAL files.\n\nThis option allows administrators to deal with the problem that may arise when calculating the amount of disk space for a partition containing WAL files.\n\nFor example, assume checkpoint_interval = 2 and checkpoint_count = 5, and on average Tarantool writes 1 GB per interval. Then it will be possible to calculate that (2*5*1) 10 GB is needed. But this calculation would be incorrect if, instead of writing 1 GB during one checkpoint interval, Tarantool encountered an unusual burst and tried to write 11 GB, which would result in an ENOSPC (\"out of space\") operating system error. By setting checkpoint_wal_threshold to a lower value, say 9 GB, the administrator can prevent the error.",
+      "additionalProperties": false
+    },
+    "force_recovery": {
+      "type": "boolean",
+      "description": "For versions from 1.7.4. and higher. If force_recovery is set to true, Tarantool attempts to continue running when it encounters an error while reading a snapshot file (when starting a server instance) or a write-ahead log file (when starting a server instance or applying updates to a replica): skipping dead writes, reading as much data as possible, and allowing the process to terminate with a warning. Users can prevent the error from occurring again by writing the data to the database and running box.snapshot().",
+      "additionalProperties": false
+    },
+    "wal_max_size": {
+      "type": "integer",
+      "description": "For versions from 1.7.4. and higher. The maximum number of bytes in a single write-ahead log. If the query results in a .xlog file larger than that specified in the wal_max_size parameter, Tarantool creates another WAL file - the same thing happens when the number of log lines specified in rows_per_wal is reached.",
+      "additionalProperties": false
+    },
+    "snap_io_rate_limit": {
+      "type": "number",
+      "description": "For versions from 1.4.9. and higher. Reduce the load of box.snapshot() when performing insert, update and delete operations (INSERT/UPDATE/DELETE) by setting a disk write speed limit of megabytes per second. The same effect can be achieved by separating the wal_dir and memtx_dir directories and transferring the snapshots to a separate disk. This limit also limits the output of box.stat.vinyl().regulator regarding the speed at which dumps can be written to .run and .index files.",
+      "additionalProperties": false
+    },
+    "wal_mode": {
+      "type": "string",
+      "enum": [
+        "none",
+        "write",
+        "fsync"
+      ],
+      "description": "For versions from 1.6.2. and higher. Defining synchronization of fiber operation with the write-ahead log:\n\nnone: The write-ahead log is not supported. A node with wal_mode = none cannot be a master during replication;\nwrite: fibers wait for data to be written to the write-ahead log (not fsync(2));\nfsync: fibers wait for data, fsync(2) synchronization follows each write(2) write operation;",
+      "additionalProperties": false
+    },
+    "wal_dir_rescan_delay": {
+      "type": "number",
+      "description": "For versions from 1.6.2. and higher. The number of seconds between periodically scanning the WAL file directory when checking for changes to the WAL file for replication or hot backup purposes.",
+      "additionalProperties": false
+    },
+    "wal_queue_max_size": {
+      "type": "integer",
+      "description": "Since version 2.8.1. The size of the queue (in bytes) used by a replica to submit new transactions to a write-ahead log (WAL). This option helps limit the rate at which a replica submits transactions to the WAL. Limiting the queue size might be useful when a replica is trying to sync with a master and reads new transactions faster than writing them to the WAL.",
+      "additionalProperties": false
+    },
+    "wal_cleanup_delay": {
+      "type": "integer",
+      "description": "Since version 2.6.3. The delay (in seconds) used to prevent the Tarantool garbage collector from immediately removing write-ahead log files after a node restart. This delay eliminates possible erroneous situations when the master deletes WALs needed by replicas after restart. As a consequence, replicas sync with the master faster after its restart and don’t need to download all the data again.\n\nOnce all the nodes in the replica set are up and running, automatic cleanup is started again even if wal_cleanup_delay has not expired.",
+      "additionalProperties": false
+    },
+    "hot_standby": {
+      "type": "boolean",
+      "description": "For versions from 1.7.4. and higher. Running the server in hot standby mode.\n\nHot standby is a feature that provides simple failover without replication.\n\nIt is assumed that there are two server instances using the same configuration. The first one will become the “main” instance. The one that starts second will become the \"backup\" instance.\n\nTo create a backup instance, start a second Tarantool server instance on the same machine with the same box.cfg configuration settings - including the same directories and non-null URIs - and with the additional configuration setting hot_standby = true. You will soon see a notification that ends with I> Entering hot standby mode. Everything is fine - this means that the backup instance is ready to take over if the primary instance stops working.\n\nThe backup instance will start initializing and try to lock wal_dir, but will not be able to because the wal_dir directory is locked by the primary instance. So the backup instance enters a loop, reading the write-ahead log that the primary instance writes to (so the two instances are always in sync), and attempting to lock. If the primary instance stops running for any reason, the lock is released. In this case, the backup instance will be able to block the directory for itself, connect to the listening address and become the main instance. You'll soon see a notification that ends with I> ready to accept requests.\n\nThis way, there is no downtime if the primary instance goes down.",
+      "additionalProperties": false
+    },
+    "replication": {
+      "type": "string",
+      "description": "For versions 1.7.4 and higher. If replication does not contain an empty string, the instance is considered a replica. The replica will attempt to connect to the master specified in the replication parameter by URI (Uniform Resource Identifier), for example:\n\nkonstantin:secret_password@tarantool.org:3301\n\nIf there is more than one replication source in the replica set, specify an array of URIs, for example: (replace “uri” and “uri2” in this example with working URIs): 'uri1,uri2'. If one of the URIs is «self» – that is, if one of the URIs is for the instance where box.cfg{} is being executed – then it is ignored. Thus, it is possible to use the same replication specification on multiple server instances, as shown in these examples.\n\nBy default, the user is considered to be “guest”.\n\nA read-only replica does not accept requests to change data on the listening port.",
+      "additionalProperties": false
+    },
+    "replication_anon": {
+      "type": "boolean",
+      "description": "For versions 2.3.1 and higher. A Tarantool replica can be anonymous. This replica type is read-only (but you can write to temporary and local replica spaces), and it is not in the _cluster table.\n\nSince an anonymous replica isn’t registered in the _cluster space, there is no limitation for anonymous replicas count in a replica set: you can have as many of them as you want.\n\nTo make a replica anonymous, pass the replication_anon=true option to box.cfg and set read_only to true.",
+      "additionalProperties": false
+    },
+    "bootstrap_strategy": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "legacy"
+      ],
+      "description": "Specifies a strategy used to bootstrap a replica set. The following strategies are available:\n\nauto: a node doesn’t boot if a half or more of other nodes in a replica set are not connected. For example, if the replication parameter contains 2 or 3 nodes, a node requires 2 connected instances. In the case of 4 or 5 nodes, at least 3 connected instances are required. Moreover, a bootstrap leader fails to boot unless every connected node has chosen it as a bootstrap leader.\nlegacy (deprecated since 2.11.0): a node requires the replication_connect_quorum number of other nodes to be connected. This option is added to keep the compatibility with the current versions of Cartridge and might be removed in the future.",
+      "additionalProperties": false
+    },
+    "replication_connect_timeout": {
+      "type": "number",
+      "description": "For versions 1.9.0 and higher. The number of seconds that a replica waits for an attempt to connect to the master in the cluster. For detailed information, see the orphan status.\n\nThis parameter is different from replication_timeout, which a master uses to disconnect a replica when the master receives no acknowledgments of heartbeat messages.",
+      "additionalProperties": false
+    },
+    "replication_connect_quorum": {
+      "type": "integer",
+      "description": "Deprecated since 2.11.0. This option is in effect if bootstrap_strategy is set to legacy.\n\nSpecifies the number of nodes to be up and running to start a replica set. This parameter has effect during bootstrap or configuration update. Setting replication_connect_quorum to 0 makes Tarantool require no immediate reconnect only in case of recovery. See Orphan status for details.",
+      "additionalProperties": false
+    },
+    "replication_skip_conflict": {
+      "type": "boolean",
+      "description": "For versions 1.10.1 and higher. By default, if a replica adds a unique key that another replica has already added, replication stops with error = ER_TUPLE_FOUND.\n\nHowever, if you specify replication_skip_conflict = true, users can set such errors to be skipped. So, instead of saving the broken transaction in xlog, NOP (No operation) will be written there.",
+      "additionalProperties": false
+    },
+    "replication_sync_lag": {
+      "type": "number",
+      "description": "For versions 1.9.0 and later. The maximum allowed lag for a replica. If a replica is synchronized (that is, receives updates from the master), it may not be fully updated. The number of seconds that the replica is behind the master is called \"lag\". Synchronization is considered complete when the replica lag is less than or equal to replication_sync_lag.\n\nIf the user specifies replication_sync_lag equal to nil or 365 * 100 * 86400 (TIMEOUT_INFINITY), then the lag does not matter - the replica will always be synchronized. Additionally, the lag is not taken into account (considered infinite) if the master is running on a version of Tarantool older than 1.7.7, which does not send heartbeat messages.\n\nThis parameter is not taken into account during configuration. For details, see the orphan status.",
+      "additionalProperties": false
+    },
+    "replication_sync_timeout": {
+      "type": "number",
+      "description": "Since version 1.10.2. The number of seconds that a node waits when trying to sync with other nodes in a replica set (see bootstrap_strategy), after connecting or during configuration update. This could fail indefinitely if replication_sync_lag is smaller than network latency, or if the replica cannot keep pace with master updates. If replication_sync_timeout expires, the replica enters orphan status.",
+      "additionalProperties": false
+    },
+    "replication_timeout": {
+      "type": "integer",
+      "description": "For versions 1.7.5 and later. If the master does not have updates for the replicas, it sends heartbeat messages every replication_timeout seconds, and each replica returns a confirmation message.\n\nBoth the master and replicas are programmed to break the connection if there are no messages for four periods of time specified in the replication_timeout parameter. After the connection breaks, the replica attempts to reconnect to the master.",
+      "additionalProperties": false
+    },
+    "replicaset_uuid": {
+      "type": "string",
+      "description": "For versions 1.9.0 and later. As described in the Replication Engine Architecture section, each replica set is identified by a Universally Unique Identifier (UUID), which is called the replica set UUID, and each instance is identified by the instance UUID.\n\nGenerally, it is sufficient to let the system generate and format strings containing the UUID, which will be stored permanently.\n\nHowever, some administrators prefer to save the configuration. Tarantool in a central repository, such as Apache ZooKeeper. They can independently assign values to instances (instance_uuid) and replica set (replicaset_uuid) on first run.\n\nGeneral rules:\n\nValues must be truly unique; they must not simultaneously belong to other instances or replica sets in the same infrastructure.\nValues must be used continuously, unchanged from the first run (the original values are stored in snapshot files and are verified each time the system is restarted).\nValues must conform to the requirements of RFC 4122. A null UUID is not allowed.\nThe UUID format includes sixteen octets, represented as 32 hexadecimal numbers (base 16) in five groups separated by hyphens in the form 8-4-4-4-12 - 36 characters (32 alphanumeric characters and four hyphen).",
+      "additionalProperties": false
+    },
+    "instance_uuid": {
+      "type": "string",
+      "description": "For versions 1.9.0 and higher. For replication administration purposes, you can assign universally unique identifiers to the instance (instance_uuid) and replica set (replicaset_uuid) yourself, instead of using system-generated values.\n\nFor more information, see the description of the replicaset_uuid parameter.",
+      "additionalProperties": false
+    },
+    "replication_synchro_quorum": {
+      "type": "integer",
+      "description": "Since version 2.5.1. For synchronous replication only. This option tells how many replicas should confirm the receipt of a synchronous transaction before it can finish its commit.\n\nSince version 2.5.3, the option supports dynamic evaluation of the quorum number. That is, the number of quorum can be specified not as a constant number, but as a function instead. In this case, the option returns the formula evaluated. The result is treated as an integer number. Once any replicas are added or removed, the expression is re-evaluated automatically.",
+      "additionalProperties": false
+    },
+    "replication_synchro_timeout": {
+      "type": "integer",
+      "description": "Since version 2.5.1. For synchronous replication only. Tells how many seconds to wait for a synchronous transaction quorum replication until it is declared failed and is rolled back.\n\nIt is not used on replicas, so if a master dies, pending synchronous transactions will wait on the replicas until a new master is elected.",
+      "additionalProperties": false
+    },
+    "replication_threads": {
+      "type": "integer",
+      "description": "Since version 2.10.0. The number of threads spawned to decode the incoming replication data.\n\nThe default value is 1. It means that a single separate thread handles all the incoming replication streams. In most cases, one thread is enough for all incoming data. Therefore, it is likely that the user will not need to set this configuration option.\n\nPossible values range from 1 to 1000. If there are multiple replication threads, connections to serve are distributed evenly between the threads.",
+      "additionalProperties": false
+    },
+    "election_mode": {
+      "type": "string",
+      "enum": [
+        "off",
+        "voter",
+        "candidate",
+        "manual"
+      ],
+      "description": "Since version 2.6.1. Specifies the role of a replica set node in the leader election process.\n\nPossible values:\n\noff\nvoter\ncandidate\nmanual.\nParticipation of a replica set node in the automated leader election can be turned on and off by this option.\n\nThe default value is off. All nodes that have values other than off run the Raft state machine internally talking to other nodes according to the Raft leader election protocol. When the option is off, the node accepts Raft messages from other nodes, but it doesn’t participate in the election activities, and this doesn’t affect the node’s state. So, for example, if a node is not a leader but it has election_mode = 'off', it is writable anyway.\n\nYou can control which nodes can become a leader. If you want a node to participate in the election process but don’t want that it becomes a leaders, set the election_mode option to voter. In this case, the election works as usual, this particular node will vote for other nodes, but won’t become a leader.\n\nIf the node should be able to become a leader, use election_mode = 'candidate'.\n\nSince version 2.8.2, the manual election mode is introduced. It may be used when a user wants to control which instance is the leader explicitly instead of relying on the Raft election algorithm.\n\nWhen an instance is configured with the election_mode='manual', it behaves as follows:\n\nBy default, the instance acts like a voter – it is read-only and may vote for other instances that are candidates.\nOnce box.ctl.promote() is called, the instance becomes a candidate and starts a new election round. If the instance wins the elections, it becomes a leader, but won’t participate in any new elections.",
+      "additionalProperties": false
+    },
+    "election_timeout": {
+      "type": "integer",
+      "description": "Since version 2.6.1. Specifies the timeout between election rounds in the leader election process if the previous round ended up with a split-vote.\n\nIn the leader election process, there can be an election timeout for the case of a split-vote. The timeout can be configured using this option; the default value is 5 seconds.\n\nIt is quite big, and for most of the cases it can be freely lowered to 300-400 ms. It can be a floating point value (300 ms would be box.cfg{election_timeout = 0.3}).\n\nTo avoid the split vote repeat, the timeout is randomized on each node during every new election, from 100% to 110% of the original timeout value. For example, if the timeout is 300 ms and there are 3 nodes started the election simultaneously in the same term, they can set their election timeouts to 300, 310, and 320 respectively, or to 305, 302, and 324, and so on. In that way, the votes will never be split because the election on different nodes won’t be restarted simultaneously.",
+      "additionalProperties": false
+    },
+    "election_fencing_mode": {
+      "type": "string",
+      "enum": [
+        "soft",
+        "strict"
+      ],
+      "description": "Since version 2.11.0. In earlier Tarantool versions, use election_fencing_enabled instead.\n\nSpecifies the leader fencing mode that affects the leader election process. When the parameter is set to soft or strict, the leader resigns its leadership if it has less than replication_synchro_quorum of alive connections to the cluster nodes. The resigning leader receives the status of a follower in the current election term and becomes read-only.\n\nIn soft mode, a connection is considered dead if there are no responses for 4*replication_timeout seconds both on the current leader and the followers.\nIn strict mode, a connection is considered dead if there are no responses for 2*replication_timeout seconds on the current leader and 4*replication_timeout seconds on the followers. This improves chances that there is only one leader at any time.\nFencing applies to the instances that have the election_mode set to candidate or manual. To turn off leader fencing, set election_fencing_mode to off.",
+      "additionalProperties": false
+    },
+    "io_collect_interval": {
+      "type": "number",
+      "description": "For versions 1.4.9 and above. The instance sleeps for io_collect_interval seconds between iterations of the event loop. This can be used to reduce CPU load on systems with a large number of client connections but infrequent requests (for example, each connection sends only a small number of requests per second).",
+      "additionalProperties": false
+    },
+    "net_msg_max": {
+      "type": "integer",
+      "description": "For versions 1.10.1 and higher. Tarantool allocates fibers to process messages. To prevent fiber overload that affects the entire system, Tarantool limits the number of messages that fibers can process in order to block some pending requests.\n\nOn powerful systems, increase the value of net_msg_max, and the scheduler will immediately begin processing pending requests.\n\nOn weaker ones systems, reduce the net_msg_max value to reduce load, although this will take some time as the scheduler will wait for already running requests to complete.\n\nWhen net_msg_max is reached, Tarantool suspends processing of incoming packages until it has processed earlier messages. This is not a direct restriction of the number of fibers that handle network messages, rather it is a system-wide restriction of channel bandwidth This in turn causes restriction of the number of incoming network messages that the transaction thread processor. handles, and therefore indirectly affects the fibers that handle network messages. (The number of fibers is smaller than the number of messages because messages can be released as soon as they are delivered, while incoming requests might not be processed until some time after delivery.)\n\nFor standard systems, the default value (768) will do.",
+      "additionalProperties": false
+    },
+    "readahead": {
+      "type": "integer",
+      "description": "For versions 1.6.2 and higher. The size of the read-ahead buffer associated with the client connection. The larger the buffer, the more memory the active connection consumes and the more requests can be read from the operating system buffer per system call. The general rule is to ensure that the buffer can hold at least several dozen connections. Thus, if the size of the standard tuple in the request is significant, such as several kilobytes or even megabytes, you should increase the size read-ahead buffer If you are not using batch processing, it would be advisable to leave the default value.",
+      "additionalProperties": false
+    },
+    "iproto_threads": {
+      "type": "integer",
+      "description": "Since version 2.8.1. The number of network threads. There can be unusual workloads where the network thread is 100% loaded and the transaction processor thread is not, so the network thread is a bottleneck. In that case set iproto_threads to 2 or more. The operating system kernel will determine which connection goes to which thread.\n\nOn typical systems, the default value (1) is correct.",
+      "additionalProperties": false
+    },
+    "log_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 7,
+      "description": "Since version 1.6.2. Specifies the level of detail the log has. There are seven levels:\n\n1 – SYSERROR\n2 – ERROR\n3 – CRITICAL\n4 – WARNING\n5 – INFO\n6 – VERBOSE\n7 – DEBUG\nBy setting log_level, you can enable logging of all events with severities above or equal to the given level. Tarantool prints logs to the standard error stream by default. This can be changed with the log configuration parameter.",
+      "additionalProperties": false
+    },
+    "log": {
+      "type": "string",
+      "description": "Since version 1.7.4. By default, Tarantool sends the log to the standard error stream (stderr). If log is specified, Tarantool can send the log to a:\n\nfile\npipe\nsystem logger",
+      "additionalProperties": false
+    },
+    "log_nonblock": {
+      "type": "boolean",
+      "description": "Since version 1.7.4. If log_nonblock equals true, Tarantool does not block during logging when the system is not ready for writing, and drops the message instead. If log_level is high, and many messages go to the log, setting log_nonblock to true may improve logging performance at the cost of some log messages getting lost.\n\nThis parameter has effect only if log is configured to send logs to a pipe or system logger. The default log_nonblock value is nil, which means that blocking behavior corresponds to the logger type:\n\nfalse for stderr and file loggers.\ntrue for a pipe and system logger.\nThis is a behavior change: in earlier versions of the Tarantool server, the default value was true.",
+      "additionalProperties": false
+    },
+    "too_long_threshold": {
+      "type": "number",
+      "description": "Since version 1.6.2. If processing a request takes longer than the given value (in seconds), warn about it in the log. Has effect only if log_level is greater than or equal to 4 (WARNING).",
+      "additionalProperties": false
+    },
+    "log_format": {
+      "type": "string",
+      "enum": [
+        "plain",
+        "json"
+      ],
+      "description": "For versions from 1.7.6. and higher. Data is written to the log in two formats:\n\n\"plain\" (by default) or\n\"json\" (more detailed with JSON tags). he log_format='plain' entry has a time value, process ID, cord name, fiber_id, fiber_name, log level, and message.\n\nThe log_format='json' entry has the same fields along with their labels, and in addition has the file name and line number of the Tarantool source.",
+      "additionalProperties": false
+    },
+    "feedback_enabled": {
+      "type": "boolean",
+      "description": "For versions 1.10.1 and higher. Whether to send feedback or not.\n\nIf set to true, feedback will be sent as described above. If set to false, no feedback will be sent.",
+      "additionalProperties": false
+    },
+    "feedback_host": {
+      "type": "string",
+      "description": "For versions 1.10.1 and higher. The address to which the package is sent. Typically, the recipient will be Tarantool, but any URL can be specified.",
+      "additionalProperties": false
+    },
+    "feedback_interval": {
+      "type": "number",
+      "description": "For versions 1.10.1 and higher. The number of seconds between sendings, usually 3600 (1 hour).",
+      "additionalProperties": false
+    }
+  }
+}
