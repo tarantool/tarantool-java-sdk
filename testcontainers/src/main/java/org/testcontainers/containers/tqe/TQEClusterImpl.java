@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,8 +69,6 @@ public class TQEClusterImpl implements TQECluster {
 
   private static void startParallel(
       Map<String, ? extends Startable> containers, TQEConfigurator configurator) {
-
-    final Executor executor = Executors.newFixedThreadPool(containers.size());
     final List<CompletableFuture<?>> futures = new ArrayList<>(containers.size());
     final CopyOnWriteArrayList<Throwable> errors = new CopyOnWriteArrayList<>();
 
@@ -87,8 +83,7 @@ public class TQEClusterImpl implements TQECluster {
                         LOGGER.error("Error starting TQE container [container_name='{}']", name, e);
                         errors.add(e);
                       }
-                    },
-                    executor)));
+                    })));
 
     CompletableFuture.allOf(futures.toArray(new CompletableFuture[] {})).join();
 
