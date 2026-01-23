@@ -1,14 +1,17 @@
 <configuration debug="false">
+
+  <property name="LEVEL" value="${LOGBACK_LEVEL:-INFO}"/>
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <root level="INFO">
+  <root level="${LEVEL}">
     <appender-ref ref="STDOUT"/>
   </root>
-  <logger name="org.springframework" level="INFO"/>
-  <logger name="org.testcontainers" level="INFO"/>
+  <logger name="org.springframework" level="${LEVEL}"/>
+  <logger name="org.testcontainers" level="${LEVEL}"/>
   <!-- <logger name="com.github.dockerjava" level="DEBUG"/> -->
 </configuration>
