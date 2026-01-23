@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tcm;
+package org.testcontainers.containers.integration.tcm;
 
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.tcm.TCMContainer;
 import org.testcontainers.containers.tcm.config.TCMConfig;
 import org.testcontainers.containers.utils.Utils;
 

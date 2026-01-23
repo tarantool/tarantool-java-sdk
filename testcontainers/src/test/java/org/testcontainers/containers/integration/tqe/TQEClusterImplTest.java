@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tqe;
+package org.testcontainers.containers.integration.tqe;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -35,7 +35,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.ContainerLaunchException;
+import org.testcontainers.containers.tqe.GrpcContainer;
 import org.testcontainers.containers.tqe.GrpcContainer.GrpcRole;
+import org.testcontainers.containers.tqe.TQECluster;
+import org.testcontainers.containers.tqe.TQEClusterImpl;
 import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.containers.utils.pojo.User;

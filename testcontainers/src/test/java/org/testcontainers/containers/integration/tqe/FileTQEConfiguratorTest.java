@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tqe.configuration;
+package org.testcontainers.containers.integration.tqe;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.ContainerLaunchException;
-import org.testcontainers.containers.tqe.CommonTest;
+import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
+import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.lifecycle.Startable;
 
 class FileTQEConfiguratorTest extends CommonTest {
