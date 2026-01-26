@@ -36,7 +36,7 @@ jobs:
 
       - name: Setup docker image cache
         id: docker-image-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ${{ env.CI_DOCKER_CACHE_PATH }}
           key: ${{ env.RENDERER_IMAGE }}
