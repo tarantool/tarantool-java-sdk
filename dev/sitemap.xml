@@ -2,546 +2,546 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/balancer/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/balancer/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/balancer/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/call/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/connection-pool/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/connection-pool/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/connection-pool/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/connection-to-multiple-nodes/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/connection-to-multiple-nodes/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/connection-to-multiple-nodes/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/exception-handling/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/exception-handling/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/exception-handling/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/heartbeat/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/heartbeat/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/heartbeat/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/high-level-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/high-level-arch/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/high-level-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/instance-connection-group/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/instance-connection-group/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/instance-connection-group/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/tuple_pojo_mapping/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/arch/tuple_pojo_mapping/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/arch/tuple_pojo_mapping/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/call/call/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/call/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/connection/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/crud-cluster/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/crud-cluster/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/connection/crud-cluster/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/single-node/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/client/examples/connection/single-node/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/client/examples/connection/single-node/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/configuration/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/configuration/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/configuration/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/derived-methods/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/derived-methods/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/derived-methods/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/page-slice-pageable/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/page-slice-pageable/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/page-slice-pageable/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/query-lua/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/query-lua/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/query-lua/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/repository/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/repository/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/repository/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/scroll-api/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/scroll-api/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/scroll-api/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/sort/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/spring-data/sort/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/spring-data/sort/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/single/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-arch/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/single/single-node-testcontainers-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-standard-impl-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-standard-impl-example/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/single/single-node-testcontainers-standard-impl-example/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-standard-impl/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/single/single-node-testcontainers-standard-impl/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/single/single-node-testcontainers-standard-impl/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tdb/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb-cluster-testcontainers-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb-cluster-testcontainers-arch/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tdb/tdb-cluster-testcontainers-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tqe/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/tqe-cluster-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/tqe-cluster-arch/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tqe/tqe-cluster-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/tqe-cluster-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev/pages/testcontainers/tqe/tqe-cluster-example/"/>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/deven/pages/testcontainers/tqe/tqe-cluster-example/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/dev"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/balancer/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/balancer/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/balancer/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/call/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/connection-pool/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/connection-pool/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/connection-pool/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/connection-to-multiple-nodes/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/connection-to-multiple-nodes/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/connection-to-multiple-nodes/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/exception-handling/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/exception-handling/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/exception-handling/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/heartbeat/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/heartbeat/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/heartbeat/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/high-level-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/high-level-arch/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/high-level-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/instance-connection-group/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/instance-connection-group/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/instance-connection-group/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/tuple_pojo_mapping/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/arch/tuple_pojo_mapping/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/arch/tuple_pojo_mapping/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/call/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/call/call/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/call/call/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/connection/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/crud-cluster/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/crud-cluster/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/connection/crud-cluster/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/single-node/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/client/examples/connection/single-node/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/client/examples/connection/single-node/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/configuration/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/configuration/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/configuration/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/derived-methods/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/derived-methods/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/derived-methods/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/page-slice-pageable/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/page-slice-pageable/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/page-slice-pageable/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/query-lua/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/query-lua/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/query-lua/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/repository/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/repository/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/repository/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/scroll-api/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/scroll-api/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/scroll-api/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/sort/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/spring-data/sort/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/spring-data/sort/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/single/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-arch/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/single/single-node-testcontainers-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-standard-impl-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-standard-impl-example/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/single/single-node-testcontainers-standard-impl-example/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-standard-impl/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/single/single-node-testcontainers-standard-impl/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/single/single-node-testcontainers-standard-impl/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tdb/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb-cluster-testcontainers-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb-cluster-testcontainers-arch/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tdb/tdb-cluster-testcontainers-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl-example/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tdb/tdb2-cluster-testcontainers-standard-impl/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tqe/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/tqe-cluster-arch/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/tqe-cluster-arch/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tqe/tqe-cluster-arch/"/>
     </url>
     <url>
         <loc>https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/tqe-cluster-example/</loc>
-        <lastmod>2026-01-22</lastmod>
+        <lastmod>2026-01-26</lastmod>
         <changefreq>daily</changefreq>
         <xhtml:link rel="alternate" hreflang="en" href="https://tarantool.github.io/tarantool-java-sdk/dev/en/pages/testcontainers/tqe/tqe-cluster-example/"/>
         <xhtml:link rel="alternate" hreflang="ru" href="https://tarantool.github.io/tarantool-java-sdk/devpages/testcontainers/tqe/tqe-cluster-example/"/>
