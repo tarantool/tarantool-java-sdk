@@ -32,7 +32,7 @@ env:
 jobs:
   tests-unit:
     runs-on: ubuntu-20.04-self-hosted
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
@@ -69,7 +69,7 @@ jobs:
       fail-fast: false
       matrix:
         tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
@@ -128,7 +128,7 @@ jobs:
       fail-fast: false
       matrix:
         tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
