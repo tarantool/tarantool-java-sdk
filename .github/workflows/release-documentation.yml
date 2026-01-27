@@ -8,6 +8,9 @@ on:
         required: true
         type: string
 
+env:
+  CI_DOCKER_CACHE_PATH: ci/cache/docker
+
 # Мы хотим чтобы deploy в ветку gh-pages
 # происходили консистентно друг за другом
 concurrency:
@@ -21,6 +24,10 @@ jobs:
   deploy:
     name: Deploy release documentation
     runs-on: ubuntu-22.04
+    env:
+      RENDERER_NETWORK: renderer-net
+      RENDERER_IMAGE: plantuml/plantuml-server:jetty-v1.2026.0
+      RENDERER_CONTAINER_NAME: renderer
     steps:
       - name: Validate semver tag  format
         id: validate-tag
@@ -38,11 +45,38 @@ jobs:
           echo "✅ Valid tag: $TAG"
           echo "Version for docs: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Checkout repository with tag
         uses: actions/checkout@v6
         with:
           ref: "${{ github.event.inputs.tag }}"
           fetch-depth: 0
+
+      - name: Setup docker image cache
+        id: docker-image-cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.CI_DOCKER_CACHE_PATH }}
+          key: ${{ env.RENDERER_IMAGE }}
+
+      - name: Update docker image cache
+        if: steps.docker-image-cache.outputs.cache-hit != 'true'
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker pull "$RENDERER_IMAGE"
+          mkdir -p ${CI_DOCKER_CACHE_PATH}/${RENDERER_IMAGE}
+          docker image save -o ${CI_DOCKER_CACHE_PATH}/${RENDERER_CONTAINER_NAME}.tar "$RENDERER_IMAGE"
+
+      - name: Load docker image cache
+        if: steps.docker-image-cache.outputs.cache-hit == 'true'
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker image load -i ${CI_DOCKER_CACHE_PATH}/${RENDERER_CONTAINER_NAME}.tar
+
+      - name: Start renderer service locally
+        run: |
+          docker network create "$RENDERER_NETWORK"
+          docker run -d -p 7036:8080 --name "$RENDERER_CONTAINER_NAME" --network "$RENDERER_NETWORK" ${RENDERER_REGISTRY}${RENDERER_IMAGE}
 
       - name: Configure Git user
         run: |
@@ -66,3 +100,10 @@ jobs:
 #        env:
 #          # Для дебага, если нужно
 #          MIKE_VERBOSE: 1
+
+      - name: Cleanup renderer container
+        if: always()
+        run: |
+          docker rm -f "$RENDERER_CONTAINER_NAME"
+          docker network rm -f "$RENDERER_NETWORK" 
+          docker rmi -f ${RENDERER_REGISTRY}${RENDERER_IMAGE}

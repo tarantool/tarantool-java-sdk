@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   javadoc-build:
-    runs-on: tarantool-delivery-runners
+    runs-on: ubuntu-20.04-self-hosted
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6

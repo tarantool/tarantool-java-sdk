@@ -25,7 +25,7 @@ on:
 
 jobs:
   spotless-check:
-    runs-on: tarantool-delivery-runners
+    runs-on: ubuntu-20.04-self-hosted
     continue-on-error: true
 
     steps:

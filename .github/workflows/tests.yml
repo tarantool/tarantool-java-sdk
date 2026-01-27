@@ -31,8 +31,8 @@ env:
 
 jobs:
   tests-unit:
-    runs-on: tarantool-delivery-runners
-    timeout-minutes: 20
+    runs-on: ubuntu-20.04-self-hosted
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
@@ -64,12 +64,12 @@ jobs:
       #    retention-days: 1
 
   tests-box-integration:
-    runs-on: tarantool-delivery-runners
+    runs-on: ubuntu-20.04-self-hosted
     strategy:
       fail-fast: false
       matrix:
         tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
@@ -123,12 +123,12 @@ jobs:
       #    retention-days: 1
 
   tests-crud-integration:
-    runs-on: tarantool-delivery-runners
+    runs-on: ubuntu-20.04-self-hosted
     strategy:
       fail-fast: false
       matrix:
         tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
 
@@ -189,7 +189,7 @@ jobs:
   #    - tests-crud-integration
   #    - tests-ee
   #    - tests-dr
-  #  runs-on: tarantool-delivery-runners
+  #  runs-on: ubuntu-20.04-self-hosted
   #  steps:
   #    - uses: actions/checkout@v6
 

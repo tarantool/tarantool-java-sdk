@@ -1,0 +1,47 @@
+name: Documentation issue
+description: Any issue for documentation
+title: ":book: "
+labels: ["documentation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this documentation issue!
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+
+  - type: input
+    id: documentation-version
+    attributes:
+      label: Documentation version
+      description: Set up the version for which the issue is being set
+      placeholder: dev
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Set up issue type
+      multiple: true
+      options:
+        - Bug
+        - Refactoring
+        - Feature
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue description
+      description: Please, describe issue
+    validations:
+      required: true

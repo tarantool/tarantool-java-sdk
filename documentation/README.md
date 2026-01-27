@@ -1,33 +1,102 @@
-## Documentation
+## Документация
 
-### Local Build
+### Локальная сборка документации
 
-To deploy the site locally on the current branch/tag:
+Чтобы собрать документацию локально на текущей ветке/теге:
 
-1.  ```bash
+1. Перейдите на ветку/тег и инициализируйте python-окружение:
+
+    ```shell
     git checkout <branch/tag>
-    ```
-2. ```bash
     cd documentation
-    ```
-3. ```bash
     python3 -m venv venv
-    ```
-4. ```bash
     source venv/bin/activate
-    ```
-5. ```bash
     pip install -r requirements.txt
     ```
-6. ```bash
-    mkdocs serve 
+2. Необходим `docker`. Запустите сервер рендеринга локально:
+   ```shell
+   docker run -d -p 7036:8080 plantuml/plantuml-server:jetty-v1.2026.0
+   ```
+3. Соберите или запустите сайт:
+
+   ```shell
+   mkdocs build
+   ```
+
+   ```shell
+   mkdocs serve
     ```
 
-### Schemas
+### Интернационализация
 
-Documentation supports `.drawio` format schemas. Place your schema in the `assets` directory. In the markdown text,
-refer to the schema as a regular markdown image. The path to the image must be relative:
+На данный момент документация поддерживает два языка:
+
+- Русский 🇷🇺 - по умолчанию
+- Английский 🇺🇸
+
+### Правила написания новых страниц и разделов
+
+#### Раздел
+
+`Раздел` - группа страниц, описывающая одну конкретную тему. Раздел может включать подразделы.
+Раздел оформаляется в отдельной директории. Каждый раздел обязан иметь страницу с именем `index.md`,
+в которой описывается тематика раздела.
+
+`Страница` - страница с произвольным именем и расширением `.md`, написанная на `markdown`.
+
+При добавлении страницы и раздела, добавьте их в секцию `nav` в файле `mkdocs.yml`:
+
+Пример раздела:
+
+> ![alt](readme-images/sections.png)
+
+Пример оформленной навигации для этого раздела:
+
+> ![alt](readme-images/navigation.png)
+
+### Схемы
+
+#### Plantuml
+
+Документация поддерживает рендеринг `plantuml-диаграмм`. Для того чтобы добавить схему plantuml в
+текст страницы `markdown` используйте блок кода с расширением `puml`:
+
+> \`\`\`puml
+>
+> @startuml
+>
+> Alice -> Bob: test
+>
+> @enduml
+>
+> \`\`\`
+
+#### Drawio
+
+Документация поддерживает отображение схем, написанных в `drawio` (файлы с расширением `.drawio`).
+Необходимо добавить схему в директорию `assets`. В тексте markdown добавьте схему также как
+добавляете обыное изображение, используя относительный путь:
 
 ```markdown
 ![](../../../../assets/<some-paths>/schema.drawio)
 ```
+
+### Code Snippets
+
+Документация поддерживает добавление в текст markdown включение текста из других файлов (snippets).
+Для того, чтобы добавить snippet в текст markdown изучите
+документацию [расширения](https://facelessuser.github.io/pymdown-extensions/extensions/snippets/).
+Путь к файлам, которые будут включены вычисляется относительно директории
+`docs/documentation/examples`.
+
+#### Дополнительные возможности
+
+Также поддерживаются следующие дополнения:
+
+- Использование [emoji](https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/) в
+  тексте страниц.
+- [Табы](https://squidfunk.github.io/mkdocs-material/reference/content-tabs/)
+- [Сноски](https://squidfunk.github.io/mkdocs-material/reference/footnotes/)
+- [Диаграммы mermaid](https://squidfunk.github.io/mkdocs-material/reference/diagrams/)
+- [Admonitions](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+- [Аннотации](https://squidfunk.github.io/mkdocs-material/reference/annotations/)

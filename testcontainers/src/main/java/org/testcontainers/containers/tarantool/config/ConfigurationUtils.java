@@ -392,4 +392,27 @@ public class ConfigurationUtils {
       throw new ContainerLaunchException("Timed out waiting for cluster to bootstrap", exc);
     }
   }
+
+  /**
+   * Adds additional users into global section of passed configuration.
+   *
+   * @return copy instance of passed configuration
+   */
+  public static Tarantool3Configuration addUsers(
+      Tarantool3Configuration old, Map<String, UsersProperty> users) {
+    if (old == null) {
+      return null;
+    }
+    final Tarantool3Configuration copy =
+        ConfigurationUtils.create(ConfigurationUtils.writeAsString(old));
+
+    final Credentials credentials = copy.getCredentials().orElseGet(Credentials::new);
+    final Users oldUsers = credentials.getUsers().orElseGet(Users::new);
+
+    users.forEach(oldUsers::setAdditionalProperty);
+
+    credentials.setUsers(oldUsers);
+    copy.setCredentials(credentials);
+    return copy;
+  }
 }
