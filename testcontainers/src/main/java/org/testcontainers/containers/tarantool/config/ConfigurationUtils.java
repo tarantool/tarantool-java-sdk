@@ -373,7 +373,7 @@ public class ConfigurationUtils {
             .append(":")
             .append(uri.getPort());
 
-    LOGGER.info("Start cluster bootstrap in '{}' container", router);
+    LOGGER.info("Start cluster bootstrap in '{}' container", router.node());
     try {
       Unreliables.retryUntilSuccess(
           (int) bootstrapTimeout.getSeconds(),

@@ -28,6 +28,8 @@ env:
   TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: "registry.ps.tarantool.io/"
 #  Переменная, используемая в тестах в качестве префикса к названию образа. Переопределяется локально, если необходимо
   TARANTOOL_REGISTRY: "registry.ps.tarantool.io/"
+# Оперделим, включать ли логи для тестов
+  LOGBACK_LEVEL: ${{ secrets.ACTIONS_STEP_DEBUG == 'true' && 'INFO' || 'OFF' }}
 
 jobs:
   tests-unit:
