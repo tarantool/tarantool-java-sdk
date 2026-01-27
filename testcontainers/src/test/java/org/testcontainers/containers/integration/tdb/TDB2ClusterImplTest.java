@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tdb;
+package org.testcontainers.containers.integration.tdb;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.tdb.TDB2ClusterImpl;
+import org.testcontainers.containers.tdb.TDBCluster;
 import org.testcontainers.containers.utils.Utils;
 
 import io.tarantool.autogen.Tarantool3Configuration;

@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tdg;
+package org.testcontainers.containers.integration.tdg;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,6 +24,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.Container.ExecResult;
+import org.testcontainers.containers.tdg.TDGContainer;
+import org.testcontainers.containers.tdg.TDGContainerImpl;
 import org.testcontainers.utility.DockerImageName;
 
 class TDGContainerImplTest {

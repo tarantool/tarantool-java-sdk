@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tqe;
+package org.testcontainers.containers.integration.tqe;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;

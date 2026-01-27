@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers.tdg.configuration.impl.file;
+package org.testcontainers.containers.integration.tdg;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.tdg.TDGContainer;
 import org.testcontainers.containers.tdg.Utils;
 import org.testcontainers.containers.tdg.configuration.TDGConfigurator;
+import org.testcontainers.containers.tdg.configuration.impl.file.TDGFileConfigurator;
 import org.testcontainers.containers.utils.pojo.User;
 import org.testcontainers.utility.DockerImageName;
 
