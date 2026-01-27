@@ -22,11 +22,15 @@ import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
+import org.testcontainers.containers.TarantoolContainerClientHelper;
+import org.testcontainers.containers.TarantoolContainerOperations;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.utils.HttpHost;
+import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
@@ -86,6 +90,19 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
     } finally {
       this.lock.unlock();
     }
+  }
+
+  public String getExecResult(String command) throws Exception {
+    ExecResult result = this.execInContainer(command);
+    if (result.getExitCode() != 0) {
+      throw new RuntimeException("Cannot execute script: " + command);
+    }
+    return result.getStdout()
+        .trim()
+        .replace("\n", "")
+        .replace("...", "")
+        .replace("--", "")
+        .trim();
   }
 
   @Override

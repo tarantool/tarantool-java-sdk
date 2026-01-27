@@ -15,10 +15,11 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import static org.testcontainers.containers.PathUtils.normalizePath;
+import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 /**
@@ -234,6 +235,10 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   @Override
   public int getInternalPort() {
     return routerPort;
+  }
+
+  public Integer getMappedPort(int containerPort) {
+    return super.getMappedPort(containerPort);
   }
 
   public String getAPIHost() {
