@@ -43,7 +43,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
@@ -77,7 +77,9 @@ import io.tarantool.schema.TarantoolSchemaFetcher;
 @Testcontainers
 public class TarantoolBoxClientTest extends BaseTest {
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
+
   public static final List<?> EMPTY_LIST = Collections.emptyList();
   private static Integer spacePersonId;
   private static TarantoolBoxClient client;

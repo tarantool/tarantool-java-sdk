@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -48,15 +48,15 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
       LoggerFactory.getLogger(DistributingRoundRobinBalancerTest.class);
 
   @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer()
+  private static final TarantoolContainerImpl tt1 =
+      new TarantoolContainerImpl()
           .withEnv(ENV_MAP)
           .withExposedPort(3305)
           .withLogConsumer(new Slf4jLogConsumer(log));
 
   @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer()
+  private static final TarantoolContainerImpl tt2 =
+      new TarantoolContainerImpl()
           .withEnv(ENV_MAP)
           .withExposedPort(3305)
           .withLogConsumer(new Slf4jLogConsumer(log));
@@ -78,17 +78,17 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
         factory, timerResource, gracefulShutdown, heartbeatOpts, null, metricsRegistry);
   }
 
-  private int getSessionCounter(TarantoolContainer tt) throws Exception {
+  private int getSessionCounter(TarantoolContainerImpl tt) throws Exception {
     List<?> result = tt.executeCommandDecoded("return get_session_counter()");
     return (Integer) result.get(0);
   }
 
-  private int getCallCounter(TarantoolContainer tt) throws Exception {
+  private int getCallCounter(TarantoolContainerImpl tt) throws Exception {
     List<?> result = tt.executeCommandDecoded("return get_call_counter()");
     return (Integer) result.get(0);
   }
 
-  private void execLua(TarantoolContainer container, String command) {
+  private void execLua(TarantoolContainerImpl container, String command) {
     try {
       container.executeCommandDecoded(command);
     } catch (Exception e) {
@@ -96,7 +96,10 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
   }
 
   private void wakeUpAllConnects(
-      TarantoolBalancer rrBalancer, int nodeVisits, TarantoolContainer tt1, TarantoolContainer tt2)
+      TarantoolBalancer rrBalancer,
+      int nodeVisits,
+      TarantoolContainerImpl tt1,
+      TarantoolContainerImpl tt2)
       throws Exception {
     walkAndJoin(rrBalancer, nodeVisits * 2);
     assertEquals(count1, getSessionCounter(tt1));

@@ -84,7 +84,7 @@ public class TarantoolCrudClientWithRetryTest {
 
   private static final TarantoolCartridgeContainer tt =
       new TarantoolCartridgeContainer(
-              "Dockerfile",
+              "cartridge/Dockerfile",
               System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "")
                   + "cartridge",
               "cartridge/instances.yml",
@@ -102,7 +102,9 @@ public class TarantoolCrudClientWithRetryTest {
   @BeforeAll
   public static void setUp() throws Exception {
     if (isCartridgeAvailable()) {
-      tt.start();
+      if (!tt.isRunning()) {
+        tt.start();
+      }
       client =
           TarantoolFactory.crud()
               .withHost(tt.getHost())

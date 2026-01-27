@@ -25,6 +25,8 @@ import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -40,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -84,18 +86,18 @@ public class ConnectionPoolTest extends BasePoolTest {
   private static int count2;
 
   @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final TarantoolContainerImpl tt1 = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final TarantoolContainerImpl tt2 = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() {
     host1 = tt1.getHost();
-    port1 = tt1.getPort();
+    port1 = tt1.getFirstMappedPort();
     count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     host2 = tt2.getHost();
-    port2 = tt2.getPort();
+    port2 = tt2.getFirstMappedPort();
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
@@ -180,7 +182,7 @@ public class ConnectionPoolTest extends BasePoolTest {
     CompletableFuture<IProtoClient> future1 = pool.get("node-a", 0);
     CompletableFuture<IProtoClient> future2 = pool.get("node-a", 0);
     CompletableFuture.allOf(future1, future2).join();
-    assertTrue(future1 == future2);
+    assertSame(future1, future2);
     assertEquals(1, getActiveConnectionsCount(tt1));
     pool.close();
   }
@@ -332,7 +334,7 @@ public class ConnectionPoolTest extends BasePoolTest {
   public void testConnectErrorAfterPoolClose() throws Exception {
     IProtoClientPool pool = createClientPool(true, null);
     pool.setGroups(
-        Arrays.asList(
+        Collections.singletonList(
             InstanceConnectionGroup.builder()
                 .withHost(host1)
                 .withPort(port1)
@@ -606,7 +608,7 @@ public class ConnectionPoolTest extends BasePoolTest {
     for (List<Object> item : triplets) {
       tags.add((String) item.get(0));
       indexes.add((int) item.get(1));
-      assertTrue(item.get(2) instanceof IProtoResponse);
+      assertInstanceOf(IProtoResponse.class, item.get(2));
     }
 
     assertEquals(new HashSet<String>(Arrays.asList("node-a", "node-b")), tags);

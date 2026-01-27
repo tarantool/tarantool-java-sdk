@@ -35,7 +35,7 @@ public class Tarantool2ContainerTest {
 
   private static final DockerImageName IMAGE =
       DockerImageName.parse(
-          System.getenv().getOrDefault("TARANTOOL_REGISTRY", "")
+          System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "")
               + "tarantool/tarantool:2.11.2-ubuntu20.04");
 
   private static final Network NETWORK_FOR_TEST_CLASS = Network.newNetwork();

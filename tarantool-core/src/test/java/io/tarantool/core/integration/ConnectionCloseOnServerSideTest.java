@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -30,7 +30,8 @@ import io.tarantool.core.connection.exceptions.ConnectionClosedException;
 @Testcontainers
 public class ConnectionCloseOnServerSideTest extends BaseTest {
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @Test
   public void testConnectAndCloseOnServer() throws Exception {
@@ -41,29 +42,20 @@ public class ConnectionCloseOnServerSideTest extends BaseTest {
     Connection connection = factory.create();
     CompletableFuture<Boolean> closeFuture = new CompletableFuture<>();
     connection.onClose(
-        ConnectionCloseEvent.CLOSE_BY_REMOTE,
-        (c, ex) -> {
-          closeFuture.completeExceptionally(ex);
-        });
+        ConnectionCloseEvent.CLOSE_BY_REMOTE, (c, ex) -> closeFuture.completeExceptionally(ex));
     connection.onClose(
         ConnectionCloseEvent.CLOSE_BY_REMOTE,
-        (c, ex) -> {
-          flags.put(ConnectionCloseEvent.CLOSE_BY_REMOTE, true);
-        });
+        (c, ex) -> flags.put(ConnectionCloseEvent.CLOSE_BY_REMOTE, true));
     connection.onClose(
         ConnectionCloseEvent.CLOSE_BY_CLIENT,
-        (c, ex) -> {
-          flags.put(ConnectionCloseEvent.CLOSE_BY_CLIENT, true);
-        });
+        (c, ex) -> flags.put(ConnectionCloseEvent.CLOSE_BY_CLIENT, true));
     connection.onClose(
         ConnectionCloseEvent.CLOSE_BY_SHUTDOWN,
-        (c, ex) -> {
-          flags.put(ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, true);
-        });
+        (c, ex) -> flags.put(ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, true));
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
     connection.connect(address, 3_000).get();
     tt.execInContainer("kill", "1");
-    Exception ex = assertThrows(CompletionException.class, () -> closeFuture.join());
+    Exception ex = assertThrows(CompletionException.class, closeFuture::join);
     Throwable cause = ex.getCause();
     assertEquals(ConnectionClosedException.class, cause.getClass());
     assertEquals(ConnectionClosedException.class, findRootCause(ex).getClass());

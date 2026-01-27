@@ -14,24 +14,13 @@ import java.util.UUID;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 
-/**
- * Testcontainers for Tarantool version 2.11.x.
- *
- * @implNote The implementation assumes that you will not configure the following parameters in the
- *     init script (they adjusted automatically):
- *     <ul>
- *       <li>{@code listen}
- *       <li>{@code memtx_dir}
- *       <li>{@code wal_dir}
- *       <li>{@code vinyl_dir}
- *     </ul>
- */
 public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     implements TarantoolContainer<Tarantool2Container> {
 
@@ -45,11 +34,15 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
 
   private boolean configured;
 
+  private final TarantoolContainerLuaExecutor luaExecutor;
+
   private Tarantool2Container(DockerImageName dockerImageName, String initScript, String node) {
     super(dockerImageName);
     this.node = node;
     this.initScript = initScript;
     this.mountPath = Utils.createTempDirectory(this.node);
+    this.luaExecutor =
+        new TarantoolContainerLuaExecutor(this, TarantoolContainer.DEFAULT_TARANTOOL_PORT);
   }
 
   @Override
@@ -150,6 +143,31 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     return new InetSocketAddress(this.node, TarantoolContainer.DEFAULT_TARANTOOL_PORT);
   }
 
+  public String getExecResult(String command) throws Exception {
+    return this.luaExecutor.getExecResult(command);
+  }
+
+  public Container.ExecResult executeCommand(String command)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommand(command);
+  }
+
+  public Container.ExecResult executeCommand(
+      String command, org.testcontainers.containers.utils.SslContext sslContext)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommand(command, sslContext);
+  }
+
+  public <T> T executeCommandDecoded(String command) throws IOException, InterruptedException {
+    return luaExecutor.executeCommandDecoded(command);
+  }
+
+  public <T> T executeCommandDecoded(
+      String command, org.testcontainers.containers.utils.SslContext sslContext)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommandDecoded(command, sslContext);
+  }
+
   public static Builder builder(DockerImageName image, Path initScriptPath) {
     try {
       final String rawScript =
@@ -194,7 +212,7 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
         return;
       }
 
-      if (node.strip().isEmpty()) {
+      if (node.isBlank()) {
         throw new ContainerLaunchException("instance name can't be blank");
       }
     }

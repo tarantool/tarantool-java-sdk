@@ -8,10 +8,12 @@ package io.tarantool.core.integration;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,8 @@ import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -35,13 +37,13 @@ import io.tarantool.core.exceptions.BoxError;
 public class IProtoClientWatchersTest extends BaseTest {
 
   @Container
-  private static final TarantoolContainer tarantoolContainer =
-      new TarantoolContainer()
+  private static final TarantoolContainerImpl tarantoolContainer =
+      new TarantoolContainerImpl()
           .withEnv(ENV_MAP)
           .withLogConsumer(
               new Slf4jLogConsumer(LoggerFactory.getLogger(IProtoClientWatchersTest.class)));
 
-  private IProtoClient getClientAndConnect(TarantoolContainer tt) throws Exception {
+  private IProtoClient getClientAndConnect(TarantoolContainerImpl tt) throws Exception {
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
     client.connect(address, 3_000).get();
@@ -60,7 +62,7 @@ public class IProtoClientWatchersTest extends BaseTest {
         tarantoolContainer, System.getenv("TARANTOOL_VERSION"));
   }
 
-  private void testWatchAndUnwatchOnContainer(TarantoolContainer tt, String version)
+  private void testWatchAndUnwatchOnContainer(TarantoolContainerImpl tt, String version)
       throws Exception {
     IProtoClient client = getClientAndConnect(tt);
 
@@ -84,9 +86,9 @@ public class IProtoClientWatchersTest extends BaseTest {
             + "box.broadcast('key3', 'wontbecaught');");
     Thread.sleep(100);
 
-    assertEquals(Arrays.asList(ValueFactory.newString("myEvent")), eventsKey1);
+    assertEquals(Collections.singletonList(ValueFactory.newString("myEvent")), eventsKey1);
     assertEquals(
-        Arrays.asList(
+        Collections.singletonList(
             ValueFactory.newArray(
                 ValueFactory.newInteger(1),
                 ValueFactory.newInteger(2),
@@ -102,14 +104,15 @@ public class IProtoClientWatchersTest extends BaseTest {
     testWatchOnceOnContainer(tarantoolContainer, System.getenv("TARANTOOL_VERSION"));
   }
 
-  private void testWatchOnceOnContainer(TarantoolContainer tt, String version) throws Exception {
+  private void testWatchOnceOnContainer(TarantoolContainerImpl tt, String version)
+      throws Exception {
     IProtoClient client = getClientAndConnect(tt);
     Integer serverVersion = client.getServerProtocolVersion();
     if (serverVersion < 6) {
       CompletionException ex =
           assertThrows(CompletionException.class, () -> client.watchOnce("key1").join());
       Throwable cause = ex.getCause();
-      assertTrue(cause instanceof BoxError);
+      assertInstanceOf(BoxError.class, cause);
       assertTrue(cause.getMessage().contains("Unknown request type 77"));
       return;
     }
@@ -135,8 +138,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     checkTTVersion(tt, version);
   }
 
-  private void testWatcherRecoveryAfterReconnectOnContainer(TarantoolContainer tt, String version)
-      throws Exception {
+  private void testWatcherRecoveryAfterReconnectOnContainer(
+      TarantoolContainerImpl tt, String version) throws Exception {
     IProtoClient client = getClientAndConnect(tt);
     List<Value> eventsKey1 = new ArrayList<>();
     List<Value> eventsKey2 = new ArrayList<>();
@@ -187,7 +190,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     checkTTVersion(tt, version);
   }
 
-  private void checkTTVersion(TarantoolContainer tt, String version) throws Exception {
+  private void checkTTVersion(TarantoolContainerImpl tt, String version) throws Exception {
     List<?> result = tt.executeCommandDecoded("return _TARANTOOL");
     String ttVersion = (String) result.get(0);
     assertTrue(ttVersion.startsWith(version.split("-")[0]));

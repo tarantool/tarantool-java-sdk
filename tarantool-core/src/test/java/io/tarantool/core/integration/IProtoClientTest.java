@@ -44,7 +44,7 @@ import org.msgpack.value.IntegerValue;
 import org.msgpack.value.StringValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -81,7 +81,10 @@ public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
       IProtoRequestOpts.empty().withRequestTimeout(5000);
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+
+  @Container
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
+
   private static int spaceAId;
   private static int spaceBId;
 
@@ -113,7 +116,6 @@ public class IProtoClientTest extends BaseTest {
                 + "local c = net.connect('127.0.0.1:3301'); "
                 + "return c.schema_version end");
     schemaVersion = (Integer) result.get(0);
-
     address = new InetSocketAddress(tt.getHost(), tt.getPort());
 
     try {

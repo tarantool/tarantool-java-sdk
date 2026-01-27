@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -54,12 +54,12 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           .withCrudHealthCheck();
 
   @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static final TarantoolContainerImpl tt1 =
+      new TarantoolContainerImpl().withEnv(ENV_MAP).withExposedPort(3305);
 
   @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static final TarantoolContainerImpl tt2 =
+      new TarantoolContainerImpl().withEnv(ENV_MAP).withExposedPort(3305);
 
   @BeforeEach
   public void setUp() {

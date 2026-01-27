@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -30,10 +30,10 @@ import io.tarantool.pool.InstanceConnectionGroup;
 public class RoundRobinBalancerTest extends BaseTest {
 
   @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final TarantoolContainerImpl tt1 = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final TarantoolContainerImpl tt2 = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() {
@@ -41,12 +41,12 @@ public class RoundRobinBalancerTest extends BaseTest {
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  private int getSessionCounter(TarantoolContainer tt) throws Exception {
+  private int getSessionCounter(TarantoolContainerImpl tt) throws Exception {
     List<?> result = tt.executeCommandDecoded("return get_session_counter()");
     return (Integer) result.get(0);
   }
 
-  private int getCallCounter(TarantoolContainer tt) throws Exception {
+  private int getCallCounter(TarantoolContainerImpl tt) throws Exception {
     List<?> result = tt.executeCommandDecoded("return get_call_counter()");
     return (Integer) result.get(0);
   }

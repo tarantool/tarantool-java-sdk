@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -56,8 +57,7 @@ public class MVCCStreamsTest extends BaseTest {
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
   @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withScriptFileName("server-mvcc.lua");
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() throws Exception {
@@ -88,7 +88,6 @@ public class MVCCStreamsTest extends BaseTest {
             ValueFactory.newString((String) stored.get(1))));
   }
 
-  @SuppressWarnings("unchecked")
   private void checkNoTuple(String ttCheck) throws Exception {
     List<?> result = tt.executeCommandDecoded(ttCheck);
     assertEquals(0, result.size());
@@ -218,7 +217,7 @@ public class MVCCStreamsTest extends BaseTest {
     ExecutionException ex =
         assertThrows(
             ExecutionException.class, () -> client.insert(spaceAId, null, tupleA, opts).get());
-    assertTrue(ex.getCause() instanceof BoxError);
+    assertInstanceOf(BoxError.class, ex.getCause());
     assertTrue(ex.getCause().getMessage().contains("Transaction has been aborted by timeout"));
   }
 }

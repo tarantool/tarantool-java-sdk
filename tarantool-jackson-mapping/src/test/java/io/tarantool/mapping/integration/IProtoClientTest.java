@@ -44,8 +44,8 @@ import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -65,8 +65,8 @@ public class IProtoClientTest extends BaseTest {
   static final Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
 
   @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
+  private static final TarantoolContainerImpl tt =
+      new TarantoolContainerImpl().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
 
   public static final String ECHO_EXPRESSION = "return ...";
   public static final String YEAR = "2022";

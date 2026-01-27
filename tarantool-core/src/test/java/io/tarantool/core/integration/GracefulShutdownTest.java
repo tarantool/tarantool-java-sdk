@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -35,7 +35,8 @@ public class GracefulShutdownTest extends BaseTest {
 
   private static InetSocketAddress address;
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() throws Exception {

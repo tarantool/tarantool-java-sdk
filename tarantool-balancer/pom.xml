@@ -32,7 +32,8 @@
     <!-- Test -->
     <dependency>
       <groupId>io.tarantool</groupId>
-      <artifactId>testcontainers-java-tarantool</artifactId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

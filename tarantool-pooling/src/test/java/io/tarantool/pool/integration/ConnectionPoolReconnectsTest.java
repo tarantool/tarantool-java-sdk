@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -40,8 +40,7 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
   private static final Logger log = LoggerFactory.getLogger(ConnectionPoolReconnectsTest.class);
 
   @Container
-  private TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
+  private static TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
 
   @BeforeEach
   public void setUp() {
@@ -80,7 +79,7 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
 
     assertTrue(metricsRegistry.get("pool.reconnecting").gauge().value() > 0);
 
-    tt = new TarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
+    tt = new TarantoolContainerImpl().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
     tt.start();
 
     waitFor(

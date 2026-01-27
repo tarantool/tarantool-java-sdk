@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainerImpl;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.bouncycastle.util.Strings;
@@ -77,7 +77,7 @@ public class TarantoolSchemaFetcherTest {
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   @Container
-  private static final TarantoolContainer tt = new TarantoolContainer().withEnv(CREDS_MAP);
+  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(CREDS_MAP);
 
   private Long spacePersonId;
   private static IProtoClient client;
