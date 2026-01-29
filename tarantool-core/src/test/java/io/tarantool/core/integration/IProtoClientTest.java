@@ -47,6 +47,7 @@ import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.IProtoClientImpl.DEFAULT_WATCHER_OPTS;
@@ -74,7 +75,6 @@ import io.tarantool.core.protocol.BoxIterator;
 import io.tarantool.core.protocol.IProtoMessage;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 10)
 @Testcontainers
@@ -82,6 +82,7 @@ public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
       IProtoRequestOpts.empty().withRequestTimeout(5000);
+
   @Container
   private static final Tarantool3Container tt =
       new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
@@ -104,9 +105,12 @@ public class IProtoClientTest extends BaseTest {
     spaceBId = Integer.parseInt(tt.getExecResult("return box.space.space_b.id"));
     spaceAName = tt.getExecResult("return box.space.space_a.name");
     indexAName = tt.getExecResult("return box.space.space_a.index[0].name");
-    schemaVersion = Integer.parseInt(tt.getExecResult("do local net = require('net.box'); "
-        + "local c = net.connect('127.0.0.1:3301'); "
-        + "return c.schema_version end"));
+    schemaVersion =
+        Integer.parseInt(
+            tt.getExecResult(
+                "do local net = require('net.box'); "
+                    + "local c = net.connect('127.0.0.1:3301'); "
+                    + "return c.schema_version end"));
 
     address = tt.mappedAddress();
 

@@ -27,6 +27,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import io.tarantool.balancer.TarantoolBalancer;
@@ -39,7 +40,6 @@ import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.IProtoClientPoolImpl;
 import io.tarantool.pool.InstanceConnectionGroup;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 15)
 @Testcontainers
@@ -96,7 +96,10 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
   }
 
   private void wakeUpAllConnects(
-      TarantoolBalancer rrBalancer, int nodeVisits, Tarantool3Container tt1, Tarantool3Container tt2)
+      TarantoolBalancer rrBalancer,
+      int nodeVisits,
+      Tarantool3Container tt1,
+      Tarantool3Container tt2)
       throws Exception {
     walkAndJoin(rrBalancer, nodeVisits * 2);
     assertEquals(count1, getSessionCounter(tt1));

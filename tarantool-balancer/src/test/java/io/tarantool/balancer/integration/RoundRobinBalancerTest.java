@@ -16,6 +16,7 @@ import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.balancer.TarantoolRoundRobinBalancer;
@@ -23,7 +24,6 @@ import io.tarantool.core.IProtoClient;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.IProtoClientPoolImpl;
 import io.tarantool.pool.InstanceConnectionGroup;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers

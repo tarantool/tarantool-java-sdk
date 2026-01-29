@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
@@ -66,8 +67,6 @@ import io.tarantool.core.protocol.IProtoRequestImpl;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.requests.IProtoAuth;
 import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.containers.Container.ExecResult;
 
 @Timeout(value = 5)
 @Testcontainers
@@ -109,7 +108,8 @@ public class ConnectionToTarantoolTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    version = tt.getExecResult("return get_version()");;
+    version = tt.getExecResult("return get_version()");
+    ;
 
     protocolType = "binary";
 

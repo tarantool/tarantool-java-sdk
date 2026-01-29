@@ -37,10 +37,7 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
     Connection connection = factory.create();
     CompletableFuture<Boolean> closeFuture = new CompletableFuture<>();
     connection.onClose(
-        ConnectionCloseEvent.CLOSE_BY_CLIENT,
-        (c, ex) ->
-          closeFuture.completeExceptionally(ex)
-        );
+        ConnectionCloseEvent.CLOSE_BY_CLIENT, (c, ex) -> closeFuture.completeExceptionally(ex));
     InetSocketAddress address = tt.mappedAddress();
     connection.connect(address, 3_000).get();
     Thread.sleep(500);
@@ -57,10 +54,7 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
     Connection connection = factory.create();
     CompletableFuture<Boolean> closeFuture = new CompletableFuture<>();
     connection.onClose(
-        ConnectionCloseEvent.CLOSE_BY_SHUTDOWN,
-        (c, ex) ->
-          closeFuture.completeExceptionally(ex)
-        );
+        ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, (c, ex) -> closeFuture.completeExceptionally(ex));
     InetSocketAddress address = tt.mappedAddress();
     connection.connect(address, 3_000).get();
     Thread.sleep(500);

@@ -6,26 +6,22 @@
 package org.testcontainers.containers.utils;
 
 import java.nio.file.Path;
-/**
- * Utils class for path normalization.
- */
+
+/** Utils class for path normalization. */
 public class PathUtils {
 
-  private PathUtils() {
-  }
+  private PathUtils() {}
 
   /**
-   * Removes leading slash under windows from "/C:/work" so
-   * the path will match the format expected by docker.
+   * Removes leading slash under windows from "/C:/work" so the path will match the format expected
+   * by docker.
    *
    * @param path to any file
    * @return normalized path for docker
    */
   public static String normalizePath(String path) {
     String result;
-    if (path.startsWith("/")
-        && path.length() > 3
-        && path.charAt(2) == ':') {
+    if (path.startsWith("/") && path.length() > 3 && path.charAt(2) == ':') {
       result = path.substring(1);
     } else {
       result = path;

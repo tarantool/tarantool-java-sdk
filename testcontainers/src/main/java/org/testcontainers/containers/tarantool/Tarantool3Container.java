@@ -5,6 +5,7 @@
 
 package org.testcontainers.containers.tarantool;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,11 +27,8 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
-import org.testcontainers.containers.TarantoolContainerClientHelper;
-import org.testcontainers.containers.TarantoolContainerOperations;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.utils.HttpHost;
-import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
@@ -60,6 +58,8 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
 
   private boolean configured;
 
+  private final TarantoolContainerLuaExecutor luaExecutor;
+
   public Tarantool3Container(DockerImageName dockerImageName, String node) {
     super(dockerImageName);
     this.instanceUuid = UUID.randomUUID();
@@ -70,6 +70,8 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
     this.lock = new ReentrantLock();
     this.isClosed = new AtomicBoolean();
     this.etcdAddresses = new ArrayList<>(1);
+    this.luaExecutor =
+        new TarantoolContainerLuaExecutor(this, TarantoolContainer.DEFAULT_TARANTOOL_PORT);
   }
 
   public Tarantool3Container withEtcdAddresses(HttpHost... etcdAddresses) {
@@ -93,16 +95,7 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
   }
 
   public String getExecResult(String command) throws Exception {
-    ExecResult result = this.execInContainer(command);
-    if (result.getExitCode() != 0) {
-      throw new RuntimeException("Cannot execute script: " + command);
-    }
-    return result.getStdout()
-        .trim()
-        .replace("\n", "")
-        .replace("...", "")
-        .replace("--", "")
-        .trim();
+    return this.luaExecutor.getExecResult(command);
   }
 
   @Override
@@ -221,15 +214,18 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
       withEnv("TT_MEMTX_DIR", DATA_DIR_STR);
 
       if (this.etcdAddresses.isEmpty()) {
-        LOGGER.warn(
-            "Tarantool will use the configuration from the local file system because no etcd"
-                + " cluster addresses were passed");
-        withEnv(
-            "TT_CONFIG",
-            TarantoolContainer.DEFAULT_DATA_DIR
-                .resolve(this.configPath.getFileName())
-                .toAbsolutePath()
-                .toString());
+        if (this.configPath != null && Files.isRegularFile(this.configPath)) {
+          LOGGER.info(
+              "Tarantool will use the configuration from the local file: {}", this.configPath);
+          withEnv(
+              "TT_CONFIG",
+              TarantoolContainer.DEFAULT_DATA_DIR
+                  .resolve(this.configPath.getFileName())
+                  .toAbsolutePath()
+                  .toString());
+        } else {
+          LOGGER.warn("No config file provided; Tarantool 3 will use default configuration");
+        }
       } else {
         LOGGER.warn(
             "Tarantool will use the configuration from the etcd cluster. Endpoints : {}",
@@ -276,6 +272,27 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
     } finally {
       this.lock.unlock();
     }
+  }
+
+  public Container.ExecResult executeCommand(String command)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommand(command);
+  }
+
+  public Container.ExecResult executeCommand(
+      String command, org.testcontainers.containers.utils.SslContext sslContext)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommand(command, sslContext);
+  }
+
+  public <T> T executeCommandDecoded(String command) throws IOException, InterruptedException {
+    return luaExecutor.executeCommandDecoded(command);
+  }
+
+  public <T> T executeCommandDecoded(
+      String command, org.testcontainers.containers.utils.SslContext sslContext)
+      throws IOException, InterruptedException {
+    return luaExecutor.executeCommandDecoded(command, sslContext);
   }
 
   private static String joinEtcdAddresses(List<HttpHost> etcdAddresses) {

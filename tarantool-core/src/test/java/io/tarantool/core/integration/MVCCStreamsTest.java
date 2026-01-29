@@ -11,26 +11,26 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.tarantool.Tarantool3Container;
+import org.testcontainers.containers.tarantool.Tarantool2Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_ERR_PROC_LUA;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_ERR_TUPLE_FOUND;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_OK;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.exceptions.BoxError;
@@ -39,7 +39,6 @@ import io.tarantool.core.protocol.IProtoMessage;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.TransactionIsolationLevel;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers
@@ -59,10 +58,11 @@ public class MVCCStreamsTest extends BaseTest {
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
   @Container
-  private static final Tarantool3Container tt =
-      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+  private static final Tarantool2Container tt =
+      new Tarantool2Container.Builder(
+              DockerImageName.parse("tarantool/tarantool"), "server-mvcc.lua")
+          .build()
           .withEnv(ENV_MAP);
-          //.withScriptFileName("server-mvcc.lua");
 
   @BeforeAll
   public static void setUp() throws Exception {

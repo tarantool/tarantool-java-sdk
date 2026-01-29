@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2025 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
 package org.testcontainers.containers.utils;
 
 import java.io.InputStream;
@@ -12,28 +17,30 @@ import org.yaml.snakeyaml.Yaml;
 
 public class CartridgeConfigParser {
 
-  private final AtomicReference<Map<String, Map<String, Object>>> instances = new AtomicReference<>();
+  private final AtomicReference<Map<String, Map<String, Object>>> instances =
+      new AtomicReference<>();
 
   public CartridgeConfigParser(String instanceFileName) {
     Yaml yaml = new Yaml();
-    InputStream inputStream = this.getClass()
-        .getClassLoader()
-        .getResourceAsStream(instanceFileName);
+    InputStream inputStream =
+        this.getClass().getClassLoader().getResourceAsStream(instanceFileName);
     instances.set(Collections.unmodifiableMap(yaml.load(inputStream)));
   }
 
   public Integer[] getExposablePorts() {
-    List<Integer> ports = instances.get().values().stream()
-        .map(Instance::new)
-        .map(Instance::getBinaryPort)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    ports.addAll(instances.get().values().stream()
-        .map(Instance::new)
-        .map(Instance::getHttpPort)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList()));
-    return ports.toArray(new Integer[]{});
+    List<Integer> ports =
+        instances.get().values().stream()
+            .map(Instance::new)
+            .map(Instance::getBinaryPort)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    ports.addAll(
+        instances.get().values().stream()
+            .map(Instance::new)
+            .map(Instance::getHttpPort)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList()));
+    return ports.toArray(new Integer[] {});
   }
 
   static class Instance {
@@ -46,9 +53,10 @@ public class CartridgeConfigParser {
       this.workdir = (String) map.get("workdir");
       this.httpPort = (Integer) map.get("http_port");
       this.advertiseUri = (String) map.get("advertise_uri");
-      this.binaryPort = this.advertiseUri != null ?
-          Integer.parseInt(this.advertiseUri.substring(this.advertiseUri.indexOf(':') + 1)) :
-          null;
+      this.binaryPort =
+          this.advertiseUri != null
+              ? Integer.parseInt(this.advertiseUri.substring(this.advertiseUri.indexOf(':') + 1))
+              : null;
     }
 
     public String getWorkdir() {

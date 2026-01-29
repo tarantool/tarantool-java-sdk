@@ -5,9 +5,7 @@
 
 package org.testcontainers.containers;
 
-/**
- * Represents operations available on a Tarantool Container
- */
+/** Represents operations available on a Tarantool Container */
 public interface TarantoolContainerOperations<T extends Container<T>> extends Container<T> {
   /**
    * Get the Tarantool server exposed port for connecting the client to
@@ -53,7 +51,8 @@ public interface TarantoolContainerOperations<T extends Container<T>> extends Co
 
   /**
    * Execute a local script in the Tarantool instance. The path must be classpath-relative.
-   * `dofile()` function is executed internally, so possible exceptions will be caught as the client exceptions.
+   * `dofile()` function is executed internally, so possible exceptions will be caught as the client
+   * exceptions.
    *
    * @param scriptResourcePath the classpath resource path to a script
    * @return script execution result
@@ -63,9 +62,10 @@ public interface TarantoolContainerOperations<T extends Container<T>> extends Co
 
   /**
    * Execute a local script in the Tarantool instance. The path must be classpath-relative.
-   * `dofile()` function is executed internally, so possible exceptions will be caught as the client exceptions.
+   * `dofile()` function is executed internally, so possible exceptions will be caught as the client
+   * exceptions.
    *
-   * @param <V>                the result of script
+   * @param <V> the result of script
    * @param scriptResourcePath the classpath resource path to a script
    * @return script execution result in {@link Container.ExecResult}
    * @throws Exception if failed to connect to the instance or execution fails
@@ -84,7 +84,7 @@ public interface TarantoolContainerOperations<T extends Container<T>> extends Co
   /**
    * Execute a command in the Tarantool instance. Example of a command: `return 1 + 2, 'foo'`
    *
-   * @param <V>     the result of script
+   * @param <V> the result of script
    * @param command a valid Lua command or a sequence of Lua commands
    * @return command execution result in {@link Container.ExecResult}
    * @throws Exception if failed to connect to the instance or execution fails

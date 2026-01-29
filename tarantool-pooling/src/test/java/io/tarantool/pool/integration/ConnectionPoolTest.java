@@ -23,6 +23,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
@@ -39,6 +45,7 @@ import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -55,9 +62,6 @@ import io.tarantool.pool.InstanceConnectionGroup;
 import io.tarantool.pool.PoolEventListener;
 import io.tarantool.pool.TripleConsumer;
 import io.tarantool.pool.exceptions.PoolClosedException;
-import org.testcontainers.utility.DockerImageName;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @Timeout(value = 5)
 @Testcontainers

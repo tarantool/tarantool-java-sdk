@@ -47,6 +47,7 @@ import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.client.box.TarantoolBoxSpace.WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0;
 import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper;
@@ -72,7 +73,6 @@ import io.tarantool.mapping.Tuple;
 import io.tarantool.schema.NoSchemaException;
 import io.tarantool.schema.Space;
 import io.tarantool.schema.TarantoolSchemaFetcher;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers
@@ -82,6 +82,7 @@ public class TarantoolBoxClientTest extends BaseTest {
   private static final Tarantool3Container tt =
       new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
           .withEnv(ENV_MAP);
+
   public static final List<?> EMPTY_LIST = Collections.emptyList();
   private static Integer spacePersonId;
   private static TarantoolBoxClient client;

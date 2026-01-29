@@ -12,8 +12,7 @@ public class SslContext {
   private String keyFile;
   private String certFile;
 
-  private SslContext() {
-  }
+  private SslContext() {}
 
   private SslContext(String keyFile, String certFile) {
     this.keyFile = keyFile;

@@ -15,21 +15,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang3.ArrayUtils;
-
+import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import org.apache.commons.lang3.ArrayUtils;
 import org.testcontainers.containers.exceptions.CartridgeTopologyException;
 import org.testcontainers.containers.utils.CartridgeConfigParser;
 import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
-import static org.testcontainers.containers.utils.PathUtils.normalizePath;
-
 /**
  * Sets up a Tarantool Cartridge cluster and provides API for configuring it.
- * <p>
- * The container constructors accept the classpath resources relative path to the instances.yml file, which contents
- * may look like
+ *
+ * <p>The container constructors accept the classpath resources relative path to the instances.yml
+ * file, which contents may look like
  *
  * <pre>
  * <code>
@@ -59,8 +57,9 @@ import static org.testcontainers.containers.utils.PathUtils.normalizePath;
  *   http_port: 8085
  * </code>
  * </pre>
- * <p>
- * and the classpath resources relative path to a topology bootstrap script, which contents may look like
+ *
+ * <p>and the classpath resources relative path to a topology bootstrap script, which contents may
+ * look like
  *
  * <pre>
  * <code>
@@ -81,11 +80,11 @@ import static org.testcontainers.containers.utils.PathUtils.normalizePath;
  * return cartridge.admin_edit_topology({replicasets = replicasets})
  * </code>
  * </pre>
- * <p>
- * After the topology changes are applied, the vshard bootstrap command will be executed.
- * <p>
- * The instances.yml file will be analyzed and the ports, specified in advertise_uri options together with the ports,
- * specified in the http_port options, will be exposed.
+ *
+ * <p>After the topology changes are applied, the vshard bootstrap command will be executed.
+ *
+ * <p>The instances.yml file will be analyzed and the ports, specified in advertise_uri options
+ * together with the ports, specified in the http_port options, will be exposed.
  */
 public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartridgeContainer>
     implements TarantoolContainerOperations<TarantoolCartridgeContainer> {
@@ -96,7 +95,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   protected static final String CARTRIDGE_DEFAULT_PASSWORD = "secret-cluster-cookie";
   protected static final String DOCKERFILE = "Dockerfile";
   protected static final int API_PORT = 8081;
-  protected static final String VSHARD_BOOTSTRAP_COMMAND = "return require('cartridge').admin_bootstrap_vshard()";
+  protected static final String VSHARD_BOOTSTRAP_COMMAND =
+      "return require('cartridge').admin_bootstrap_vshard()";
   protected static final String SCRIPT_RESOURCE_DIRECTORY = "";
   protected static final String INSTANCE_DIR = "/app";
 
@@ -131,81 +131,108 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   protected SslContext sslContext;
 
   /**
-   * Create a container with default image and specified instances file from the classpath resources. Assumes that
-   * there is a file named Dockerfile in the project resources classpath.
+   * Create a container with default image and specified instances file from the classpath
+   * resources. Assumes that there is a file named Dockerfile in the project resources classpath.
    *
-   * @param instancesFile             path to instances.yml, relative to the classpath resources
-   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath resources
+   * @param instancesFile path to instances.yml, relative to the classpath resources
+   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath
+   *     resources
    */
   public TarantoolCartridgeContainer(String instancesFile, String topologyConfigurationFile) {
     this(DOCKERFILE, instancesFile, topologyConfigurationFile);
   }
 
   /**
-   * Create a container with default image and specified instances file from the classpath resources. Assumes that
-   * there is a file named Dockerfile in the project resources classpath.
+   * Create a container with default image and specified instances file from the classpath
+   * resources. Assumes that there is a file named Dockerfile in the project resources classpath.
    *
-   * @param instancesFile             path to instances.yml, relative to the classpath resources
-   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath resources
-   * @param buildArgs                 a map of arguments that will be passed to docker ARG commands on image build.
-   *                                  This values can be overridden by environment.
+   * @param instancesFile path to instances.yml, relative to the classpath resources
+   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath
+   *     resources
+   * @param buildArgs a map of arguments that will be passed to docker ARG commands on image build.
+   *     This values can be overridden by environment.
    */
-  public TarantoolCartridgeContainer(String instancesFile, String topologyConfigurationFile,
-                                     Map<String, String> buildArgs) {
+  public TarantoolCartridgeContainer(
+      String instancesFile, String topologyConfigurationFile, Map<String, String> buildArgs) {
     this(DOCKERFILE, "", instancesFile, topologyConfigurationFile, buildArgs);
   }
 
   /**
    * Create a container with default image and specified instances file from the classpath resources
    *
-   * @param dockerFile                path to a Dockerfile which configures Cartridge and other necessary services
-   * @param instancesFile             path to instances.yml, relative to the classpath resources
-   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath resources
+   * @param dockerFile path to a Dockerfile which configures Cartridge and other necessary services
+   * @param instancesFile path to instances.yml, relative to the classpath resources
+   * @param topologyConfigurationFile path to a topology bootstrap script, relative to the classpath
+   *     resources
    */
-  public TarantoolCartridgeContainer(String dockerFile, String instancesFile, String topologyConfigurationFile) {
+  public TarantoolCartridgeContainer(
+      String dockerFile, String instancesFile, String topologyConfigurationFile) {
     this(dockerFile, "", instancesFile, topologyConfigurationFile);
   }
 
   /**
-   * Create a container with specified image and specified instances file from the classpath resources. By providing
-   * the result Cartridge container image name, you can cache the image and avoid rebuilding on each test run (the
-   * image is tagged with the provided name and not deleted after tests finishing).
+   * Create a container with specified image and specified instances file from the classpath
+   * resources. By providing the result Cartridge container image name, you can cache the image and
+   * avoid rebuilding on each test run (the image is tagged with the provided name and not deleted
+   * after tests finishing).
    *
-   * @param dockerFile                URL resource path to a Dockerfile which configures Cartridge and other
-   *                                  necessary services
-   * @param buildImageName            Specify a stable image name for the test container to prevent rebuilds
-   * @param instancesFile             URL resource path to instances.yml relative in the classpath
-   * @param topologyConfigurationFile URL resource path to a topology bootstrap script in the classpath
+   * @param dockerFile URL resource path to a Dockerfile which configures Cartridge and other
+   *     necessary services
+   * @param buildImageName Specify a stable image name for the test container to prevent rebuilds
+   * @param instancesFile URL resource path to instances.yml relative in the classpath
+   * @param topologyConfigurationFile URL resource path to a topology bootstrap script in the
+   *     classpath
    */
-  public TarantoolCartridgeContainer(String dockerFile, String buildImageName,
-                                     String instancesFile, String topologyConfigurationFile) {
-    this(dockerFile, buildImageName, instancesFile, topologyConfigurationFile, Collections.emptyMap());
+  public TarantoolCartridgeContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String topologyConfigurationFile) {
+    this(
+        dockerFile,
+        buildImageName,
+        instancesFile,
+        topologyConfigurationFile,
+        Collections.emptyMap());
   }
 
   /**
-   * Create a container with specified image and specified instances file from the classpath resources. By providing
-   * the result Cartridge container image name, you can cache the image and avoid rebuilding on each test run (the
-   * image is tagged with the provided name and not deleted after tests finishing).
+   * Create a container with specified image and specified instances file from the classpath
+   * resources. By providing the result Cartridge container image name, you can cache the image and
+   * avoid rebuilding on each test run (the image is tagged with the provided name and not deleted
+   * after tests finishing).
    *
-   * @param dockerFile                URL resource path to a Dockerfile which configures Cartridge
-   *                                  and other necessary services
-   * @param buildImageName            Specify a stable image name for the test container to prevent rebuilds
-   * @param instancesFile             URL resource path to instances.yml relative in the classpath
-   * @param topologyConfigurationFile URL resource path to a topology bootstrap script in the classpath
-   * @param buildArgs                 a map of arguments that will be passed to docker ARG commands on image build.
-   *                                  This values can be overridden by environment.
+   * @param dockerFile URL resource path to a Dockerfile which configures Cartridge and other
+   *     necessary services
+   * @param buildImageName Specify a stable image name for the test container to prevent rebuilds
+   * @param instancesFile URL resource path to instances.yml relative in the classpath
+   * @param topologyConfigurationFile URL resource path to a topology bootstrap script in the
+   *     classpath
+   * @param buildArgs a map of arguments that will be passed to docker ARG commands on image build.
+   *     This values can be overridden by environment.
    */
-  public TarantoolCartridgeContainer(String dockerFile, String buildImageName, String instancesFile,
-                                     String topologyConfigurationFile, final Map<String, String> buildArgs) {
-    this(buildImage(dockerFile, buildImageName, buildArgs), instancesFile, topologyConfigurationFile, buildArgs);
+  public TarantoolCartridgeContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String topologyConfigurationFile,
+      final Map<String, String> buildArgs) {
+    this(
+        buildImage(dockerFile, buildImageName, buildArgs),
+        instancesFile,
+        topologyConfigurationFile,
+        buildArgs);
   }
 
-  protected TarantoolCartridgeContainer(ImageFromDockerfile image, String instancesFile,
-                                        String topologyConfigurationFile,
-                                        Map<String, String> buildArgs) {
+  protected TarantoolCartridgeContainer(
+      ImageFromDockerfile image,
+      String instancesFile,
+      String topologyConfigurationFile,
+      Map<String, String> buildArgs) {
     super(withBuildArgs(image, buildArgs));
 
-    TARANTOOL_RUN_DIR = mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
+    TARANTOOL_RUN_DIR =
+        mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
 
     if (instancesFile == null || instancesFile.isEmpty()) {
       throw new IllegalArgumentException("Instance file name must not be null or empty");
@@ -219,7 +246,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     this.clientHelper = new TarantoolContainerClientHelper(this);
   }
 
-  protected static ImageFromDockerfile withBuildArgs(ImageFromDockerfile image, Map<String, String> buildArgs) {
+  protected static ImageFromDockerfile withBuildArgs(
+      ImageFromDockerfile image, Map<String, String> buildArgs) {
     Map<String, String> args = mergeBuildArguments(buildArgs);
 
     if (!args.isEmpty()) {
@@ -242,19 +270,19 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   protected static Map<String, String> mergeBuildArguments(Map<String, String> buildArgs) {
     Map<String, String> args = new HashMap<>(buildArgs);
 
-    for (String envVariable : Arrays.asList(
-        ENV_TARANTOOL_VERSION,
-        ENV_TARANTOOL_SERVER_USER,
-        ENV_TARANTOOL_SERVER_UID,
-        ENV_TARANTOOL_SERVER_GROUP,
-        ENV_TARANTOOL_SERVER_GID,
-        ENV_TARANTOOL_WORKDIR,
-        ENV_TARANTOOL_RUNDIR,
-        ENV_TARANTOOL_LOGDIR,
-        ENV_TARANTOOL_DATADIR,
-        ENV_TARANTOOL_INSTANCES_FILE,
-        ENV_TARANTOOL_CLUSTER_COOKIE
-    )) {
+    for (String envVariable :
+        Arrays.asList(
+            ENV_TARANTOOL_VERSION,
+            ENV_TARANTOOL_SERVER_USER,
+            ENV_TARANTOOL_SERVER_UID,
+            ENV_TARANTOOL_SERVER_GROUP,
+            ENV_TARANTOOL_SERVER_GID,
+            ENV_TARANTOOL_WORKDIR,
+            ENV_TARANTOOL_RUNDIR,
+            ENV_TARANTOOL_LOGDIR,
+            ENV_TARANTOOL_DATADIR,
+            ENV_TARANTOOL_INSTANCES_FILE,
+            ENV_TARANTOOL_CLUSTER_COOKIE)) {
       String variableValue = System.getenv(envVariable);
       if (variableValue != null && !args.containsKey(envVariable)) {
         args.put(envVariable, variableValue);
@@ -263,17 +291,21 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     return args;
   }
 
-  protected static ImageFromDockerfile buildImage(String dockerFile, String buildImageName,
-                                                  final Map<String, String> buildArgs) {
+  protected static ImageFromDockerfile buildImage(
+      String dockerFile, String buildImageName, final Map<String, String> buildArgs) {
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
     }
-    return image.withFileFromClasspath("Dockerfile", dockerFile)
-        .withFileFromClasspath("cartridge", buildArgs.get("CARTRIDGE_SRC_DIR") == null ?
-            "cartridge" : buildArgs.get("CARTRIDGE_SRC_DIR"));
+    return image
+        .withFileFromClasspath("Dockerfile", dockerFile)
+        .withFileFromClasspath(
+            "cartridge",
+            buildArgs.get("CARTRIDGE_SRC_DIR") == null
+                ? "cartridge"
+                : buildArgs.get("CARTRIDGE_SRC_DIR"));
   }
 
   /**
@@ -341,8 +373,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   }
 
   /**
-   * Specify the directory inside container that the resource directory will be mounted to. The default value is
-   * "/app".
+   * Specify the directory inside container that the resource directory will be mounted to. The
+   * default value is "/app".
    *
    * @param instanceDir valid directory path
    * @return this container instance
@@ -372,18 +404,17 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     return routerHost;
   }
 
-  /**
-   * Checks if already running and if so raises an exception to prevent too-late setters.
-   */
+  /** Checks if already running and if so raises an exception to prevent too-late setters. */
   protected void checkNotRunning() {
     if (isRunning()) {
-      throw new IllegalStateException("This option can be changed only before the container is running");
+      throw new IllegalStateException(
+          "This option can be changed only before the container is running");
     }
   }
 
   /**
-   * Specify the root directory of a Cartridge project relative to the resource classpath.
-   * The default directory is the root resource directory.
+   * Specify the root directory of a Cartridge project relative to the resource classpath. The
+   * default directory is the root resource directory.
    *
    * @param directoryResourcePath a valid directory path
    * @return this container instance
@@ -393,7 +424,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     URL resource = getClass().getClassLoader().getResource(directoryResourcePath);
     if (resource == null) {
       throw new IllegalArgumentException(
-          String.format("No resource path found for the specified resource %s", directoryResourcePath));
+          String.format(
+              "No resource path found for the specified resource %s", directoryResourcePath));
     }
     this.directoryResourcePath = normalizePath(resource.getPath());
     return this;
@@ -412,8 +444,7 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   }
 
   /**
-   * Use fixed ports binding.
-   * Defaults to false.
+   * Use fixed ports binding. Defaults to false.
    *
    * @param useFixedPorts fixed ports for tarantool
    * @return HTTP API port
@@ -474,7 +505,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   /**
    * Set the user password for accessing the router node
    *
-   * @param routerPassword a user password, usually is a value of the "cluster_cookie" option in cartridge.cfg({...})
+   * @param routerPassword a user password, usually is a value of the "cluster_cookie" option in
+   *     cartridge.cfg({...})
    * @return this container instance
    */
   public TarantoolCartridgeContainer withRouterPassword(String routerPassword) {
@@ -503,26 +535,25 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   }
 
   protected boolean setupTopology() {
-    String fileType = topologyConfigurationFile
-        .substring(topologyConfigurationFile.lastIndexOf('.') + 1);
+    String fileType =
+        topologyConfigurationFile.substring(topologyConfigurationFile.lastIndexOf('.') + 1);
     if (fileType.equals("yml")) {
-      String replicasetsFileName = topologyConfigurationFile
-          .substring(topologyConfigurationFile.lastIndexOf('/') + 1);
-      String instancesFileName = instancesFile
-          .substring(instancesFile.lastIndexOf('/') + 1);
+      String replicasetsFileName =
+          topologyConfigurationFile.substring(topologyConfigurationFile.lastIndexOf('/') + 1);
+      String instancesFileName = instancesFile.substring(instancesFile.lastIndexOf('/') + 1);
       try {
-        ExecResult result = execInContainer(
-            "cartridge",
-            "replicasets",
-            "--run-dir=" + TARANTOOL_RUN_DIR,
-            "--file=" + replicasetsFileName,
-            "--cfg=" + instancesFileName,
-            "setup",
-            "--bootstrap-vshard"
-        );
+        ExecResult result =
+            execInContainer(
+                "cartridge",
+                "replicasets",
+                "--run-dir=" + TARANTOOL_RUN_DIR,
+                "--file=" + replicasetsFileName,
+                "--cfg=" + instancesFileName,
+                "setup",
+                "--bootstrap-vshard");
         if (result.getExitCode() != 0) {
-          throw new CartridgeTopologyException("Failed to change the app topology via cartridge CLI: "
-              + result.getStdout());
+          throw new CartridgeTopologyException(
+              "Failed to change the app topology via cartridge CLI: " + result.getStdout());
         }
       } catch (Exception e) {
         throw new CartridgeTopologyException(e);
@@ -585,21 +616,23 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     bootstrapVshard();
 
     logger().info("Tarantool Cartridge cluster is started");
-    logger().info("Tarantool Cartridge router is listening at {}:{}", getRouterHost(), getRouterPort());
+    logger()
+        .info("Tarantool Cartridge router is listening at {}:{}", getRouterHost(), getRouterPort());
     logger().info("Tarantool Cartridge HTTP API is available at {}:{}", getAPIHost(), getAPIPort());
   }
 
   protected void waitUntilRouterIsUp(int secondsToWait) {
     if (!waitUntilTrue(secondsToWait, this::routerIsUp)) {
-      throw new RuntimeException("Timeout exceeded during router starting stage." +
-          " See the specific error in logs.");
+      throw new RuntimeException(
+          "Timeout exceeded during router starting stage." + " See the specific error in logs.");
     }
   }
 
   protected void waitUntilCartridgeIsHealthy(int secondsToWait) {
     if (!waitUntilTrue(secondsToWait, this::isCartridgeHealthy)) {
-      throw new RuntimeException("Timeout exceeded during cartridge topology applying stage." +
-          " See the specific error in logs.");
+      throw new RuntimeException(
+          "Timeout exceeded during cartridge topology applying stage."
+              + " See the specific error in logs.");
     }
   }
 
@@ -622,12 +655,17 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     ExecResult result;
     try {
       result = executeCommand(healthyCmd);
-      if (result.getExitCode() != 0 && result.getStderr().contains("Connection refused") &&
-          result.getStdout().isEmpty()) {
+      if (result.getExitCode() != 0
+          && result.getStderr().contains("Connection refused")
+          && result.getStdout().isEmpty()) {
         return false;
       } else if (result.getExitCode() != 0) {
-        logger().error("exit code: {}, stdout: {}, stderr: {}", result.getExitCode(), result.getStdout(),
-            result.getStderr());
+        logger()
+            .error(
+                "exit code: {}, stdout: {}, stderr: {}",
+                result.getExitCode(),
+                result.getStdout(),
+                result.getStderr());
         return false;
       } else {
         return true;
@@ -636,7 +674,6 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
       logger().error(e.getMessage());
       return false;
     }
-
   }
 
   protected boolean isCartridgeHealthy() {
@@ -644,16 +681,24 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     try {
       result = executeCommand(healthyCmd);
       if (result.getExitCode() != 0) {
-        logger().error("exitCode: {}, stdout: {}, stderr: {}", result.getExitCode(), result.getStdout(),
-            result.getStderr());
+        logger()
+            .error(
+                "exitCode: {}, stdout: {}, stderr: {}",
+                result.getExitCode(),
+                result.getStdout(),
+                result.getStderr());
         return false;
       } else if (result.getStdout().startsWith("---\n- null\n")) {
         return false;
       } else if (result.getStdout().contains("true")) {
         return true;
       } else {
-        logger().warn("exitCode: {}, stdout: {}, stderr: {}", result.getExitCode(), result.getStdout(),
-            result.getStderr());
+        logger()
+            .warn(
+                "exitCode: {}, stdout: {}, stderr: {}",
+                result.getExitCode(),
+                result.getStdout(),
+                result.getStderr());
         return false;
       }
     } catch (Exception e) {

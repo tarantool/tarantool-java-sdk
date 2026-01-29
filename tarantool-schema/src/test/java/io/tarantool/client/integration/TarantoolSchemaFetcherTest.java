@@ -31,6 +31,7 @@ import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.bouncycastle.util.Strings;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.balancer.TarantoolDistributingRoundRobinBalancer;
 import io.tarantool.core.IProtoClient;
@@ -43,7 +44,6 @@ import io.tarantool.pool.InstanceConnectionGroup;
 import io.tarantool.schema.Index;
 import io.tarantool.schema.Space;
 import io.tarantool.schema.TarantoolSchemaFetcher;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers

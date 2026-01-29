@@ -33,6 +33,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.TarantoolClient;
@@ -46,7 +47,6 @@ import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.mapping.TarantoolResponse;
 import io.tarantool.mapping.Tuple;
 import io.tarantool.pool.exceptions.PoolClosedException;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers
@@ -56,6 +56,7 @@ public class TarantoolClientTest extends BaseTest {
   private static final Tarantool3Container tt =
       new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
           .withEnv(ENV_MAP);
+
   private static TarantoolClient client;
   private static char tarantoolVersion;
   private static Integer serverVersion;

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -32,7 +33,6 @@ import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.IProtoClientPoolImpl;
 import io.tarantool.pool.InstanceConnectionGroup;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 120)
 @Testcontainers
@@ -82,8 +82,9 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
 
     assertTrue(metricsRegistry.get("pool.reconnecting").gauge().value() > 0);
 
-    tt = new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
-        .withEnv(ENV_MAP);
+    tt =
+        new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+            .withEnv(ENV_MAP);
     tt.start();
 
     waitFor(

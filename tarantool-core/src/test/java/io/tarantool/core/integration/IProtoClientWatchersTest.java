@@ -12,6 +12,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.Value;
@@ -21,15 +25,13 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EVENT_DATA;
-import static org.junit.jupiter.api.Assertions.*;
-
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.exceptions.BoxError;
-import org.testcontainers.utility.DockerImageName;
 
 @Timeout(value = 5)
 @Testcontainers
