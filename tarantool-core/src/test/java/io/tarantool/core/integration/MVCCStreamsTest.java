@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,9 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool2Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
@@ -56,25 +58,24 @@ public class MVCCStreamsTest extends BaseTest {
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
   @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withScriptFileName("server-mvcc.lua");
+  private static final Tarantool2Container tt =
+      new Tarantool2Container.Builder(
+              DockerImageName.parse("tarantool/tarantool"), "server-mvcc.lua")
+          .build()
+          .withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() throws Exception {
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
-
-    List<?> result = tt.executeCommandDecoded("return box.space.space_a.id");
-    spaceAId = (Integer) result.get(0);
-
-    result = tt.executeCommandDecoded("return box.space.space_b.id");
-    spaceBId = (Integer) result.get(0);
+    address = tt.mappedAddress();
+    spaceAId = Integer.parseInt(tt.getExecResult("return box.space.space_a.id"));
+    spaceBId = Integer.parseInt(tt.getExecResult("return box.space.space_b.id"));
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
+    tt.execInContainer("return box.space.test:truncate()");
+    tt.execInContainer("return box.space.space_a:truncate()");
+    tt.execInContainer("return box.space.space_b:truncate()");
   }
 
   @SuppressWarnings("unchecked")
@@ -88,7 +89,6 @@ public class MVCCStreamsTest extends BaseTest {
             ValueFactory.newString((String) stored.get(1))));
   }
 
-  @SuppressWarnings("unchecked")
   private void checkNoTuple(String ttCheck) throws Exception {
     List<?> result = tt.executeCommandDecoded(ttCheck);
     assertEquals(0, result.size());
@@ -218,7 +218,7 @@ public class MVCCStreamsTest extends BaseTest {
     ExecutionException ex =
         assertThrows(
             ExecutionException.class, () -> client.insert(spaceAId, null, tupleA, opts).get());
-    assertTrue(ex.getCause() instanceof BoxError);
+    assertInstanceOf(BoxError.class, ex.getCause());
     assertTrue(ex.getCause().getMessage().contains("Transaction has been aborted by timeout"));
   }
 }

@@ -31,7 +31,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.opentest4j.AssertionFailedError;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -84,15 +84,15 @@ public class BasePoolTest {
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  protected void execLua(TarantoolContainer container, String command) {
+  protected void execLua(Tarantool3Container container, String command) {
     try {
-      container.executeCommandDecoded(command);
+      container.executeCommand(command);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected int getActiveConnectionsCount(TarantoolContainer tt) {
+  protected int getActiveConnectionsCount(Tarantool3Container tt) {
     try {
       List<? extends Object> result =
           tt.executeCommandDecoded("return box.stat.net().CONNECTIONS.current");

@@ -44,9 +44,10 @@ import org.msgpack.value.IntegerValue;
 import org.msgpack.value.StringValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.IProtoClientImpl.DEFAULT_WATCHER_OPTS;
@@ -81,7 +82,12 @@ public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
       IProtoRequestOpts.empty().withRequestTimeout(5000);
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+
+  @Container
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(ENV_MAP);
+
   private static int spaceAId;
   private static int spaceBId;
 
@@ -95,26 +101,18 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    List<?> result = tt.executeCommandDecoded("return box.space.space_a.id");
-    spaceAId = (Integer) result.get(0);
+    spaceAId = Integer.parseInt(tt.getExecResult("return box.space.space_a.id"));
+    spaceBId = Integer.parseInt(tt.getExecResult("return box.space.space_b.id"));
+    spaceAName = tt.getExecResult("return box.space.space_a.name");
+    indexAName = tt.getExecResult("return box.space.space_a.index[0].name");
+    schemaVersion =
+        Integer.parseInt(
+            tt.getExecResult(
+                "do local net = require('net.box'); "
+                    + "local c = net.connect('127.0.0.1:3301'); "
+                    + "return c.schema_version end"));
 
-    result = tt.executeCommandDecoded("return box.space.space_b.id");
-    spaceBId = (Integer) result.get(0);
-
-    result = tt.executeCommandDecoded("return box.space.space_a.name");
-    spaceAName = (String) result.get(0);
-
-    result = tt.executeCommandDecoded("return box.space.space_a.index[0].name");
-    indexAName = (String) result.get(0);
-
-    result =
-        tt.executeCommandDecoded(
-            "do local net = require('net.box'); "
-                + "local c = net.connect('127.0.0.1:3301'); "
-                + "return c.schema_version end");
-    schemaVersion = (Integer) result.get(0);
-
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    address = tt.mappedAddress();
 
     try {
       tarantoolVersion = System.getenv("TARANTOOL_VERSION").charAt(0);
@@ -831,9 +829,9 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
+    tt.execInContainer("return box.space.test:truncate()");
+    tt.execInContainer("return box.space.space_a:truncate()");
+    tt.execInContainer("return box.space.space_b:truncate()");
   }
 
   private void checkMessageHeader(IProtoMessage message, int requestType, long syncId) {
@@ -865,7 +863,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.select(space, index, key, limit, offset, iterator).get();
@@ -886,7 +884,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -911,7 +909,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1062,7 +1060,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.update(space, index, key, operations).get();
@@ -1083,7 +1081,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1109,7 +1107,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1144,7 +1142,7 @@ public class IProtoClientTest extends BaseTest {
       String check,
       boolean useTupleExtension)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.delete(space, index, key).get();
@@ -1166,7 +1164,7 @@ public class IProtoClientTest extends BaseTest {
       String check,
       boolean useTupleExtension)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1191,7 +1189,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1203,7 +1201,7 @@ public class IProtoClientTest extends BaseTest {
     List<?> result = tt.executeCommandDecoded(check);
     assertEquals(0, result.size());
 
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     message = client.delete(space, spaceName, index, indexName, key, DEFAULT_REQUEST_OPTS).get();
     checkMessageHeader(message, IPROTO_OK, 5);
     data = message.getBodyArrayValue(IPROTO_DATA);
@@ -1223,7 +1221,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.upsert(space, index, toInsert, toUpdate).get();
@@ -1243,7 +1241,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawToInsert = ArrayValueToBytes(toInsert);
@@ -1267,7 +1265,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    tt.execInContainer(toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawToInsert = ArrayValueToBytes(toInsert);
@@ -1894,7 +1892,7 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithPreparedStatementId() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message =
         client.prepare("select \"id\", \"value\" from seqscan \"space_a\";").get();
@@ -1914,7 +1912,7 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithSqlStatementId() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     IProtoMessage message =
@@ -1935,7 +1933,7 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithOptions() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     IProtoMessage message =
@@ -1956,7 +1954,7 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithSqlStatementAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue sqlBind =
         ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
@@ -1971,7 +1969,7 @@ public class IProtoClientTest extends BaseTest {
   public void testRawExecuteWithSqlStatementAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue sqlBind =
         ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
@@ -1988,7 +1986,7 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithPreparedStatementIdAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message = client.prepare("VALUES (?, ?);").get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -2007,7 +2005,7 @@ public class IProtoClientTest extends BaseTest {
   public void testRawExecuteWithPreparedStatementIdAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    tt.execInContainer("return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message = client.prepare("VALUES (?, ?);").get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -2033,7 +2031,7 @@ public class IProtoClientTest extends BaseTest {
         client.hasTupleExtension(),
         "Client and server should support the feature DML_TUPLE_EXTENSION");
 
-    tt.executeCommand("return box.space.space_a:insert({'key1', 'value1'})");
+    tt.execInContainer("return box.space.space_a:insert({'key1', 'value1'})");
 
     IProtoMessage message =
         client

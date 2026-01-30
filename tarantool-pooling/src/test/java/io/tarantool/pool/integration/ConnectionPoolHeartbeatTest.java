@@ -19,9 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.pool.HeartbeatOpts;
@@ -54,19 +55,23 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           .withCrudHealthCheck();
 
   @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static final Tarantool3Container tt1 =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node1")
+          .withEnv(ENV_MAP)
+          .withExposedPorts(3305);
 
   @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static final Tarantool3Container tt2 =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node2")
+          .withEnv(ENV_MAP)
+          .withExposedPorts(3305);
 
   @BeforeEach
   public void setUp() {
     host1 = tt1.getHost();
-    port1 = tt1.getMappedPort(3305);
+    port1 = tt1.getMappedPort(3301);
     host2 = tt2.getHost();
-    port2 = tt2.getMappedPort(3305);
+    port2 = tt2.getMappedPort(3301);
     generateCounts();
   }
 

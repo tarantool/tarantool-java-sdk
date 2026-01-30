@@ -44,10 +44,11 @@ import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
@@ -65,8 +66,10 @@ public class IProtoClientTest extends BaseTest {
   static final Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
 
   @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(ENV_MAP)
+          .withLogConsumer(new Slf4jLogConsumer(log));
 
   public static final String ECHO_EXPRESSION = "return ...";
   public static final String YEAR = "2022";
@@ -90,14 +93,13 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    List<Integer> result = tt.executeCommandDecoded("return box.space.test.id");
-    spaceTestId = result.get(0);
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    spaceTestId = Integer.parseInt(tt.getExecResult("return box.space.test.id"));
+    address = tt.mappedAddress();
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
+    tt.execInContainer("return box.space.test:truncate()");
   }
 
   public static Stream<Arguments> dataForTestInsertAndSelect() {

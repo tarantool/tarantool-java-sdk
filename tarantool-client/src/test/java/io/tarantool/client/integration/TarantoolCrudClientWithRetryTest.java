@@ -102,7 +102,9 @@ public class TarantoolCrudClientWithRetryTest {
   @BeforeAll
   public static void setUp() throws Exception {
     if (isCartridgeAvailable()) {
-      tt.start();
+      if (!tt.isRunning()) {
+        tt.start();
+      }
       client =
           TarantoolFactory.crud()
               .withHost(tt.getHost())

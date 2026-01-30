@@ -18,9 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import io.tarantool.core.IProtoClient;
@@ -35,11 +36,14 @@ public class GracefulShutdownTest extends BaseTest {
 
   private static InetSocketAddress address;
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() throws Exception {
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    address = tt.mappedAddress();
   }
 
   private IProtoClient getClientAndConnect() throws Exception {

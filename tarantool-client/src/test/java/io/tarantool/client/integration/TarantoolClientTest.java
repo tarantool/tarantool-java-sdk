@@ -30,9 +30,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.TarantoolClient;
@@ -51,7 +52,11 @@ import io.tarantool.pool.exceptions.PoolClosedException;
 @Testcontainers
 public class TarantoolClientTest extends BaseTest {
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(ENV_MAP);
+
   private static TarantoolClient client;
   private static char tarantoolVersion;
   private static Integer serverVersion;
@@ -68,16 +73,16 @@ public class TarantoolClientTest extends BaseTest {
         .withUser(API_USER)
         .withPassword(CREDS.get(API_USER))
         .withHost(tt.getHost())
-        .withPort(tt.getPort())
+        .withPort(tt.getFirstMappedPort())
         .build();
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
-    tt.executeCommand("return box.space.person:truncate()");
+    tt.execInContainer("return box.space.test:truncate()");
+    tt.execInContainer("return box.space.space_a:truncate()");
+    tt.execInContainer("return box.space.space_b:truncate()");
+    tt.execInContainer("return box.space.person:truncate()");
 
     client = getClientAndConnect();
     tarantoolVersion = System.getenv("TARANTOOL_VERSION").charAt(0);
@@ -406,7 +411,7 @@ public class TarantoolClientTest extends BaseTest {
     Thread.sleep(100);
 
     HashMap<String, List<Person>> map = new HashMap<>();
-    map.put("agents", Arrays.asList(new Person(1, true, "Wick"), new Person(007, false, "Bond")));
+    map.put("agents", Arrays.asList(new Person(1, true, "Wick"), new Person(7, false, "Bond")));
     List<Map<String, List<Person>>> expected = Collections.singletonList(map);
     assertEquals(expected, eventsKey);
   }
@@ -530,7 +535,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
 
     final ExecutorService pool = Executors.newFixedThreadPool(100);
@@ -552,7 +557,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
 
     final int closeCount = 100;
@@ -571,7 +576,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build()) {
       space = testClient.space("person");
       assertEquals(person, space.insert(person, Person.class).join().get());
@@ -587,7 +592,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build()) {
       space = testClient.space("person");
       final Person person = new Person(0, true, "first");

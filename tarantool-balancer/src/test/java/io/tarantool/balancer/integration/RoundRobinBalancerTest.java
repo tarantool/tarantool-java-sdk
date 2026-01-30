@@ -6,7 +6,6 @@
 package io.tarantool.balancer.integration;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,9 +13,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.balancer.TarantoolRoundRobinBalancer;
@@ -30,10 +30,14 @@ import io.tarantool.pool.InstanceConnectionGroup;
 public class RoundRobinBalancerTest extends BaseTest {
 
   @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final Tarantool3Container tt1 =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node1")
+          .withEnv(ENV_MAP);
 
   @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static final Tarantool3Container tt2 =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node2")
+          .withEnv(ENV_MAP);
 
   @BeforeAll
   public static void setUp() {
@@ -41,14 +45,12 @@ public class RoundRobinBalancerTest extends BaseTest {
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  private int getSessionCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_session_counter()");
-    return (Integer) result.get(0);
+  private int getSessionCounter(Tarantool3Container tt) throws Exception {
+    return Integer.parseInt(tt.getExecResult("return get_session_counter()"));
   }
 
-  private int getCallCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_call_counter()");
-    return (Integer) result.get(0);
+  private int getCallCounter(Tarantool3Container tt) throws Exception {
+    return Integer.parseInt(tt.getExecResult("return get_call_counter()"));
   }
 
   @Test
@@ -58,13 +60,13 @@ public class RoundRobinBalancerTest extends BaseTest {
         Arrays.asList(
             InstanceConnectionGroup.builder()
                 .withHost(tt1.getHost())
-                .withPort(tt1.getPort())
+                .withPort(tt1.getFirstMappedPort())
                 .withSize(count1)
                 .withTag("node-a")
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withSize(count2)
                 .withTag("node-b")
                 .build()));

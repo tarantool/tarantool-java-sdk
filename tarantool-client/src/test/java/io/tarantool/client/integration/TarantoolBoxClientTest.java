@@ -43,10 +43,11 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.client.box.TarantoolBoxSpace.WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0;
 import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper;
@@ -77,7 +78,11 @@ import io.tarantool.schema.TarantoolSchemaFetcher;
 @Testcontainers
 public class TarantoolBoxClientTest extends BaseTest {
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  @Container
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(ENV_MAP);
+
   public static final List<?> EMPTY_LIST = Collections.emptyList();
   private static Integer spacePersonId;
   private static TarantoolBoxClient client;
@@ -89,7 +94,7 @@ public class TarantoolBoxClientTest extends BaseTest {
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.person:truncate()");
+    tt.execInContainer("return box.space.person:truncate()");
     triplets = new ArrayList<>();
   }
 
@@ -100,7 +105,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withIgnoredPacketsHandler(
                 (tag, index, packet) -> {
                   synchronized (triplets) {
@@ -114,7 +119,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withFetchSchema(false)
             .withIgnoredPacketsHandler(
                 (tag, index, packet) -> {
@@ -124,8 +129,7 @@ public class TarantoolBoxClientTest extends BaseTest {
                 })
             .build();
 
-    List<?> result = tt.executeCommandDecoded("return box.space.person.id");
-    spacePersonId = (Integer) result.get(0);
+    spacePersonId = Integer.parseInt(tt.getExecResult("return box.space.person.id"));
 
     try {
       tarantoolMajorVersion =
@@ -226,7 +230,7 @@ public class TarantoolBoxClientTest extends BaseTest {
     TarantoolBoxClient userA =
         TarantoolFactory.box()
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withUser("user_a")
             .withPassword("secret_a")
             .build();
@@ -270,7 +274,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withFetchSchema(false)
             .build();
     Person person = new Person(1, true, "Dima");
@@ -417,7 +421,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
     assertEquals(EMPTY_LIST, customClient.space("person").select(EMPTY_LIST).join().get());
     client
@@ -436,7 +440,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
     String nonExistingSpaceName = "non-existing-space-name";
     NoSchemaException ex =
@@ -452,7 +456,7 @@ public class TarantoolBoxClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
     String spaceName = "person";
     TarantoolBoxSpace space = customClient.space(spaceName);
@@ -1281,7 +1285,7 @@ public class TarantoolBoxClientTest extends BaseTest {
         Collections.singletonList(person.asList()),
         ((List) tt.executeCommandDecoded("return box.space.person:select()")).get(0));
 
-    tt.executeCommandDecoded("return box.space.person:truncate()");
+    tt.execInContainer("return box.space.person:truncate()");
 
     Person otherPerson = new Person(2, false, "Thomas Sawer");
     testSpace
@@ -1304,9 +1308,9 @@ public class TarantoolBoxClientTest extends BaseTest {
     TarantoolBoxSpace testSpace =
         useSpaceName ? client.space("person") : client.space(spacePersonId);
 
-    tt.executeCommandDecoded("return box.space.person:insert({1, true, 'Dima'})");
-    tt.executeCommandDecoded("return box.space.person:insert({2, true, 'Roma'})");
-    tt.executeCommandDecoded("return box.space.person:insert({3, false, 'Kolya'})");
+    tt.execInContainer("return box.space.person:insert({1, true, 'Dima'})");
+    tt.execInContainer("return box.space.person:insert({2, true, 'Roma'})");
+    tt.execInContainer("return box.space.person:insert({3, false, 'Kolya'})");
     Person dima = new Person(1, true, "Dima");
     Person roma = new Person(2, true, "Roma");
     Person kolya = new Person(3, false, "Kolya");
@@ -1348,7 +1352,7 @@ public class TarantoolBoxClientTest extends BaseTest {
     TarantoolBoxClient serviceClient =
         TarantoolFactory.box()
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withUser("service_user")
             .withPassword("")
             .build();
@@ -1360,7 +1364,7 @@ public class TarantoolBoxClientTest extends BaseTest {
     TarantoolBoxClient client =
         TarantoolFactory.box()
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .withUser("service_user")
             .withPassword("")
             .build();

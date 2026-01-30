@@ -27,10 +27,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.shaded.org.bouncycastle.util.Strings;
+import org.testcontainers.utility.DockerImageName;
 
 import io.tarantool.balancer.TarantoolDistributingRoundRobinBalancer;
 import io.tarantool.core.IProtoClient;
@@ -77,23 +78,23 @@ public class TarantoolSchemaFetcherTest {
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   @Container
-  private static final TarantoolContainer tt = new TarantoolContainer().withEnv(CREDS_MAP);
+  private static final Tarantool3Container tt =
+      new Tarantool3Container(DockerImageName.parse("tarantool/tarantool"), "test-node")
+          .withEnv(CREDS_MAP);
 
   private Long spacePersonId;
   private static IProtoClient client;
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    List<?> result = tt.executeCommandDecoded("return box.space.person.id");
-    this.spacePersonId = Long.valueOf((Integer) result.get(0));
-
-    tt.executeCommand("return box.space.person:truncate()");
+    this.spacePersonId = Long.parseLong(tt.getExecResult("return box.space.person.id"));
+    tt.execInContainer("return box.space.person:truncate()");
   }
 
   @BeforeAll
   public static void setUp() {
     client = new IProtoClientImpl(factory, timerService);
-    client.connect(new InetSocketAddress(tt.getHost(), tt.getPort()), 3_000).join();
+    client.connect(new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort()), 3_000).join();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
   }
 
@@ -152,7 +153,7 @@ public class TarantoolSchemaFetcherTest {
         Collections.singletonList(
             InstanceConnectionGroup.builder()
                 .withHost(tt.getHost())
-                .withPort(tt.getPort())
+                .withPort(tt.getFirstMappedPort())
                 .withTag("a")
                 .build()));
 
