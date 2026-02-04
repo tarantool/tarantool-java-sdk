@@ -40,7 +40,8 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
   private static final Logger log = LoggerFactory.getLogger(ConnectionPoolReconnectsTest.class);
 
   @Container
-  private static TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
+  private static TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP)
+      .withFixedExposedPort(3301, 3301);
 
   @BeforeEach
   public void setUp() {

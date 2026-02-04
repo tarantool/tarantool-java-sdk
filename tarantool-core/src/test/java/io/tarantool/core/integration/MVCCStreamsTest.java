@@ -57,7 +57,8 @@ public class MVCCStreamsTest extends BaseTest {
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
   @Container
-  private static final TarantoolContainerImpl tt = new TarantoolContainerImpl().withEnv(ENV_MAP);
+  private static final TarantoolContainerImpl tt =
+      new TarantoolContainerImpl().withEnv(ENV_MAP).withScriptFileName("server-mvcc.lua");
 
   @BeforeAll
   public static void setUp() throws Exception {

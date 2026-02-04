@@ -11,7 +11,11 @@ import java.util.concurrent.Future;
 
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import org.testcontainers.containers.*;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.Container;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.TarantoolContainerClientHelper;
+import org.testcontainers.containers.TarantoolContainerOperations;
 import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.containers.wait.strategy.Wait;
 
