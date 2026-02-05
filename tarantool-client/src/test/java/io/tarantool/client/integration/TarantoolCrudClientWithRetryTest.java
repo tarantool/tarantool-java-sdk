@@ -84,7 +84,7 @@ public class TarantoolCrudClientWithRetryTest {
 
   private static final TarantoolCartridgeContainer tt =
       new TarantoolCartridgeContainer(
-              "Dockerfile",
+              "cartridge/Dockerfile",
               System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "")
                   + "cartridge",
               "cartridge/instances.yml",

@@ -130,6 +130,13 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
   }
 
   @Override
+  public TarantoolContainer<Tarantool2Container> withFixedExposedPort(
+      int hostPort, int containerPort) {
+    this.addFixedExposedPort(hostPort, containerPort);
+    return this;
+  }
+
+  @Override
   protected void containerIsStarted(InspectContainerResponse containerInfo) {
     Utils.bindExposedPorts(this);
   }

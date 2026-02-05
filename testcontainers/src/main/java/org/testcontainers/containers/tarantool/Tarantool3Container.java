@@ -141,6 +141,13 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
   }
 
   @Override
+  public TarantoolContainer<Tarantool3Container> withFixedExposedPort(
+      int hostPort, int containerPort) {
+    this.addFixedExposedPort(hostPort, containerPort);
+    return this;
+  }
+
+  @Override
   protected void configure() {
     try {
       this.lock.lock();

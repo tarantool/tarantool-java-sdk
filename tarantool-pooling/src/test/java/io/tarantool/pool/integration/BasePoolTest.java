@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.LongTaskTimer;
@@ -31,7 +32,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.opentest4j.AssertionFailedError;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -84,18 +85,26 @@ public class BasePoolTest {
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  protected void execLua(TarantoolContainer container, String command) {
+  protected void execLua(TarantoolContainer<?> container, String command) {
     try {
-      container.executeCommandDecoded(command);
+      executeCommandDecoded(container, command);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected int getActiveConnectionsCount(TarantoolContainer tt) {
+  protected void execLua(TarantoolContainer<?> container, String command, int port) {
+    try {
+      executeCommandDecoded(container, command, port);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
       List<? extends Object> result =
-          tt.executeCommandDecoded("return box.stat.net().CONNECTIONS.current");
+          executeCommandDecoded(tt, "return box.stat.net().CONNECTIONS.current");
       return (Integer) result.get(0) - 1;
     } catch (Exception e) {
       throw new RuntimeException(e);

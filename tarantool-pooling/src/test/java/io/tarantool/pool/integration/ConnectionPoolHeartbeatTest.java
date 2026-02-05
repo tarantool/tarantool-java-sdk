@@ -13,22 +13,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.IProtoClientPool;
 
 @Timeout(value = 60)
-@Testcontainers
 public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectionPoolHeartbeatTest.class);
@@ -53,13 +53,16 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           .withDeathThreshold(DEATH_THRESHOLD)
           .withCrudHealthCheck();
 
-  @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static TarantoolContainer<?> tt1;
+  private static TarantoolContainer<?> tt2;
 
-  @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  @BeforeAll
+  static void beforeAll() {
+    tt1 = createTarantoolContainer().withEnv(ENV_MAP).withExposedPorts(3305);
+    tt2 = createTarantoolContainer().withEnv(ENV_MAP).withExposedPorts(3305);
+    tt1.start();
+    tt2.start();
+  }
 
   @BeforeEach
   public void setUp() {
@@ -68,6 +71,12 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     host2 = tt2.getHost();
     port2 = tt2.getMappedPort(3305);
     generateCounts();
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt1.stop();
+    tt2.stop();
   }
 
   @Test
@@ -203,8 +212,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   @Test
   public void testConnectNoAvailWithCrudHeartbeat() throws Exception {
-    execLua(tt1, "rawset(_G, 'crud', {})");
-    execLua(tt2, "rawset(_G, 'crud', {})");
+    execLua(tt1, "rawset(_G, 'crud', {}); return true");
+    execLua(tt2, "rawset(_G, 'crud', {}); return true");
 
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createPool(CRUD_HEARTBEAT_OPTS, metricsRegistry);
@@ -219,8 +228,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     assertEquals(count1, getActiveConnectionsCount(tt1));
     assertEquals(count2, getActiveConnectionsCount(tt2));
 
-    execLua(tt1, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
-    execLua(tt2, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
+    execLua(tt1, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil); return true");
+    execLua(tt2, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil); return true");
 
     waitFor(
         "Connections are still alive after breaking crud",
@@ -235,8 +244,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           }
         });
 
-    execLua(tt1, "rawset(_G, 'crud', tmp_crud)");
-    execLua(tt2, "rawset(_G, 'crud', tmp_crud)");
+    execLua(tt1, "rawset(_G, 'crud', tmp_crud); return true");
+    execLua(tt2, "rawset(_G, 'crud', tmp_crud); return true");
 
     waitFor(
         "Connections are still broken after fixing crud",

@@ -145,7 +145,7 @@ public class TarantoolCrudClientTest extends BaseTest {
     } else {
       cartridgeContainer =
           new TarantoolCartridgeContainer(
-                  "Dockerfile",
+                  "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
                   "cartridge/replicasets.yml",
