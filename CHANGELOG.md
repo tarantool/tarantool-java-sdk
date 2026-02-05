@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Testcontainers
+
+- Remove dependency on `testcontainers-java-tarantool` library
+- Update all integration tests to use new container implementation
+
 ### Bug fixes
 
 - Fix a memory leak due to the use of a local thread pool

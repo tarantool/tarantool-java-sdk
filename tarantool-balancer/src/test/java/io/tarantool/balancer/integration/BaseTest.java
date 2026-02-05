@@ -66,6 +66,10 @@ public abstract class BaseTest {
   protected static final int INVALID_PINGS = 2;
   protected static final long INVALIDATION_TIMEOUT =
       ((long) (INVALID_PINGS + 1) * (PING_INTERVAL + TIMER_ERROR_MS));
+
+  /** Longer wait for invalidation (e.g. Tarantool 3 with more connections). */
+  protected static final long EXTENDED_INVALIDATION_TIMEOUT = INVALIDATION_TIMEOUT * 3;
+
   protected static final long RESTORE_TIMEOUT =
       (WINDOW_SIZE + 1) * (PING_INTERVAL + TIMER_ERROR_MS);
   protected static final ArrayValue emptyArgs = ValueFactory.emptyArray();

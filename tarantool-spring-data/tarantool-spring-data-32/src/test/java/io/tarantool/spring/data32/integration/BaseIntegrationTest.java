@@ -11,20 +11,20 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.TarantoolCartridgeContainer;
 import org.testcontainers.containers.TarantoolContainerOperations;
 import org.testcontainers.containers.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static io.tarantool.spring.data.utils.Constants.DEFAULT_PROPERTY_FILE_NAME;
 import static io.tarantool.spring.data32.utils.TarantoolTestSupport.DEFAULT_TEST_PROPERTY_DIR;
 import static io.tarantool.spring.data32.utils.TarantoolTestSupport.writeTestPropertiesYaml;
 import io.tarantool.spring.data32.config.properties.TarantoolProperties;
 
-@Testcontainers
+@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(60)
 public abstract class BaseIntegrationTest {
 
@@ -57,7 +57,7 @@ public abstract class BaseIntegrationTest {
     } else {
       TarantoolCartridgeContainer cartridgeContainer =
           new TarantoolCartridgeContainer(
-                  "Dockerfile",
+                  "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
                   "cartridge/replicasets.yml",

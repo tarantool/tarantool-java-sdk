@@ -49,16 +49,16 @@
       <artifactId>testcontainers-junit-jupiter</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.tarantool</groupId>
-      <artifactId>testcontainers-java-tarantool</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>testcontainers</artifactId>
     </dependency>
     <!-- End test -->
   </dependencies>
