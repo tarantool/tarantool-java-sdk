@@ -15,18 +15,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import io.tarantool.balancer.TarantoolBalancer;
@@ -41,32 +41,31 @@ import io.tarantool.pool.IProtoClientPoolImpl;
 import io.tarantool.pool.InstanceConnectionGroup;
 
 @Timeout(value = 15)
-@Testcontainers
 public class DistributingRoundRobinBalancerTest extends BaseTest {
 
   private static final Logger log =
       LoggerFactory.getLogger(DistributingRoundRobinBalancerTest.class);
 
-  @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer()
-          .withEnv(ENV_MAP)
-          .withExposedPort(3305)
-          .withLogConsumer(new Slf4jLogConsumer(log));
-
-  @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer()
-          .withEnv(ENV_MAP)
-          .withExposedPort(3305)
-          .withLogConsumer(new Slf4jLogConsumer(log));
+  private static TarantoolContainer<?> tt1;
+  private static TarantoolContainer<?> tt2;
 
   @BeforeEach
   public void setUp() {
+    tt1 = createTarantoolContainer().withEnv(ENV_MAP).withExposedPorts(3301, 3305);
+    tt2 = createTarantoolContainer().withEnv(ENV_MAP).withExposedPorts(3301, 3305);
+
+    tt1.start();
+    tt2.start();
     do {
       count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
       count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     } while (count1 == count2);
+  }
+
+  @AfterEach
+  void tearDown() {
+    tt1.stop();
+    tt2.stop();
   }
 
   private static IProtoClientPool createClientPool(
@@ -78,25 +77,28 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
         factory, timerResource, gracefulShutdown, heartbeatOpts, null, metricsRegistry);
   }
 
-  private int getSessionCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_session_counter()");
+  private int getSessionCounter(TarantoolContainer<?> tt) throws Exception {
+    List<?> result = executeCommandDecoded(tt, "return get_session_counter()");
     return (Integer) result.get(0);
   }
 
-  private int getCallCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_call_counter()");
+  private int getCallCounter(TarantoolContainer<?> tt) throws Exception {
+    List<?> result = executeCommandDecoded(tt, "return get_call_counter()");
     return (Integer) result.get(0);
   }
 
-  private void execLua(TarantoolContainer container, String command) {
+  private void execLua(TarantoolContainer<?> container, String command) {
     try {
-      container.executeCommandDecoded(command);
+      executeCommandDecoded(container, command);
     } catch (Exception e) {
     }
   }
 
   private void wakeUpAllConnects(
-      TarantoolBalancer rrBalancer, int nodeVisits, TarantoolContainer tt1, TarantoolContainer tt2)
+      TarantoolBalancer rrBalancer,
+      int nodeVisits,
+      TarantoolContainer<?> tt1,
+      TarantoolContainer<?> tt2)
       throws Exception {
     walkAndJoin(rrBalancer, nodeVisits * 2);
     assertEquals(count1, getSessionCounter(tt1));
@@ -130,13 +132,13 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
         Arrays.asList(
             InstanceConnectionGroup.builder()
                 .withHost(tt1.getHost())
-                .withPort(tt1.getPort())
+                .withPort(tt1.getFirstMappedPort())
                 .withSize(count1)
                 .withTag("node-a-00")
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withSize(count2)
                 .withTag("node-b-00")
                 .build()));
@@ -160,7 +162,7 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withSize(count2)
                 .withTag("node-b-01")
                 .build()));
@@ -217,7 +219,7 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withSize(count2)
                 .withTag("node-b-02")
                 .build()));
@@ -323,12 +325,12 @@ public class DistributingRoundRobinBalancerTest extends BaseTest {
         Arrays.asList(
             InstanceConnectionGroup.builder()
                 .withHost(tt1.getHost())
-                .withPort(tt1.getPort())
+                .withPort(tt1.getFirstMappedPort())
                 .withTag("node-a-01")
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withTag("node-b-01")
                 .build()));
     pool.setConnectTimeout(3_000);

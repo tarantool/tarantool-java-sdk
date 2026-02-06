@@ -17,12 +17,15 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.pool.HeartbeatOpts;
 
 public abstract class BaseTest {
+
+  protected static TarantoolContainer<?> container;
 
   protected static final Bootstrap bootstrap =
       new Bootstrap()

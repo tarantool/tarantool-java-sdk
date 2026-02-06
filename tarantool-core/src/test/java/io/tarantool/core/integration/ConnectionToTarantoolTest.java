@@ -32,7 +32,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.msgpack.value.ValueFactory.newArray;
 import static org.msgpack.value.ValueFactory.newInteger;
 import static org.msgpack.value.ValueFactory.newMap;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.netty.channel.ConnectTimeoutException;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -41,9 +44,7 @@ import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
@@ -68,7 +69,6 @@ import io.tarantool.core.protocol.requests.IProtoAuth;
 import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
 
 @Timeout(value = 5)
-@Testcontainers
 public class ConnectionToTarantoolTest extends BaseTest {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectionToTarantoolTest.class);
@@ -99,36 +99,39 @@ public class ConnectionToTarantoolTest extends BaseTest {
   private static UUID instanceUUID;
   private static int spaceId;
 
-  @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer()
-          .withEnv(ENV_MAP)
-          .withExposedPort(3302)
-          .withExposedPort(3303)
-          .withExposedPort(3304)
-          .withExposedPort(3306);
+  private static TarantoolContainer<?> tt;
 
   @BeforeAll
   public static void setUp() throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_version()");
-    version = (String) result.get(0);
+    tt = createTarantoolContainer().withEnv(ENV_MAP).withExposedPorts(3302, 3303, 3304, 3306);
+
+    tt.start();
+
+    List<?> result = executeCommandDecoded(tt, "return box.info.version");
+    String fullVersion = (String) result.get(0);
+    version = fullVersion.split("-")[0];
 
     protocolType = "binary";
 
-    result = tt.executeCommandDecoded("return box.info.uuid");
+    result = executeCommandDecoded(tt, "return box.info.uuid");
     String uuid = (String) result.get(0);
     instanceUUID = UUID.fromString(uuid);
 
-    result = tt.executeCommandDecoded("return box.space.test.id");
+    result = executeCommandDecoded(tt, "return box.space.test.id");
     spaceId = (Integer) result.get(0);
 
-    tt.executeCommandDecoded("lock_pipe(true)"); // for tests using 3305 port (no greeting)
+    executeCommandDecoded(tt, "lock_pipe(true)"); // for tests using 3305 port (no greeting)
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   @Test
   public void testConnect() throws Exception {
     Connection client = factory.create();
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     CompletableFuture<Greeting> connectFuture = client.connect(address, 3_000);
     Greeting greeting = connectFuture.get();
     assertEquals(greeting.getVersion(), version);
@@ -146,7 +149,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Connection client = factory.create();
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), BAD_PORT);
     CompletableFuture<Greeting> future = client.connect(address, 3_000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertEquals(ConnectionException.class, cause.getClass());
     assertEquals(
@@ -164,9 +167,9 @@ public class ConnectionToTarantoolTest extends BaseTest {
   @RepeatedTest(value = 3)
   public void testConnectToAddressWithBadHost() {
     Connection client = factory.create();
-    InetSocketAddress address = new InetSocketAddress(BAD_HOST, tt.getPort());
+    InetSocketAddress address = new InetSocketAddress(BAD_HOST, tt.getFirstMappedPort());
     CompletableFuture<Greeting> future = client.connect(address, 5_000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     if (cause.getClass() == ConnectionException.class) {
       assertEquals(
@@ -192,7 +195,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Connection client = factory.create();
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), otherPort);
     CompletableFuture<Greeting> future = client.connect(address, 3_000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = findRootCause(ex);
 
     /*
@@ -224,7 +227,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Connection client = factory.create();
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), otherPort);
     CompletableFuture<Greeting> future = client.connect(address, 3_000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = findRootCause(ex);
     assertEquals(BadGreetingException.class, cause.getClass());
     assertTrue(cause.getMessage().startsWith("bad greeting start:"));
@@ -241,7 +244,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Connection client = factory.create().listen(msg -> {});
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), otherPort);
     CompletableFuture<Greeting> future = client.connect(address, 3000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = findRootCause(ex);
     assertEquals(TimeoutException.class, cause.getClass());
     assertEquals("Connection timeout", cause.getMessage());
@@ -260,7 +263,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     CompletableFuture<Greeting> future = client.connect(address, 3000);
     Thread.sleep(100);
     client.close();
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = findRootCause(ex);
     assertEquals(ConnectionClosedException.class, cause.getClass());
     assertEquals("Connection closed by client", cause.getMessage());
@@ -279,7 +282,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     CompletableFuture<Greeting> future = client.connect(address, 3_000);
     Thread.sleep(100);
     client.close();
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertEquals(cause.getClass(), ConnectionException.class);
     assertEquals("Connection closed by client", cause.getMessage());
@@ -296,7 +299,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
   @Test
   public void testConnectByMultipleThreads() throws InterruptedException {
     Connection client = factory.create();
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     LinkedBlockingQueue<CompletableFuture<Greeting>> promises = new LinkedBlockingQueue<>();
     for (int i = 0; i < CONCURRENT_THREADS_COUNT; i++) {
       new Thread(() -> promises.add(client.connect(address, 3_000))).start();
@@ -323,7 +326,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Connection client = factory.create();
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getMappedPort(3306));
     CompletableFuture<Greeting> future = client.connect(address, 1_000);
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertTrue(
         cause instanceof TimeoutException || cause instanceof ConnectionClosedException,
@@ -338,7 +341,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     CompletableFuture<Greeting> future = client.connect(address, 2_000);
     Thread.sleep(500);
     client.close();
-    Exception ex = assertThrows(CompletionException.class, () -> future.join());
+    Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
     assertEquals(ConnectionClosedException.class, cause.getClass());
     assertEquals("Connection closed by client", cause.getMessage());
@@ -347,7 +350,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
   @Test
   public void testConnectAndSendByMultipleThreads() throws InterruptedException {
     Connection client = factory.create();
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     LinkedBlockingQueue<CompletableFuture<Void>> promises = new LinkedBlockingQueue<>();
     IProtoRequest msg = createSelectRequest(0);
     for (int i = 0; i < CONCURRENT_THREADS_COUNT; i++) {
@@ -394,7 +397,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
   public void testIProtoSendAndReceive() throws Exception {
     MessageConsumer consumer = new MessageConsumer();
     Connection client = factory.create().listen(consumer);
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     client.connect(address, 3_000).join();
 
     Greeting greeting = client.getGreeting().get();
@@ -424,7 +427,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
   public void testSendAndReceiveWithConcurrentClose() throws Exception {
     MessageConsumer consumer = new MessageConsumer();
     Connection client = factory.create().listen(consumer);
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     client.connect(address, 3_000).join();
 
     List<CompletableFuture<Void>> futures = new ArrayList<>();

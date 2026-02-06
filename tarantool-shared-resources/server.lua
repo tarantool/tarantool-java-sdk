@@ -21,8 +21,7 @@ box.cfg {
 local log = require('log')
 local fiber = require('fiber')
 local socket = require('socket')
-
-local utils = require('utils')
+local tarantool = require('tarantool')
 
 local LIMIT = 512
 local BIND = '0.0.0.0'
@@ -32,13 +31,48 @@ local connects_registered = {}
 local pipe_lock = false
 
 ------------------------------------------------------------------------------
+-- UTILITY FUNCTIONS
+------------------------------------------------------------------------------
+local function get_version()
+    local version = unpack(tarantool.version:split('-'))
+    return version
+end
+
+local function create_kv_space(name)
+    local space = box.schema.space.create(name, {
+        if_not_exists = true,
+        format = {
+            { 'id', type = 'string' },
+            { 'value', type = 'string', is_nullable = true }
+        }
+    })
+    space:create_index('pk', { parts = { 'id' } })
+end
+
+local function create_complex_space(name)
+    local space = box.schema.space.create(name, {
+        if_not_exists = true,
+        format = {
+            { 'id', type = 'number' },
+            { 'is_married', type = 'boolean', is_nullable = true },
+            { 'name', type = 'string' }
+        }
+    })
+    space:create_index('pk', { parts = { 'id' } })
+end
+
+local function fail()
+    error('Fail!')
+end
+
+------------------------------------------------------------------------------
 -- SCHEMA
 ------------------------------------------------------------------------------
 box.once('schema', function()
-    utils.create_kv_space('test')
-    utils.create_kv_space('space_a')
-    utils.create_kv_space('space_b')
-    utils.create_complex_space('person')
+    create_kv_space('test')
+    create_kv_space('space_a')
+    create_kv_space('space_b')
+    create_complex_space('person')
 
     box.space.space_b:on_replace(function(old, new, s, op)
         box.session.push(old)
@@ -173,8 +207,8 @@ end
 ------------------------------------------------------------------------------
 -- PUBLIC FUNCTIONS
 ------------------------------------------------------------------------------
-get_version = utils.get_version
-fail = utils.fail
+get_version = get_version
+fail = fail
 
 function echo_with_wrapping(...)
     -- we use table packing because it's more popular than multi return value

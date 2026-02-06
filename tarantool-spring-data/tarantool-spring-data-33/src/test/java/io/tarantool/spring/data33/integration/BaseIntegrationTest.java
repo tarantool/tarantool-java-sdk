@@ -57,7 +57,7 @@ public abstract class BaseIntegrationTest {
     } else {
       TarantoolCartridgeContainer cartridgeContainer =
           new TarantoolCartridgeContainer(
-                  "Dockerfile",
+                  "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
                   "cartridge/replicasets.yml",
