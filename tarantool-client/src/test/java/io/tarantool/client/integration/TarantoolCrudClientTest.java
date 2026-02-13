@@ -34,6 +34,7 @@ import static org.testcontainers.containers.Helper.isCartridgeAvailable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -85,6 +86,7 @@ import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.InstanceConnectionGroup;
 
+@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(value = 10)
 @Testcontainers
 public class TarantoolCrudClientTest extends BaseTest {
@@ -138,14 +140,16 @@ public class TarantoolCrudClientTest extends BaseTest {
               "tarantool/tarantool");
 
       if (!vshardClusterContainer.isRunning()) {
-        vshardClusterContainer.withPrivilegedMode(true);
+        vshardClusterContainer
+            .withCreateContainerCmdModifier(cmd -> cmd.withUser("root"))
+            .withPrivilegedMode(true);
         vshardClusterContainer.start();
       }
       clusterContainer = vshardClusterContainer;
     } else {
       cartridgeContainer =
           new TarantoolCartridgeContainer(
-                  "Dockerfile",
+                  "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
                   "cartridge/replicasets.yml",

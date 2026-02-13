@@ -66,7 +66,7 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
 
       Files.write(initialScriptOnHost, this.initScript.getBytes(StandardCharsets.UTF_8));
 
-      withCreateContainerCmdModifier(cmd -> cmd.withName(this.node));
+      withCreateContainerCmdModifier(cmd -> cmd.withName(this.node).withUser("root"));
       withNetworkAliases(this.node);
 
       addFileSystemBind(
@@ -127,6 +127,13 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
       return;
     }
     super.stop();
+  }
+
+  @Override
+  public TarantoolContainer<Tarantool2Container> withFixedExposedPort(
+      int hostPort, int containerPort) {
+    this.addFixedExposedPort(hostPort, containerPort);
+    return this;
   }
 
   @Override

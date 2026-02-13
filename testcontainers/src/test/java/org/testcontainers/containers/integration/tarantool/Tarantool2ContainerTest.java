@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -30,6 +31,7 @@ import org.testcontainers.containers.tarantool.Tarantool2WaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 // These test methods can be safely run in parallel.
+@DisabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
 @Execution(ExecutionMode.CONCURRENT)
 public class Tarantool2ContainerTest {
 

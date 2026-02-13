@@ -32,7 +32,8 @@ class TDGContainerImplTest {
 
   private static final DockerImageName TDG_IMAGE =
       DockerImageName.parse(
-          System.getenv().getOrDefault("TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
+          System.getenv().getOrDefault("TARANTOOL_REGISTRY", "registry.ps.tarantool.io/")
+              + "tdg2:2.11.5-0-geff8adb3");
 
   @Test
   @DisplayName("Проверьте, что контейнер запускается")

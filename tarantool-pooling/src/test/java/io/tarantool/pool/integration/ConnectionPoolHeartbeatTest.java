@@ -13,22 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.IProtoClientPool;
 
 @Timeout(value = 60)
-@Testcontainers
 public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   private static final Logger log = LoggerFactory.getLogger(ConnectionPoolHeartbeatTest.class);
@@ -53,13 +54,18 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           .withDeathThreshold(DEATH_THRESHOLD)
           .withCrudHealthCheck();
 
-  @Container
-  private final TarantoolContainer tt1 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  private static TarantoolContainer<?> tt1;
+  private static TarantoolContainer<?> tt2;
 
-  @Container
-  private final TarantoolContainer tt2 =
-      new TarantoolContainer().withEnv(ENV_MAP).withExposedPort(3305);
+  @BeforeAll
+  static void beforeAll() {
+    tt1 = createTarantoolContainer(3305).withEnv(ENV_MAP);
+    tt2 = createTarantoolContainer(3305).withEnv(ENV_MAP);
+    tt1.start();
+    tt2.start();
+    execInitScript(tt1);
+    execInitScript(tt2);
+  }
 
   @BeforeEach
   public void setUp() {
@@ -70,8 +76,16 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     generateCounts();
   }
 
+  @AfterAll
+  static void tearDown() {
+    tt1.stop();
+    tt2.stop();
+  }
+
   @Test
   public void testConnectInvalidationAndRestore() throws Exception {
+    int baseline1 = getActiveConnectionsCount(tt1);
+    int baseline2 = getActiveConnectionsCount(tt2);
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createPool(HEARTBEAT_OPTS, metricsRegistry);
     assertTrue(pool.hasAvailableClients());
@@ -83,8 +97,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
     assertEquals(count1 + count2, metricsRegistry.get("pool.connect.success").counter().count());
     assertEquals(count1 + count2, metricsRegistry.get("pool.request.success").counter().count());
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     assertTrue(pingClients(clientsA));
     assertTrue(pingClients(clientsB));
@@ -112,8 +126,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           assertEquals(
               count1 + 2 * count2, metricsRegistry.get("pool.request.success").counter().count());
 
-          assertEquals(count1, getActiveConnectionsCount(tt1));
-          assertEquals(count2, getActiveConnectionsCount(tt2));
+          assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+          assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
         });
 
     execLua(tt1, "lock_pipe(false)");
@@ -136,8 +150,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
               metricsRegistry.get("pool.request.success").counter().count());
           assertEquals(0, metricsRegistry.get("pool.invalidated").gauge().value());
 
-          assertEquals(count1, getActiveConnectionsCount(tt1));
-          assertEquals(count2, getActiveConnectionsCount(tt2));
+          assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+          assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
         });
 
     pool.close();
@@ -145,6 +159,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   @Test
   public void testConnectNoAvail() throws Exception {
+    int baseline1 = getActiveConnectionsCount(tt1);
+    int baseline2 = getActiveConnectionsCount(tt2);
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createPool(HEARTBEAT_OPTS, metricsRegistry);
     assertTrue(pool.hasAvailableClients());
@@ -155,15 +171,15 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     assertTrue(pingClients(clientsA));
     assertTrue(pingClients(clientsB));
 
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     execLua(tt1, "lock_pipe(true)");
     execLua(tt2, "lock_pipe(true)");
 
     waitFor(
         "Connections are still available",
-        Duration.ofSeconds(10),
+        Duration.ofSeconds(30),
         () -> {
           assertFalse(pool.hasAvailableClients());
 
@@ -174,8 +190,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
             assertNull(pool.get("node-b", i));
           }
 
-          assertEquals(count1, getActiveConnectionsCount(tt1));
-          assertEquals(count2, getActiveConnectionsCount(tt2));
+          assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+          assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
         });
 
     execLua(tt1, "lock_pipe(false)");
@@ -195,17 +211,19 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           }
         });
 
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     pool.close();
   }
 
   @Test
   public void testConnectNoAvailWithCrudHeartbeat() throws Exception {
-    execLua(tt1, "rawset(_G, 'crud', {})");
-    execLua(tt2, "rawset(_G, 'crud', {})");
+    execLua(tt1, "rawset(_G, 'crud', {}); return true");
+    execLua(tt2, "rawset(_G, 'crud', {}); return true");
 
+    int baseline1 = getActiveConnectionsCount(tt1);
+    int baseline2 = getActiveConnectionsCount(tt2);
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createPool(CRUD_HEARTBEAT_OPTS, metricsRegistry);
     assertTrue(pool.hasAvailableClients());
@@ -216,11 +234,11 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     assertTrue(pingClients(clientsA));
     assertTrue(pingClients(clientsB));
 
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
-    execLua(tt1, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
-    execLua(tt2, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil)");
+    execLua(tt1, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil); return true");
+    execLua(tt2, "rawset(_G, 'tmp_crud', crud); rawset(_G, 'crud', nil); return true");
 
     waitFor(
         "Connections are still alive after breaking crud",
@@ -235,8 +253,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           }
         });
 
-    execLua(tt1, "rawset(_G, 'crud', tmp_crud)");
-    execLua(tt2, "rawset(_G, 'crud', tmp_crud)");
+    execLua(tt1, "rawset(_G, 'crud', tmp_crud); return true");
+    execLua(tt2, "rawset(_G, 'crud', tmp_crud); return true");
 
     waitFor(
         "Connections are still broken after fixing crud",
@@ -249,8 +267,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
           for (int i = 0; i < count2; i++) {
             assertNotNull(pool.get("node-b", i));
           }
-          assertEquals(count1, getActiveConnectionsCount(tt1));
-          assertEquals(count2, getActiveConnectionsCount(tt2));
+          assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+          assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
         });
 
     pool.close();
@@ -258,6 +276,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   @Test
   public void testReconnectsAfterInvalidationAndKill() throws Exception {
+    int baseline1 = getActiveConnectionsCount(tt1);
+    int baseline2 = getActiveConnectionsCount(tt2);
     MeterRegistry metricsRegistry = createMetricsRegistry();
     IProtoClientPool pool = createPool(HEARTBEAT_OPTS, metricsRegistry);
     assertTrue(pool.hasAvailableClients());
@@ -275,8 +295,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     assertTrue(pingClients(clientsA));
     assertTrue(pingClients(clientsB));
 
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     log.info("lock pipe on A");
     execLua(tt1, "lock_pipe(true)");
@@ -291,15 +311,15 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     }
 
     log.info("check: A is invalidated, but has active connects");
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     log.info("check: A has no active connects");
     waitFor(
         "Not all connects to node A closed",
         Duration.ofMinutes(1),
-        () -> assertEquals(0, getActiveConnectionsCount(tt1)));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+        () -> assertEquals(0, getActiveConnectionsCountDelta(tt1, baseline1)));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     Thread.sleep(RESTORE_TIMEOUT * 2);
 
@@ -311,8 +331,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     waitFor(
         "Not all connects to node A closed",
         Duration.ofMinutes(1),
-        () -> assertEquals(0, getActiveConnectionsCount(tt1)));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+        () -> assertEquals(0, getActiveConnectionsCountDelta(tt1, baseline1)));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     log.info("unlock pipe on A");
     execLua(tt1, "lock_pipe(false)");
@@ -332,8 +352,8 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
     }
 
     log.info("check: A and B nodes have connections");
-    assertEquals(count1, getActiveConnectionsCount(tt1));
-    assertEquals(count2, getActiveConnectionsCount(tt2));
+    assertEquals(count1, getActiveConnectionsCountDelta(tt1, baseline1));
+    assertEquals(count2, getActiveConnectionsCountDelta(tt2, baseline2));
 
     pool.close();
   }

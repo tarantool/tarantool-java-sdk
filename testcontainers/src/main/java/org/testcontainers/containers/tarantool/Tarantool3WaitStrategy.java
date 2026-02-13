@@ -17,11 +17,11 @@ public class Tarantool3WaitStrategy extends ShellStrategy {
   private int port = 3301;
 
   private static final String FORMAT =
-      "if echo \"box.info.status\" | tt connect %s:%s@%s:%s -x lua | grep -q "
+      "if echo \"box.info.status\" | tt connect %s:%s@%s:3301 | grep -q "
           + "\"running\"; then exit 0; else exit 1; fi";
 
   public Tarantool3WaitStrategy(CharSequence hostName, CharSequence user, CharSequence password) {
-    withCommand(String.format(FORMAT, user, password, hostName, port));
+    withCommand(String.format(FORMAT, user, password, hostName));
   }
 
   /** Internal iproto port that Tarantool is listening. */

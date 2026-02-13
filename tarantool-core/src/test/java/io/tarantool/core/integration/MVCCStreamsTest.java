@@ -6,23 +6,35 @@
 package io.tarantool.core.integration;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.IMAGE_PREFIX;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.TARANTOOL_VERSION;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.Tarantool2Container;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
@@ -38,8 +50,8 @@ import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.TransactionIsolationLevel;
 
+@DisabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
 @Timeout(value = 5)
-@Testcontainers
 public class MVCCStreamsTest extends BaseTest {
 
   private static InetSocketAddress address;
@@ -55,31 +67,55 @@ public class MVCCStreamsTest extends BaseTest {
   private static final ArrayValue keyA = ValueFactory.newArray(ValueFactory.newString("key_c"));
   private static final ArrayValue keyB = ValueFactory.newArray(ValueFactory.newString("key_d"));
 
-  @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withScriptFileName("server-mvcc.lua");
+  private static TarantoolContainer<?> tt;
 
   @BeforeAll
   public static void setUp() throws Exception {
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    DockerImageName dockerImage =
+        DockerImageName.parse(String.format("%s:%s", IMAGE_PREFIX, TARANTOOL_VERSION));
+    Path initScriptPath = null;
+    try {
+      initScriptPath =
+          Paths.get(
+              Objects.requireNonNull(
+                      MVCCStreamsTest.class.getClassLoader().getResource("server-mvcc.lua"))
+                  .toURI());
+    } catch (Exception e) {
+      // ignore
+    }
+    tt =
+        Tarantool2Container.builder(dockerImage, initScriptPath)
+            .build()
+            .withEnv(ENV_MAP)
+            .withExposedPorts(3301);
 
-    List<?> result = tt.executeCommandDecoded("return box.space.space_a.id");
+    tt.start();
+    execInitScript(tt);
+
+    address = tt.mappedAddress();
+
+    List<?> result = executeCommandDecoded(tt, "return box.space.space_a.id");
     spaceAId = (Integer) result.get(0);
 
-    result = tt.executeCommandDecoded("return box.space.space_b.id");
+    result = executeCommandDecoded(tt, "return box.space.space_b.id");
     spaceBId = (Integer) result.get(0);
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
+    executeCommand(tt, "return box.space.test:truncate()");
+    executeCommand(tt, "return box.space.space_a:truncate()");
+    executeCommand(tt, "return box.space.space_b:truncate()");
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   @SuppressWarnings("unchecked")
   private void checkTuple(String ttCheck, ArrayValue tuple) throws Exception {
-    List<? extends Object> result = tt.executeCommandDecoded(ttCheck);
+    List<? extends Object> result = executeCommandDecoded(tt, ttCheck);
     List<Object> stored = (List<Object>) result.get(0);
     assertEquals(
         tuple,
@@ -88,10 +124,8 @@ public class MVCCStreamsTest extends BaseTest {
             ValueFactory.newString((String) stored.get(1))));
   }
 
-  @SuppressWarnings("unchecked")
   private void checkNoTuple(String ttCheck) throws Exception {
-    List<?> result = tt.executeCommandDecoded(ttCheck);
-    assertEquals(0, result.size());
+    assertNull(executeCommandDecoded(tt, ttCheck));
   }
 
   private IProtoClient getClientAndConnect() throws Exception {
@@ -186,13 +220,13 @@ public class MVCCStreamsTest extends BaseTest {
 
     CompletableFuture<IProtoResponse> callFuture =
         client.call("fail", ValueFactory.emptyArray(), opts);
-    Exception ex1 = assertThrows(CompletionException.class, () -> callFuture.join());
+    Exception ex1 = assertThrows(CompletionException.class, callFuture::join);
     Throwable rootCause1 = findRootCause(ex1);
     assertEquals(BoxError.class, rootCause1.getClass());
     assertEquals(IPROTO_ERR_PROC_LUA, ((BoxError) rootCause1).getErrorCode());
 
     CompletableFuture<IProtoResponse> insertA2Future = client.insert(spaceAId, null, tupleA, opts);
-    Exception ex2 = assertThrows(CompletionException.class, () -> insertA2Future.join());
+    Exception ex2 = assertThrows(CompletionException.class, insertA2Future::join);
     Throwable rootCause2 = findRootCause(ex2);
     assertEquals(BoxError.class, rootCause2.getClass());
     assertEquals(IPROTO_ERR_TUPLE_FOUND, ((BoxError) rootCause2).getErrorCode());
@@ -218,7 +252,7 @@ public class MVCCStreamsTest extends BaseTest {
     ExecutionException ex =
         assertThrows(
             ExecutionException.class, () -> client.insert(spaceAId, null, tupleA, opts).get());
-    assertTrue(ex.getCause() instanceof BoxError);
+    assertInstanceOf(BoxError.class, ex.getCause());
     assertTrue(ex.getCause().getMessage().contains("Transaction has been aborted by timeout"));
   }
 }

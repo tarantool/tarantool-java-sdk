@@ -15,15 +15,18 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import static org.testcontainers.containers.PathUtils.normalizePath;
+import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.testcontainers.containers.utils.SslContext;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 /**
  * @author Artyom Dubinin
  */
+@Deprecated
 public class VshardClusterContainer extends GenericContainer<VshardClusterContainer>
     implements TarantoolContainerOperations<VshardClusterContainer> {
 
@@ -49,7 +52,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
   protected static final int TIMEOUT_CRUD_HEALTH_IN_SECONDS = 60;
 
-  protected final TarantoolContainerClientHelper clientHelper;
   protected final String TARANTOOL_RUN_DIR;
   private final TarantoolConfigParser configParser;
 
@@ -123,7 +125,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this.instancesFile = instancesFile;
     this.configFile = configFile;
     this.configParser = new TarantoolConfigParser(configFile);
-    this.clientHelper = new TarantoolContainerClientHelper(this);
   }
 
   protected static ImageFromDockerfile withBuildArgs(
@@ -346,7 +347,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected boolean crudIsUp() {
     ExecResult result;
     try {
-      result = executeCommand("return crud._VERSION");
+      result = TarantoolContainerClientHelper.executeCommand(this, "return crud._VERSION", null);
       if (result.getExitCode() != 0) {
         logger()
             .error(
@@ -367,7 +368,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   @Override
   public ExecResult executeScript(String scriptResourcePath) {
     try {
-      return clientHelper.executeScript(scriptResourcePath, this.sslContext);
+      return TarantoolContainerClientHelper.executeScript(
+          this, scriptResourcePath, this.sslContext);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -376,7 +378,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   @Override
   public <T> T executeScriptDecoded(String scriptResourcePath) {
     try {
-      return clientHelper.executeScriptDecoded(scriptResourcePath, this.sslContext);
+      return TarantoolContainerClientHelper.executeScriptDecoded(
+          this, scriptResourcePath, this.sslContext);
     } catch (IOException | InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -385,7 +388,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   @Override
   public ExecResult executeCommand(String command) {
     try {
-      return clientHelper.executeCommand(command, this.sslContext);
+      return TarantoolContainerClientHelper.executeCommand(this, command, this.sslContext);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -394,7 +397,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   @Override
   public <T> T executeCommandDecoded(String command) {
     try {
-      return clientHelper.executeCommandDecoded(command, this.sslContext);
+      return TarantoolContainerClientHelper.executeCommandDecoded(this, command, this.sslContext);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -412,7 +415,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     VshardClusterContainer that = (VshardClusterContainer) o;
     return useFixedPorts == that.useFixedPorts
         && routerPort == that.routerPort
-        && Objects.equals(clientHelper, that.clientHelper)
         && TARANTOOL_RUN_DIR.equals(that.TARANTOOL_RUN_DIR)
         && Objects.equals(configParser, that.configParser)
         && routerHost.equals(that.routerHost)
@@ -429,7 +431,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   public int hashCode() {
     return Objects.hash(
         super.hashCode(),
-        clientHelper,
         TARANTOOL_RUN_DIR,
         configParser,
         useFixedPorts,

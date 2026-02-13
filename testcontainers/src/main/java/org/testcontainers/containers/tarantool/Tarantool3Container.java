@@ -141,6 +141,13 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
   }
 
   @Override
+  public TarantoolContainer<Tarantool3Container> withFixedExposedPort(
+      int hostPort, int containerPort) {
+    this.addFixedExposedPort(hostPort, containerPort);
+    return this;
+  }
+
+  @Override
   protected void configure() {
     try {
       this.lock.lock();
@@ -192,7 +199,7 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
             migrationsPathInContainer.toAbsolutePath().toString());
       }
 
-      withExposedPorts(TarantoolContainer.DEFAULT_TARANTOOL_PORT);
+      addExposedPort(TarantoolContainer.DEFAULT_TARANTOOL_PORT);
       withNetworkAliases(this.node);
       withLogConsumer(new Slf4jLogConsumer(LOGGER).withPrefix(this.node));
       withEnv("TT_INSTANCE_NAME", this.node);
@@ -221,6 +228,21 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
         withEnv("TT_CONFIG_ETCD_PREFIX", this.etcdPrefix);
       }
       withPrivilegedMode(true);
+      withCreateContainerCmdModifier(
+          cmd -> {
+            cmd.withName(this.node).withUser("root");
+            String[] originalEntrypoint =
+                cmd.getEntrypoint() != null && cmd.getEntrypoint().length > 0
+                    ? cmd.getEntrypoint()
+                    : new String[] {"tarantool"};
+            String dataDir = TarantoolContainer.DEFAULT_DATA_DIR.toAbsolutePath().toString();
+            String entrypointStr = String.join(" ", originalEntrypoint);
+            cmd.withEntrypoint(
+                "sh",
+                "-c",
+                String.format(
+                    "chmod -R 777 %s 2>/dev/null || true; exec %s \"$@\"", dataDir, entrypointStr));
+          });
       this.configured = true;
     } catch (Exception e) {
       throw new ContainerLaunchException(e.getMessage(), e);
@@ -253,7 +275,6 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
 
     try {
       this.lock.lock();
-      Utils.deleteDataDirectory(this.mountDataDirectory);
       super.stop();
       this.isClosed.set(true);
     } finally {

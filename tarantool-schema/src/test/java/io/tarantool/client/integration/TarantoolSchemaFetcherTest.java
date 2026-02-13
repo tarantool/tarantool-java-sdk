@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -22,14 +25,14 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.shaded.org.bouncycastle.util.Strings;
 
 import io.tarantool.balancer.TarantoolDistributingRoundRobinBalancer;
@@ -45,7 +48,6 @@ import io.tarantool.schema.Space;
 import io.tarantool.schema.TarantoolSchemaFetcher;
 
 @Timeout(value = 5)
-@Testcontainers
 public class TarantoolSchemaFetcherTest {
 
   private static final String API_USER = "api_user";
@@ -76,25 +78,33 @@ public class TarantoolSchemaFetcherTest {
   private static final Timer timerService = new HashedWheelTimer();
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
-  @Container
-  private static final TarantoolContainer tt = new TarantoolContainer().withEnv(CREDS_MAP);
+  private static TarantoolContainer<?> tt;
 
   private Long spacePersonId;
   private static IProtoClient client;
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    List<?> result = tt.executeCommandDecoded("return box.space.person.id");
+    List<?> result = executeCommandDecoded(tt, "return box.space.person.id");
     this.spacePersonId = Long.valueOf((Integer) result.get(0));
 
-    tt.executeCommand("return box.space.person:truncate()");
+    executeCommand(tt, "return box.space.person:truncate()");
   }
 
   @BeforeAll
   public static void setUp() {
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(CREDS_MAP);
+    tt.start();
+    execInitScript(tt);
+
     client = new IProtoClientImpl(factory, timerService);
-    client.connect(new InetSocketAddress(tt.getHost(), tt.getPort()), 3_000).join();
+    client.connect(new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort()), 3_000).join();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   @Test
@@ -121,7 +131,7 @@ public class TarantoolSchemaFetcherTest {
   @Test
   public void testSpacesIndexes() throws Exception {
     Map<?, ?> realIndexFromEval =
-        (Map<?, ?>) ((List<?>) tt.executeCommandDecoded("return box.space.person.index")).get(0);
+        (Map<?, ?>) ((List<?>) executeCommandDecoded(tt, "return box.space.person.index")).get(0);
     assertEquals(new HashSet<>(Arrays.asList(0, "pk")), realIndexFromEval.keySet());
     Map<?, ?> pk = (Map<?, ?>) realIndexFromEval.get("pk");
 
@@ -152,7 +162,7 @@ public class TarantoolSchemaFetcherTest {
         Collections.singletonList(
             InstanceConnectionGroup.builder()
                 .withHost(tt.getHost())
-                .withPort(tt.getPort())
+                .withPort(tt.getFirstMappedPort())
                 .withTag("a")
                 .build()));
 
@@ -198,7 +208,7 @@ public class TarantoolSchemaFetcherTest {
     fetcher.processRequest(client.ping()).join();
 
     Map<?, ?> realIndexFromEval =
-        (Map<?, ?>) ((List<?>) tt.executeCommandDecoded("return box.space.person.index")).get(0);
+        (Map<?, ?>) ((List<?>) executeCommandDecoded(tt, "return box.space.person.index")).get(0);
     assertEquals(new HashSet<>(Arrays.asList(0, "pk")), realIndexFromEval.keySet());
 
     assertEquals(1, fetcher.getSpace("person").getIndexes().size());
@@ -210,7 +220,7 @@ public class TarantoolSchemaFetcherTest {
         .join();
 
     realIndexFromEval =
-        (Map<?, ?>) ((List<?>) tt.executeCommandDecoded("return box.space.person.index")).get(0);
+        (Map<?, ?>) ((List<?>) executeCommandDecoded(tt, "return box.space.person.index")).get(0);
     assertEquals(
         new HashSet<>(Arrays.asList(0, 1, "pk", "name_index")), realIndexFromEval.keySet());
 

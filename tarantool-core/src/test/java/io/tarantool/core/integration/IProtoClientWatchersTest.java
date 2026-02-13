@@ -14,15 +14,19 @@ import java.util.concurrent.CompletionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
+import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EVENT_DATA;
@@ -31,18 +35,29 @@ import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.exceptions.BoxError;
 
 @Timeout(value = 5)
-@Testcontainers
 public class IProtoClientWatchersTest extends BaseTest {
 
-  @Container
-  private static final TarantoolContainer tarantoolContainer =
-      new TarantoolContainer()
-          .withEnv(ENV_MAP)
-          .withLogConsumer(
-              new Slf4jLogConsumer(LoggerFactory.getLogger(IProtoClientWatchersTest.class)));
+  private static TarantoolContainer<?> tarantoolContainer;
 
-  private IProtoClient getClientAndConnect(TarantoolContainer tt) throws Exception {
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+  @BeforeAll
+  static void setUp() throws Exception {
+    tarantoolContainer =
+        createTarantoolContainer()
+            .withEnv(ENV_MAP)
+            .withLogConsumer(
+                new Slf4jLogConsumer(LoggerFactory.getLogger(IProtoClientWatchersTest.class)));
+
+    tarantoolContainer.start();
+    execInitScript(tarantoolContainer);
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tarantoolContainer.stop();
+  }
+
+  private IProtoClient getClientAndConnect(TarantoolContainer<?> tt) throws Exception {
+    InetSocketAddress address = tt.mappedAddress();
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
     client.connect(address, 3_000).get();
     return client;
@@ -60,7 +75,7 @@ public class IProtoClientWatchersTest extends BaseTest {
         tarantoolContainer, System.getenv("TARANTOOL_VERSION"));
   }
 
-  private void testWatchAndUnwatchOnContainer(TarantoolContainer tt, String version)
+  private void testWatchAndUnwatchOnContainer(TarantoolContainer<?> tt, String version)
       throws Exception {
     IProtoClient client = getClientAndConnect(tt);
 
@@ -70,7 +85,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.watch("key1", (v) -> eventsKey1.add(v.getBodyValue(IPROTO_EVENT_DATA)));
     client.watch("key2", (v) -> eventsKey2.add(v.getBodyValue(IPROTO_EVENT_DATA)));
 
-    tt.executeCommand(
+    executeCommand(
+        tt,
         "box.broadcast('key1', 'myEvent');"
             + "box.broadcast('key2', {1, 2, 3});"
             + "box.broadcast('key3', 'wontbecaught');");
@@ -78,7 +94,8 @@ public class IProtoClientWatchersTest extends BaseTest {
 
     client.unwatch("key1");
     client.unwatch("key2");
-    tt.executeCommand(
+    executeCommand(
+        tt,
         "box.broadcast('key1', 'myEvent');"
             + "box.broadcast('key2', {1, 2, 3});"
             + "box.broadcast('key3', 'wontbecaught');");
@@ -117,7 +134,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     assertEquals(0, client.watchOnce("k1").join().getBodyValue(IPROTO_DATA).asArrayValue().size());
     assertEquals(0, client.watchOnce("k2").join().getBodyValue(IPROTO_DATA).asArrayValue().size());
 
-    tt.executeCommand("box.broadcast('k1', 'myEvent');" + "box.broadcast('k2', {1, 2, 3});");
+    executeCommand(tt, "box.broadcast('k1', 'myEvent');" + "box.broadcast('k2', {1, 2, 3});");
     Thread.sleep(100);
 
     assertEquals(
@@ -135,8 +152,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     checkTTVersion(tt, version);
   }
 
-  private void testWatcherRecoveryAfterReconnectOnContainer(TarantoolContainer tt, String version)
-      throws Exception {
+  private void testWatcherRecoveryAfterReconnectOnContainer(
+      TarantoolContainer<?> tt, String version) throws Exception {
     IProtoClient client = getClientAndConnect(tt);
     List<Value> eventsKey1 = new ArrayList<>();
     List<Value> eventsKey2 = new ArrayList<>();
@@ -144,18 +161,20 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.watch("keyA", (v) -> eventsKey1.add(v.getBodyValue(IPROTO_EVENT_DATA)));
     client.watch("keyB", (v) -> eventsKey2.add(v.getBodyValue(IPROTO_EVENT_DATA)));
 
-    tt.executeCommand(
+    executeCommand(
+        tt,
         "box.broadcast('keyA', 'myEvent');"
             + "box.broadcast('keyB', {1, 2, 3});"
             + "box.broadcast('keyC', 'wontbecaught');");
     Thread.sleep(100);
     client.close();
     Thread.sleep(100);
-    InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    InetSocketAddress address = tt.mappedAddress();
     client.connect(address, 3_000).get();
     Thread.sleep(1000);
 
-    tt.executeCommand(
+    executeCommand(
+        tt,
         "box.broadcast('keyA', 'myEvent2');"
             + "box.broadcast('keyB', {1, 2, 3, 4});"
             + "box.broadcast('keyC', 'wontbecaught2');");
@@ -187,8 +206,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     checkTTVersion(tt, version);
   }
 
-  private void checkTTVersion(TarantoolContainer tt, String version) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return _TARANTOOL");
+  private void checkTTVersion(TarantoolContainer<?> tt, String version) throws Exception {
+    List<?> result = executeCommandDecoded(tt, "return _TARANTOOL");
     String ttVersion = (String) result.get(0);
     assertTrue(ttVersion.startsWith(version.split("-")[0]));
   }

@@ -47,4 +47,6 @@ public interface TarantoolContainer<SELF extends TarantoolContainer<SELF>>
 
   /** Stop container without deleting data directory */
   void stopWithSafeMount();
+
+  TarantoolContainer<SELF> withFixedExposedPort(int hostPort, int containerPort);
 }

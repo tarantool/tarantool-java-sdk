@@ -18,10 +18,10 @@ import io.tarantool.client.TarantoolClient;
 public interface TarantoolCrudClient extends TarantoolClient {
 
   /** Default username for CRUD clients. */
-  String DEFAULT_CRUD_USERNAME = "admin";
+  String DEFAULT_CRUD_USERNAME = "api_user";
 
   /** Default password for CRUD admin username. */
-  String DEFAULT_CRUD_PASSWORD = "secret-cluster-cookie";
+  String DEFAULT_CRUD_PASSWORD = "secret";
 
   /**
    * Function returns {@link TarantoolCrudSpace space} with the name specified as the input
