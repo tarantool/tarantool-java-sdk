@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>tarantool-java-sdk-bom</name>
+    <description>BOM for tarantool-java-sdk</description>
+    <url>https://tarantool.io</url>
+    <packaging>pom</packaging>
+
+    <groupId>io.tarantool</groupId>
+    <artifactId>tarantool-java-sdk-bom</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <properties>
+        <tarantool-java-sdk.version>2.0.0-SNAPSHOT</tarantool-java-sdk.version>
+        <jackson.version>2.18.4</jackson.version>
+        <msgpack.version>0.9.10</msgpack.version>
+        <netty.version>4.2.7.Final</netty.version>
+        <slf4j.api.version>2.0.17</slf4j.api.version>
+        <testcontainers.version>2.0.1</testcontainers.version>
+        <logback.version>1.3.16</logback.version>
+        <junit-jupiter.version>5.13.4</junit-jupiter.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <lombok.version>1.18.38</lombok.version>
+        <guava.version>33.4.8-jre</guava.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Tarantool Java SDK modules -->
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-client</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-core</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-pooling</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-jackson-mapping</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-schema</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-balancer</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-spring-data</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>tarantool-spring-data-core</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.tarantool</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${tarantool-java-sdk.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Third-party runtime -->
+            <dependency>
+                <groupId>org.msgpack</groupId>
+                <artifactId>jackson-dataformat-msgpack</artifactId>
+                <version>${msgpack.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.msgpack</groupId>
+                <artifactId>msgpack-core</artifactId>
+                <version>${msgpack.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <!-- Test dependencies -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.46.1</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
