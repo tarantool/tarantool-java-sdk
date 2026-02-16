@@ -286,115 +286,11 @@
     <dependencies>
       <dependency>
         <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-client</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+        <artifactId>tarantool-java-sdk-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-core</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-pooling</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-jackson-mapping</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-schema</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-balancer</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-spring-data</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>tarantool-spring-data-core</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>io.tarantool</groupId>
-        <artifactId>testcontainers</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.msgpack</groupId>
-        <artifactId>jackson-dataformat-msgpack</artifactId>
-        <version>${msgpack.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.msgpack</groupId>
-        <artifactId>msgpack-core</artifactId>
-        <version>${msgpack.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.api.version}</version>
-      </dependency>
-
-      <!-- Test dependencies -->
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <!-- 1.4.x only for jdk > 11 -->
-        <version>1.3.16</version> <!-- 1.4.x only for jdk > 11 -->
-        <!-- 1.4.x only for jdk > 11 -->
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>5.13.4</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-junit-jupiter</artifactId>
-        <version>${testcontainers.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>3.18.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.38</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>33.4.8-jre</version>
-        <scope>test</scope>
-      </dependency>
-      <!-- End of test dependencies -->
     </dependencies>
   </dependencyManagement>
 
@@ -634,5 +530,6 @@
     <module>jacoco-coverage-aggregate-report</module>
     <module>testcontainers-autogen</module>
     <module>documentation</module>
+    <module>tarantool-java-sdk-bom</module>
   </modules>
 </project>
