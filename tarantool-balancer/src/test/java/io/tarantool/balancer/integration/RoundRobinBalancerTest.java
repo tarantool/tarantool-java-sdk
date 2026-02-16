@@ -10,15 +10,13 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.balancer.TarantoolRoundRobinBalancer;
@@ -35,14 +33,14 @@ public class RoundRobinBalancerTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() {
-    tt1 = createTarantoolContainer();
-    tt2 = createTarantoolContainer();
+    tt1 = TarantoolContainerClientHelper.createTarantoolContainer();
+    tt2 = TarantoolContainerClientHelper.createTarantoolContainer();
 
     tt1.start();
     tt2.start();
 
-    execInitScript(tt1);
-    execInitScript(tt2);
+    TarantoolContainerClientHelper.execInitScript(tt1);
+    TarantoolContainerClientHelper.execInitScript(tt2);
 
     count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
@@ -55,12 +53,14 @@ public class RoundRobinBalancerTest extends BaseTest {
   }
 
   private int getSessionCounter(TarantoolContainer<?> tt) throws Exception {
-    List<?> result = executeCommandDecoded(tt, "return get_session_counter()");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return get_session_counter()");
     return (Integer) result.get(0);
   }
 
   private int getCallCounter(TarantoolContainer<?> tt) throws Exception {
-    List<?> result = executeCommandDecoded(tt, "return get_call_counter()");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return get_call_counter()");
     return (Integer) result.get(0);
   }
 

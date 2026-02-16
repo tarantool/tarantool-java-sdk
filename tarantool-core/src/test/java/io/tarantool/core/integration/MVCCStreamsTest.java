@@ -19,11 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.IMAGE_PREFIX;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.TARANTOOL_VERSION;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +29,7 @@ import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.Tarantool2Container;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.utility.DockerImageName;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
@@ -72,7 +68,11 @@ public class MVCCStreamsTest extends BaseTest {
   @BeforeAll
   public static void setUp() throws Exception {
     DockerImageName dockerImage =
-        DockerImageName.parse(String.format("%s:%s", IMAGE_PREFIX, TARANTOOL_VERSION));
+        DockerImageName.parse(
+            String.format(
+                "%s:%s",
+                TarantoolContainerClientHelper.IMAGE_PREFIX,
+                TarantoolContainerClientHelper.TARANTOOL_VERSION));
     Path initScriptPath = null;
     try {
       initScriptPath =
@@ -90,22 +90,24 @@ public class MVCCStreamsTest extends BaseTest {
             .withExposedPorts(3301);
 
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
     address = tt.mappedAddress();
 
-    List<?> result = executeCommandDecoded(tt, "return box.space.space_a.id");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.space_a.id");
     spaceAId = (Integer) result.get(0);
 
-    result = executeCommandDecoded(tt, "return box.space.space_b.id");
+    result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.space_b.id");
     spaceBId = (Integer) result.get(0);
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    executeCommand(tt, "return box.space.test:truncate()");
-    executeCommand(tt, "return box.space.space_a:truncate()");
-    executeCommand(tt, "return box.space.space_b:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_a:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_b:truncate()");
   }
 
   @AfterAll
@@ -115,7 +117,8 @@ public class MVCCStreamsTest extends BaseTest {
 
   @SuppressWarnings("unchecked")
   private void checkTuple(String ttCheck, ArrayValue tuple) throws Exception {
-    List<? extends Object> result = executeCommandDecoded(tt, ttCheck);
+    List<? extends Object> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, ttCheck);
     List<Object> stored = (List<Object>) result.get(0);
     assertEquals(
         tuple,
@@ -125,7 +128,7 @@ public class MVCCStreamsTest extends BaseTest {
   }
 
   private void checkNoTuple(String ttCheck) throws Exception {
-    assertNull(executeCommandDecoded(tt, ttCheck));
+    assertNull(TarantoolContainerClientHelper.executeCommandDecoded(tt, ttCheck));
   }
 
   private IProtoClient getClientAndConnect() throws Exception {

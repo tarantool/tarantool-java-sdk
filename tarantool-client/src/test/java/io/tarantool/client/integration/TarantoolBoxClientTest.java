@@ -32,10 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -49,6 +45,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
 
 import static io.tarantool.client.box.TarantoolBoxSpace.WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0;
@@ -91,15 +88,15 @@ public class TarantoolBoxClientTest extends BaseTest {
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    executeCommand(tt, "return box.space.person:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.person:truncate()");
     triplets = new ArrayList<>();
   }
 
   @BeforeAll
   public static void setUp() throws Exception {
-    tt = createTarantoolContainer().withEnv(ENV_MAP);
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
     client =
         TarantoolFactory.box()
@@ -130,7 +127,8 @@ public class TarantoolBoxClientTest extends BaseTest {
                 })
             .build();
 
-    List<?> result = executeCommandDecoded(tt, "return box.space.person.id");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.person.id");
     spacePersonId = (Integer) result.get(0);
 
     try {
@@ -562,11 +560,13 @@ public class TarantoolBoxClientTest extends BaseTest {
     Person secondPerson = new Person(2, true, "Kolya");
     assertEquals(
         Collections.singletonList(firstPerson.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
 
     assertEquals(
         Collections.singletonList(secondPerson.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({2, true, 'Kolya'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({2, true, 'Kolya'})"));
 
     SelectResponse<List<Tuple<List<?>>>> firstBatch =
         testSpace
@@ -609,11 +609,13 @@ public class TarantoolBoxClientTest extends BaseTest {
     List<? extends Serializable> firstTuple = Arrays.asList(1, true, "2");
     assertEquals(
         Collections.singletonList(firstTuple),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, '2'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, '2'})"));
     List<? extends Serializable> secondTuple = Arrays.asList(2, true, "1");
     assertEquals(
         Collections.singletonList(secondTuple),
-        executeCommandDecoded(tt, "return box.space.person:insert({2, true, '1'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({2, true, '1'})"));
 
     client.eval("box.space.person:create_index('name_index', { parts = { 'name' } })").join();
 
@@ -639,10 +641,12 @@ public class TarantoolBoxClientTest extends BaseTest {
     Person secondPerson = new Person(2, true, "Kolya");
     assertEquals(
         Collections.singletonList(firstPerson.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
     assertEquals(
         Collections.singletonList(secondPerson.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({2, true, 'Kolya'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({2, true, 'Kolya'})"));
 
     SelectResponse<List<Tuple<List<?>>>> selectResult =
         testSpace.select(EMPTY_LIST, options).join();
@@ -885,7 +889,8 @@ public class TarantoolBoxClientTest extends BaseTest {
     // simple
     assertEquals(
         Collections.singletonList(person.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
 
     Tuple<List<?>> responseAsListWithKeyOnly = testSpace.delete(key, options).join();
     List<?> resultAsListWithKeyOnly = responseAsListWithKeyOnly.get();
@@ -895,7 +900,8 @@ public class TarantoolBoxClientTest extends BaseTest {
     // with entity Class
     assertEquals(
         Collections.singletonList(person.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
 
     Tuple<Person> responseAsClassWithKeyAndClass =
         testSpace.delete(key, options, Person.class).join();
@@ -906,7 +912,8 @@ public class TarantoolBoxClientTest extends BaseTest {
     // with typeReference tuple as list
     assertEquals(
         Collections.singletonList(person.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
 
     TarantoolResponse<Tuple<List<?>>> responseAsListWithTypeRefAsList =
         testSpace.delete(key, options, typeReferenceAsList).join();
@@ -917,7 +924,8 @@ public class TarantoolBoxClientTest extends BaseTest {
     // with typeReference tuple as class
     assertEquals(
         Collections.singletonList(person.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, 'Dima'})"));
 
     TarantoolResponse<Tuple<Person>> responseAsClassWithTypeRefAsClass =
         testSpace.delete(key, options, typeReferenceAsPersonClass).join();
@@ -955,7 +963,8 @@ public class TarantoolBoxClientTest extends BaseTest {
 
     assertEquals(
         Collections.singletonList(Arrays.asList(1, true, "0")),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, '0'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, '0'})"));
     doReplaceRequestShouldBeSuccessful(testSpace);
   }
 
@@ -971,7 +980,8 @@ public class TarantoolBoxClientTest extends BaseTest {
 
     assertEquals(
         Collections.singletonList(Arrays.asList(1, true, "0")),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, '0'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, '0'})"));
     doReplaceRequestShouldBeSuccessful(testSpace);
   }
 
@@ -987,7 +997,8 @@ public class TarantoolBoxClientTest extends BaseTest {
 
     assertEquals(
         Collections.singletonList(Arrays.asList(1, true, "0")),
-        executeCommandDecoded(tt, "return box.space.person:insert({1, true, '0'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert({1, true, '0'})"));
 
     if (!useSpaceName) {
       doReplaceRequestShouldBeSuccessful(testSpace);
@@ -1102,7 +1113,8 @@ public class TarantoolBoxClientTest extends BaseTest {
 
     assertEquals(
         Collections.singletonList(person.asList()),
-        executeCommandDecoded(tt, "return box.space.person:insert ({1, true, '0'})"));
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.person:insert ({1, true, '0'})"));
 
     List<?> key = Collections.singletonList(person.getId());
 
@@ -1282,7 +1294,10 @@ public class TarantoolBoxClientTest extends BaseTest {
         .join();
     assertEquals(
         Collections.singletonList(person.asList()),
-        ((List) executeCommandDecoded(tt, "return box.space.person:select()")).get(0));
+        ((List)
+                TarantoolContainerClientHelper.executeCommandDecoded(
+                    tt, "return box.space.person:select()"))
+            .get(0));
 
     person.setName("DimaK");
     testSpace
@@ -1290,9 +1305,12 @@ public class TarantoolBoxClientTest extends BaseTest {
         .join();
     assertEquals(
         Collections.singletonList(person.asList()),
-        ((List) executeCommandDecoded(tt, "return box.space.person:select()")).get(0));
+        ((List)
+                TarantoolContainerClientHelper.executeCommandDecoded(
+                    tt, "return box.space.person:select()"))
+            .get(0));
 
-    executeCommandDecoded(tt, "return box.space.person:truncate()");
+    TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.person:truncate()");
 
     Person otherPerson = new Person(2, false, "Thomas Sawer");
     testSpace
@@ -1300,13 +1318,19 @@ public class TarantoolBoxClientTest extends BaseTest {
         .join();
     assertEquals(
         Collections.singletonList(otherPerson.asList()),
-        ((List) executeCommandDecoded(tt, "return box.space.person:select()")).get(0));
+        ((List)
+                TarantoolContainerClientHelper.executeCommandDecoded(
+                    tt, "return box.space.person:select()"))
+            .get(0));
 
     otherPerson.setName("Tom");
     testSpace.upsert(otherPerson, Operations.create().set("name", "Tom"), options).join();
     assertEquals(
         Collections.singletonList(otherPerson.asList()),
-        ((List) executeCommandDecoded(tt, "return box.space.person:select()")).get(0));
+        ((List)
+                TarantoolContainerClientHelper.executeCommandDecoded(
+                    tt, "return box.space.person:select()"))
+            .get(0));
   }
 
   @ParameterizedTest
@@ -1315,9 +1339,12 @@ public class TarantoolBoxClientTest extends BaseTest {
     TarantoolBoxSpace testSpace =
         useSpaceName ? client.space("person") : client.space(spacePersonId);
 
-    executeCommandDecoded(tt, "return box.space.person:insert({1, true, 'Dima'})");
-    executeCommandDecoded(tt, "return box.space.person:insert({2, true, 'Roma'})");
-    executeCommandDecoded(tt, "return box.space.person:insert({3, false, 'Kolya'})");
+    TarantoolContainerClientHelper.executeCommandDecoded(
+        tt, "return box.space.person:insert({1, true, 'Dima'})");
+    TarantoolContainerClientHelper.executeCommandDecoded(
+        tt, "return box.space.person:insert({2, true, 'Roma'})");
+    TarantoolContainerClientHelper.executeCommandDecoded(
+        tt, "return box.space.person:insert({3, false, 'Kolya'})");
     Person dima = new Person(1, true, "Dima");
     Person roma = new Person(2, true, "Roma");
     Person kolya = new Person(3, false, "Kolya");

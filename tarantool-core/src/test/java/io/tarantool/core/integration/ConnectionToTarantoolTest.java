@@ -32,9 +32,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.msgpack.value.ValueFactory.newArray;
 import static org.msgpack.value.ValueFactory.newInteger;
 import static org.msgpack.value.ValueFactory.newMap;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.netty.channel.ConnectTimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -47,6 +44,7 @@ import org.msgpack.value.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
@@ -105,25 +103,29 @@ public class ConnectionToTarantoolTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    tt = createTarantoolContainer(3302, 3303, 3304, 3306).withEnv(ENV_MAP);
+    tt =
+        TarantoolContainerClientHelper.createTarantoolContainer(3302, 3303, 3304, 3306)
+            .withEnv(ENV_MAP);
 
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
-    List<?> result = executeCommandDecoded(tt, "return box.info.version");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.info.version");
     String fullVersion = (String) result.get(0);
     version = fullVersion.split("-")[0];
 
     protocolType = "binary";
 
-    result = executeCommandDecoded(tt, "return box.info.uuid");
+    result = TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.info.uuid");
     String uuid = (String) result.get(0);
     instanceUUID = UUID.fromString(uuid);
 
-    result = executeCommandDecoded(tt, "return box.space.test.id");
+    result = TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.test.id");
     spaceId = (Integer) result.get(0);
 
-    executeCommandDecoded(tt, "lock_pipe(true)"); // for tests using 3305 port (no greeting)
+    TarantoolContainerClientHelper.executeCommandDecoded(
+        tt, "lock_pipe(true)"); // for tests using 3305 port (no greeting)
   }
 
   @AfterAll

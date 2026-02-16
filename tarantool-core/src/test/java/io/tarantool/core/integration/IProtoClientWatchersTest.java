@@ -14,10 +14,6 @@ import java.util.concurrent.CompletionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -27,6 +23,7 @@ import org.msgpack.value.ValueFactory;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EVENT_DATA;
@@ -42,13 +39,13 @@ public class IProtoClientWatchersTest extends BaseTest {
   @BeforeAll
   static void setUp() throws Exception {
     tarantoolContainer =
-        createTarantoolContainer()
+        TarantoolContainerClientHelper.createTarantoolContainer()
             .withEnv(ENV_MAP)
             .withLogConsumer(
                 new Slf4jLogConsumer(LoggerFactory.getLogger(IProtoClientWatchersTest.class)));
 
     tarantoolContainer.start();
-    execInitScript(tarantoolContainer);
+    TarantoolContainerClientHelper.execInitScript(tarantoolContainer);
   }
 
   @AfterAll
@@ -85,7 +82,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.watch("key1", (v) -> eventsKey1.add(v.getBodyValue(IPROTO_EVENT_DATA)));
     client.watch("key2", (v) -> eventsKey2.add(v.getBodyValue(IPROTO_EVENT_DATA)));
 
-    executeCommand(
+    TarantoolContainerClientHelper.executeCommand(
         tt,
         "box.broadcast('key1', 'myEvent');"
             + "box.broadcast('key2', {1, 2, 3});"
@@ -94,7 +91,7 @@ public class IProtoClientWatchersTest extends BaseTest {
 
     client.unwatch("key1");
     client.unwatch("key2");
-    executeCommand(
+    TarantoolContainerClientHelper.executeCommand(
         tt,
         "box.broadcast('key1', 'myEvent');"
             + "box.broadcast('key2', {1, 2, 3});"
@@ -134,7 +131,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     assertEquals(0, client.watchOnce("k1").join().getBodyValue(IPROTO_DATA).asArrayValue().size());
     assertEquals(0, client.watchOnce("k2").join().getBodyValue(IPROTO_DATA).asArrayValue().size());
 
-    executeCommand(tt, "box.broadcast('k1', 'myEvent');" + "box.broadcast('k2', {1, 2, 3});");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "box.broadcast('k1', 'myEvent');" + "box.broadcast('k2', {1, 2, 3});");
     Thread.sleep(100);
 
     assertEquals(
@@ -161,7 +159,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.watch("keyA", (v) -> eventsKey1.add(v.getBodyValue(IPROTO_EVENT_DATA)));
     client.watch("keyB", (v) -> eventsKey2.add(v.getBodyValue(IPROTO_EVENT_DATA)));
 
-    executeCommand(
+    TarantoolContainerClientHelper.executeCommand(
         tt,
         "box.broadcast('keyA', 'myEvent');"
             + "box.broadcast('keyB', {1, 2, 3});"
@@ -173,7 +171,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.connect(address, 3_000).get();
     Thread.sleep(1000);
 
-    executeCommand(
+    TarantoolContainerClientHelper.executeCommand(
         tt,
         "box.broadcast('keyA', 'myEvent2');"
             + "box.broadcast('keyB', {1, 2, 3, 4});"
@@ -207,7 +205,7 @@ public class IProtoClientWatchersTest extends BaseTest {
   }
 
   private void checkTTVersion(TarantoolContainer<?> tt, String version) throws Exception {
-    List<?> result = executeCommandDecoded(tt, "return _TARANTOOL");
+    List<?> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, "return _TARANTOOL");
     String ttVersion = (String) result.get(0);
     assertTrue(ttVersion.startsWith(version.split("-")[0]));
   }

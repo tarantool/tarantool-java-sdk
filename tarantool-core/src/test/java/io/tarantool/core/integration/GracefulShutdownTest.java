@@ -13,8 +13,6 @@ import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +20,7 @@ import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import io.tarantool.core.IProtoClient;
@@ -39,9 +38,9 @@ public class GracefulShutdownTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() {
-    tt = createTarantoolContainer().withEnv(ENV_MAP);
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
     address = tt.mappedAddress();
   }

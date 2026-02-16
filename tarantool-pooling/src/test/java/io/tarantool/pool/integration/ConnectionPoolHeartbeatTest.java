@@ -13,8 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +22,7 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.pool.HeartbeatOpts;
@@ -59,12 +58,12 @@ public class ConnectionPoolHeartbeatTest extends BasePoolTest {
 
   @BeforeAll
   static void beforeAll() {
-    tt1 = createTarantoolContainer(3305).withEnv(ENV_MAP);
-    tt2 = createTarantoolContainer(3305).withEnv(ENV_MAP);
+    tt1 = TarantoolContainerClientHelper.createTarantoolContainer(3305).withEnv(ENV_MAP);
+    tt2 = TarantoolContainerClientHelper.createTarantoolContainer(3305).withEnv(ENV_MAP);
     tt1.start();
     tt2.start();
-    execInitScript(tt1);
-    execInitScript(tt2);
+    TarantoolContainerClientHelper.execInitScript(tt1);
+    TarantoolContainerClientHelper.execInitScript(tt2);
   }
 
   @BeforeEach

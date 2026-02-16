@@ -27,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
@@ -45,6 +42,7 @@ import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -89,12 +87,12 @@ public class ConnectionPoolTest extends BasePoolTest {
 
   @BeforeAll
   public static void setUp() {
-    tt1 = createTarantoolContainer().withEnv(ENV_MAP);
-    tt2 = createTarantoolContainer().withEnv(ENV_MAP);
+    tt1 = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
+    tt2 = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
     tt1.start();
     tt2.start();
-    execInitScript(tt1);
-    execInitScript(tt2);
+    TarantoolContainerClientHelper.execInitScript(tt1);
+    TarantoolContainerClientHelper.execInitScript(tt2);
 
     host1 = tt1.getHost();
     port1 = tt1.getFirstMappedPort();
@@ -225,7 +223,8 @@ public class ConnectionPoolTest extends BasePoolTest {
     for (int i = 0; i < count2; i++) {
       clients.add(pool.get("node-b", i).get());
     }
-    List<?> result = executeCommandDecoded(tt1, "return box.space.space_a.id");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt1, "return box.space.space_a.id");
     Integer space = (Integer) result.get(0);
     for (IProtoClient client : clients) {
       assertTrue(client.isConnected());

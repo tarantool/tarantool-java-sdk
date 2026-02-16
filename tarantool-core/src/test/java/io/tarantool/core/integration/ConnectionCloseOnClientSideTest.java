@@ -11,13 +11,12 @@ import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import io.tarantool.core.connection.Connection;
@@ -31,9 +30,9 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
 
   @BeforeAll
   static void setUp() {
-    tt = createTarantoolContainer().withEnv(ENV_MAP);
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
   }
 
   @AfterAll

@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -25,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -40,8 +39,12 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
 
   @BeforeAll
   static void beforeAll() {
-    tt = createTarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
+    tt =
+        TarantoolContainerClientHelper.createTarantoolContainer()
+            .withEnv(ENV_MAP)
+            .withFixedExposedPort(3301, 3301);
     tt.start();
+    TarantoolContainerClientHelper.execInitScript(tt);
   }
 
   @BeforeEach
@@ -86,9 +89,12 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
 
     assertTrue(metricsRegistry.get("pool.reconnecting").gauge().value() > 0);
 
-    tt = createTarantoolContainer().withEnv(ENV_MAP).withFixedExposedPort(3301, 3301);
+    tt =
+        TarantoolContainerClientHelper.createTarantoolContainer()
+            .withEnv(ENV_MAP)
+            .withFixedExposedPort(3301, 3301);
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
     waitFor(
         "No available connects",

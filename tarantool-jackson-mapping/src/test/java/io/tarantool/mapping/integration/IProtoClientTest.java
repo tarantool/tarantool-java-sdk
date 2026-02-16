@@ -29,10 +29,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Function;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
@@ -90,18 +87,22 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    tt = createTarantoolContainer().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
+    tt =
+        TarantoolContainerClientHelper.createTarantoolContainer()
+            .withEnv(ENV_MAP)
+            .withLogConsumer(new Slf4jLogConsumer(log));
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
-    List<Integer> result = executeCommandDecoded(tt, "return box.space.test.id");
+    List<Integer> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.test.id");
     spaceTestId = result.get(0);
     address = new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort());
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    executeCommand(tt, "return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
   }
 
   @AfterAll

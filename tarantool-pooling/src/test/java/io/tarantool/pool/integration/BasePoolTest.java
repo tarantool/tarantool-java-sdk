@@ -17,7 +17,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommandDecoded;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -31,6 +30,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.opentest4j.AssertionFailedError;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -85,7 +85,7 @@ public class BasePoolTest {
 
   protected void execLua(TarantoolContainer<?> container, String command) {
     try {
-      executeCommandDecoded(container, command);
+      TarantoolContainerClientHelper.executeCommandDecoded(container, command);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -94,7 +94,8 @@ public class BasePoolTest {
   protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
       List<? extends Object> result =
-          executeCommandDecoded(tt, "return box.stat.net().CONNECTIONS.current");
+          TarantoolContainerClientHelper.executeCommandDecoded(
+              tt, "return box.stat.net().CONNECTIONS.current");
       return (Integer) result.get(0) - 1;
     } catch (Exception e) {
       throw new RuntimeException(e);

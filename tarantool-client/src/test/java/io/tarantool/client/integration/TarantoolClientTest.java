@@ -24,9 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.createTarantoolContainer;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.execInitScript;
-import static org.testcontainers.containers.utils.TarantoolContainerClientHelper.executeCommand;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.TarantoolClient;
@@ -59,9 +57,9 @@ public class TarantoolClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    tt = createTarantoolContainer().withEnv(ENV_MAP);
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
     tt.start();
-    execInitScript(tt);
+    TarantoolContainerClientHelper.execInitScript(tt);
 
     client = getClientAndConnect();
     client.getPool().forEach(c -> c.authorize(API_USER, CREDS.get(API_USER)).join());
@@ -84,10 +82,10 @@ public class TarantoolClientTest extends BaseTest {
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    executeCommand(tt, "return box.space.test:truncate()");
-    executeCommand(tt, "return box.space.space_a:truncate()");
-    executeCommand(tt, "return box.space.space_b:truncate()");
-    executeCommand(tt, "return box.space.person:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_a:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_b:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.person:truncate()");
 
     client = getClientAndConnect();
     tarantoolVersion = System.getenv("TARANTOOL_VERSION").charAt(0);
