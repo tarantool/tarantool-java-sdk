@@ -68,7 +68,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
+        tarantool-version: [ "2.11.8-ubuntu20.04", "3.5.0" ]
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
@@ -127,7 +127,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tarantool-version: [ "2.11.8-ubuntu20.04", "3.0.1-old" ]
+        tarantool-version: [ "2.11.8-ubuntu20.04", "3.5.0" ]
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6

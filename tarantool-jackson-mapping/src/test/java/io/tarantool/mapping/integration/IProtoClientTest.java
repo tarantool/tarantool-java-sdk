@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Function;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,10 +45,9 @@ import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
@@ -59,14 +59,11 @@ import io.tarantool.mapping.TarantoolJacksonMapping;
 import io.tarantool.mapping.Tuple;
 import io.tarantool.mapping.entities.TestEntity;
 
-@Testcontainers
 public class IProtoClientTest extends BaseTest {
 
   static final Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
 
-  @Container
-  private static final TarantoolContainer tt =
-      new TarantoolContainer().withEnv(ENV_MAP).withLogConsumer(new Slf4jLogConsumer(log));
+  private static TarantoolContainer<?> tt;
 
   public static final String ECHO_EXPRESSION = "return ...";
   public static final String YEAR = "2022";
@@ -90,14 +87,27 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    List<Integer> result = tt.executeCommandDecoded("return box.space.test.id");
+    tt =
+        TarantoolContainerClientHelper.createTarantoolContainer()
+            .withEnv(ENV_MAP)
+            .withLogConsumer(new Slf4jLogConsumer(log));
+    tt.start();
+    TarantoolContainerClientHelper.execInitScript(tt);
+
+    List<Integer> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.test.id");
     spaceTestId = result.get(0);
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    address = new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort());
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   public static Stream<Arguments> dataForTestInsertAndSelect() {

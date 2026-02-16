@@ -35,14 +35,14 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -61,7 +61,6 @@ import io.tarantool.pool.TripleConsumer;
 import io.tarantool.pool.exceptions.PoolClosedException;
 
 @Timeout(value = 5)
-@Testcontainers
 public class ConnectionPoolTest extends BasePoolTest {
 
   protected static final Bootstrap bootstrap =
@@ -83,20 +82,30 @@ public class ConnectionPoolTest extends BasePoolTest {
   private static int port2;
   private static int count2;
 
-  @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
-
-  @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static TarantoolContainer<?> tt1;
+  private static TarantoolContainer<?> tt2;
 
   @BeforeAll
   public static void setUp() {
+    tt1 = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
+    tt2 = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
+    tt1.start();
+    tt2.start();
+    TarantoolContainerClientHelper.execInitScript(tt1);
+    TarantoolContainerClientHelper.execInitScript(tt2);
+
     host1 = tt1.getHost();
-    port1 = tt1.getPort();
+    port1 = tt1.getFirstMappedPort();
     count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     host2 = tt2.getHost();
-    port2 = tt2.getPort();
+    port2 = tt2.getFirstMappedPort();
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt1.stop();
+    tt2.stop();
   }
 
   @Test
@@ -214,7 +223,8 @@ public class ConnectionPoolTest extends BasePoolTest {
     for (int i = 0; i < count2; i++) {
       clients.add(pool.get("node-b", i).get());
     }
-    List<?> result = tt1.executeCommandDecoded("return box.space.space_a.id");
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt1, "return box.space.space_a.id");
     Integer space = (Integer) result.get(0);
     for (IProtoClient client : clients) {
       assertTrue(client.isConnected());

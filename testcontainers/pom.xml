@@ -49,11 +49,6 @@
       <version>${jackson.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.tarantool</groupId>
-      <artifactId>testcontainers-java-tarantool</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>compile</scope>

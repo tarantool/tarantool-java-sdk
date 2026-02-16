@@ -10,13 +10,13 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.balancer.TarantoolRoundRobinBalancer;
@@ -26,28 +26,41 @@ import io.tarantool.pool.IProtoClientPoolImpl;
 import io.tarantool.pool.InstanceConnectionGroup;
 
 @Timeout(value = 5)
-@Testcontainers
 public class RoundRobinBalancerTest extends BaseTest {
 
-  @Container
-  private static final TarantoolContainer tt1 = new TarantoolContainer().withEnv(ENV_MAP);
-
-  @Container
-  private static final TarantoolContainer tt2 = new TarantoolContainer().withEnv(ENV_MAP);
+  private static TarantoolContainer<?> tt1;
+  private static TarantoolContainer<?> tt2;
 
   @BeforeAll
   public static void setUp() {
+    tt1 = TarantoolContainerClientHelper.createTarantoolContainer();
+    tt2 = TarantoolContainerClientHelper.createTarantoolContainer();
+
+    tt1.start();
+    tt2.start();
+
+    TarantoolContainerClientHelper.execInitScript(tt1);
+    TarantoolContainerClientHelper.execInitScript(tt2);
+
     count1 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  private int getSessionCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_session_counter()");
+  @AfterAll
+  static void tearDown() {
+    tt1.stop();
+    tt2.stop();
+  }
+
+  private int getSessionCounter(TarantoolContainer<?> tt) throws Exception {
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return get_session_counter()");
     return (Integer) result.get(0);
   }
 
-  private int getCallCounter(TarantoolContainer tt) throws Exception {
-    List<?> result = tt.executeCommandDecoded("return get_call_counter()");
+  private int getCallCounter(TarantoolContainer<?> tt) throws Exception {
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return get_call_counter()");
     return (Integer) result.get(0);
   }
 
@@ -58,13 +71,13 @@ public class RoundRobinBalancerTest extends BaseTest {
         Arrays.asList(
             InstanceConnectionGroup.builder()
                 .withHost(tt1.getHost())
-                .withPort(tt1.getPort())
+                .withPort(tt1.getFirstMappedPort())
                 .withSize(count1)
                 .withTag("node-a")
                 .build(),
             InstanceConnectionGroup.builder()
                 .withHost(tt2.getHost())
-                .withPort(tt2.getPort())
+                .withPort(tt2.getFirstMappedPort())
                 .withSize(count2)
                 .withTag("node-b")
                 .build()));

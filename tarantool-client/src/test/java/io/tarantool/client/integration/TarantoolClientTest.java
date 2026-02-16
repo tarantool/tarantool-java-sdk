@@ -25,14 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.TarantoolClient;
@@ -48,19 +48,27 @@ import io.tarantool.mapping.Tuple;
 import io.tarantool.pool.exceptions.PoolClosedException;
 
 @Timeout(value = 5)
-@Testcontainers
 public class TarantoolClientTest extends BaseTest {
 
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  private static TarantoolContainer<?> tt;
   private static TarantoolClient client;
   private static char tarantoolVersion;
   private static Integer serverVersion;
 
   @BeforeAll
   public static void setUp() throws Exception {
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
+    tt.start();
+    TarantoolContainerClientHelper.execInitScript(tt);
+
     client = getClientAndConnect();
     client.getPool().forEach(c -> c.authorize(API_USER, CREDS.get(API_USER)).join());
     serverVersion = client.getPool().get("default", 0).join().getServerProtocolVersion();
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   private static TarantoolClient getClientAndConnect() throws Exception {
@@ -68,16 +76,16 @@ public class TarantoolClientTest extends BaseTest {
         .withUser(API_USER)
         .withPassword(CREDS.get(API_USER))
         .withHost(tt.getHost())
-        .withPort(tt.getPort())
+        .withPort(tt.getFirstMappedPort())
         .build();
   }
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
-    tt.executeCommand("return box.space.person:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_a:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_b:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.person:truncate()");
 
     client = getClientAndConnect();
     tarantoolVersion = System.getenv("TARANTOOL_VERSION").charAt(0);
@@ -345,7 +353,7 @@ public class TarantoolClientTest extends BaseTest {
     int serverFeatureAmount = 4;
 
     if (tarantoolVersion == '3') {
-      serverFeatureAmount = 7;
+      serverFeatureAmount = 10;
     }
     IProtoClient iprotoClient = client.getPool().get("default", 0).join();
     if (tarantoolVersion != '3') {
@@ -530,7 +538,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
 
     final ExecutorService pool = Executors.newFixedThreadPool(100);
@@ -552,7 +560,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build();
 
     final int closeCount = 100;
@@ -571,7 +579,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build()) {
       space = testClient.space("person");
       assertEquals(person, space.insert(person, Person.class).join().get());
@@ -587,7 +595,7 @@ public class TarantoolClientTest extends BaseTest {
             .withUser(API_USER)
             .withPassword(CREDS.get(API_USER))
             .withHost(tt.getHost())
-            .withPort(tt.getPort())
+            .withPort(tt.getFirstMappedPort())
             .build()) {
       space = testClient.space("person");
       final Person person = new Person(0, true, "first");

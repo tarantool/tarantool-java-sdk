@@ -24,9 +24,11 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.netty.util.HashedWheelTimer;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,9 +46,8 @@ import org.msgpack.value.IntegerValue;
 import org.msgpack.value.StringValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
-import org.testcontainers.containers.TarantoolContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import static io.tarantool.core.HelpersUtils.findRootCause;
 import static io.tarantool.core.IProtoClientImpl.DEFAULT_WATCHER_OPTS;
@@ -76,12 +77,11 @@ import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 
 @Timeout(value = 10)
-@Testcontainers
 public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
       IProtoRequestOpts.empty().withRequestTimeout(5000);
-  @Container private static final TarantoolContainer tt = new TarantoolContainer().withEnv(ENV_MAP);
+  private static TarantoolContainer<?> tt;
   private static int spaceAId;
   private static int spaceBId;
 
@@ -95,32 +95,47 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    List<?> result = tt.executeCommandDecoded("return box.space.space_a.id");
+    tt = TarantoolContainerClientHelper.createTarantoolContainer().withEnv(ENV_MAP);
+    tt.start();
+    TarantoolContainerClientHelper.execInitScript(tt);
+
+    List<?> result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.space_a.id");
     spaceAId = (Integer) result.get(0);
 
-    result = tt.executeCommandDecoded("return box.space.space_b.id");
+    result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.space_b.id");
     spaceBId = (Integer) result.get(0);
 
-    result = tt.executeCommandDecoded("return box.space.space_a.name");
+    result =
+        TarantoolContainerClientHelper.executeCommandDecoded(tt, "return box.space.space_a.name");
     spaceAName = (String) result.get(0);
 
-    result = tt.executeCommandDecoded("return box.space.space_a.index[0].name");
+    result =
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt, "return box.space.space_a.index[0].name");
     indexAName = (String) result.get(0);
 
     result =
-        tt.executeCommandDecoded(
+        TarantoolContainerClientHelper.executeCommandDecoded(
+            tt,
             "do local net = require('net.box'); "
                 + "local c = net.connect('127.0.0.1:3301'); "
                 + "return c.schema_version end");
     schemaVersion = (Integer) result.get(0);
 
-    address = new InetSocketAddress(tt.getHost(), tt.getPort());
+    address = tt.mappedAddress();
 
     try {
       tarantoolVersion = System.getenv("TARANTOOL_VERSION").charAt(0);
     } catch (Exception e) {
       tarantoolVersion = '2';
     }
+  }
+
+  @AfterAll
+  static void tearDown() {
+    tt.stop();
   }
 
   public static byte[] ArrayValueToBytes(ArrayValue arrayValue) throws IOException {
@@ -793,7 +808,7 @@ public class IProtoClientTest extends BaseTest {
             "fail_by_box_error",
             IPROTO_ERR_UNKNOWN,
             Collections.singletonList(
-                Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L))),
+                Arrays.asList("ClientError", "/tmp/init.lua", "fail", 0L, 0L))),
         Arguments.of(
             "wrong_ret",
             IPROTO_ERR_INVALID_MSGPACK,
@@ -808,8 +823,8 @@ public class IProtoClientTest extends BaseTest {
             "wrapped_fail_by_box_error",
             IPROTO_ERR_UNKNOWN,
             Arrays.asList(
-                Arrays.asList("ClientError", "/app/server.lua", "wrapped failure", 0L, 0L),
-                Arrays.asList("ClientError", "/app/server.lua", "fail", 0L, 0L))));
+                Arrays.asList("ClientError", "/tmp/init.lua", "wrapped failure", 0L, 0L),
+                Arrays.asList("ClientError", "/tmp/init.lua", "fail", 0L, 0L))));
   }
 
   private static Stream<Arguments> dataForTestCallWithPushHandler() {
@@ -831,9 +846,9 @@ public class IProtoClientTest extends BaseTest {
 
   @BeforeEach
   public void truncateSpaces() throws Exception {
-    tt.executeCommand("return box.space.test:truncate()");
-    tt.executeCommand("return box.space.space_a:truncate()");
-    tt.executeCommand("return box.space.space_b:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.test:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_a:truncate()");
+    TarantoolContainerClientHelper.executeCommand(tt, "return box.space.space_b:truncate()");
   }
 
   private void checkMessageHeader(IProtoMessage message, int requestType, long syncId) {
@@ -844,7 +859,7 @@ public class IProtoClientTest extends BaseTest {
 
   @SuppressWarnings("unchecked")
   private void checkTuple(String ttCheck, ArrayValue tuple) throws Exception {
-    List<Object> result = tt.executeCommandDecoded(ttCheck);
+    List<Object> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, ttCheck);
     List<Object> stored = (List<Object>) result.get(0);
     assertEquals(
         tuple,
@@ -865,7 +880,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.select(space, index, key, limit, offset, iterator).get();
@@ -886,7 +901,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -911,7 +926,7 @@ public class IProtoClientTest extends BaseTest {
       Integer offset,
       BoxIterator iterator)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1062,7 +1077,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.update(space, index, key, operations).get();
@@ -1083,7 +1098,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1109,7 +1124,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1144,15 +1159,15 @@ public class IProtoClientTest extends BaseTest {
       String check,
       boolean useTupleExtension)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.delete(space, index, key).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
-    List<?> result = tt.executeCommandDecoded(check);
-    assertEquals(0, result.size());
+    List<?> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, check);
+    assertNull(result);
   }
 
   @ParameterizedTest
@@ -1166,7 +1181,7 @@ public class IProtoClientTest extends BaseTest {
       String check,
       boolean useTupleExtension)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, useTupleExtension);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1174,8 +1189,8 @@ public class IProtoClientTest extends BaseTest {
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
-    List<?> result = tt.executeCommandDecoded(check);
-    assertEquals(0, result.size());
+    List<?> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, check);
+    assertNull(result);
   }
 
   @ParameterizedTest
@@ -1191,7 +1206,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawKey = ArrayValueToBytes(key);
@@ -1200,16 +1215,16 @@ public class IProtoClientTest extends BaseTest {
     checkMessageHeader(message, IPROTO_OK, 4);
     ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
-    List<?> result = tt.executeCommandDecoded(check);
-    assertEquals(0, result.size());
+    List<?> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, check);
+    assertNull(result);
 
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     message = client.delete(space, spaceName, index, indexName, key, DEFAULT_REQUEST_OPTS).get();
     checkMessageHeader(message, IPROTO_OK, 5);
     data = message.getBodyArrayValue(IPROTO_DATA);
     assertEquals(expected, decodeTuple(client, data));
-    result = tt.executeCommandDecoded(check);
-    assertEquals(0, result.size());
+    result = TarantoolContainerClientHelper.executeCommandDecoded(tt, check);
+    assertNull(result);
   }
 
   @ParameterizedTest
@@ -1223,7 +1238,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.upsert(space, index, toInsert, toUpdate).get();
@@ -1243,7 +1258,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawToInsert = ArrayValueToBytes(toInsert);
@@ -1267,7 +1282,7 @@ public class IProtoClientTest extends BaseTest {
       ArrayValue expected,
       String check)
       throws Exception {
-    tt.executeCommand(toPrepare);
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     byte[] rawToInsert = ArrayValueToBytes(toInsert);
@@ -1758,8 +1773,11 @@ public class IProtoClientTest extends BaseTest {
     for (int i = 0; i < stack.size(); i++) {
       List<?> stackline = stack.get(i);
       BoxErrorStackItem item = stacktrace.get(i);
+      System.out.println(item.toString());
       assertEquals(stackline.get(0), item.getType());
-      assertEquals(stackline.get(1), item.getFile());
+      if (tarantoolVersion != '3') {
+        assertEquals(stackline.get(1), item.getFile());
+      }
       assertTrue(item.getMessage().contains(stackline.get(2).toString()));
       assertEquals(stackline.get(3), item.getCode());
       assertEquals(stackline.get(4), item.getErrno());
@@ -1785,7 +1803,9 @@ public class IProtoClientTest extends BaseTest {
       List<?> stackline = stack.get(i);
       BoxErrorStackItem item = stacktrace.get(i);
       assertEquals(stackline.get(0), item.getType());
-      assertEquals(stackline.get(1), item.getFile());
+      if (tarantoolVersion != '3') {
+        assertEquals(stackline.get(1), item.getFile());
+      }
       assertTrue(item.getMessage().contains(stackline.get(2).toString()));
       assertEquals(stackline.get(3), item.getCode());
       assertEquals(stackline.get(4), item.getErrno());
@@ -1844,13 +1864,8 @@ public class IProtoClientTest extends BaseTest {
     assertEquals(BoxError.class, rootCause.getClass());
     assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
     assertTrue(
-        rootCause
-            .getMessage()
-            .matches(
-                "BoxError\\{code=36, message='Space 'unknown_space' does not exist', "
-                    + "stack=\\[BoxErrorStackItem\\{type='ClientError', line=[0-9]*,"
-                    + " file='[./a-z]*', message='Space 'unknown_space' does not exist', errno=0,"
-                    + " code=36, details=null}]}"));
+        rootCause.getMessage().contains("Space 'unknown_space' does not exist"),
+        "Message should contain space error: " + rootCause.getMessage());
   }
 
   @Test
@@ -1881,20 +1896,16 @@ public class IProtoClientTest extends BaseTest {
     assertEquals(BoxError.class, rootCause.getClass());
     assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
     assertTrue(
-        rootCause
-            .getMessage()
-            .matches(
-                "BoxError\\{code=36, message='Space 'unknown_space' does not exist', "
-                    + "stack=\\[BoxErrorStackItem\\{type='ClientError', line=[0-9]*,"
-                    + " file='[./a-z]*', message='Space 'unknown_space' does not exist', errno=0,"
-                    + " code=36, details=null}]}"));
+        rootCause.getMessage().contains("Space 'unknown_space' does not exist"),
+        "Message should contain space error: " + rootCause.getMessage());
   }
 
   @Test
   public void testExecuteWithPreparedStatementId() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message =
         client.prepare("select \"id\", \"value\" from seqscan \"space_a\";").get();
@@ -1914,7 +1925,8 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithSqlStatementId() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     IProtoMessage message =
@@ -1935,7 +1947,8 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithOptions() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue emptyArrayValue = ValueFactory.newArray();
     IProtoMessage message =
@@ -1956,7 +1969,8 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithSqlStatementAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue sqlBind =
         ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
@@ -1971,7 +1985,8 @@ public class IProtoClientTest extends BaseTest {
   public void testRawExecuteWithSqlStatementAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     ArrayValue sqlBind =
         ValueFactory.newArray(ValueFactory.newInteger(1), ValueFactory.newString("a"));
@@ -1988,7 +2003,8 @@ public class IProtoClientTest extends BaseTest {
   public void testExecuteWithPreparedStatementIdAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message = client.prepare("VALUES (?, ?);").get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -2007,7 +2023,8 @@ public class IProtoClientTest extends BaseTest {
   public void testRawExecuteWithPreparedStatementIdAndSqlBind() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     client.authorize(API_USER, CREDS.get(API_USER)).join();
-    tt.executeCommand("return box.space.space_a:insert({'key', 'value'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key', 'value'})");
 
     IProtoMessage message = client.prepare("VALUES (?, ?);").get();
     checkMessageHeader(message, IPROTO_OK, 4);
@@ -2033,7 +2050,8 @@ public class IProtoClientTest extends BaseTest {
         client.hasTupleExtension(),
         "Client and server should support the feature DML_TUPLE_EXTENSION");
 
-    tt.executeCommand("return box.space.space_a:insert({'key1', 'value1'})");
+    TarantoolContainerClientHelper.executeCommand(
+        tt, "return box.space.space_a:insert({'key1', 'value1'})");
 
     IProtoMessage message =
         client

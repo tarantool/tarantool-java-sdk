@@ -17,12 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.jmx.JmxConfig;
-import io.micrometer.jmx.JmxMeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.MultiThreadIoEventLoopGroup;
@@ -31,7 +29,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import org.opentest4j.AssertionFailedError;
-import org.testcontainers.containers.TarantoolContainer;
+import org.testcontainers.containers.tarantool.TarantoolContainer;
+import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
@@ -84,26 +83,31 @@ public class BasePoolTest {
     count2 = ThreadLocalRandom.current().nextInt(MIN_CONNECTION_COUNT, MAX_CONNECTION_COUNT + 1);
   }
 
-  protected void execLua(TarantoolContainer container, String command) {
+  protected void execLua(TarantoolContainer<?> container, String command) {
     try {
-      container.executeCommandDecoded(command);
+      TarantoolContainerClientHelper.executeCommandDecoded(container, command);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected int getActiveConnectionsCount(TarantoolContainer tt) {
+  protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
       List<? extends Object> result =
-          tt.executeCommandDecoded("return box.stat.net().CONNECTIONS.current");
+          TarantoolContainerClientHelper.executeCommandDecoded(
+              tt, "return box.stat.net().CONNECTIONS.current");
       return (Integer) result.get(0) - 1;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
+  protected int getActiveConnectionsCountDelta(TarantoolContainer<?> tt, int baseline) {
+    return getActiveConnectionsCount(tt) - baseline;
+  }
+
   protected MeterRegistry createMetricsRegistry() {
-    MeterRegistry metricsRegistry = new JmxMeterRegistry(JmxConfig.DEFAULT, Clock.SYSTEM);
+    MeterRegistry metricsRegistry = new SimpleMeterRegistry();
     LongTaskTimer.builder("request.timer")
         .description("Latency of requests to Tarantool")
         .register(metricsRegistry);
@@ -159,6 +163,9 @@ public class BasePoolTest {
       futures.add(pool.get(tag, i));
     }
     CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    for (CompletableFuture<IProtoClient> future : futures) {
+      clients.add(future.join());
+    }
     return clients;
   }
 
