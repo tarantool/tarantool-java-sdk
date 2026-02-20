@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### BOM Module
+
+- Add `tarantool-java-sdk-bom` module providing centralized dependency management for all Tarantool Java SDK modules and their dependencies
+
 ### Testcontainers
 
 - Remove dependency on `testcontainers-java-tarantool` library
