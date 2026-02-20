@@ -62,9 +62,14 @@ public final class TarantoolContainerClientHelper {
 
   private static final String TMP_DIR = "/tmp";
   private static final Yaml yaml = new Yaml();
-  public static final String TARANTOOL_VERSION = System.getenv("TARANTOOL_VERSION");
+  public static final String TARANTOOL_VERSION =
+      System.getenv().getOrDefault("TARANTOOL_VERSION", "2.11.2-ubuntu20.04");
+  private static final String TT_COMMAND =
+      TARANTOOL_VERSION.startsWith("2.") ? "tarantoolctl" : "tt";
   public static final String IMAGE_PREFIX =
       System.getenv().getOrDefault("TARANTOOL_REGISTRY", "") + "tarantool/tarantool";
+  public static final DockerImageName DOCKER_IMAGE =
+      DockerImageName.parse(String.format("%s:%s", IMAGE_PREFIX, TARANTOOL_VERSION));
   private static final Network NETWORK = Network.newNetwork();
 
   /**
@@ -78,7 +83,7 @@ public final class TarantoolContainerClientHelper {
   private static final String EXECUTE_COMMAND_ERROR_TEMPLATE =
       "Executed command \"%s\" with exit code %d, stderr: \"%s\", stdout: \"%s\"";
 
-  private static final String ECHO_COMMAND = "echo \"%s\" | tt connect %s:%s@%s:%d";
+  private static final String ECHO_COMMAND = "echo \"%s\" | %s connect %s:%s@%s:%d";
   private static final String COMMAND_TEMPLATE =
       "echo \" "
           + "    print(require('yaml').encode( "
@@ -164,7 +169,8 @@ public final class TarantoolContainerClientHelper {
     command = command.replace("\"", "\\\"");
 
     String bashCommand =
-        String.format(ECHO_COMMAND, command, API_USER, CREDS.get(API_USER), "localhost", 3301);
+        String.format(
+            ECHO_COMMAND, command, TT_COMMAND, API_USER, CREDS.get(API_USER), "localhost", 3301);
 
     return container.execInContainer("/bin/sh", "-c", bashCommand);
   }
@@ -179,7 +185,8 @@ public final class TarantoolContainerClientHelper {
     command = command.replace("\"", "\\\"");
 
     String bashCommand =
-        String.format(ECHO_COMMAND, command, API_USER, CREDS.get(API_USER), "localhost", port);
+        String.format(
+            ECHO_COMMAND, command, TT_COMMAND, API_USER, CREDS.get(API_USER), "localhost", port);
 
     return container.execInContainer("/bin/sh", "-c", bashCommand);
   }
@@ -208,8 +215,6 @@ public final class TarantoolContainerClientHelper {
   }
 
   public static TarantoolContainer<?> createTarantoolContainer(Integer... exposedPorts) {
-    DockerImageName dockerImage =
-        DockerImageName.parse(String.format("%s:%s", IMAGE_PREFIX, TARANTOOL_VERSION));
     Path initScriptPath = null;
     TarantoolContainer<?> container;
     try {
@@ -227,9 +232,9 @@ public final class TarantoolContainerClientHelper {
     String containerName = String.format("node-%s", UUID.randomUUID());
     container =
         switch (Character.getNumericValue(TARANTOOL_VERSION.charAt(0))) {
-          case 2 -> Tarantool2Container.builder(dockerImage, initScriptPath).build();
+          case 2 -> Tarantool2Container.builder(DOCKER_IMAGE, initScriptPath).build();
           case 3 ->
-              new Tarantool3Container(dockerImage, containerName)
+              new Tarantool3Container(DOCKER_IMAGE, containerName)
                   .withConfigPath(createConfig(containerName, exposedPorts))
                   .withNetwork(NETWORK)
                   .waitingFor(
