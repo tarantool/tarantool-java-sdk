@@ -19,6 +19,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
 /**
  * Testcontainers for Tarantool version 2.11.x.
@@ -52,6 +53,23 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     this.mountPath = Utils.createTempDirectory(this.node);
   }
 
+  /**
+   * @implNote We copy all files from the mounted directory to the container. This is necessary so
+   *     that all monitored files got into a container while working in DinD. Mounting in such an
+   *     environment follows the following rules:
+   *     <p>
+   *     <ul>
+   *       <li>When we run tests on a system where dockerd is located locally. Mounting occurs
+   *           relatively the current host (where dockerd is located).
+   *       <li>When we run tests using DinD as a separate service: the tests are executed in the
+   *           so-called build-container, which contains all test files and data. Test containers
+   *           (tarantool container), which are created testcontainers are launched inside the
+   *           so-called DinD container. Mounting is performed relative to the directories of the
+   *           DinD container, and not relative to the build container. For this reason we use
+   *           additional copying of the mounted directory so that the files in the mounted
+   *           directory were also on the DinD container.
+   *     </ul>
+   */
   @Override
   protected void configure() {
     if (configured) {
@@ -74,6 +92,11 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
           DEFAULT_DATA_DIR.toAbsolutePath().toString(),
           BindMode.READ_WRITE,
           SelinuxContext.SHARED);
+
+      withCopyFileToContainer(
+          MountableFile.forHostPath(this.mountPath),
+          TarantoolContainer.DEFAULT_DATA_DIR.toAbsolutePath().toString());
+
       addExposedPort(DEFAULT_TARANTOOL_PORT);
 
       addEnv("TT_MEMTX_DIR", DEFAULT_DATA_DIR.toAbsolutePath().toString());
