@@ -21,20 +21,11 @@
     <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jsonschema2pojo</groupId>
-        <artifactId>jsonschema2pojo-core</artifactId>
-        <version>${jsonschema2pojo.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>org.jsonschema2pojo</groupId>
       <artifactId>jsonschema2pojo-core</artifactId>
+      <version>${jsonschema2pojo.version}</version>
     </dependency>
   </dependencies>
 </project>
