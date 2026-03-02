@@ -24,3 +24,6 @@ workbench.xmi
 documentation/venv
 documentation/site
 documentation/target
+release.properties
+*.releaseBackup
+*.tag

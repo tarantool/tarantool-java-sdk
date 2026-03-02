@@ -8,7 +8,6 @@
 
   <properties>
     <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
-    <micrometer.version>1.14.12</micrometer.version>
   </properties>
 
   <parent>
@@ -25,22 +24,18 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-transport</artifactId>
-      <version>${netty.version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
-      <version>${netty.version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec</artifactId>
-      <version>${netty.version}</version>
     </dependency>
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http</artifactId>
-      <version>${netty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.msgpack</groupId>
@@ -49,12 +44,10 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
-      <version>${micrometer.version}</version>
     </dependency>
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-jmx</artifactId>
-      <version>${micrometer.version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

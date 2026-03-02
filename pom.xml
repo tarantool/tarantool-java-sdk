@@ -166,6 +166,9 @@
           <goals>deploy</goals>
           <indentSize>4</indentSize>
           <tagNameFormat>@{project.version}</tagNameFormat>
+          <!-- install (not verify) needed so testcontainers-autogen is in local repo
+               before testcontainers loads it as a jsonschema2pojo plugin dependency -->
+          <preparationGoals>clean install</preparationGoals>
         </configuration>
       </plugin>
       <plugin>
