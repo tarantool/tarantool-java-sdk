@@ -19,6 +19,7 @@ import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
+import org.testcontainers.containers.wait.strategy.WaitStrategy;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.MountableFile;
 
@@ -145,6 +146,11 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
   public VshardClusterContainer withExposedPort(Integer port) {
     super.addExposedPort(port);
+    return this;
+  }
+
+  public VshardClusterContainer withWaitingStrategy(WaitStrategy waitStrategy) {
+    waitingFor(waitStrategy);
     return this;
   }
 
@@ -333,7 +339,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
               "-c",
               String.format(
                   ECHO_COMMAND_TEMPLATE,
-                  "return crud._VERSION",
+                  "return require('crud')._VERSION",
                   routerUsername,
                   routerPassword,
                   routerPort));

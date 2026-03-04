@@ -12,7 +12,7 @@ RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror.yandex.ru/ubuntu/|
 
 # install dependencies
 RUN apt-get -y update && \
-    apt-get -y install build-essential cmake make gcc git unzip cartridge-cli && \
+    apt-get -y install build-essential cmake make gcc git unzip && \
     apt-get -y clean
 
 CMD tt init && tt build && tt start && sleep infinity

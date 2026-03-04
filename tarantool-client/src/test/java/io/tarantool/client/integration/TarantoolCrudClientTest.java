@@ -46,9 +46,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.ClusterContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.TarantoolCartridgeContainer;
 import org.testcontainers.containers.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static io.tarantool.client.crud.ConditionOperator.EQ;
@@ -104,6 +106,7 @@ public class TarantoolCrudClientTest extends BaseTest {
   private static TarantoolCartridgeContainer cartridgeContainer;
   private static VshardClusterContainer vshardClusterContainer;
   private static ClusterContainer clusterContainer;
+  private static final Network NETWORK = Network.newNetwork();
   public static final String ROUTER_1 = "ROUTER_1";
   public static final String ROUTER_2 = "ROUTER_2";
   private static TarantoolCrudClient client;
@@ -133,16 +136,19 @@ public class TarantoolCrudClientTest extends BaseTest {
     if (!isCartridgeAvailable()) {
       vshardClusterContainer =
           new VshardClusterContainer(
-              "vshard_cluster/Dockerfile",
-              dockerRegistry + "vshard-cluster-java",
-              "vshard_cluster/instances.yaml",
-              "vshard_cluster/config.yaml",
-              "tarantool/tarantool");
+                  "vshard_cluster/Dockerfile",
+                  dockerRegistry + "vshard-cluster-java",
+                  "vshard_cluster/instances.yaml",
+                  "vshard_cluster/config.yaml",
+                  "tarantool/tarantool")
+              .withNetwork(NETWORK)
+              .withWaitingStrategy(new HostPortWaitStrategy().forPorts(3301));
 
       if (!vshardClusterContainer.isRunning()) {
         vshardClusterContainer
             .withCreateContainerCmdModifier(cmd -> cmd.withUser("root"))
-            .withPrivilegedMode(true);
+            .withPrivilegedMode(true)
+            .withStartupTimeout(Duration.ofMinutes(5));
         vshardClusterContainer.start();
       }
       clusterContainer = vshardClusterContainer;
