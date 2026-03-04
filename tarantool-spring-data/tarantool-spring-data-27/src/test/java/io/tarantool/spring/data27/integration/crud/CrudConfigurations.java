@@ -13,7 +13,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +33,6 @@ import io.tarantool.pool.InstanceConnectionGroup;
 import io.tarantool.spring.data27.integration.BaseIntegrationTest;
 import io.tarantool.spring.data27.repository.config.EnableTarantoolRepositories;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @TestPropertySource(properties = {DEFAULT_PROPERTY_FILE_LOCATION_CLASSPATH})
 abstract class CrudConfigurations extends BaseIntegrationTest {
 

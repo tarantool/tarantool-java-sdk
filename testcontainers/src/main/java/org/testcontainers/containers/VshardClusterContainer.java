@@ -7,28 +7,26 @@ package org.testcontainers.containers;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
-import org.testcontainers.containers.utils.SslContext;
-import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.MountableFile;
 
 /**
  * @author Artyom Dubinin
  */
-@Deprecated
 public class VshardClusterContainer extends GenericContainer<VshardClusterContainer>
-    implements TarantoolContainerOperations<VshardClusterContainer> {
+    implements ClusterContainer {
 
   protected static final String ROUTER_HOST = "localhost";
   protected static final int ROUTER_PORT = 3301;
@@ -52,6 +50,9 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
   protected static final int TIMEOUT_CRUD_HEALTH_IN_SECONDS = 60;
 
+  private static final String TMP_DIR = "/tmp";
+  private static final String ECHO_COMMAND_TEMPLATE = "echo \"%s\" | tt connect %s:%s@localhost:%d";
+
   protected final String TARANTOOL_RUN_DIR;
   private final TarantoolConfigParser configParser;
 
@@ -64,7 +65,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected String instanceDir = INSTANCE_DIR;
   protected String configFile;
   protected String instancesFile;
-  protected SslContext sslContext;
 
   public VshardClusterContainer(String instancesFile, String configFile) {
     this(DOCKERFILE, instancesFile, configFile);
@@ -189,34 +189,24 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
                 : buildArgs.get("CLUSTER_SRC_DIR"));
   }
 
-  public int getRouterPort() {
+  @Override
+  public String getHost() {
+    return super.getHost();
+  }
+
+  @Override
+  public Integer getMappedPort(int originalPort) {
+    return super.getMappedPort(originalPort);
+  }
+
+  @Override
+  public int getPort() {
     if (useFixedPorts) {
       return routerPort;
     }
     return getMappedPort(routerPort);
   }
 
-  @Override
-  public String getHost() {
-    return getRouterHost();
-  }
-
-  @Override
-  public int getPort() {
-    return getRouterPort();
-  }
-
-  @Override
-  public String getUsername() {
-    return getRouterUsername();
-  }
-
-  @Override
-  public String getPassword() {
-    return getRouterPassword();
-  }
-
-  @Override
   public String getDirectoryBinding() {
     return directoryResourcePath;
   }
@@ -227,14 +217,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     return this;
   }
 
-  @Override
   public String getInstanceDir() {
     return instanceDir;
-  }
-
-  @Override
-  public int getInternalPort() {
-    return routerPort;
   }
 
   public String getAPIHost() {
@@ -316,10 +300,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
     logger().info("Tarantool vshard cluster cluster is started");
     logger()
-        .info(
-            "Tarantool vshard cluster router is listening at {}:{}",
-            getRouterHost(),
-            getRouterPort());
+        .info("Tarantool vshard cluster router is listening at {}:{}", getRouterHost(), getPort());
   }
 
   protected void waitUntilCrudIsUp(int secondsToWait) {
@@ -345,9 +326,17 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   }
 
   protected boolean crudIsUp() {
-    ExecResult result;
     try {
-      result = TarantoolContainerClientHelper.executeCommand(this, "return crud._VERSION", null);
+      ExecResult result =
+          execInContainer(
+              "/bin/sh",
+              "-c",
+              String.format(
+                  ECHO_COMMAND_TEMPLATE,
+                  "return crud._VERSION",
+                  routerUsername,
+                  routerPassword,
+                  routerPort));
       if (result.getExitCode() != 0) {
         logger()
             .error(
@@ -356,48 +345,31 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
                 result.getStdout(),
                 result.getStderr());
         return false;
-      } else {
-        return true;
       }
+      return true;
     } catch (Exception e) {
       logger().error(e.getMessage());
       return false;
     }
   }
 
-  @Override
   public ExecResult executeScript(String scriptResourcePath) {
-    try {
-      return TarantoolContainerClientHelper.executeScript(
-          this, scriptResourcePath, this.sslContext);
-    } catch (IOException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public <T> T executeScriptDecoded(String scriptResourcePath) {
-    try {
-      return TarantoolContainerClientHelper.executeScriptDecoded(
-          this, scriptResourcePath, this.sslContext);
-    } catch (IOException | InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
+    String scriptName = Paths.get(scriptResourcePath).getFileName().toString();
+    String containerPath = normalizePath(Paths.get(TMP_DIR, scriptName));
+    copyFileToContainer(MountableFile.forClasspathResource(scriptResourcePath), containerPath);
+    return executeCommand(String.format("return dofile('%s')", containerPath));
   }
 
   @Override
   public ExecResult executeCommand(String command) {
     try {
-      return TarantoolContainerClientHelper.executeCommand(this, command, this.sslContext);
-    } catch (IOException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public <T> T executeCommandDecoded(String command) {
-    try {
-      return TarantoolContainerClientHelper.executeCommandDecoded(this, command, this.sslContext);
+      if (!isRunning()) {
+        throw new IllegalStateException("Cannot execute commands in stopped container");
+      }
+      command = command.replace("\"", "\\\"");
+      String bashCommand =
+          String.format(ECHO_COMMAND_TEMPLATE, command, routerUsername, routerPassword, routerPort);
+      return execInContainer("/bin/sh", "-c", bashCommand);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -423,8 +395,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
         && directoryResourcePath.equals(that.directoryResourcePath)
         && instanceDir.equals(that.instanceDir)
         && configFile.equals(that.configFile)
-        && instancesFile.equals(that.instancesFile)
-        && Objects.equals(sslContext, that.sslContext);
+        && instancesFile.equals(that.instancesFile);
   }
 
   @Override
@@ -441,7 +412,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
         directoryResourcePath,
         instanceDir,
         configFile,
-        instancesFile,
-        sslContext);
+        instancesFile);
   }
 }

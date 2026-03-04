@@ -5,7 +5,9 @@
 
 package org.testcontainers.containers;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,13 +21,12 @@ import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.apache.commons.lang3.ArrayUtils;
 import org.testcontainers.containers.utils.CartridgeConfigParser;
-import org.testcontainers.containers.utils.SslContext;
-import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.MountableFile;
+import org.yaml.snakeyaml.Yaml;
 
-@Deprecated
 public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartridgeContainer>
-    implements TarantoolContainerOperations<TarantoolCartridgeContainer> {
+    implements ClusterContainer {
 
   protected static final String ROUTER_HOST = "localhost";
   protected static final int ROUTER_PORT = 3301;
@@ -52,6 +53,25 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   protected static final String healthyCmd = "return require('cartridge').is_healthy()";
   protected static final int TIMEOUT_ROUTER_UP_CARTRIDGE_HEALTH_IN_SECONDS = 60;
 
+  private static final String TMP_DIR = "/tmp";
+
+  /**
+   * Runs a Lua command inside the container by connecting via net.box and returns YAML-encoded
+   * output. This approach is used for Tarantool 2 / Cartridge clusters.
+   */
+  private static final String COMMAND_TEMPLATE =
+      "echo \" "
+          + "    print(require('yaml').encode( "
+          + "        {require('net.box').connect( "
+          + "            'localhost:%d',  "
+          + "            { user = '%s', password = '%s' } "
+          + "            ):eval('%s')}) "
+          + "        ); "
+          + "    os.exit(); "
+          + "\" > /tmp/container-cmd.lua && tarantool /tmp/container-cmd.lua";
+
+  private static final Yaml yaml = new Yaml();
+
   protected final CartridgeConfigParser instanceFileParser;
   protected final String TARANTOOL_RUN_DIR;
 
@@ -65,7 +85,6 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   protected String instanceDir = INSTANCE_DIR;
   protected String topologyConfigurationFile;
   protected String instancesFile;
-  protected SslContext sslContext;
 
   /**
    * Create a container with default image and specified instances file from the classpath
@@ -253,57 +272,29 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     return routerHost;
   }
 
+  @Override
+  public String getHost() {
+    return super.getHost();
+  }
+
+  @Override
+  public Integer getMappedPort(int originalPort) {
+    return super.getMappedPort(originalPort);
+  }
+
   /**
    * Get the router port
    *
    * @return router mapped port
    */
-  public int getRouterPort() {
+  @Override
+  public int getPort() {
     if (useFixedPorts) {
       return routerPort;
     }
     return getMappedPort(routerPort);
   }
 
-  /**
-   * Get the user name for connecting to the router
-   *
-   * @return a user name
-   */
-  public String getRouterUsername() {
-    return routerUsername;
-  }
-
-  /**
-   * Get the user password for connecting to the router
-   *
-   * @return a user password
-   */
-  public String getRouterPassword() {
-    return routerPassword;
-  }
-
-  @Override
-  public String getHost() {
-    return getRouterHost();
-  }
-
-  @Override
-  public int getPort() {
-    return getRouterPort();
-  }
-
-  @Override
-  public String getUsername() {
-    return getRouterUsername();
-  }
-
-  @Override
-  public String getPassword() {
-    return getRouterPassword();
-  }
-
-  @Override
   public String getDirectoryBinding() {
     return directoryResourcePath;
   }
@@ -321,12 +312,10 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     return this;
   }
 
-  @Override
   public String getInstanceDir() {
     return instanceDir;
   }
 
-  @Override
   public int getInternalPort() {
     return routerPort;
   }
@@ -552,8 +541,7 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     bootstrapVshard();
 
     logger().info("Tarantool Cartridge cluster is started");
-    logger()
-        .info("Tarantool Cartridge router is listening at {}:{}", getRouterHost(), getRouterPort());
+    logger().info("Tarantool Cartridge router is listening at {}:{}", getRouterHost(), getPort());
     logger().info("Tarantool Cartridge HTTP API is available at {}:{}", getAPIHost(), getAPIPort());
   }
 
@@ -588,9 +576,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   }
 
   protected boolean routerIsUp() {
-    ExecResult result;
     try {
-      result = executeCommand(healthyCmd);
+      ExecResult result = executeCommand(healthyCmd);
       if (result.getExitCode() != 0
           && result.getStderr().contains("Connection refused")
           && result.getStdout().isEmpty()) {
@@ -613,9 +600,8 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
   }
 
   protected boolean isCartridgeHealthy() {
-    ExecResult result;
     try {
-      result = executeCommand(healthyCmd);
+      ExecResult result = executeCommand(healthyCmd);
       if (result.getExitCode() != 0) {
         logger()
             .error(
@@ -643,24 +629,57 @@ public class TarantoolCartridgeContainer extends GenericContainer<TarantoolCartr
     }
   }
 
-  @Override
   public ExecResult executeScript(String scriptResourcePath) throws Exception {
-    return TarantoolContainerClientHelper.executeScript(this, scriptResourcePath, this.sslContext);
+    String scriptName = Paths.get(scriptResourcePath).getFileName().toString();
+    String containerPath = normalizePath(Paths.get(TMP_DIR, scriptName));
+    copyFileToContainer(MountableFile.forClasspathResource(scriptResourcePath), containerPath);
+    return executeCommand(String.format("return dofile('%s')", containerPath));
   }
 
-  @Override
   public <T> T executeScriptDecoded(String scriptResourcePath) throws Exception {
-    return TarantoolContainerClientHelper.executeScriptDecoded(
-        this, scriptResourcePath, this.sslContext);
+    ExecResult result = executeScript(scriptResourcePath);
+
+    if (result.getExitCode() != 0) {
+      String message =
+          String.format(
+              "Executed script %s with exit code %d, stderr: \"%s\", stdout: \"%s\"",
+              scriptResourcePath, result.getExitCode(), result.getStderr(), result.getStdout());
+
+      if (result.getExitCode() == 3 || result.getExitCode() == 1) {
+        throw new ExecutionException(message, new Throwable());
+      }
+
+      throw new IllegalStateException(message);
+    }
+
+    return yaml.load(result.getStdout());
   }
 
   @Override
-  public ExecResult executeCommand(String command) throws Exception {
-    return TarantoolContainerClientHelper.executeCommand(this, command, this.sslContext);
+  public ExecResult executeCommand(String command) {
+    try {
+      if (!isRunning()) {
+        throw new IllegalStateException("Cannot execute commands in stopped container");
+      }
+      command = command.replace("\"", "\\\"").replace("\'", "\\\'");
+      String bashCommand =
+          String.format(COMMAND_TEMPLATE, routerPort, routerUsername, routerPassword, command);
+      return execInContainer("sh", "-c", bashCommand);
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  @Override
-  public <T> T executeCommandDecoded(String command) throws Exception {
-    return TarantoolContainerClientHelper.executeCommandDecoded(this, command, this.sslContext);
+  public <T> T executeCommandDecoded(String command) {
+    ExecResult result = executeCommand(command);
+
+    if (result.getExitCode() != 0) {
+      throw new IllegalStateException(
+          String.format(
+              "Executed command \"%s\" with exit code %d, stderr: \"%s\", stdout: \"%s\"",
+              command, result.getExitCode(), result.getStderr(), result.getStdout()));
+    }
+
+    return yaml.load(result.getStdout());
   }
 }

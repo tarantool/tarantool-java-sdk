@@ -21,7 +21,6 @@ import io.netty.util.Timer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -36,7 +35,6 @@ import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.mapping.Tuple;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(value = 5)
 @Testcontainers
 public class TarantoolCrudClientWithRetryTest {

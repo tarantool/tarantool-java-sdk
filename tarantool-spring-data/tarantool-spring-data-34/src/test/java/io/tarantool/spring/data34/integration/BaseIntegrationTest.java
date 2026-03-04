@@ -11,11 +11,10 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.ClusterContainer;
 import org.testcontainers.containers.TarantoolCartridgeContainer;
-import org.testcontainers.containers.TarantoolContainerOperations;
 import org.testcontainers.containers.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
@@ -24,11 +23,10 @@ import static io.tarantool.spring.data34.utils.TarantoolTestSupport.DEFAULT_TEST
 import static io.tarantool.spring.data34.utils.TarantoolTestSupport.writeTestPropertiesYaml;
 import io.tarantool.spring.data34.config.properties.TarantoolProperties;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(60)
 public abstract class BaseIntegrationTest {
 
-  protected static TarantoolContainerOperations<?> clusterContainer;
+  protected static ClusterContainer clusterContainer;
 
   private static final String dockerRegistry =
       System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "");
