@@ -40,7 +40,7 @@ run_ee_tests:
   stage: ee_tests
   allow_failure: true
   trigger:
-    project: tarantool/java/tarantool-java-sdk-ee-testing
+    project: tarantool/java/tarantool-java-sdk-ee
     strategy: depend
     branch: master
   variables:
