@@ -8,7 +8,7 @@ title: Маппинг данных
 Jackson.
 
 С помощью Jackson можно преобразовывать Java объекты в JSON (сериализация) и наоборот
-(десериализация). Также можно использовать расширения Jackson для других форматов сериализация
+(десериализация). Также можно использовать расширения Jackson для других форматов сериализации
 данных.
 
 В `tarantool-java-sdk` используется библиотека Jackson с расширением для работы с `Msgpack`, которая
@@ -227,7 +227,7 @@ public class UnorderedPerson {
   public Boolean isMarried;
   public Integer id;
 
-  public Person(
+  public UnorderedPerson(
       @JsonProperty("is_married") Boolean isMarried,
       @JsonProperty("id") Integer id,
       @JsonProperty("name") String name) {
@@ -314,7 +314,7 @@ person:format({
 })
 ```
 
-То метод в POJO должен выглядит так:
+То метод в POJO должен выглядеть так:
 
 ```java
 public class UnorderedPerson {
@@ -340,9 +340,9 @@ public class TestClass {
 
 Что позволит передавать POJO как кортеж, при этом, продолжая, работать с объектом UnorderedPerson.
 
-### Чтения POJO из Tarantool
+### Чтение POJO из Tarantool
 
-Десериалиация возможна несколькими способами:
+Десериализация возможна несколькими способами:
 
 1. ```
    Flatten output method -- Использование стандартных методов чтения Tarantool -> получение Msgpack массива \
@@ -374,7 +374,7 @@ List<UnorderedPerson> persons = routerClient.eval("""
         "person",
         Arrays.asList(Arrays.asList("==", "pk", 1))
     ),
-    new TypeReference<List<List<PersonWithDifferentFieldsOrder>>>() {}
+    new TypeReference<List<List<UnorderedPerson>>>() {}
 ).thenApply(
     tarantoolResponse -> tarantoolResponse.get()  // unwrap TarantoolResponse
         .get(0) // get first object from multi return 
@@ -428,29 +428,11 @@ public class TestClass {
   @Test
   public void test() {
     space.select(Arrays.asList(1)).thenApply(
-        list -> {
-          var result = new ArrayList<>();
-
-          for (var t : list.get()) {        // unwrap tuple struct from select response struct
-            List<?> dataList = t.get();     // unwrap data from tuple struct
-            Map<String, ?> map = IntStream  // create map {key -> value}
-                .range(0, dataList.size())
-                .boxed()
-                .collect(
-                    Collectors.toMap(
-                        (i) -> tupleFormat.get(i).getName(),
-                        dataList::get
-                    )
-                );
-            // use jackson mapper to map from Map to Person POJO
-            // import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; 
-            UnorderedPerson person = objectMapper.convertValue(map, UnorderedPerson.class);
-
-            result.add(person);
-          }
-
-          return result;
-        }
+        list -> TupleMapper.mapToPojoList(
+            list.get(),
+            tupleFormat,
+            UnorderedPerson.class
+        )
     ).join();
 // [UnorderedPerson{name='artyom', isMarried=true, id=1}]
   }
@@ -485,6 +467,29 @@ person:format({
 var space = client.space("person");
 ```
 
+###### Connector version > 1.5.0
+
+Метаданные могут быть получены из TUPLE_EXT, если метод crud поддерживает TUPLE_EXT формат, или из 
+metadata ответа crud.
+
+```java
+public class TestClass {
+
+  @Test
+  public void test() {
+    // Формат автоматически передается из CrudResponse.metadata
+    List<Tuple<List<?>>> tuples = space.select(
+        Collections.singletonList(Condition.create(EQ, "id", 1))
+    ).join();
+
+    // Маппим используя формат из tuple
+    UnorderedPerson person = TupleMapper.mapToPojo(tuples.get(0), UnorderedPerson.class);
+  }
+}
+```
+
+###### Connector version <= 1.5.0
+
 Если у вас версия коннектора, которая не выдает метаданные ответа tarantool/crud,  
 то можно вызывать методы tarantool/crud напрямую:
 
@@ -514,19 +519,8 @@ public class TestClass {
           }
 
           for (List<?> tuple : tuples) {
-            Map<Object, ?> map = IntStream // create map {key -> value}
-                .range(0, tuple.size())
-                .boxed()
-                .collect(
-                    Collectors.toMap(
-                        (i) -> metadata.get(i).getName(),
-                        tuple::get
-                    )
-                );
-
-            // use jackson mapper to map from Map to Person POJO
-            // import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; 
-            UnorderedPerson person = objectMapper.convertValue(map, UnorderedPerson.class);
+            // use TupleMapper to map from tuple data and format to Person POJO
+            UnorderedPerson person = TupleMapper.mapToPojo(tuple, metadata, UnorderedPerson.class);
 
             result.add(person);
           }
@@ -545,19 +539,19 @@ IPROTO пакета. Отличие от предыдущего варианта
 
 ???+ warning "Важно"
 
-    В `crud` версии `1.7.1` функционал возврата формата ответа в отдельном поле IPROTO пакета не 
+    В `crud` версии `1.7.1` функционал возврата формата ответа в отдельном поле IPROTO пакета не
     поддерживается.
 
 Воспользуемся Box API клиентом:
 
 ```java
 public class TestClass {
-  
+
   @Test
   public void test() {
-    
-    // other code 
-    
+
+    // other code
+
     space.select(Arrays.asList(1))
         .thenApply(
             selectResponse -> {
@@ -570,19 +564,9 @@ public class TestClass {
               }
 
               for (Tuple<List<?>> tuple : tuples) {
-                List<io.tarantool.mapping.Field> format = tuple.getFormat();
-                List<?> data = tuple.get();
-                Map<Object, ?> map = IntStream
-                    .range(0, data.size())
-                    .boxed()
-                    .collect(
-                        Collectors.toMap(
-                            (i) -> format.get(i).getName(),
-                            data::get
-                        )
-                    );
+                // use TupleMapper to map tuple with embedded format to POJO
                 result.add(
-                    objectMapper.convertValue(map, PersonWithDifferentFieldsOrder.class)
+                    TupleMapper.mapToPojo(tuple, UnorderedPerson.class)
                 );
               }
 

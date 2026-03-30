@@ -56,6 +56,9 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
         }
         Integer formatId = tuple.getFormatId();
         List<Field> format = formats.get(formatId);
+        if (formatId == null && formats.size() == 1) {
+          format = formats.values().stream().findFirst().get();
+        }
         tuple.setFormat(format);
         return tuple;
       }
@@ -72,9 +75,10 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
 
   public static TarantoolResponse<List<Tuple<List<?>>>> readCrudSingleResultData(
       IProtoResponse response) {
+    CrudResponse<List<Tuple<List<?>>>> crudResponse =
+        readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST));
     return new TarantoolResponse<>(
-        getRows(readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST))),
-        getFormats(response));
+        getRows(crudResponse), getFormats(response, crudResponse.getMetadata()));
   }
 
   public static <T> T getRows(CrudResponse<T> response) {
@@ -115,6 +119,38 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
     return formats;
   }
 
+  /**
+   * Gets formats from IPROTO response or falls back to CRUD metadata.
+   *
+   * <p>This method first tries to get formats from IPROTO_TUPLE_FORMATS field. If not available, it
+   * uses the CRUD metadata to construct the format map. CRUD metadata is preferred when both are
+   * available.
+   *
+   * @param response the IPROTO response
+   * @param crudMetadata the metadata from CRUD response (can be null)
+   * @return map of format ID to list of fields
+   */
+  public static Map<Integer, List<Field>> getFormats(
+      IProtoResponse response, List<Field> crudMetadata) {
+    // First try to get from IPROTO
+    Map<Integer, List<Field>> formats = getFormats(response);
+
+    boolean formatsEmpty =
+        formats == null
+            || formats.isEmpty()
+            || (formats.size() == 1 && formats.get(0) != null && formats.get(0).isEmpty());
+
+    boolean crudNotEmpty = crudMetadata != null && !crudMetadata.isEmpty();
+
+    // If IPROTO format is empty and we have CRUD metadata, use it
+    if (formatsEmpty && crudNotEmpty) {
+      // CRUD metadata doesn't have format ID, so we use 0 as default
+      formats = Collections.singletonMap(0, crudMetadata);
+    }
+
+    return formats;
+  }
+
   public static byte[] getPosition(IProtoResponse response) {
     byte[] position = null;
     ByteBodyValueWrapper rawPosition = response.getByteBodyValue(IPROTO_POSITION);
@@ -137,9 +173,10 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
 
   public static TarantoolResponse<List<Tuple<List<?>>>> readCrudSelectResult(
       IProtoResponse response) {
+    CrudResponse<List<Tuple<List<?>>>> crudResponse =
+        readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST));
     return new TarantoolResponse<>(
-        getRows(readData(response, wrapIntoType(CrudResponse.class, LIST_TUPLE_LIST))),
-        getFormats(response));
+        getRows(crudResponse), getFormats(response, crudResponse.getMetadata()));
   }
 
   private static List<Tuple<List<?>>> getTuplesWithInjectedFormat(

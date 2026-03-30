@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,6 +80,7 @@ import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.mapping.TarantoolResponse;
 import io.tarantool.mapping.Tuple;
+import io.tarantool.mapping.TupleMapper;
 import io.tarantool.mapping.crud.CrudBatchResponse;
 import io.tarantool.mapping.crud.CrudError;
 import io.tarantool.mapping.crud.CrudException;
@@ -3779,5 +3781,132 @@ public class TarantoolCrudClientTest extends BaseTest {
         .map(Tuple::get)
         .sorted(tupleComparator)
         .collect(Collectors.toList());
+  }
+
+  @Test
+  public void testSelectWithFormatFromCrudMetadata() {
+    // Insert test data
+    Person testPerson = new Person(9999, true, "CrudFormatTest");
+    TarantoolCrudSpace personSpace = client.space("person");
+    personSpace.insert(testPerson).join();
+
+    List<Tuple<List<?>>> tuples =
+        personSpace.select(Collections.singletonList(Condition.create(EQ, "id", 9999))).join();
+
+    assertFalse(tuples.isEmpty(), "Should return at least one tuple");
+
+    Tuple<List<?>> tuple = tuples.get(0);
+    assertNotNull(tuple, "Tuple should not be null");
+
+    // Check that format is available from CrudResponse metadata
+    List<io.tarantool.mapping.Field> format = tuple.getFormat();
+    assertNotNull(format, "Format should be available from CrudResponse metadata");
+    assertFalse(format.isEmpty(), "Format should not be empty");
+
+    // Verify format contains expected fields
+    List<String> fieldNames =
+        format.stream().map(io.tarantool.mapping.Field::getName).collect(Collectors.toList());
+
+    assertTrue(fieldNames.contains("id"), "Format should contain 'id' field");
+    assertTrue(fieldNames.contains("name"), "Format should contain 'name' field");
+    assertTrue(fieldNames.contains("is_married"), "Format should contain 'is_married' field");
+
+    // Use TupleMapper to convert to POJO
+    PersonWithDifferentFieldsOrder mappedPerson =
+        TupleMapper.mapToPojo(tuple, PersonWithDifferentFieldsOrder.class);
+
+    assertNotNull(mappedPerson, "Mapped person should not be null");
+    assertEquals(9999, mappedPerson.getId(), "ID should match");
+    assertEquals("CrudFormatTest", mappedPerson.getName(), "Name should match");
+    assertEquals(true, mappedPerson.getIsMarried(), "isMarried should match");
+  }
+
+  @Test
+  public void testInsertAndGetWithFormatFromCrudMetadata() {
+    TarantoolCrudSpace personSpace = client.space("person");
+    int testId = 9998;
+
+    // Insert test data using List (raw tuple) to get Tuple<List<?>>
+    List<?> testPersonList = Arrays.asList(testId, true, "InsertGetFormatTest");
+    @SuppressWarnings("unchecked")
+    Tuple<List<?>> insertedTuple = personSpace.insert(testPersonList).join();
+
+    assertNotNull(insertedTuple, "Inserted tuple    should not be null");
+
+    // Check that format is available from insert response
+    List<io.tarantool.mapping.Field> insertFormat = insertedTuple.getFormat();
+    assertNotNull(insertFormat, "Format should be available from insert response");
+    assertFalse(insertFormat.isEmpty(), "Format should not be empty");
+
+    // Use TupleMapper to convert inserted tuple to POJO
+    PersonWithDifferentFieldsOrder mappedInsertedPerson =
+        TupleMapper.mapToPojo(insertedTuple, PersonWithDifferentFieldsOrder.class);
+
+    assertNotNull(mappedInsertedPerson, "Mapped inserted person should not be null");
+    assertEquals(testId, mappedInsertedPerson.getId(), "ID should match after insert");
+    assertEquals(
+        "InsertGetFormatTest", mappedInsertedPerson.getName(), "Name should match after insert");
+    assertEquals(true, mappedInsertedPerson.getIsMarried(), "isMarried should match after insert");
+
+    // Get the record and check format
+    @SuppressWarnings("unchecked")
+    Tuple<List<?>> gotTuple = personSpace.get(Collections.singletonList(testId)).join();
+
+    assertNotNull(gotTuple, "Got tuple should not be null");
+
+    // Check that format is available from get response
+    List<io.tarantool.mapping.Field> getFormat = gotTuple.getFormat();
+    assertNotNull(getFormat, "Format should be available from get response");
+    assertFalse(getFormat.isEmpty(), "Format should not be empty");
+
+    // Use TupleMapper to convert got tuple to POJO
+    PersonWithDifferentFieldsOrder mappedGotPerson =
+        TupleMapper.mapToPojo(gotTuple, PersonWithDifferentFieldsOrder.class);
+
+    assertNotNull(mappedGotPerson, "Mapped got person should not be null");
+    assertEquals(testId, mappedGotPerson.getId(), "ID should match after get");
+    assertEquals("InsertGetFormatTest", mappedGotPerson.getName(), "Name should match after get");
+    assertEquals(true, mappedGotPerson.getIsMarried(), "isMarried should match after get");
+  }
+
+  @Test
+  public void testGetWithFieldsFilterAndFormat() {
+    TarantoolCrudSpace personSpace = client.space("person");
+    int testId = 9997;
+
+    // Insert test data first
+    List<?> testPersonList = Arrays.asList(testId, true, "FieldsFilterTest");
+    personSpace.insert(testPersonList).join();
+
+    // Get with fields filter - only request 'id' and 'name' fields
+    @SuppressWarnings("unchecked")
+    Tuple<List<?>> filteredTuple =
+        personSpace
+            .get(
+                Collections.singletonList(testId),
+                GetOptions.builder().withFields(Arrays.asList("id", "name")).build())
+            .join();
+
+    assertNotNull(filteredTuple, "Filtered tuple should not be null");
+
+    // Check that format is available and contains only requested fields
+    List<io.tarantool.mapping.Field> format = filteredTuple.getFormat();
+    assertNotNull(format, "Format should be available from filtered get response");
+
+    // The format should reflect the requested fields
+    List<String> fieldNames =
+        format.stream().map(io.tarantool.mapping.Field::getName).collect(Collectors.toList());
+
+    assertTrue(fieldNames.contains("id"), "Format should contain 'id' field");
+    assertTrue(fieldNames.contains("name"), "Format should contain 'name' field");
+
+    // Map to POJO using TupleMapper
+    PersonWithDifferentFieldsOrder mappedPerson =
+        TupleMapper.mapToPojo(filteredTuple, PersonWithDifferentFieldsOrder.class);
+
+    assertNotNull(mappedPerson, "Mapped person should not be null");
+    assertEquals(testId, mappedPerson.getId(), "ID should match");
+    assertEquals("FieldsFilterTest", mappedPerson.getName(), "Name should match");
+    // isMarried might be null since we filtered the fields
   }
 }

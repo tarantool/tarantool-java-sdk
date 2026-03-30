@@ -13,14 +13,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -49,7 +47,6 @@ import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
 
 import static io.tarantool.client.box.TarantoolBoxSpace.WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0;
-import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper;
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.ClientType;
 import io.tarantool.client.Options;
@@ -69,6 +66,7 @@ import io.tarantool.mapping.NilErrorResponse;
 import io.tarantool.mapping.SelectResponse;
 import io.tarantool.mapping.TarantoolResponse;
 import io.tarantool.mapping.Tuple;
+import io.tarantool.mapping.TupleMapper;
 import io.tarantool.schema.NoSchemaException;
 import io.tarantool.schema.Space;
 import io.tarantool.schema.TarantoolSchemaFetcher;
@@ -399,12 +397,8 @@ public class TarantoolBoxClientTest extends BaseTest {
 
       for (Tuple<List<?>> t : list.get()) {
         List<io.tarantool.mapping.Field> tupleFormat = formatGetter.apply(t);
-        List<?> dataList = t.get();
-        Map<String, ?> map =
-            IntStream.range(0, dataList.size())
-                .boxed()
-                .collect(Collectors.toMap((i) -> tupleFormat.get(i).getName(), dataList::get));
-        result.add(objectMapper.convertValue(map, PersonWithDifferentFieldsOrder.class));
+        result.add(
+            TupleMapper.mapToPojo(t.get(), tupleFormat, PersonWithDifferentFieldsOrder.class));
       }
       return result;
     };
