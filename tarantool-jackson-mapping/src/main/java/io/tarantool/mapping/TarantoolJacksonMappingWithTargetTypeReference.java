@@ -57,11 +57,10 @@ public class TarantoolJacksonMappingWithTargetTypeReference
 
   public static <T> TarantoolResponse<List<Tuple<T>>> readCrudSingleResultData(
       IProtoResponse response, TypeReference<T> entity) {
+    CrudResponse<List<Tuple<T>>> crudResponse =
+        readData(response, wrapIntoType(CrudResponse.class, wrapIntoList(wrapIntoTuple(entity))));
     return new TarantoolResponse<>(
-        getRows(
-            readData(
-                response, wrapIntoType(CrudResponse.class, wrapIntoList(wrapIntoTuple(entity))))),
-        getFormats(response));
+        getRows(crudResponse), getFormats(response, crudResponse.getMetadata()));
   }
 
   public static <T> CompletableFuture<SelectResponse<T>> convertSelectResultFuture(
@@ -82,9 +81,9 @@ public class TarantoolJacksonMappingWithTargetTypeReference
 
   public static <T> TarantoolResponse<T> readCrudSelectResult(
       IProtoResponse response, TypeReference<T> entity) {
+    CrudResponse<T> crudResponse = readData(response, wrapIntoType(CrudResponse.class, entity));
     return new TarantoolResponse<>(
-        getRows(readData(response, wrapIntoType(CrudResponse.class, entity))),
-        getFormats(response));
+        getRows(crudResponse), getFormats(response, crudResponse.getMetadata()));
   }
 
   public static <T> TarantoolResponse<T> fromEventData(

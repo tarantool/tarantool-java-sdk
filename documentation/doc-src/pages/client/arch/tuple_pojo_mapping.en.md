@@ -27,7 +27,7 @@ objects.
 
 ## Efficient Mapping (Flatten input, Flatten output)
 
-By default, field mapping in any of the clients (CrudClient, BoxClient), is performed in the most
+By default, field mapping in any of the clients (CrudClient, BoxClient) is performed in the most
 efficient way — by the field's ordinal number.
 
 This means that if the field order in Tarantool is:
@@ -193,7 +193,7 @@ public class TestClass {
 
 ## Flexible Mapping Using Keys
 
-You can also configure flexible mapping and work with keys in several ways. In these ways
+You can also configure flexible mapping and work with keys in several ways. In these approaches
 we will use the same data schema on the Tarantool side that we used for efficient
 mapping:
 
@@ -225,7 +225,7 @@ public class UnorderedPerson {
   public Boolean isMarried;
   public Integer id;
 
-  public Person(
+  public UnorderedPerson(
       @JsonProperty("is_married") Boolean isMarried,
       @JsonProperty("id") Integer id,
       @JsonProperty("name") String name) {
@@ -343,8 +343,8 @@ Deserialization is possible in several ways:
 
 1. ```
    Flatten output method -- Using standard Tarantool read methods -> receiving Msgpack array \
-                                                                                                               Converting array using data format to POJO format
-                                              Getting the {field key -> field number} map in any way /
+                                                                                               Converting array using data format to POJO format
+                                      Getting the {field key -> field number} map in any way /
    ``` 
 2. ```
    Unflatten output -- Receiving Msgpack Map -> converting Msgpack Map to POJO using Jackson
@@ -371,7 +371,7 @@ List<UnorderedPerson> persons = routerClient.eval("""
         "person",
         Arrays.asList(Arrays.asList("==", "pk", 1))
     ),
-    new TypeReference<List<List<PersonWithDifferentFieldsOrder>>>() {}
+    new TypeReference<List<List<UnorderedPerson>>>() {}
 ).thenApply(
     tarantoolResponse -> tarantoolResponse.get()  // unwrap TarantoolResponse
         .get(0) // get first object from multi return 
@@ -424,29 +424,11 @@ public class TestClass {
   @Test
   public void test() {
     space.select(Arrays.asList(1)).thenApply(
-        list -> {
-          var result = new ArrayList<>();
-
-          for (var t : list.get()) {        // unwrap tuple struct from select response struct
-            List<?> dataList = t.get();     // unwrap data from tuple struct
-            Map<String, ?> map = IntStream  // create map {key -> value}
-                .range(0, dataList.size())
-                .boxed()
-                .collect(
-                    Collectors.toMap(
-                        (i) -> tupleFormat.get(i).getName(),
-                        dataList::get
-                    )
-                );
-            // use jackson mapper to map from Map to Person POJO
-            // import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; 
-            UnorderedPerson person = objectMapper.convertValue(map, UnorderedPerson.class);
-
-            result.add(person);
-          }
-
-          return result;
-        }
+        list -> TupleMapper.mapToPojoList(
+            list.get(),
+            tupleFormat,
+            UnorderedPerson.class
+        )
     ).join();
 // [UnorderedPerson{name='artyom', isMarried=true, id=1}]
   }
@@ -456,7 +438,7 @@ public class TestClass {
 ##### 2. Using tarantool/crud Response Metadata
 
 More information about the tarantool/crud response structure can be found
-here [github.com/tarantool/crud](https://github.com/tarantool/crud?tab=readme-ov-file#api).  
+here [github.com/tarantool/crud](https://github.com/tarantool/crud?tab=readme-ov-file#api).
 Create a TarantoolCrud client that is a proxy to the tarantool/crud module API.
 
 ```java
@@ -481,7 +463,30 @@ person:format({
 var space = client.space("person");
 ```
 
-If you have a connector version that does not return tarantool/crud response metadata,  
+###### Connector version > 1.5.0
+
+Metadata can be obtained from TUPLE_EXT if the crud method supports TUPLE_EXT format, or from
+crud response metadata.
+
+```java
+public class TestClass {
+
+  @Test
+  public void test() {
+    // Format is automatically passed from CrudResponse.metadata
+    List<Tuple<List<?>>> tuples = space.select(
+        Collections.singletonList(Condition.create(EQ, "id", 1))
+    ).join();
+
+    // Map using format from tuple
+    UnorderedPerson person = TupleMapper.mapToPojo(tuples.get(0), UnorderedPerson.class);
+  }
+}
+```
+
+###### Connector version <= 1.5.0
+
+If you have a connector version that does not return tarantool/crud response metadata,
 you can call the tarantool/crud methods directly:
 
 ```java
@@ -510,19 +515,8 @@ public class TestClass {
           }
 
           for (List<?> tuple : tuples) {
-            Map<Object, ?> map = IntStream // create map {key -> value}
-                .range(0, tuple.size())
-                .boxed()
-                .collect(
-                    Collectors.toMap(
-                        (i) -> metadata.get(i).getName(),
-                        tuple::get
-                    )
-                );
-
-            // use jackson mapper to map from Map to Person POJO
-            // import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; 
-            UnorderedPerson person = objectMapper.convertValue(map, UnorderedPerson.class);
+            // use TupleMapper to map from tuple data and format to Person POJO
+            UnorderedPerson person = TupleMapper.mapToPojo(tuple, metadata, UnorderedPerson.class);
 
             result.add(person);
           }
@@ -566,19 +560,9 @@ public class TestClass {
               }
 
               for (Tuple<List<?>> tuple : tuples) {
-                List<io.tarantool.mapping.Field> format = tuple.getFormat();
-                List<?> data = tuple.get();
-                Map<Object, ?> map = IntStream
-                    .range(0, data.size())
-                    .boxed()
-                    .collect(
-                        Collectors.toMap(
-                            (i) -> format.get(i).getName(),
-                            data::get
-                        )
-                    );
+                // use TupleMapper to map tuple with embedded format to POJO
                 result.add(
-                    objectMapper.convertValue(map, PersonWithDifferentFieldsOrder.class)
+                    TupleMapper.mapToPojo(tuple, PersonWithDifferentFieldsOrder.class)
                 );
               }
 
