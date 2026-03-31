@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import io.tarantool.core.connection.Connection;
 import io.tarantool.core.exceptions.BoxError;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoMessage;
 import io.tarantool.core.protocol.IProtoRequest;
 import io.tarantool.core.protocol.IProtoRequestOpts;
@@ -27,6 +28,7 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
 
   private static final Logger log = LoggerFactory.getLogger(RequestStateMachine.class);
   private final Consumer<IProtoMessage> pushConsumer;
+  private final Handlers handlers;
   private final Timer timerService;
   private final long timeout;
   private final CompletableFuture<IProtoResponse> promise;
@@ -39,10 +41,12 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
       CompletableFuture<IProtoResponse> promise,
       IProtoRequestOpts opts,
       Map<Long, IProtoStateMachine> fsmRegistry,
-      Timer timerService) {
+      Timer timerService,
+      Handlers requestHandlers) {
     super(connection, request, fsmRegistry);
     request.setSyncId(syncId);
     this.pushConsumer = opts.getPushHandler();
+    this.handlers = requestHandlers;
     this.timerService = timerService;
     this.timeout = opts.getRequestTimeout();
     this.promise = promise;
@@ -51,14 +55,23 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
 
   @Override
   public void start() {
+    // Call onBeforeSend handler before sending the request
+    if (handlers != null && handlers.getOnBeforeSend() != null) {
+      handlers.getOnBeforeSend().accept(request);
+    }
+
     // TODO: remove string format
     this.timer =
         runAfter(
             timeout,
-            () ->
-                kill(
-                    new TimeoutException(
-                        String.format("Request timeout: %s; timeout = %sms", request, timeout))));
+            () -> {
+              if (handlers != null && handlers.getOnTimeout() != null) {
+                handlers.getOnTimeout().accept(request);
+              }
+              kill(
+                  new TimeoutException(
+                      String.format("Request timeout: %s; timeout = %sms", request, timeout)));
+            });
 
     promise.whenComplete((iProtoResponse, throwable) -> this.timer.cancel());
 
@@ -84,6 +97,11 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
         log.debug("Can not process message \"{}\" because pushConsumer is empty", message);
       }
       return false;
+    }
+
+    // Call onSuccess handler when response is received successfully
+    if (handlers != null && handlers.getOnSuccess() != null) {
+      handlers.getOnSuccess().accept(message);
     }
 
     if (message.isError()) {

@@ -23,6 +23,7 @@ import io.tarantool.client.box.options.OptionsWithIndex;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
 import io.tarantool.core.exceptions.ClientException;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -119,6 +120,7 @@ final class TarantoolBoxClientImpl extends TarantoolClientImpl implements Tarant
       long reconnectAfter,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       SslContext sslContext,
       PoolEventListener poolEventListener)
       throws InvocationTargetException,
@@ -138,6 +140,7 @@ final class TarantoolBoxClientImpl extends TarantoolClientImpl implements Tarant
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         !fetchSchema,
         poolEventListener);

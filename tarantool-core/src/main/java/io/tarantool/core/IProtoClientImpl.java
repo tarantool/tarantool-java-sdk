@@ -46,6 +46,7 @@ import io.tarantool.core.connection.Greeting;
 import io.tarantool.core.exceptions.ClientException;
 import io.tarantool.core.exceptions.ShutdownException;
 import io.tarantool.core.protocol.BoxIterator;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoRequest;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
@@ -108,6 +109,7 @@ public class IProtoClientImpl implements IProtoClient {
   private Counter responseErrorCounter;
   private Counter ignoredResponsesCounter;
   private Consumer<IProtoResponse> ignoredPacketsHandler;
+  private Handlers handlers;
 
   public IProtoClientImpl(ConnectionFactory factory, Timer timerService) {
     this(factory, timerService, DEFAULT_WATCHER_OPTS, null, null, false);
@@ -718,6 +720,12 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
+  public IProtoClient withHandlers(Handlers handlers) {
+    this.handlers = handlers;
+    return this;
+  }
+
+  @Override
   public boolean isConnected() {
     return connection.isConnected();
   }
@@ -836,6 +844,7 @@ public class IProtoClientImpl implements IProtoClient {
     IProtoStateMachine fsm = fsmRegistry.get(syncId);
     if (fsm == null) {
       processIgnoredResponse(message);
+      log.error("Client cannot handle this message: {}", message);
     } else if (fsm.process(message)) {
       fsmRegistry.remove(syncId);
       if (fsm.hasNextAction() && fsm.next() != null) {
@@ -880,7 +889,7 @@ public class IProtoClientImpl implements IProtoClient {
     long syncId = allocateSyncIds(1);
     RequestStateMachine stateContext =
         new RequestStateMachine(
-            connection, syncId, request, resultPromise, opts, fsmRegistry, timerService);
+            connection, syncId, request, resultPromise, opts, fsmRegistry, timerService, handlers);
 
     // when completed stop timeout timer and metrics
     LongTaskTimer.Sample finalCurrentRequest = currentRequest;
@@ -912,6 +921,12 @@ public class IProtoClientImpl implements IProtoClient {
 
   private void processIgnoredResponse(IProtoResponse message) {
     ignoredPacketsHandler.accept(message);
+
+    // Call onIgnoredResponse handler if present
+    if (handlers != null && handlers.getOnIgnoredResponse() != null) {
+      handlers.getOnIgnoredResponse().accept(message);
+    }
+
     if (ignoredResponsesCounter != null) {
       ignoredResponsesCounter.increment();
     }

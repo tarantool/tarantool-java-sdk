@@ -33,6 +33,7 @@ import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.client.tdg.TarantoolDataGridClient;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -157,6 +158,9 @@ public class TarantoolDataGridClientBuilder {
 
   /** Optional listener for pool lifecycle events. */
   private PoolEventListener poolEventListener;
+
+  /** Handlers for protocol messages. */
+  private Handlers handlers;
 
   public Map<ChannelOption<?>, Object> getOptions() {
     return options;
@@ -841,6 +845,17 @@ public class TarantoolDataGridClientBuilder {
   }
 
   /**
+   * Sets the {@link #handlers} parameter when constructing an instance of a builder class.
+   *
+   * @param handlers see {@link #handlers} field.
+   * @return {@link TarantoolDataGridClientBuilder} object.
+   */
+  public TarantoolDataGridClientBuilder withHandlers(Handlers handlers) {
+    this.handlers = handlers;
+    return this;
+  }
+
+  /**
    * Builds specific {@link TarantoolDataGridClient} class instance with parameters.
    *
    * @return {@link TarantoolDataGridClient} object.
@@ -878,6 +893,7 @@ public class TarantoolDataGridClientBuilder {
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         useTupleExtension,
         useTdg1Context,

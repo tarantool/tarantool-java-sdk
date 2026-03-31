@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
@@ -42,11 +43,20 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.msgpack.core.MessageBufferPacker;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueFactory;
 import org.testcontainers.containers.tarantool.TarantoolContainer;
 import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.shaded.com.google.common.base.CaseFormat;
 
 import static io.tarantool.client.box.TarantoolBoxSpace.WITHOUT_ENABLED_FETCH_SCHEMA_OPTION_FOR_TARANTOOL_LESS_3_0_0;
+import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_DATA;
+import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_SYNC_ID;
+import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_TYPE_CALL;
+import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper;
 import io.tarantool.client.BaseOptions;
 import io.tarantool.client.ClientType;
 import io.tarantool.client.Options;
@@ -61,7 +71,11 @@ import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.client.operation.Operations;
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.protocol.BoxIterator;
+import io.tarantool.core.protocol.ByteBodyValueWrapper;
+import io.tarantool.core.protocol.Handlers;
+import io.tarantool.core.protocol.IProtoRequest;
 import io.tarantool.core.protocol.IProtoResponse;
+import io.tarantool.mapping.BaseTarantoolJacksonMapping;
 import io.tarantool.mapping.NilErrorResponse;
 import io.tarantool.mapping.SelectResponse;
 import io.tarantool.mapping.TarantoolResponse;
@@ -248,25 +262,304 @@ public class TarantoolBoxClientTest extends BaseTest {
 
   @Test
   public void testCallTimeoutWithIgnoredPacketsHandler() throws Exception {
+    List<IProtoRequest> sentCallRequests = new ArrayList<>();
+    List<IProtoRequest> timedOutRequests = new ArrayList<>();
+    List<IProtoResponse> successResponses = new ArrayList<>();
+    List<IProtoResponse> ignoredResponses = new ArrayList<>();
+    List<List<Object>> localTriplets = new ArrayList<>();
+
+    TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getFirstMappedPort())
+            .withHandlers(
+                Handlers.builder()
+                    .onBeforeSend(
+                        request -> {
+                          // Filter only CALL requests (ignore auth, schema fetch, etc.)
+                          if (request.getRequestType() == IPROTO_TYPE_CALL) {
+                            synchronized (sentCallRequests) {
+                              sentCallRequests.add(request);
+                            }
+                          }
+                        })
+                    .onSuccess(
+                        response -> {
+                          synchronized (successResponses) {
+                            successResponses.add(response);
+                          }
+                        })
+                    .onTimeout(
+                        request -> {
+                          synchronized (timedOutRequests) {
+                            timedOutRequests.add(request);
+                          }
+                        })
+                    .onIgnoredResponse(
+                        response -> {
+                          synchronized (ignoredResponses) {
+                            ignoredResponses.add(response);
+                          }
+                        })
+                    .build())
+            .withIgnoredPacketsHandler(
+                (tag, index, packet) -> {
+                  synchronized (localTriplets) {
+                    localTriplets.add(Arrays.asList(tag, index, packet));
+                  }
+                })
+            .build();
+
     Options options = BaseOptions.builder().withTimeout(1_000L).build();
     Exception ex =
         assertThrows(
             CompletionException.class,
-            () -> client.call("slow_echo", Arrays.asList(1, true), options).join());
+            () -> testClient.call("slow_echo", Arrays.asList(1, true), options).join());
     Throwable cause = ex.getCause();
     assertEquals(TimeoutException.class, cause.getClass());
-    Thread.sleep(600);
-    assertEquals(1, triplets.size());
 
+    // Verify onBeforeSend was called for our CALL request
+    assertEquals(
+        1, sentCallRequests.size(), "onBeforeSend handler should be called once for CALL request");
+    IProtoRequest sentRequest = sentCallRequests.get(0);
+    assertEquals(IPROTO_TYPE_CALL, sentRequest.getRequestType());
+
+    Thread.sleep(600);
+    assertEquals(1, localTriplets.size());
+
+    // Verify onSuccess was NOT called for timed out request
+    // Filter success responses for our CALL request syncId only
+    long sentSyncId = sentRequest.getSyncId();
+    List<IProtoResponse> matchingSuccessResponses = new ArrayList<>();
+    synchronized (successResponses) {
+      for (IProtoResponse response : successResponses) {
+        if (response.hasSyncId() && response.getSyncId() == sentSyncId) {
+          matchingSuccessResponses.add(response);
+        }
+      }
+    }
+    assertEquals(
+        0,
+        matchingSuccessResponses.size(),
+        "onSuccess should NOT be called for timed out request (syncId=" + sentSyncId + ")");
+
+    // Verify onBeforeSend, onTimeout, onIgnoredResponse and ignored packets all have matching
+    // syncId
+    long timeoutSyncId = assertRequestHandler(timedOutRequests, "onTimeout");
+    long ignoredResponseSyncId = assertIgnoredResponseHandler(ignoredResponses);
+    long tripletSyncId = assertIgnoredPackets(localTriplets);
+    assertEquals(sentSyncId, timeoutSyncId, "onBeforeSend and onTimeout should have same syncId");
+    assertEquals(
+        sentSyncId,
+        ignoredResponseSyncId,
+        "onBeforeSend and onIgnoredResponse should have same syncId");
+    assertEquals(sentSyncId, tripletSyncId, "Request and triplet response syncId should match");
+
+    testClient.close();
+  }
+
+  @Test
+  public void testCallSuccessWithHandlers() throws Exception {
+    List<IProtoRequest> sentCallRequests = new ArrayList<>();
+    List<IProtoRequest> timedOutRequests = new ArrayList<>();
+    List<IProtoResponse> successResponses = new ArrayList<>();
+    List<IProtoResponse> ignoredResponses = new ArrayList<>();
+    List<List<Object>> localTriplets = new ArrayList<>();
+
+    TarantoolBoxClient testClient =
+        TarantoolFactory.box()
+            .withUser(API_USER)
+            .withPassword(CREDS.get(API_USER))
+            .withHost(tt.getHost())
+            .withPort(tt.getFirstMappedPort())
+            .withHandlers(
+                Handlers.builder()
+                    .onBeforeSend(
+                        request -> {
+                          // Filter only CALL requests (ignore auth, schema fetch, etc.)
+                          if (request.getRequestType() == IPROTO_TYPE_CALL) {
+                            synchronized (sentCallRequests) {
+                              sentCallRequests.add(request);
+                            }
+                          }
+                        })
+                    .onSuccess(
+                        response -> {
+                          synchronized (successResponses) {
+                            successResponses.add(response);
+                          }
+                        })
+                    .onTimeout(
+                        request -> {
+                          synchronized (timedOutRequests) {
+                            timedOutRequests.add(request);
+                          }
+                        })
+                    .onIgnoredResponse(
+                        response -> {
+                          synchronized (ignoredResponses) {
+                            ignoredResponses.add(response);
+                          }
+                        })
+                    .build())
+            .withIgnoredPacketsHandler(
+                (tag, index, packet) -> {
+                  synchronized (localTriplets) {
+                    localTriplets.add(Arrays.asList(tag, index, packet));
+                  }
+                })
+            .build();
+
+    // Call non-slow function that should succeed
+    List<?> result = testClient.call("echo", Arrays.asList(1, true)).join().get();
+    assertEquals(Arrays.asList(1, true), result);
+
+    // Verify onBeforeSend was called for our CALL request
+    assertEquals(
+        1, sentCallRequests.size(), "onBeforeSend handler should be called once for CALL request");
+    IProtoRequest sentRequest = sentCallRequests.get(0);
+    assertEquals(IPROTO_TYPE_CALL, sentRequest.getRequestType());
+
+    // Verify onSuccess was called for our CALL request
+    long sentSyncId = sentRequest.getSyncId();
+    List<IProtoResponse> matchingSuccessResponses = new ArrayList<>();
+    synchronized (successResponses) {
+      for (IProtoResponse response : successResponses) {
+        if (response.hasSyncId() && response.getSyncId() == sentSyncId) {
+          matchingSuccessResponses.add(response);
+        }
+      }
+    }
+    assertEquals(
+        1,
+        matchingSuccessResponses.size(),
+        "onSuccess should be called for successful request (syncId=" + sentSyncId + ")");
+
+    // Verify onTimeout was NOT called
+    assertEquals(
+        0, timedOutRequests.size(), "onTimeout should NOT be called for successful request");
+
+    // Verify onIgnoredResponse was NOT called
+    assertEquals(
+        0,
+        ignoredResponses.size(),
+        "onIgnoredResponse should NOT be called for successful request");
+
+    // Verify triplet handler was NOT called
+    assertEquals(
+        0,
+        localTriplets.size(),
+        "withIgnoredPacketsHandler should NOT be called for successful request");
+
+    // Verify request body in onBeforeSend
+    byte[] packetBytes = sentRequest.getPacket(MessagePack.newDefaultBufferPacker());
+    MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(packetBytes);
+    unpacker.unpackInt(); // Skip size prefix
+    Value headerValue = unpacker.unpackValue();
+    Value bodyValue = unpacker.unpackValue();
+    MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+    packer.packValue(bodyValue);
+    byte[] bodyBytes = packer.toByteArray();
+    Map<Integer, Object> body =
+        objectMapper.readValue(bodyBytes, new TypeReference<Map<Integer, Object>>() {});
+    assertEquals("echo", body.get(0x22)); // IPROTO_FUNCTION_NAME
+    assertEquals(Arrays.asList(1, true), body.get(0x21)); // IPROTO_TUPLE
+
+    // Verify response body in onSuccess
+    IProtoResponse successResponse = matchingSuccessResponses.get(0);
+    assertEquals(
+        sentSyncId,
+        successResponse.getSyncId(),
+        "onSuccess response should have same syncId as sent request");
+    Map<Integer, Object> responseBody = new HashMap<>();
+    Map<Integer, ByteBodyValueWrapper> byteBodyValues = successResponse.getByteBodyValues();
+    for (Map.Entry<Integer, ByteBodyValueWrapper> entry : byteBodyValues.entrySet()) {
+      responseBody.put(
+          entry.getKey(), BaseTarantoolJacksonMapping.readValue(entry.getValue(), Object.class));
+    }
+    assertEquals(Arrays.asList(1, true), responseBody.get(IPROTO_DATA));
+
+    testClient.close();
+  }
+
+  private long assertRequestHandler(List<IProtoRequest> requests, String handlerName)
+      throws Exception {
+    assertEquals(
+        1, requests.size(), handlerName + " handler should receive exactly one CALL request");
+    IProtoRequest request = requests.get(0);
+    assertEquals(IPROTO_TYPE_CALL, request.getRequestType());
+
+    byte[] packetBytes = request.getPacket(MessagePack.newDefaultBufferPacker());
+    MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(packetBytes);
+    unpacker.unpackInt(); // Skip size prefix
+
+    Value headerValue = unpacker.unpackValue();
+    Value bodyValue = unpacker.unpackValue();
+
+    // Extract syncId from header (key 0x01)
+    long syncId =
+        headerValue
+            .asMapValue()
+            .map()
+            .get(ValueFactory.newInteger(IPROTO_SYNC_ID))
+            .asIntegerValue()
+            .asLong();
+
+    // Convert body to bytes and parse with objectMapper
+    MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
+    packer.packValue(bodyValue);
+    byte[] bodyBytes = packer.toByteArray();
+    Map<Integer, Object> body =
+        objectMapper.readValue(bodyBytes, new TypeReference<Map<Integer, Object>>() {});
+
+    assertEquals("slow_echo", body.get(0x22)); // IPROTO_FUNCTION_NAME
+    assertEquals(Arrays.asList(1, true), body.get(0x21)); // IPROTO_TUPLE
+
+    return syncId;
+  }
+
+  private long assertIgnoredResponseHandler(List<IProtoResponse> responses) throws Exception {
+    assertEquals(
+        1, responses.size(), "onIgnoredResponse handler should receive exactly one response");
+    return assertIProtoResponse(responses.get(0));
+  }
+
+  private long assertIgnoredPackets(List<List<Object>> triplets) throws Exception {
     Set<String> tags = new HashSet<>();
     Set<Integer> indexes = new HashSet<>();
+    long syncId = -1;
+
     for (List<Object> item : triplets) {
       tags.add((String) item.get(0));
       indexes.add((int) item.get(1));
       assertInstanceOf(IProtoResponse.class, item.get(2));
+      syncId = assertIProtoResponse((IProtoResponse) item.get(2));
     }
+
     assertEquals(new HashSet<>(Collections.singletonList("default")), tags);
     assertEquals(Collections.singleton(0), indexes);
+
+    return syncId;
+  }
+
+  private long assertIProtoResponse(IProtoResponse response) throws Exception {
+    assertFalse(response.isError());
+    assertTrue(response.hasSyncId());
+    long syncId = response.getSyncId();
+    assertTrue(syncId > 0);
+
+    Map<Integer, Object> bodyAsObjects = new HashMap<>();
+    Map<Integer, ByteBodyValueWrapper> byteBodyValues = response.getByteBodyValues();
+    for (Map.Entry<Integer, ByteBodyValueWrapper> entry : byteBodyValues.entrySet()) {
+      bodyAsObjects.put(
+          entry.getKey(), BaseTarantoolJacksonMapping.readValue(entry.getValue(), Object.class));
+    }
+    assertEquals(byteBodyValues.size(), bodyAsObjects.size());
+    assertEquals(Arrays.asList(1, true), bodyAsObjects.get(IPROTO_DATA));
+
+    return syncId;
   }
 
   @Test

@@ -28,6 +28,7 @@ import io.tarantool.core.IProtoClient;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
 import io.tarantool.core.connection.ConnectionFactory;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.exceptions.PoolClosedException;
 
@@ -153,6 +154,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
    */
   private final TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler;
 
+  private final Handlers handlers;
+
   private final Object connectionPoolLock = new Object();
 
   /**
@@ -170,7 +173,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
    * @param timerResource managed timer resource (ownership is defined by the caller)
    */
   public IProtoClientPoolImpl(ConnectionFactory factory, ManagedResource<Timer> timerResource) {
-    this(factory, timerResource, true, null, null, null, null, false, null);
+    this(factory, timerResource, true, null, null, null, null, null, false, null);
   }
 
   /**
@@ -200,7 +203,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
    */
   public IProtoClientPoolImpl(
       ConnectionFactory factory, ManagedResource<Timer> timerResource, boolean gracefulShutdown) {
-    this(factory, timerResource, gracefulShutdown, null, null, null, null, false, null);
+    this(factory, timerResource, gracefulShutdown, null, null, null, null, null, false, null);
   }
 
   /**
@@ -223,7 +226,17 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
       ManagedResource<Timer> timerResource,
       boolean gracefulShutdown,
       HeartbeatOpts heartbeatOpts) {
-    this(factory, timerResource, gracefulShutdown, heartbeatOpts, null, null, null, false, null);
+    this(
+        factory,
+        timerResource,
+        gracefulShutdown,
+        heartbeatOpts,
+        null,
+        null,
+        null,
+        null,
+        false,
+        null);
   }
 
   /**
@@ -253,6 +266,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
         watcherOpts,
         metricsRegistry,
         null,
+        null,
         false,
         null);
   }
@@ -273,6 +287,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
    *     arguments: a first one is a tag of connection, the second one is an index of connection in
    *     group and the third argument is a packet.
    * @param useTupleExtension Use TUPLE_EXT feature if true.
+   * @param poolEventListener optional pool event listener
    */
   public IProtoClientPoolImpl(
       ConnectionFactory factory,
@@ -282,6 +297,49 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
       WatcherOptions watcherOpts,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      boolean useTupleExtension,
+      PoolEventListener poolEventListener) {
+    this(
+        factory,
+        timerResource,
+        gracefulShutdown,
+        heartbeatOpts,
+        watcherOpts,
+        metricsRegistry,
+        ignoredPacketsHandler,
+        null,
+        useTupleExtension,
+        poolEventListener);
+  }
+
+  /**
+   * Constructor for pool instance.
+   *
+   * @param factory the bootstrap
+   * @param timerResource managed timer resource (ownership is defined by the caller)
+   * @param gracefulShutdown a boolean flag switching gracefulShutdown facility
+   * @param heartbeatOpts an object with options for heartbeats. If presented heartbeats will be
+   *     used.
+   * @param watcherOpts an object with options for watchers
+   * @param metricsRegistry an instance of MeterRegistry containing all necessary counters and
+   *     gauges.
+   * @param ignoredPacketsHandler a lambda for accepting ignored packets and handling them somehow.
+   *     It is an instance of {@link io.tarantool.pool.TripleConsumer} which accepts three
+   *     arguments: a first one is a tag of connection, the second one is an index of connection in
+   *     group and the third argument is a packet.
+   * @param handlers handlers for request/response lifecycle events
+   * @param useTupleExtension Use TUPLE_EXT feature if true.
+   * @param poolEventListener optional pool event listener
+   */
+  public IProtoClientPoolImpl(
+      ConnectionFactory factory,
+      ManagedResource<Timer> timerResource,
+      boolean gracefulShutdown,
+      HeartbeatOpts heartbeatOpts,
+      WatcherOptions watcherOpts,
+      MeterRegistry metricsRegistry,
+      TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       boolean useTupleExtension,
       PoolEventListener poolEventListener) {
     this.factory = factory;
@@ -299,6 +357,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     this.totalSize = 0;
     this.metricsRegistry = metricsRegistry;
     this.ignoredPacketsHandler = ignoredPacketsHandler;
+    this.handlers = handlers;
     this.useTupleExtension = useTupleExtension;
     this.poolEventListener = poolEventListener;
 
@@ -501,6 +560,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
               reconnecting,
               metricsRegistry,
               ignoredPacketsHandler,
+              handlers,
               useTupleExtension,
               poolEventListener));
     }

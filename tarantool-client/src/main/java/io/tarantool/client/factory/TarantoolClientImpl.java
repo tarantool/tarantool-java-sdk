@@ -33,6 +33,7 @@ import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.exceptions.ServerException;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.mapping.TarantoolJacksonMapping;
@@ -94,6 +95,7 @@ abstract class TarantoolClientImpl implements TarantoolClient {
    * @param reconnectAfter time after which reconnect occurs
    * @param metricsRegistry micrometer {@link TarantoolClientImpl#metricsRegistry}
    * @param ignoredPacketsHandler handler for ignored IProto-packets.
+   * @param handlers handlers for request/response lifecycle events.
    * @param sslContext SslContext with settings for establishing SSL/TLS connection between
    *     Tarantool.
    * @param useTupleExtension Use TUPLE_EXT feature if true.
@@ -123,6 +125,7 @@ abstract class TarantoolClientImpl implements TarantoolClient {
       long reconnectAfter,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       SslContext sslContext,
       boolean useTupleExtension,
       PoolEventListener poolEventListener)
@@ -144,6 +147,7 @@ abstract class TarantoolClientImpl implements TarantoolClient {
             watcherOpts,
             this.metricsRegistry,
             ignoredPacketsHandler,
+            handlers,
             useTupleExtension,
             poolEventListener);
     pool.setGroups(groups);
