@@ -1347,12 +1347,12 @@
   <a href="#pojo-tarantool_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Чтения POJO из Tarantool
+        Чтение POJO из Tarantool
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Чтения POJO из Tarantool">
+    <nav class="md-nav" aria-label="Чтение POJO из Tarantool">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1397,6 +1397,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="2. Используя метаданные ответа tarantool/crud">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connector-version-150" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connector version &gt; 1.5.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connector-version-150_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connector version &lt;= 1.5.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2427,12 +2455,12 @@
   <a href="#pojo-tarantool_1" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Чтения POJO из Tarantool
+        Чтение POJO из Tarantool
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Чтения POJO из Tarantool">
+    <nav class="md-nav" aria-label="Чтение POJO из Tarantool">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2477,6 +2505,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="2. Используя метаданные ответа tarantool/crud">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connector-version-150" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connector version &gt; 1.5.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#connector-version-150_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connector version &lt;= 1.5.0
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -2616,7 +2672,7 @@
 <p>Работа с Plain Old Java Objects (POJO) в Tarantool происходит с помощью библиотеки <br />
 Jackson.</p>
 <p>С помощью Jackson можно преобразовывать Java объекты в JSON (сериализация) и наоборот
-(десериализация). Также можно использовать расширения Jackson для других форматов сериализация
+(десериализация). Также можно использовать расширения Jackson для других форматов сериализации
 данных.</p>
 <p>В <code>tarantool-java-sdk</code> используется библиотека Jackson с расширением для работы с <code>Msgpack</code>, которая
 позволяет работать с Java сущностями используя API библиотеки Jackson.</p>
@@ -2793,7 +2849,7 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 </span><span id="__spanz-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">isMarried</span><span class="p">;</span>
 </span><span id="__spanz-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
 </span><span id="__spanz-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
-</span><span id="__spanz-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="nf">Person</span><span class="p">(</span>
+</span><span id="__spanz-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="nf">UnorderedPerson</span><span class="p">(</span>
 </span><span id="__spanz-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">      </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;is_married&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">isMarried</span><span class="p">,</span>
 </span><span id="__spanz-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">      </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
 </span><span id="__spanz-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">      </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -2857,7 +2913,7 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 </span><span id="__spanz-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;is_married&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="w"> </span><span class="p">},</span>
 </span><span id="__spanz-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">})</span>
 </span></code></pre></div>
-<p>То метод в POJO должен выглядит так:</p>
+<p>То метод в POJO должен выглядеть так:</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__spanz-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UnorderedPerson</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__spanz-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">  </span><span class="c1">// fields... </span>
 </span><span id="__spanz-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
@@ -2876,8 +2932,8 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 </span><span id="__spanz-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Что позволит передавать POJO как кортеж, при этом, продолжая, работать с объектом UnorderedPerson.</p>
-<h3 id="pojo-tarantool_1">Чтения POJO из Tarantool</h3>
-<p>Десериалиация возможна несколькими способами:</p>
+<h3 id="pojo-tarantool_1">Чтение POJO из Tarantool</h3>
+<p>Десериализация возможна несколькими способами:</p>
 <ol>
 <li><code>Flatten output method -- Использование стандартных методов чтения Tarantool -&gt; получение Msgpack массива \
                                                                                                                Конвертация массива с использования формата данных в POJO формат
@@ -2902,7 +2958,7 @@ UnorderedPerson, воспользуемся вызовом lua напрямую 
 </span><span id="__spanz-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">        </span><span class="s">&quot;person&quot;</span><span class="p">,</span>
 </span><span id="__spanz-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="w">        </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;==&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pk&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
 </span><span id="__spanz-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="p">),</span>
-</span><span id="__spanz-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonWithDifferentFieldsOrder</span><span class="o">&gt;&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__spanz-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">UnorderedPerson</span><span class="o">&gt;&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 </span><span id="__spanz-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="p">).</span><span class="na">thenApply</span><span class="p">(</span>
 </span><span id="__spanz-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">    </span><span class="n">tarantoolResponse</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tarantoolResponse</span><span class="p">.</span><span class="na">get</span><span class="p">()</span><span class="w">  </span><span class="c1">// unwrap TarantoolResponse</span>
 </span><span id="__spanz-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="c1">// get first object from multi return </span>
@@ -2942,33 +2998,15 @@ SchemaFetcher. Таким образом вы можете надежно исп
 </span><span id="__spanz-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="nd">@Test</span>
 </span><span id="__spanz-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__spanz-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="n">space</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="na">thenApply</span><span class="p">(</span>
-</span><span id="__spanz-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">          </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-</span><span id="__spanz-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
-</span><span id="__spanz-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">          </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">var</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">list</span><span class="p">.</span><span class="na">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w">        </span><span class="c1">// unwrap tuple struct from select response struct</span>
-</span><span id="__spanz-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">            </span><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">dataList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="na">get</span><span class="p">();</span><span class="w">     </span><span class="c1">// unwrap data from tuple struct</span>
-</span><span id="__spanz-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">            </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="o">?&gt;</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IntStream</span><span class="w">  </span><span class="c1">// create map {key -&gt; value}</span>
-</span><span id="__spanz-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">                </span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">dataList</span><span class="p">.</span><span class="na">size</span><span class="p">())</span>
-</span><span id="__spanz-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">                </span><span class="p">.</span><span class="na">boxed</span><span class="p">()</span>
-</span><span id="__spanz-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="w">                </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span>
-</span><span id="__spanz-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a><span class="w">                    </span><span class="n">Collectors</span><span class="p">.</span><span class="na">toMap</span><span class="p">(</span>
-</span><span id="__spanz-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="w">                        </span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tupleFormat</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="na">getName</span><span class="p">(),</span>
-</span><span id="__spanz-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a><span class="w">                        </span><span class="n">dataList</span><span class="p">::</span><span class="n">get</span>
-</span><span id="__spanz-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a><span class="w">                    </span><span class="p">)</span>
-</span><span id="__spanz-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a><span class="w">                </span><span class="p">);</span>
-</span><span id="__spanz-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="w">            </span><span class="c1">// use jackson mapper to map from Map to Person POJO</span>
-</span><span id="__spanz-19-21"><a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a><span class="w">            </span><span class="c1">// import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; </span>
-</span><span id="__spanz-19-22"><a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a><span class="w">            </span><span class="n">UnorderedPerson</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objectMapper</span><span class="p">.</span><span class="na">convertValue</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
-</span><span id="__spanz-19-23"><a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a>
-</span><span id="__spanz-19-24"><a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="w">            </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">person</span><span class="p">);</span>
-</span><span id="__spanz-19-25"><a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a><span class="w">          </span><span class="p">}</span>
-</span><span id="__spanz-19-26"><a id="__codelineno-19-26" name="__codelineno-19-26" href="#__codelineno-19-26"></a>
-</span><span id="__spanz-19-27"><a id="__codelineno-19-27" name="__codelineno-19-27" href="#__codelineno-19-27"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-</span><span id="__spanz-19-28"><a id="__codelineno-19-28" name="__codelineno-19-28" href="#__codelineno-19-28"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__spanz-19-29"><a id="__codelineno-19-29" name="__codelineno-19-29" href="#__codelineno-19-29"></a><span class="w">    </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
-</span><span id="__spanz-19-30"><a id="__codelineno-19-30" name="__codelineno-19-30" href="#__codelineno-19-30"></a><span class="c1">// [UnorderedPerson{name=&#39;artyom&#39;, isMarried=true, id=1}]</span>
-</span><span id="__spanz-19-31"><a id="__codelineno-19-31" name="__codelineno-19-31" href="#__codelineno-19-31"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__spanz-19-32"><a id="__codelineno-19-32" name="__codelineno-19-32" href="#__codelineno-19-32"></a><span class="p">}</span>
+</span><span id="__spanz-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">        </span><span class="n">list</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">TupleMapper</span><span class="p">.</span><span class="na">mapToPojoList</span><span class="p">(</span>
+</span><span id="__spanz-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">            </span><span class="n">list</span><span class="p">.</span><span class="na">get</span><span class="p">(),</span>
+</span><span id="__spanz-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">            </span><span class="n">tupleFormat</span><span class="p">,</span>
+</span><span id="__spanz-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">            </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span>
+</span><span id="__spanz-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">        </span><span class="p">)</span>
+</span><span id="__spanz-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">    </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
+</span><span id="__spanz-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="c1">// [UnorderedPerson{name=&#39;artyom&#39;, isMarried=true, id=1}]</span>
+</span><span id="__spanz-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__spanz-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a><span class="p">}</span>
 </span></code></pre></div>
 <h5 id="2-tarantoolcrud">2. Используя метаданные ответа tarantool/crud</h5>
 <p>Подробнее про структуру ответа tarantool/crud можно найти
@@ -2989,105 +3027,102 @@ Cоздадим клиент TarantoolCrud, который является пр
 </span></code></pre></div>
 <div class="language-java highlight"><pre><span></span><code><span id="__spanz-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kd">var</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">client</span><span class="p">.</span><span class="na">space</span><span class="p">(</span><span class="s">&quot;person&quot;</span><span class="p">);</span>
 </span></code></pre></div>
-<p>Если у вас версия коннектора, которая не выдает метаданные ответа tarantool/crud,<br />
-то можно вызывать методы tarantool/crud напрямую:</p>
+<h6 id="connector-version-150">Connector version &gt; 1.5.0</h6>
+<p>Метаданные могут быть получены из TUPLE_EXT, если метод crud поддерживает TUPLE_EXT формат, или из 
+metadata ответа crud.</p>
 <div class="language-java highlight"><pre><span></span><code><span id="__spanz-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestClass</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__spanz-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>
 </span><span id="__spanz-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">  </span><span class="nd">@Test</span>
 </span><span id="__spanz-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">call</span><span class="p">(</span>
-</span><span id="__spanz-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">        </span><span class="s">&quot;crud.select&quot;</span><span class="p">,</span>
-</span><span id="__spanz-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">        </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span>
-</span><span id="__spanz-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">            </span><span class="s">&quot;person&quot;</span><span class="p">,</span>
-</span><span id="__spanz-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a><span class="w">            </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;==&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pk&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
-</span><span id="__spanz-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">        </span><span class="p">),</span>
-</span><span id="__spanz-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">CrudResponse</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
-</span><span id="__spanz-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">    </span><span class="p">).</span><span class="na">thenApply</span><span class="p">(</span>
-</span><span id="__spanz-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="w">        </span><span class="n">tarantoolResponse</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-23-14"><a id="__codelineno-23-14" name="__codelineno-23-14" href="#__codelineno-23-14"></a><span class="w">          </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-</span><span id="__spanz-23-15"><a id="__codelineno-23-15" name="__codelineno-23-15" href="#__codelineno-23-15"></a>
-</span><span id="__spanz-23-16"><a id="__codelineno-23-16" name="__codelineno-23-16" href="#__codelineno-23-16"></a><span class="w">          </span><span class="n">CrudResponse</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;</span><span class="w"> </span><span class="n">crudResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tarantoolResponse</span><span class="p">.</span><span class="na">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// unwrap tuple struct from select response struct</span>
-</span><span id="__spanz-23-17"><a id="__codelineno-23-17" name="__codelineno-23-17" href="#__codelineno-23-17"></a>
-</span><span id="__spanz-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a><span class="w">          </span><span class="n">List</span><span class="o">&lt;</span><span class="n">io</span><span class="p">.</span><span class="na">tarantool</span><span class="p">.</span><span class="na">mapping</span><span class="p">.</span><span class="na">Field</span><span class="o">&gt;</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">crudResponse</span><span class="p">.</span><span class="na">getMetadata</span><span class="p">();</span><span class="w"> </span><span class="c1">// get metadata from crud response</span>
-</span><span id="__spanz-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a><span class="w">          </span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">tuples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">crudResponse</span><span class="p">.</span><span class="na">getRows</span><span class="p">();</span><span class="w">                         </span><span class="c1">// get flatten tuples from crud response</span>
-</span><span id="__spanz-23-20"><a id="__codelineno-23-20" name="__codelineno-23-20" href="#__codelineno-23-20"></a>
-</span><span id="__spanz-23-21"><a id="__codelineno-23-21" name="__codelineno-23-21" href="#__codelineno-23-21"></a><span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tuples</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-23-22"><a id="__codelineno-23-22" name="__codelineno-23-22" href="#__codelineno-23-22"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-</span><span id="__spanz-23-23"><a id="__codelineno-23-23" name="__codelineno-23-23" href="#__codelineno-23-23"></a><span class="w">          </span><span class="p">}</span>
-</span><span id="__spanz-23-24"><a id="__codelineno-23-24" name="__codelineno-23-24" href="#__codelineno-23-24"></a>
-</span><span id="__spanz-23-25"><a id="__codelineno-23-25" name="__codelineno-23-25" href="#__codelineno-23-25"></a><span class="w">          </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">tuples</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-23-26"><a id="__codelineno-23-26" name="__codelineno-23-26" href="#__codelineno-23-26"></a><span class="w">            </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="o">?&gt;</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IntStream</span><span class="w"> </span><span class="c1">// create map {key -&gt; value}</span>
-</span><span id="__spanz-23-27"><a id="__codelineno-23-27" name="__codelineno-23-27" href="#__codelineno-23-27"></a><span class="w">                </span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tuple</span><span class="p">.</span><span class="na">size</span><span class="p">())</span>
-</span><span id="__spanz-23-28"><a id="__codelineno-23-28" name="__codelineno-23-28" href="#__codelineno-23-28"></a><span class="w">                </span><span class="p">.</span><span class="na">boxed</span><span class="p">()</span>
-</span><span id="__spanz-23-29"><a id="__codelineno-23-29" name="__codelineno-23-29" href="#__codelineno-23-29"></a><span class="w">                </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span>
-</span><span id="__spanz-23-30"><a id="__codelineno-23-30" name="__codelineno-23-30" href="#__codelineno-23-30"></a><span class="w">                    </span><span class="n">Collectors</span><span class="p">.</span><span class="na">toMap</span><span class="p">(</span>
-</span><span id="__spanz-23-31"><a id="__codelineno-23-31" name="__codelineno-23-31" href="#__codelineno-23-31"></a><span class="w">                        </span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">metadata</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="na">getName</span><span class="p">(),</span>
-</span><span id="__spanz-23-32"><a id="__codelineno-23-32" name="__codelineno-23-32" href="#__codelineno-23-32"></a><span class="w">                        </span><span class="n">tuple</span><span class="p">::</span><span class="n">get</span>
-</span><span id="__spanz-23-33"><a id="__codelineno-23-33" name="__codelineno-23-33" href="#__codelineno-23-33"></a><span class="w">                    </span><span class="p">)</span>
-</span><span id="__spanz-23-34"><a id="__codelineno-23-34" name="__codelineno-23-34" href="#__codelineno-23-34"></a><span class="w">                </span><span class="p">);</span>
-</span><span id="__spanz-23-35"><a id="__codelineno-23-35" name="__codelineno-23-35" href="#__codelineno-23-35"></a>
-</span><span id="__spanz-23-36"><a id="__codelineno-23-36" name="__codelineno-23-36" href="#__codelineno-23-36"></a><span class="w">            </span><span class="c1">// use jackson mapper to map from Map to Person POJO</span>
-</span><span id="__spanz-23-37"><a id="__codelineno-23-37" name="__codelineno-23-37" href="#__codelineno-23-37"></a><span class="w">            </span><span class="c1">// import static io.tarantool.mapping.BaseTarantoolJacksonMapping.objectMapper; </span>
-</span><span id="__spanz-23-38"><a id="__codelineno-23-38" name="__codelineno-23-38" href="#__codelineno-23-38"></a><span class="w">            </span><span class="n">UnorderedPerson</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">objectMapper</span><span class="p">.</span><span class="na">convertValue</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
-</span><span id="__spanz-23-39"><a id="__codelineno-23-39" name="__codelineno-23-39" href="#__codelineno-23-39"></a>
-</span><span id="__spanz-23-40"><a id="__codelineno-23-40" name="__codelineno-23-40" href="#__codelineno-23-40"></a><span class="w">            </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">person</span><span class="p">);</span>
-</span><span id="__spanz-23-41"><a id="__codelineno-23-41" name="__codelineno-23-41" href="#__codelineno-23-41"></a><span class="w">          </span><span class="p">}</span>
-</span><span id="__spanz-23-42"><a id="__codelineno-23-42" name="__codelineno-23-42" href="#__codelineno-23-42"></a>
-</span><span id="__spanz-23-43"><a id="__codelineno-23-43" name="__codelineno-23-43" href="#__codelineno-23-43"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-</span><span id="__spanz-23-44"><a id="__codelineno-23-44" name="__codelineno-23-44" href="#__codelineno-23-44"></a><span class="w">        </span><span class="p">}</span>
-</span><span id="__spanz-23-45"><a id="__codelineno-23-45" name="__codelineno-23-45" href="#__codelineno-23-45"></a><span class="w">    </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
-</span><span id="__spanz-23-46"><a id="__codelineno-23-46" name="__codelineno-23-46" href="#__codelineno-23-46"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__spanz-23-47"><a id="__codelineno-23-47" name="__codelineno-23-47" href="#__codelineno-23-47"></a><span class="p">}</span>
+</span><span id="__spanz-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="c1">// Формат автоматически передается из CrudResponse.metadata</span>
+</span><span id="__spanz-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Tuple</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;</span><span class="w"> </span><span class="n">tuples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">space</span><span class="p">.</span><span class="na">select</span><span class="p">(</span>
+</span><span id="__spanz-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="w">        </span><span class="n">Collections</span><span class="p">.</span><span class="na">singletonList</span><span class="p">(</span><span class="n">Condition</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">EQ</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+</span><span id="__spanz-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="w">    </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
+</span><span id="__spanz-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>
+</span><span id="__spanz-23-10"><a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a><span class="w">    </span><span class="c1">// Маппим используя формат из tuple</span>
+</span><span id="__spanz-23-11"><a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="w">    </span><span class="n">UnorderedPerson</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TupleMapper</span><span class="p">.</span><span class="na">mapToPojo</span><span class="p">(</span><span class="n">tuples</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+</span><span id="__spanz-23-12"><a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__spanz-23-13"><a id="__codelineno-23-13" name="__codelineno-23-13" href="#__codelineno-23-13"></a><span class="p">}</span>
+</span></code></pre></div>
+<h6 id="connector-version-150_1">Connector version &lt;= 1.5.0</h6>
+<p>Если у вас версия коннектора, которая не выдает метаданные ответа tarantool/crud,<br />
+то можно вызывать методы tarantool/crud напрямую:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__spanz-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestClass</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+</span><span id="__spanz-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">  </span><span class="nd">@Test</span>
+</span><span id="__spanz-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">    </span><span class="n">client</span><span class="p">.</span><span class="na">call</span><span class="p">(</span>
+</span><span id="__spanz-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">        </span><span class="s">&quot;crud.select&quot;</span><span class="p">,</span>
+</span><span id="__spanz-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="w">        </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span>
+</span><span id="__spanz-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">            </span><span class="s">&quot;person&quot;</span><span class="p">,</span>
+</span><span id="__spanz-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="w">            </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;==&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;pk&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">))</span>
+</span><span id="__spanz-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="w">        </span><span class="p">),</span>
+</span><span id="__spanz-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">TypeReference</span><span class="o">&lt;</span><span class="n">CrudResponse</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__spanz-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a><span class="w">    </span><span class="p">).</span><span class="na">thenApply</span><span class="p">(</span>
+</span><span id="__spanz-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="w">        </span><span class="n">tarantoolResponse</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a><span class="w">          </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+</span><span id="__spanz-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>
+</span><span id="__spanz-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a><span class="w">          </span><span class="n">CrudResponse</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;</span><span class="w"> </span><span class="n">crudResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tarantoolResponse</span><span class="p">.</span><span class="na">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// unwrap tuple struct from select response struct</span>
+</span><span id="__spanz-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>
+</span><span id="__spanz-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a><span class="w">          </span><span class="n">List</span><span class="o">&lt;</span><span class="n">io</span><span class="p">.</span><span class="na">tarantool</span><span class="p">.</span><span class="na">mapping</span><span class="p">.</span><span class="na">Field</span><span class="o">&gt;</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">crudResponse</span><span class="p">.</span><span class="na">getMetadata</span><span class="p">();</span><span class="w"> </span><span class="c1">// get metadata from crud response</span>
+</span><span id="__spanz-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="w">          </span><span class="n">List</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">tuples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">crudResponse</span><span class="p">.</span><span class="na">getRows</span><span class="p">();</span><span class="w">                         </span><span class="c1">// get flatten tuples from crud response</span>
+</span><span id="__spanz-24-20"><a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a>
+</span><span id="__spanz-24-21"><a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a><span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tuples</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-24-22"><a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__spanz-24-23"><a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__spanz-24-24"><a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a>
+</span><span id="__spanz-24-25"><a id="__codelineno-24-25" name="__codelineno-24-25" href="#__codelineno-24-25"></a><span class="w">          </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">tuples</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-24-26"><a id="__codelineno-24-26" name="__codelineno-24-26" href="#__codelineno-24-26"></a><span class="w">            </span><span class="c1">// use TupleMapper to map from tuple data and format to Person POJO</span>
+</span><span id="__spanz-24-27"><a id="__codelineno-24-27" name="__codelineno-24-27" href="#__codelineno-24-27"></a><span class="w">            </span><span class="n">UnorderedPerson</span><span class="w"> </span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TupleMapper</span><span class="p">.</span><span class="na">mapToPojo</span><span class="p">(</span><span class="n">tuple</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span><span class="p">,</span><span class="w"> </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+</span><span id="__spanz-24-28"><a id="__codelineno-24-28" name="__codelineno-24-28" href="#__codelineno-24-28"></a>
+</span><span id="__spanz-24-29"><a id="__codelineno-24-29" name="__codelineno-24-29" href="#__codelineno-24-29"></a><span class="w">            </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">person</span><span class="p">);</span>
+</span><span id="__spanz-24-30"><a id="__codelineno-24-30" name="__codelineno-24-30" href="#__codelineno-24-30"></a><span class="w">          </span><span class="p">}</span>
+</span><span id="__spanz-24-31"><a id="__codelineno-24-31" name="__codelineno-24-31" href="#__codelineno-24-31"></a>
+</span><span id="__spanz-24-32"><a id="__codelineno-24-32" name="__codelineno-24-32" href="#__codelineno-24-32"></a><span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__spanz-24-33"><a id="__codelineno-24-33" name="__codelineno-24-33" href="#__codelineno-24-33"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__spanz-24-34"><a id="__codelineno-24-34" name="__codelineno-24-34" href="#__codelineno-24-34"></a><span class="w">    </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
+</span><span id="__spanz-24-35"><a id="__codelineno-24-35" name="__codelineno-24-35" href="#__codelineno-24-35"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__spanz-24-36"><a id="__codelineno-24-36" name="__codelineno-24-36" href="#__codelineno-24-36"></a><span class="p">}</span>
 </span></code></pre></div>
 <h5 id="3-tarantoolresponse-tarantool-3x-feature">3. Из TarantoolResponse (Tarantool 3.x feature)</h5>
 <p>В ответе, где возвращается кортеж, Tarantool позволяет получать и формат ответа в отдельном поле
 IPROTO пакета. Отличие от предыдущего варианта в том, что формат передается из другого источника.</p>
 <details class="warning" open="open">
 <summary>Важно</summary>
-<p>В <code>crud</code> версии <code>1.7.1</code> функционал возврата формата ответа в отдельном поле IPROTO пакета не 
+<p>В <code>crud</code> версии <code>1.7.1</code> функционал возврата формата ответа в отдельном поле IPROTO пакета не
 поддерживается.</p>
 </details>
 <p>Воспользуемся Box API клиентом:</p>
-<div class="language-java highlight"><pre><span></span><code><span id="__spanz-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestClass</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
-</span><span id="__spanz-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">  </span><span class="nd">@Test</span>
-</span><span id="__spanz-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>
-</span><span id="__spanz-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">    </span><span class="c1">// other code </span>
-</span><span id="__spanz-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>
-</span><span id="__spanz-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="w">    </span><span class="n">space</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-</span><span id="__spanz-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a><span class="w">        </span><span class="p">.</span><span class="na">thenApply</span><span class="p">(</span>
-</span><span id="__spanz-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a><span class="w">            </span><span class="n">selectResponse</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a><span class="w">              </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
-</span><span id="__spanz-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>
-</span><span id="__spanz-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a><span class="w">              </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Tuple</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;</span><span class="w"> </span><span class="n">tuples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">selectResponse</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
-</span><span id="__spanz-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>
-</span><span id="__spanz-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a><span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tuples</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a><span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-</span><span id="__spanz-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a><span class="w">              </span><span class="p">}</span>
-</span><span id="__spanz-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>
-</span><span id="__spanz-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="w">              </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Tuple</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">tuples</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__spanz-24-20"><a id="__codelineno-24-20" name="__codelineno-24-20" href="#__codelineno-24-20"></a><span class="w">                </span><span class="n">List</span><span class="o">&lt;</span><span class="n">io</span><span class="p">.</span><span class="na">tarantool</span><span class="p">.</span><span class="na">mapping</span><span class="p">.</span><span class="na">Field</span><span class="o">&gt;</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple</span><span class="p">.</span><span class="na">getFormat</span><span class="p">();</span>
-</span><span id="__spanz-24-21"><a id="__codelineno-24-21" name="__codelineno-24-21" href="#__codelineno-24-21"></a><span class="w">                </span><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tuple</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
-</span><span id="__spanz-24-22"><a id="__codelineno-24-22" name="__codelineno-24-22" href="#__codelineno-24-22"></a><span class="w">                </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="o">?&gt;</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IntStream</span>
-</span><span id="__spanz-24-23"><a id="__codelineno-24-23" name="__codelineno-24-23" href="#__codelineno-24-23"></a><span class="w">                    </span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">size</span><span class="p">())</span>
-</span><span id="__spanz-24-24"><a id="__codelineno-24-24" name="__codelineno-24-24" href="#__codelineno-24-24"></a><span class="w">                    </span><span class="p">.</span><span class="na">boxed</span><span class="p">()</span>
-</span><span id="__spanz-24-25"><a id="__codelineno-24-25" name="__codelineno-24-25" href="#__codelineno-24-25"></a><span class="w">                    </span><span class="p">.</span><span class="na">collect</span><span class="p">(</span>
-</span><span id="__spanz-24-26"><a id="__codelineno-24-26" name="__codelineno-24-26" href="#__codelineno-24-26"></a><span class="w">                        </span><span class="n">Collectors</span><span class="p">.</span><span class="na">toMap</span><span class="p">(</span>
-</span><span id="__spanz-24-27"><a id="__codelineno-24-27" name="__codelineno-24-27" href="#__codelineno-24-27"></a><span class="w">                            </span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">format</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">i</span><span class="p">).</span><span class="na">getName</span><span class="p">(),</span>
-</span><span id="__spanz-24-28"><a id="__codelineno-24-28" name="__codelineno-24-28" href="#__codelineno-24-28"></a><span class="w">                            </span><span class="n">data</span><span class="p">::</span><span class="n">get</span>
-</span><span id="__spanz-24-29"><a id="__codelineno-24-29" name="__codelineno-24-29" href="#__codelineno-24-29"></a><span class="w">                        </span><span class="p">)</span>
-</span><span id="__spanz-24-30"><a id="__codelineno-24-30" name="__codelineno-24-30" href="#__codelineno-24-30"></a><span class="w">                    </span><span class="p">);</span>
-</span><span id="__spanz-24-31"><a id="__codelineno-24-31" name="__codelineno-24-31" href="#__codelineno-24-31"></a><span class="w">                </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span>
-</span><span id="__spanz-24-32"><a id="__codelineno-24-32" name="__codelineno-24-32" href="#__codelineno-24-32"></a><span class="w">                    </span><span class="n">objectMapper</span><span class="p">.</span><span class="na">convertValue</span><span class="p">(</span><span class="n">map</span><span class="p">,</span><span class="w"> </span><span class="n">PersonWithDifferentFieldsOrder</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
-</span><span id="__spanz-24-33"><a id="__codelineno-24-33" name="__codelineno-24-33" href="#__codelineno-24-33"></a><span class="w">                </span><span class="p">);</span>
-</span><span id="__spanz-24-34"><a id="__codelineno-24-34" name="__codelineno-24-34" href="#__codelineno-24-34"></a><span class="w">              </span><span class="p">}</span>
-</span><span id="__spanz-24-35"><a id="__codelineno-24-35" name="__codelineno-24-35" href="#__codelineno-24-35"></a>
-</span><span id="__spanz-24-36"><a id="__codelineno-24-36" name="__codelineno-24-36" href="#__codelineno-24-36"></a><span class="w">              </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-</span><span id="__spanz-24-37"><a id="__codelineno-24-37" name="__codelineno-24-37" href="#__codelineno-24-37"></a><span class="w">            </span><span class="p">}</span>
-</span><span id="__spanz-24-38"><a id="__codelineno-24-38" name="__codelineno-24-38" href="#__codelineno-24-38"></a><span class="w">        </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
-</span><span id="__spanz-24-39"><a id="__codelineno-24-39" name="__codelineno-24-39" href="#__codelineno-24-39"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__spanz-24-40"><a id="__codelineno-24-40" name="__codelineno-24-40" href="#__codelineno-24-40"></a><span class="p">}</span>
+<div class="language-java highlight"><pre><span></span><code><span id="__spanz-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">TestClass</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+</span><span id="__spanz-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">  </span><span class="nd">@Test</span>
+</span><span id="__spanz-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>
+</span><span id="__spanz-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="w">    </span><span class="c1">// other code</span>
+</span><span id="__spanz-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>
+</span><span id="__spanz-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a><span class="w">    </span><span class="n">space</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="__spanz-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="w">        </span><span class="p">.</span><span class="na">thenApply</span><span class="p">(</span>
+</span><span id="__spanz-25-10"><a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a><span class="w">            </span><span class="n">selectResponse</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-25-11"><a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a><span class="w">              </span><span class="kd">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+</span><span id="__spanz-25-12"><a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>
+</span><span id="__spanz-25-13"><a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a><span class="w">              </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Tuple</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;&gt;</span><span class="w"> </span><span class="n">tuples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">selectResponse</span><span class="p">.</span><span class="na">get</span><span class="p">();</span>
+</span><span id="__spanz-25-14"><a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>
+</span><span id="__spanz-25-15"><a id="__codelineno-25-15" name="__codelineno-25-15" href="#__codelineno-25-15"></a><span class="w">              </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tuples</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-25-16"><a id="__codelineno-25-16" name="__codelineno-25-16" href="#__codelineno-25-16"></a><span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__spanz-25-17"><a id="__codelineno-25-17" name="__codelineno-25-17" href="#__codelineno-25-17"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__spanz-25-18"><a id="__codelineno-25-18" name="__codelineno-25-18" href="#__codelineno-25-18"></a>
+</span><span id="__spanz-25-19"><a id="__codelineno-25-19" name="__codelineno-25-19" href="#__codelineno-25-19"></a><span class="w">              </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Tuple</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;?&gt;&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">tuples</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__spanz-25-20"><a id="__codelineno-25-20" name="__codelineno-25-20" href="#__codelineno-25-20"></a><span class="w">                </span><span class="c1">// use TupleMapper to map tuple with embedded format to POJO</span>
+</span><span id="__spanz-25-21"><a id="__codelineno-25-21" name="__codelineno-25-21" href="#__codelineno-25-21"></a><span class="w">                </span><span class="n">result</span><span class="p">.</span><span class="na">add</span><span class="p">(</span>
+</span><span id="__spanz-25-22"><a id="__codelineno-25-22" name="__codelineno-25-22" href="#__codelineno-25-22"></a><span class="w">                    </span><span class="n">TupleMapper</span><span class="p">.</span><span class="na">mapToPojo</span><span class="p">(</span><span class="n">tuple</span><span class="p">,</span><span class="w"> </span><span class="n">UnorderedPerson</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+</span><span id="__spanz-25-23"><a id="__codelineno-25-23" name="__codelineno-25-23" href="#__codelineno-25-23"></a><span class="w">                </span><span class="p">);</span>
+</span><span id="__spanz-25-24"><a id="__codelineno-25-24" name="__codelineno-25-24" href="#__codelineno-25-24"></a><span class="w">              </span><span class="p">}</span>
+</span><span id="__spanz-25-25"><a id="__codelineno-25-25" name="__codelineno-25-25" href="#__codelineno-25-25"></a>
+</span><span id="__spanz-25-26"><a id="__codelineno-25-26" name="__codelineno-25-26" href="#__codelineno-25-26"></a><span class="w">              </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__spanz-25-27"><a id="__codelineno-25-27" name="__codelineno-25-27" href="#__codelineno-25-27"></a><span class="w">            </span><span class="p">}</span>
+</span><span id="__spanz-25-28"><a id="__codelineno-25-28" name="__codelineno-25-28" href="#__codelineno-25-28"></a><span class="w">        </span><span class="p">).</span><span class="na">join</span><span class="p">();</span>
+</span><span id="__spanz-25-29"><a id="__codelineno-25-29" name="__codelineno-25-29" href="#__codelineno-25-29"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__spanz-25-30"><a id="__codelineno-25-30" name="__codelineno-25-30" href="#__codelineno-25-30"></a><span class="p">}</span>
 </span></code></pre></div>
 <div class="footnote">
 <hr />
