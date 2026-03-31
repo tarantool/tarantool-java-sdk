@@ -28,6 +28,7 @@ import io.tarantool.core.WatcherOptions;
 import io.tarantool.core.connection.ConnectionCloseEvent;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.connection.exceptions.ConnectionException;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 
@@ -85,6 +86,9 @@ final class PoolEntry {
    * @see io.tarantool.core.protocol.IProtoRequestOpts
    */
   private final IProtoRequestOpts heartbeatPingOpts;
+
+  /** Handlers for request/response lifecycle events. */
+  private final Handlers handlers;
 
   /** Instance of {@link io.tarantool.pool.InstanceConnectionGroup}. */
   private final InstanceConnectionGroup group;
@@ -230,9 +234,11 @@ final class PoolEntry {
       AtomicInteger reconnecting,
       MeterRegistry registry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       boolean useTupleExtension,
       PoolEventListener poolEventListener) {
     this.metricsRegistry = registry;
+    this.handlers = handlers;
     this.client =
         new IProtoClientImpl(
             factory,
@@ -241,6 +247,7 @@ final class PoolEntry {
             registry,
             group.getFlushConsolidationHandler(),
             useTupleExtension);
+    this.client.withHandlers(handlers);
     // heartbeat related
     this.isHeartbeatStarted = false;
     this.lastHeartbeatEvent = HeartbeatEvent.KILL;

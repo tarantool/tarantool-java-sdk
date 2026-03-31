@@ -19,6 +19,7 @@ import io.tarantool.client.tdg.TarantoolDataGridClient;
 import io.tarantool.client.tdg.TarantoolDataGridSpace;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -70,6 +71,7 @@ public class TarantoolDataGridClientImpl extends TarantoolClientImpl
       long reconnectAfter,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       SslContext sslContext,
       boolean useTupleExtension,
       boolean useTdg1Context,
@@ -92,6 +94,7 @@ public class TarantoolDataGridClientImpl extends TarantoolClientImpl
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         useTupleExtension,
         poolEventListener);

@@ -34,6 +34,7 @@ import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.client.box.TarantoolBoxClient;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -158,6 +159,9 @@ public class TarantoolBoxClientBuilder {
 
   /** Optional listener for pool events. */
   private PoolEventListener poolEventListener;
+
+  /** Custom handlers for protocol operations. */
+  private Handlers handlers;
 
   /**
    * Getter for {@link #options}.
@@ -820,6 +824,17 @@ public class TarantoolBoxClientBuilder {
   }
 
   /**
+   * Sets custom handlers for protocol operations.
+   *
+   * @param handlers handlers instance
+   * @return {@link TarantoolBoxClientBuilder} object.
+   */
+  public TarantoolBoxClientBuilder withHandlers(Handlers handlers) {
+    this.handlers = handlers;
+    return this;
+  }
+
+  /**
    * Builds specific {@link TarantoolBoxClient} class instance with parameters.
    *
    * @return {@link TarantoolBoxClient} object.
@@ -859,6 +874,7 @@ public class TarantoolBoxClientBuilder {
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         poolEventListener);
   }

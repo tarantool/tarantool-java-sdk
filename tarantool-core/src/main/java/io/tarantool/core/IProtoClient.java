@@ -17,6 +17,7 @@ import org.msgpack.value.ArrayValue;
 import static io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
 import io.tarantool.core.connection.ConnectionCloseEvent;
 import io.tarantool.core.protocol.BoxIterator;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.TransactionIsolationLevel;
@@ -240,6 +241,8 @@ public interface IProtoClient {
   IProtoClient onClose(ConnectionCloseEvent event, BiConsumer<IProtoClient, Throwable> handler);
 
   IProtoClient onIgnoredPacket(Consumer<IProtoResponse> handler);
+
+  IProtoClient withHandlers(Handlers handlers);
 
   boolean isConnected();
 

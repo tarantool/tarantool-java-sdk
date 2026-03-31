@@ -20,6 +20,7 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
 import io.tarantool.client.crud.options.CrudOptions;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -70,6 +71,7 @@ final class TarantoolCrudClientImpl extends TarantoolClientImpl implements Taran
    * @param reconnectAfter see reconnectAfter in{@link TarantoolCrudClientBuilder}.
    * @param metricsRegistry see metricsRegistry in{@link TarantoolCrudClientBuilder}.
    * @param ignoredPacketsHandler see ignoredPacketsHandler in{@link TarantoolCrudClientBuilder}.
+   * @param handlers see handlers in{@link TarantoolCrudClientBuilder}.
    * @param sslContext see sslContext in{@link TarantoolCrudClientBuilder}.
    * @param useTupleExtension see useTupleExtension in{@link TarantoolCrudClientBuilder}.
    * @throws NoSuchMethodException if a matching method is not found.
@@ -96,6 +98,7 @@ final class TarantoolCrudClientImpl extends TarantoolClientImpl implements Taran
       long reconnectAfter,
       MeterRegistry metricsRegistry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
+      Handlers handlers,
       SslContext sslContext,
       boolean useTupleExtension,
       PoolEventListener poolEventListener)
@@ -116,6 +119,7 @@ final class TarantoolCrudClientImpl extends TarantoolClientImpl implements Taran
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         useTupleExtension,
         poolEventListener);

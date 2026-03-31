@@ -33,6 +33,7 @@ import io.tarantool.balancer.TarantoolBalancer;
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.core.ManagedResource;
 import io.tarantool.core.WatcherOptions;
+import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.InstanceConnectionGroup;
@@ -147,6 +148,8 @@ public class TarantoolCrudClientBuilder {
 
   /** Optional listener for pool lifecycle events. */
   private PoolEventListener poolEventListener;
+
+  private Handlers handlers;
 
   public Map<ChannelOption<?>, Object> getOptions() {
     return options;
@@ -762,6 +765,11 @@ public class TarantoolCrudClientBuilder {
     return this;
   }
 
+  public TarantoolCrudClientBuilder withHandlers(Handlers handlers) {
+    this.handlers = handlers;
+    return this;
+  }
+
   /**
    * Builds specific {@link TarantoolCrudClient} class instance with parameters.
    *
@@ -800,6 +808,7 @@ public class TarantoolCrudClientBuilder {
         reconnectAfter,
         metricsRegistry,
         ignoredPacketsHandler,
+        handlers,
         sslContext,
         useTupleExtension,
         poolEventListener);

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 public class IProtoRequestOpts {
 
   private Consumer<IProtoMessage> pushHandler;
+  private Handlers handlers;
   private long requestTimeoutMs;
   private Long streamId;
 
@@ -52,5 +53,14 @@ public class IProtoRequestOpts {
 
   public Consumer<IProtoMessage> getPushHandler() {
     return this.pushHandler;
+  }
+
+  public IProtoRequestOpts withHandlers(Handlers handlers) {
+    this.handlers = handlers;
+    return this;
+  }
+
+  public Handlers getHandlers() {
+    return this.handlers;
   }
 }
