@@ -104,6 +104,9 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
       for (Tuple<?> tuple : resp.get()) {
         Integer formatId = tuple.getFormatId();
         List<Field> format = formats.get(formatId);
+        if (formatId == null && formats.size() == 1) {
+          format = formats.values().stream().findFirst().get();
+        }
         tuple.setFormat(format);
       }
     }
@@ -187,6 +190,9 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
       for (Tuple<?> tuple : tuples) {
         Integer formatId = tuple.getFormatId();
         List<Field> format = formats.get(formatId);
+        if (formatId == null && formats.size() == 1) {
+          format = formats.values().stream().findFirst().get();
+        }
         tuple.setFormat(format);
       }
     }
@@ -216,6 +222,9 @@ public class TarantoolJacksonMappingWithoutTargetType extends BaseTarantoolJacks
       for (Tuple<?> tuple : tuples) {
         Integer formatId = tuple.getFormatId();
         List<Field> format = formats.get(formatId);
+        if (formatId == null && formats.size() == 1) {
+          format = formats.values().stream().findFirst().get();
+        }
         tuple.setFormat(format);
       }
     }
