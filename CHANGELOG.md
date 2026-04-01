@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-04-01
+
 ### BOM Module
 
 - Add `tarantool-java-sdk-bom` module providing centralized dependency management for all Tarantool Java SDK modules and their dependencies
@@ -17,6 +19,16 @@
 
 ### Spring-data
 - Add `tarantool-spring-data-35` module with support for Spring Boot 3.5.x and Spring Data 3.5 
+
+### Client
+- Add `TupleMapper` utility class for easy tuple-to-POJO mapping using field format
+- Update CRUD operations (select, insert, get) to propagate format metadata from `CrudResponse`
+- Add `Handlers` class with 4 lifecycle callbacks for request/response tracing:
+  - `onBeforeSend`: called before sending request
+  - `onSuccess`: called on successful response
+  - `onTimeout`: called when request times out
+  - `onIgnoredResponse`: called when response arrives after timeout
+- Handlers are configured at client level via `withHandlers()` builder method
 
 ### Dependencies
 - Updated dependencies:
