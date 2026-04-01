@@ -69,6 +69,9 @@ public class CrudResponse<T> {
     if (error != null) {
       throw new CrudException(error);
     }
+    if (response == null) {
+      return null;
+    }
     return response.getMetadata();
   }
 

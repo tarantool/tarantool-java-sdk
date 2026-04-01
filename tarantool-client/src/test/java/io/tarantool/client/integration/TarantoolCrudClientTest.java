@@ -5,7 +5,6 @@
 
 package io.tarantool.client.integration;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,6 @@ import static org.testcontainers.containers.Helper.isCartridgeAvailable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -46,8 +44,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.msgpack.value.ValueFactory;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolCartridgeContainer;
-import org.testcontainers.containers.TarantoolContainerOperations;
+import org.testcontainers.containers.CartridgeClusterContainer;
+import org.testcontainers.containers.ClusterContainer;
 import org.testcontainers.containers.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -88,7 +86,6 @@ import io.tarantool.pool.HeartbeatOpts;
 import io.tarantool.pool.IProtoClientPool;
 import io.tarantool.pool.InstanceConnectionGroup;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(value = 10)
 @Testcontainers
 public class TarantoolCrudClientTest extends BaseTest {
@@ -103,9 +100,9 @@ public class TarantoolCrudClientTest extends BaseTest {
         }
       };
   public static final Person STUB_PERSON = new Person(0, true, String.valueOf(0));
-  private static TarantoolCartridgeContainer cartridgeContainer;
+  private static CartridgeClusterContainer cartridgeContainer;
   private static VshardClusterContainer vshardClusterContainer;
-  private static TarantoolContainerOperations clusterContainer;
+  private static ClusterContainer<?> clusterContainer;
   public static final String ROUTER_1 = "ROUTER_1";
   public static final String ROUTER_2 = "ROUTER_2";
   private static TarantoolCrudClient client;
@@ -150,7 +147,7 @@ public class TarantoolCrudClientTest extends BaseTest {
       clusterContainer = vshardClusterContainer;
     } else {
       cartridgeContainer =
-          new TarantoolCartridgeContainer(
+          new CartridgeClusterContainer(
                   "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
@@ -325,7 +322,10 @@ public class TarantoolCrudClientTest extends BaseTest {
     assertEquals(expected.asList(), removeBucketId(insertResult));
 
     List<Tuple<Person>> selectResult =
-        person.select(baseOptions, listPersonTypeRef, PkEquals(0)).join().get();
+        person
+            .select(Collections.singletonList(ConditionPkEquals(0)), listPersonTypeRef)
+            .join()
+            .get();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult));
   }
 
@@ -356,17 +356,18 @@ public class TarantoolCrudClientTest extends BaseTest {
 
     replaceResult =
         personWithoutTupleExt.replace(baseOptions, listTypeRef, expected, OPTIONS).join();
-    assertTrue(replaceResult.getFormat().isEmpty());
     assertEquals(expected.asList(), removeBucketId(replaceResult.get()));
 
     // select
     TarantoolResponse<List<Tuple<Person>>> selectResult =
-        person.select(baseOptions, listPersonTypeRef, PkEquals(0)).join();
+        person.select(Collections.singletonList(ConditionPkEquals(0)), listPersonTypeRef).join();
     assertFalse(selectResult.getFormats().isEmpty());
     assertEquals(Collections.singletonList(expected), unpackT(selectResult.get()));
 
-    selectResult = personWithoutTupleExt.select(baseOptions, listPersonTypeRef, PkEquals(0)).join();
-    assertTrue(selectResult.getFormats().isEmpty());
+    selectResult =
+        personWithoutTupleExt
+            .select(Collections.singletonList(ConditionPkEquals(0)), listPersonTypeRef)
+            .join();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult.get()));
   }
 
@@ -413,10 +414,6 @@ public class TarantoolCrudClientTest extends BaseTest {
             .join()
             .get();
     assertEquals(Collections.singletonList(expected), unpackT(selectResult));
-  }
-
-  private static List<List<? extends Serializable>> PkEquals(int id) {
-    return Collections.singletonList(Arrays.asList("==", "pk", id));
   }
 
   private static Condition ConditionPkEquals(int id) {

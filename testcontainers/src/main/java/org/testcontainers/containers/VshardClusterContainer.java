@@ -6,29 +6,36 @@
 package org.testcontainers.containers;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.HealthCheck;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * @author Artyom Dubinin
  */
-@Deprecated
 public class VshardClusterContainer extends GenericContainer<VshardClusterContainer>
-    implements TarantoolContainerOperations<VshardClusterContainer> {
+    implements ClusterContainer<VshardClusterContainer> {
 
   protected static final String ROUTER_HOST = "localhost";
   protected static final int ROUTER_PORT = 3301;
@@ -37,6 +44,17 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final String DOCKERFILE = "Dockerfile";
   protected static final String SCRIPT_RESOURCE_DIRECTORY = "";
   protected static final String INSTANCE_DIR = "/app";
+  protected static final String APP_NAME = "vshard-cluster";
+  protected static final String VSHARD_STARTUP_COMMAND_TEMPLATE =
+      "cd %s && rm -f tt.yaml"
+          + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt init"
+          + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt build"
+          + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt start "
+          + APP_NAME
+          + " && sleep infinity";
+  protected static final String VSHARD_BOOTSTRAP_COMMAND =
+      "return require('vshard').router.bootstrap({if_not_bootstrapped = true})";
+  protected static final String ROUTER_HEALTH_COMMAND = "return box.info.status";
 
   public static final String ENV_TARANTOOL_VERSION = "TARANTOOL_VERSION";
   public static final String ENV_TARANTOOL_SERVER_USER = "TARANTOOL_SERVER_USER";
@@ -51,9 +69,15 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   public static final String ENV_TARANTOOL_CLUSTER_COOKIE = "TARANTOOL_CLUSTER_COOKIE";
 
   protected static final int TIMEOUT_CRUD_HEALTH_IN_SECONDS = 60;
+  protected static final int TIMEOUT_ROUTER_HEALTH_IN_SECONDS = 90;
+  protected static final int TIMEOUT_VSHARD_BOOTSTRAP_IN_SECONDS = 90;
+  protected static final int TIMEOUT_CONTAINER_START_IN_SECONDS = 600;
 
   protected final String TARANTOOL_RUN_DIR;
   private final TarantoolConfigParser configParser;
+  private final List<String> instanceNames;
+  private final Lock lock;
+  private boolean configured;
 
   protected boolean useFixedPorts = false;
   @Getter protected String routerHost = ROUTER_HOST;
@@ -125,6 +149,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this.instancesFile = instancesFile;
     this.configFile = configFile;
     this.configParser = new TarantoolConfigParser(configFile);
+    this.instanceNames = parseInstanceNames(instancesFile);
+    this.lock = new ReentrantLock();
   }
 
   protected static ImageFromDockerfile withBuildArgs(
@@ -291,15 +317,56 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
 
   @Override
   protected void configure() {
-    if (!getDirectoryBinding().isEmpty()) {
-      withFileSystemBind(getDirectoryBinding(), getInstanceDir(), BindMode.READ_WRITE);
-    }
-    if (useFixedPorts) {
-      for (Integer port : configParser.getExposablePorts()) {
-        addFixedExposedPort(port, port);
+    try {
+      this.lock.lock();
+
+      if (this.configured) {
+        return;
       }
-    } else {
-      addExposedPorts(ArrayUtils.toPrimitive(configParser.getExposablePorts()));
+
+      if (!getDirectoryBinding().isEmpty()) {
+        withFileSystemBind(getDirectoryBinding(), getInstanceDir(), BindMode.READ_WRITE);
+      }
+
+      if (!instanceNames.isEmpty()) {
+        withNetworkAliases(instanceNames.toArray(new String[0]));
+      }
+
+      if (useFixedPorts) {
+        for (Integer port : configParser.getExposablePorts()) {
+          addFixedExposedPort(port, port);
+        }
+      } else {
+        addExposedPorts(ArrayUtils.toPrimitive(configParser.getExposablePorts()));
+      }
+
+      String configFileName = getFileName(configFile);
+      withEnv("TT_CONFIG", instanceDir + "/vshard-cluster/" + configFileName);
+      withStartupTimeout(Duration.ofSeconds(TIMEOUT_CONTAINER_START_IN_SECONDS));
+      withPrivilegedMode(true);
+      withCreateContainerCmdModifier(
+          cmd -> {
+            cmd.withUser("root")
+                .withEntrypoint("sh")
+                .withHealthcheck(new HealthCheck().withTest(List.of("NONE")));
+
+            String[] env = cmd.getEnv();
+            if (env != null && env.length > 0) {
+              cmd.withEnv(
+                  Arrays.stream(env)
+                      .filter(e -> !e.startsWith("TT_APP_NAME="))
+                      .filter(e -> !e.startsWith("TT_INSTANCE_NAME="))
+                      .toArray(String[]::new));
+            }
+          });
+      withCommand(
+          "-ec", String.format(VSHARD_STARTUP_COMMAND_TEMPLATE, instanceDir + "/vshard-cluster"));
+
+      this.configured = true;
+    } catch (Exception e) {
+      throw new ContainerLaunchException(e.getMessage(), e);
+    } finally {
+      this.lock.unlock();
     }
   }
 
@@ -312,6 +379,8 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected void containerIsStarted(InspectContainerResponse containerInfo, boolean reused) {
     super.containerIsStarted(containerInfo, reused);
 
+    waitUntilRouterIsUp(TIMEOUT_ROUTER_HEALTH_IN_SECONDS);
+    waitUntilVshardIsBootstrapped(TIMEOUT_VSHARD_BOOTSTRAP_IN_SECONDS);
     waitUntilCrudIsUp(TIMEOUT_CRUD_HEALTH_IN_SECONDS);
 
     logger().info("Tarantool vshard cluster cluster is started");
@@ -326,6 +395,20 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     if (!waitUntilTrue(secondsToWait, this::crudIsUp)) {
       throw new RuntimeException(
           "Timeout exceeded during router starting stage." + " See the specific error in logs.");
+    }
+  }
+
+  protected void waitUntilRouterIsUp(int secondsToWait) {
+    if (!waitUntilTrue(secondsToWait, this::routerIsUp)) {
+      throw new RuntimeException(
+          "Timeout exceeded during router startup stage." + " See the specific error in logs.");
+    }
+  }
+
+  protected void waitUntilVshardIsBootstrapped(int secondsToWait) {
+    if (!waitUntilTrue(secondsToWait, this::vshardIsBootstrapped)) {
+      throw new RuntimeException(
+          "Timeout exceeded during vshard bootstrap stage." + " See the specific error in logs.");
     }
   }
 
@@ -362,6 +445,67 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     } catch (Exception e) {
       logger().error(e.getMessage());
       return false;
+    }
+  }
+
+  protected boolean routerIsUp() {
+    ExecResult result;
+    try {
+      result = TarantoolContainerClientHelper.executeCommand(this, ROUTER_HEALTH_COMMAND, null);
+      if (result.getExitCode() != 0) {
+        logger()
+            .error(
+                "exit code: {}, stdout: {}, stderr: {}",
+                result.getExitCode(),
+                result.getStdout(),
+                result.getStderr());
+        return false;
+      }
+      return result.getStdout().contains("running");
+    } catch (Exception e) {
+      logger().error(e.getMessage());
+      return false;
+    }
+  }
+
+  protected boolean vshardIsBootstrapped() {
+    try {
+      List<?> result =
+          TarantoolContainerClientHelper.executeCommandDecoded(
+              this, VSHARD_BOOTSTRAP_COMMAND, null);
+      if (result.size() >= 2 && result.get(1) != null) {
+        logger().warn("Vshard bootstrap is not ready yet: {}", result.get(1));
+        return false;
+      }
+      return result.size() >= 1 && Boolean.TRUE.equals(result.get(0));
+    } catch (Exception e) {
+      logger().warn("Vshard bootstrap attempt failed: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  protected String getFileName(String filePath) {
+    if (filePath == null || filePath.isEmpty()) {
+      throw new IllegalArgumentException("File path must not be null or empty");
+    }
+    int idx = filePath.lastIndexOf('/');
+    return idx >= 0 ? filePath.substring(idx + 1) : filePath;
+  }
+
+  private List<String> parseInstanceNames(String instancesPath) {
+    try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(instancesPath)) {
+      if (inputStream == null) {
+        throw new IllegalArgumentException(
+            String.format("No resource path found for the specified resource %s", instancesPath));
+      }
+      Object parsed = new Yaml().load(inputStream);
+      if (!(parsed instanceof Map<?, ?>)) {
+        return Collections.emptyList();
+      }
+      return ((Map<?, ?>) parsed)
+          .keySet().stream().map(String::valueOf).collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
