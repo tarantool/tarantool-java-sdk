@@ -35,22 +35,22 @@ groups:
           storage-001-a:
             iproto:
               listen:
-                - uri: "3303"
+                - uri: "127.0.0.1:3303"
           storage-001-b:
             iproto:
               listen:
-                - uri: "3304"
+                - uri: "127.0.0.1:3304"
       storage-002:
         leader: storage-002-a
         instances:
           storage-002-a:
             iproto:
               listen:
-                - uri: "3305"
+                - uri: "127.0.0.1:3305"
           storage-002-b:
             iproto:
               listen:
-                - uri: "3306"
+                - uri: "127.0.0.1:3306"
   routers:
     app:
       module: router
@@ -62,10 +62,10 @@ groups:
           router-001-a:
             iproto:
               listen:
-                - uri: "3301"
+                - uri: "0.0.0.0:3301"
       router-002:
         instances:
           router-002-a:
             iproto:
               listen:
-                - uri: "3302"
+                - uri: "0.0.0.0:3302"

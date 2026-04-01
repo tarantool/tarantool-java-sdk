@@ -36,9 +36,22 @@ class TarantoolConfigParser {
             .flatMap(Collection::stream)
             .map(Map::values)
             .flatMap(Collection::stream)
-            .map(Integer::parseInt)
+            .map(TarantoolConfigParser::parsePort)
             .collect(Collectors.toList());
 
     return ports.toArray(new Integer[] {});
+  }
+
+  private static Integer parsePort(String uri) {
+    if (uri == null || uri.isEmpty()) {
+      throw new IllegalArgumentException("Listen URI must not be null or empty");
+    }
+
+    String normalized = uri.trim();
+    int lastColon = normalized.lastIndexOf(':');
+    if (lastColon >= 0) {
+      normalized = normalized.substring(lastColon + 1);
+    }
+    return Integer.parseInt(normalized);
   }
 }

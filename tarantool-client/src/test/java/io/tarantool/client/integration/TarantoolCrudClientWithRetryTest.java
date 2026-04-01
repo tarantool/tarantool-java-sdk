@@ -21,12 +21,11 @@ import io.netty.util.Timer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolCartridgeContainer;
+import org.testcontainers.containers.CartridgeClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -36,7 +35,6 @@ import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.mapping.Tuple;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(value = 5)
 @Testcontainers
 public class TarantoolCrudClientWithRetryTest {
@@ -84,8 +82,8 @@ public class TarantoolCrudClientWithRetryTest {
     }
   }
 
-  private static final TarantoolCartridgeContainer tt =
-      new TarantoolCartridgeContainer(
+  private static final CartridgeClusterContainer tt =
+      new CartridgeClusterContainer(
               "cartridge/Dockerfile",
               System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "")
                   + "cartridge",
