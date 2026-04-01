@@ -13,7 +13,7 @@
 
     <properties>
         <jackson.version>2.18.4</jackson.version>
-        <msgpack.version>0.9.10</msgpack.version>
+        <msgpack.version>0.9.11</msgpack.version>
         <netty.version>4.2.7.Final</netty.version>
         <slf4j.api.version>2.0.17</slf4j.api.version>
         <testcontainers.version>2.0.1</testcontainers.version>
@@ -32,7 +32,7 @@
         <commons-codec.version>1.19.0</commons-codec.version>
         <commons-io.version>2.20.0</commons-io.version>
         <instancio.version>5.5.1</instancio.version>
-        <jsonschema2pojo.version>1.2.2</jsonschema2pojo.version>
+        <jsonschema2pojo.version>1.3.0</jsonschema2pojo.version>
     </properties>
 
     <dependencyManagement>
