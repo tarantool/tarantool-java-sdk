@@ -52,7 +52,11 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final int TIMEOUT_CRUD_HEALTH_IN_SECONDS = 60;
 
   private static final String TMP_DIR = "/tmp";
-  private static final String ECHO_COMMAND_TEMPLATE = "echo \"%s\" | tt connect %s:%s@localhost:%d";
+  private static final String TARANTOOL_VERSION =
+      System.getenv().getOrDefault("TARANTOOL_VERSION", "2.11.8-ubuntu20.04");
+  private static final String TT_COMMAND =
+      TARANTOOL_VERSION.startsWith("2.") ? "tarantoolctl" : "tt";
+  private static final String ECHO_COMMAND_TEMPLATE = "echo \"%s\" | %s connect %s:%s@127.0.0.1:%d";
 
   protected final String TARANTOOL_RUN_DIR;
   private final TarantoolConfigParser configParser;
@@ -340,6 +344,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
               String.format(
                   ECHO_COMMAND_TEMPLATE,
                   "return require('crud')._VERSION",
+                  TT_COMMAND,
                   routerUsername,
                   routerPassword,
                   routerPort));
@@ -374,7 +379,13 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
       }
       command = command.replace("\"", "\\\"");
       String bashCommand =
-          String.format(ECHO_COMMAND_TEMPLATE, command, routerUsername, routerPassword, routerPort);
+          String.format(
+              ECHO_COMMAND_TEMPLATE,
+              command,
+              TT_COMMAND,
+              routerUsername,
+              routerPassword,
+              routerPort);
       return execInContainer("/bin/sh", "-c", bashCommand);
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
