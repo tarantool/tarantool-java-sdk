@@ -24,3 +24,4 @@ You need to download and install the library according to the [instructions](INS
 ## Documentation
 
 - [Release](RELEASING.md)
+- [Documentation deploy](DOC_DEPLOY.md)
