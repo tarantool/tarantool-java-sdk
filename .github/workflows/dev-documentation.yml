@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       RENDERER_NETWORK: renderer-net
-      RENDERER_IMAGE: plantuml/plantuml-server:jetty-v1.2026.0
+      RENDERER_IMAGE: plantuml/plantuml-server:jetty-v1.2026.2
       RENDERER_CONTAINER_NAME: renderer
     defaults:
       run:
