@@ -2,11 +2,6 @@ name: release-documentation
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: Git tag to deploy
-        required: true
-        type: string
 
 env:
   CI_DOCKER_CACHE_PATH: ci/cache/docker
@@ -29,21 +24,31 @@ jobs:
       RENDERER_IMAGE: plantuml/plantuml-server:jetty-v1.2026.0
       RENDERER_CONTAINER_NAME: renderer
     steps:
-      - name: Validate semver tag  format
+      - name: Check that the pipeline started on a tag and not on a branch
+        id: validate-inputs
+        run: |
+          if [[ "${{ github.ref_type }}" != "tag" ]]; then
+            echo "::error title=Invalid Ref::Workflow must be triggered on a tag"
+            echo "::notice::Please select a tag from the dropdown when running this workflow"
+            exit 1
+          fi
+
+      - name: Check that the tag matches the tag format used by semver
         id: validate-tag
         run: |
-          TAG="${{ github.event.inputs.tag }}"
+          TAG="${{ github.ref_name }}"
 
           if [[ ! $TAG =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌Tag '$TAG' doesn't match semver format"
-            echo "Examples: 1.2.3, 3.0.1"
+            echo "::error title=Invalid Semver::Tag '$TAG' doesn't match semver format X.Y.Z"
+            echo "::notice::Examples of valid tags: 1.2.3, 3.0.1, 0.1.0"
             exit 1
           fi
           
           MAJOR_MINOR=$(echo $TAG | cut -d. -f1-2)
           VERSION="${MAJOR_MINOR}.*"
-          echo "✅ Valid tag: $TAG"
-          echo "Version for docs: $VERSION"
+          
+          echo "::notice title=Valid Version::Deploying documentation for version $VERSION (from tag $TAG)"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Checkout repository with tag
