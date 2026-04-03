@@ -11,11 +11,10 @@ import java.time.Duration;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.TarantoolCartridgeContainer;
-import org.testcontainers.containers.TarantoolContainerOperations;
+import org.testcontainers.containers.CartridgeClusterContainer;
+import org.testcontainers.containers.ClusterContainer;
 import org.testcontainers.containers.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
@@ -24,11 +23,10 @@ import static io.tarantool.spring.data33.utils.TarantoolTestSupport.DEFAULT_TEST
 import static io.tarantool.spring.data33.utils.TarantoolTestSupport.writeTestPropertiesYaml;
 import io.tarantool.spring.data33.config.properties.TarantoolProperties;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @Timeout(60)
 public abstract class BaseIntegrationTest {
 
-  protected static TarantoolContainerOperations<?> clusterContainer;
+  protected static ClusterContainer<?> clusterContainer;
 
   private static final String dockerRegistry =
       System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "");
@@ -55,8 +53,8 @@ public abstract class BaseIntegrationTest {
       }
       clusterContainer = vshardClusterContainer;
     } else {
-      TarantoolCartridgeContainer cartridgeContainer =
-          new TarantoolCartridgeContainer(
+      CartridgeClusterContainer cartridgeContainer =
+          new CartridgeClusterContainer(
                   "cartridge/Dockerfile",
                   dockerRegistry + "cartridge",
                   "cartridge/instances.yml",
@@ -77,6 +75,8 @@ public abstract class BaseIntegrationTest {
     final TarantoolProperties properties = new TarantoolProperties();
     properties.setHost(clusterContainer.getHost());
     properties.setPort(clusterContainer.getPort());
+    properties.setUserName(clusterContainer.getUsername());
+    properties.setPassword(clusterContainer.getPassword());
 
     writeTestPropertiesYaml(DEFAULT_PROPERTY_FILE_NAME, properties);
   }
@@ -92,6 +92,14 @@ public abstract class BaseIntegrationTest {
 
   protected static int getPort() {
     return clusterContainer.getPort();
+  }
+
+  protected static String getUsername() {
+    return clusterContainer.getUsername();
+  }
+
+  protected static String getPassword() {
+    return clusterContainer.getPassword();
   }
 
   protected static boolean isCartridgeAvailable() {

@@ -73,7 +73,11 @@ class RepositoryConfigurationExtensionTest extends BaseIntegrationTest {
   }
 
   private static TarantoolCrudClientBuilder getCrudClientSettings() {
-    return TarantoolFactory.crud().withHost(getHost()).withPort(getPort());
+    return TarantoolFactory.crud()
+        .withHost(getHost())
+        .withPort(getPort())
+        .withUser(getUsername())
+        .withPassword(getPassword());
   }
 
   private static TarantoolBoxClientBuilder getBoxClientSettings() {
