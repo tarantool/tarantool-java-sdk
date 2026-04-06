@@ -3,13 +3,35 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers;
+package org.testcontainers.containers.cluster;
+
+import java.util.Map;
+
+import org.testcontainers.containers.Container;
 
 /**
  * Common interface for Tarantool cluster containers (vshard-based and cartridge-based). Provides
  * access to the router endpoint and command execution.
  */
 public interface ClusterContainer<T extends Container<T>> extends Container<T> {
+
+  /** Returns cluster configurator used for post-startup cluster setup. */
+  ClusterConfigurator<? extends ClusterContainer<?>> getConfigurator();
+
+  /** Returns configured cluster name. */
+  default String clusterName() {
+    return getConfigurator().clusterName();
+  }
+
+  /** Returns all nodes handled by the configurator. */
+  default Map<String, ? extends ClusterContainer<?>> nodes() {
+    return getConfigurator().nodes();
+  }
+
+  /** Returns true if cluster topology was configured. */
+  default boolean configured() {
+    return getConfigurator().configured();
+  }
 
   /**
    * Get the router host.

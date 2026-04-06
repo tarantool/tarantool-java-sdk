@@ -13,9 +13,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.CartridgeClusterContainer;
-import org.testcontainers.containers.ClusterContainer;
-import org.testcontainers.containers.VshardClusterContainer;
+import org.testcontainers.containers.cluster.ClusterContainer;
+import org.testcontainers.containers.cluster.cartridge.CartridgeClusterContainer;
+import org.testcontainers.containers.cluster.vshard.VshardClusterContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 import static io.tarantool.spring.data.utils.Constants.DEFAULT_PROPERTY_FILE_NAME;

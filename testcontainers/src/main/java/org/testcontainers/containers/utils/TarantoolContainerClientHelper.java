@@ -22,9 +22,9 @@ import java.util.concurrent.ExecutionException;
 
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import lombok.SneakyThrows;
-import org.testcontainers.containers.ClusterContainer;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.cluster.ClusterContainer;
 import org.testcontainers.containers.tarantool.Tarantool2Container;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.containers.tarantool.Tarantool3WaitStrategy;

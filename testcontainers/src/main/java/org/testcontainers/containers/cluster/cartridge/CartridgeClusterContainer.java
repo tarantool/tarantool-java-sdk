@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package org.testcontainers.containers;
+package org.testcontainers.containers.cluster.cartridge;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -18,6 +18,10 @@ import java.util.function.Supplier;
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import org.apache.commons.lang3.ArrayUtils;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.cluster.ClusterConfigurator;
+import org.testcontainers.containers.cluster.ClusterContainer;
 import org.testcontainers.containers.utils.CartridgeConfigParser;
 import org.testcontainers.containers.utils.SslContext;
 import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
@@ -53,6 +57,7 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
 
   protected final CartridgeConfigParser instanceFileParser;
   protected final String TARANTOOL_RUN_DIR;
+  protected ClusterConfigurator<CartridgeClusterContainer> configurator;
 
   protected boolean useFixedPorts = false;
   protected String routerHost = ROUTER_HOST;
@@ -125,6 +130,7 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
     this.instancesFile = instancesFile;
     this.topologyConfigurationFile = topologyConfigurationFile;
     this.instanceFileParser = new CartridgeConfigParser(instancesFile);
+    this.configurator = new CartridgeClusterConfigurator(this);
   }
 
   protected static ImageFromDockerfile withBuildArgs(
@@ -249,6 +255,21 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
     return routerPort;
   }
 
+  @Override
+  public ClusterConfigurator<CartridgeClusterContainer> getConfigurator() {
+    return this.configurator;
+  }
+
+  public CartridgeClusterContainer withClusterConfigurator(
+      ClusterConfigurator<CartridgeClusterContainer> configurator) {
+    checkNotRunning();
+    if (configurator == null) {
+      throw new IllegalArgumentException("Cluster configurator must not be null");
+    }
+    this.configurator = configurator;
+    return this;
+  }
+
   public String getAPIHost() {
     return routerHost;
   }
@@ -316,7 +337,7 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
 
   @Override
   protected void configure() {
-    if (!getDirectoryBinding().isEmpty()) {
+    if (!getDirectoryBinding().isBlank()) {
       withFileSystemBind(getDirectoryBinding(), getInstanceDir(), BindMode.READ_WRITE);
     }
     if (useFixedPorts) {
@@ -405,10 +426,7 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
   protected void containerIsStarted(InspectContainerResponse containerInfo, boolean reused) {
     super.containerIsStarted(containerInfo, reused);
 
-    waitUntilRouterIsUp(TIMEOUT_ROUTER_UP_CARTRIDGE_HEALTH_IN_SECONDS);
-    retryingSetupTopology();
-    waitUntilCartridgeIsHealthy(TIMEOUT_ROUTER_UP_CARTRIDGE_HEALTH_IN_SECONDS);
-    bootstrapVshard();
+    this.configurator.configure();
 
     logger().info("Tarantool Cartridge cluster is started");
     logger()
