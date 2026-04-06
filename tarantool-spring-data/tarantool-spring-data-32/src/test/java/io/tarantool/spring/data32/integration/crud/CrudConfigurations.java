@@ -13,7 +13,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +20,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 
 import static io.tarantool.client.TarantoolClient.DEFAULT_TAG;
-import static io.tarantool.client.crud.TarantoolCrudClient.DEFAULT_CRUD_PASSWORD;
-import static io.tarantool.client.crud.TarantoolCrudClient.DEFAULT_CRUD_USERNAME;
 import static io.tarantool.spring.data.utils.Constants.DEFAULT_PROPERTY_FILE_LOCATION_CLASSPATH;
 import static io.tarantool.spring.data32.utils.TarantoolTestSupport.COMPLEX_PERSON_SPACE;
 import static io.tarantool.spring.data32.utils.TarantoolTestSupport.PERSON_SPACE;
@@ -34,7 +31,6 @@ import io.tarantool.pool.InstanceConnectionGroup;
 import io.tarantool.spring.data32.integration.BaseIntegrationTest;
 import io.tarantool.spring.data32.repository.config.EnableTarantoolRepositories;
 
-@Disabled("Refactor TarantoolCartridgeContainer and VshardClusterContainer")
 @TestPropertySource(properties = {DEFAULT_PROPERTY_FILE_LOCATION_CLASSPATH})
 abstract class CrudConfigurations extends BaseIntegrationTest {
 
@@ -51,8 +47,8 @@ abstract class CrudConfigurations extends BaseIntegrationTest {
         InstanceConnectionGroup.builder()
             .withHost(clusterContainer.getHost())
             .withPort(clusterContainer.getPort())
-            .withUser(DEFAULT_CRUD_USERNAME)
-            .withPassword(DEFAULT_CRUD_PASSWORD)
+            .withUser(getUsername())
+            .withPassword(getPassword())
             .withTag(DEFAULT_TAG)
             .withSize(4)
             .build();

@@ -24,7 +24,7 @@ import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import lombok.SneakyThrows;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.TarantoolContainerOperations;
+import org.testcontainers.containers.cluster.ClusterContainer;
 import org.testcontainers.containers.tarantool.Tarantool2Container;
 import org.testcontainers.containers.tarantool.Tarantool3Container;
 import org.testcontainers.containers.tarantool.Tarantool3WaitStrategy;
@@ -94,12 +94,17 @@ public final class TarantoolContainerClientHelper {
           + "        ); "
           + "    os.exit(); "
           + "\" > container-tmp.lua &&"
+          + " env -u TT_CONFIG -u TT_APP_NAME -u TT_INSTANCE_NAME"
+          + " -u TT_CONFIG_ETCD_ENDPOINTS -u TT_CONFIG_ETCD_PREFIX"
           + " tarantool container-tmp.lua";
   private static final String MTLS_COMMAND_TEMPLATE =
       "echo \"     print(require('yaml').encode(         {require('net.box').connect(             {"
           + " uri='%s:%d', params = { transport='ssl', ssl_key_file = '%s', ssl_cert_file = '%s'"
           + " }},              { user = '%s', password = '%s' }             ):eval('%s')})        "
-          + " );     os.exit(); \" > container-tmp.lua && tarantool container-tmp.lua";
+          + " );     os.exit(); \" > container-tmp.lua &&"
+          + " env -u TT_CONFIG -u TT_APP_NAME -u TT_INSTANCE_NAME"
+          + " -u TT_CONFIG_ETCD_ENDPOINTS -u TT_CONFIG_ETCD_PREFIX"
+          + " tarantool container-tmp.lua";
   private static final String SSL_COMMAND_TEMPLATE =
       "echo \" "
           + "    print(require('yaml').encode( "
@@ -110,6 +115,8 @@ public final class TarantoolContainerClientHelper {
           + "        ); "
           + "    os.exit(); "
           + "\" > container-tmp.lua &&"
+          + " env -u TT_CONFIG -u TT_APP_NAME -u TT_INSTANCE_NAME"
+          + " -u TT_CONFIG_ETCD_ENDPOINTS -u TT_CONFIG_ETCD_PREFIX"
           + " tarantool container-tmp.lua";
 
   private static final String API_USER = "api_user";
@@ -374,7 +381,7 @@ public final class TarantoolContainerClientHelper {
   }
 
   public static Container.ExecResult executeScript(
-      TarantoolContainerOperations<?> container, String scriptResourcePath, SslContext sslContext)
+      ClusterContainer<?> container, String scriptResourcePath, SslContext sslContext)
       throws IOException, InterruptedException {
     if (!container.isRunning()) {
       throw new IllegalStateException("Cannot execute scripts in stopped container");
@@ -389,7 +396,7 @@ public final class TarantoolContainerClientHelper {
   }
 
   public static <T> T executeScriptDecoded(
-      TarantoolContainerOperations<?> container, String scriptResourcePath, SslContext sslContext)
+      ClusterContainer<?> container, String scriptResourcePath, SslContext sslContext)
       throws IOException, InterruptedException, ExecutionException {
     Container.ExecResult result = executeScript(container, scriptResourcePath, sslContext);
 
@@ -419,7 +426,7 @@ public final class TarantoolContainerClientHelper {
   }
 
   public static Container.ExecResult executeCommand(
-      TarantoolContainerOperations<?> container, String command, SslContext sslContext)
+      ClusterContainer<?> container, String command, SslContext sslContext)
       throws IOException, InterruptedException {
     if (!container.isRunning()) {
       throw new IllegalStateException("Cannot execute commands in stopped container");
@@ -464,7 +471,7 @@ public final class TarantoolContainerClientHelper {
   }
 
   public static <T> T executeCommandDecoded(
-      TarantoolContainerOperations<?> container, String command, SslContext sslContext)
+      ClusterContainer<?> container, String command, SslContext sslContext)
       throws IOException, InterruptedException {
     Container.ExecResult result = executeCommand(container, command, sslContext);
 

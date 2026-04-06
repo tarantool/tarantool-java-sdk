@@ -6,6 +6,7 @@
 package org.testcontainers.containers.utils;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,21 @@ public class CartridgeConfigParser {
       this.workdir = (String) map.get("workdir");
       this.httpPort = (Integer) map.get("http_port");
       this.advertiseUri = (String) map.get("advertise_uri");
-      this.binaryPort =
-          this.advertiseUri != null
-              ? Integer.parseInt(this.advertiseUri.substring(this.advertiseUri.indexOf(':') + 1))
-              : null;
+      this.binaryPort = this.advertiseUri != null ? parsePort(this.advertiseUri) : null;
+    }
+
+    private static int parsePort(String uri) {
+      if (uri == null || uri.trim().isEmpty()) {
+        throw new IllegalArgumentException("Advertise URI must not be null or empty");
+      }
+      String normalized = uri.trim();
+      String uriWithScheme = normalized.contains("://") ? normalized : "tcp://" + normalized;
+      URI parsed = URI.create(uriWithScheme);
+      int port = parsed.getPort();
+      if (port < 0) {
+        throw new IllegalArgumentException("Advertise URI must contain a valid port: " + uri);
+      }
+      return port;
     }
 
     public String getWorkdir() {
