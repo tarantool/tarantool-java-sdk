@@ -26,8 +26,8 @@ import org.springframework.data.repository.query.Parameter;
 import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.QueryMethod;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
@@ -79,16 +79,15 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
    * repository.
    *
    * @param queryMethod Method defined in Tarantool Repositories
-   * @param evaluationContextProvider Not used
    * @param keyValueOperations Interface to Tarantool
    * @param queryCreator Not used
    */
   public TarantoolPartTreeQuery(
       QueryMethod queryMethod,
-      QueryMethodEvaluationContextProvider evaluationContextProvider,
+      ValueExpressionDelegate valueExpressionDelegate,
       KeyValueOperations keyValueOperations,
       Class<? extends AbstractQueryCreator<?, ?>> queryCreator) {
-    super(queryMethod, evaluationContextProvider, keyValueOperations, queryCreator);
+    super(queryMethod, valueExpressionDelegate, keyValueOperations, queryCreator);
     this.queryMethod = queryMethod;
     this.keyValueOperations = keyValueOperations;
     this.isRearrangeKnown = false;

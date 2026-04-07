@@ -12,7 +12,7 @@ import org.springframework.data.keyvalue.repository.query.SpelQueryCreator;
 import org.springframework.data.keyvalue.repository.support.KeyValueRepositoryFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 
 import io.tarantool.client.crud.TarantoolCrudClient;
@@ -68,10 +68,10 @@ public class TarantoolRepositoryFactory extends KeyValueRepositoryFactory {
    */
   @Override
   protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
-      QueryLookupStrategy.Key key, QueryMethodEvaluationContextProvider evaluationContextProvider) {
+      QueryLookupStrategy.Key key, ValueExpressionDelegate valueExpressionDelegate) {
     return Optional.of(
         new TarantoolQueryLookupStrategy(
-            client, key, evaluationContextProvider, keyValueOperations, queryCreator));
+            client, key, valueExpressionDelegate, keyValueOperations, queryCreator));
   }
 
   @Override

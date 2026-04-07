@@ -13,8 +13,8 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
-import org.springframework.data.repository.query.QueryMethodEvaluationContextProvider;
 import org.springframework.data.repository.query.RepositoryQuery;
+import org.springframework.data.repository.query.ValueExpressionDelegate;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.util.Assert;
 
@@ -31,7 +31,7 @@ import io.tarantool.spring.data40.query.TarantoolRepositoryQuery;
  */
 public class TarantoolQueryLookupStrategy implements QueryLookupStrategy {
 
-  private final QueryMethodEvaluationContextProvider evaluationContextProvider;
+  private final ValueExpressionDelegate valueExpressionDelegate;
   private final KeyValueOperations keyValueOperations;
   private final Class<? extends AbstractQueryCreator<?, ?>> queryCreator;
   private final TarantoolCrudClient client;
@@ -41,23 +41,22 @@ public class TarantoolQueryLookupStrategy implements QueryLookupStrategy {
    *
    * @param client tarantool crud client
    * @param key Not used
-   * @param evaluationContextProvider For evaluation of query expressions
    * @param keyValueOperations Bean to use for Key/Value operations on Tarantool repos
    * @param queryCreator Query creator
    */
   public TarantoolQueryLookupStrategy(
       TarantoolCrudClient client,
       Key key,
-      QueryMethodEvaluationContextProvider evaluationContextProvider,
+      ValueExpressionDelegate valueExpressionDelegate,
       KeyValueOperations keyValueOperations,
       Class<? extends AbstractQueryCreator<?, ?>> queryCreator) {
 
-    Assert.notNull(evaluationContextProvider, "EvaluationContextProvider must not be null!");
+    Assert.notNull(valueExpressionDelegate, "EvaluationContextProvider must not be null!");
     Assert.notNull(keyValueOperations, "KeyValueOperations must not be null!");
     Assert.notNull(queryCreator, "Query creator type must not be null!");
 
     this.client = client;
-    this.evaluationContextProvider = evaluationContextProvider;
+    this.valueExpressionDelegate = valueExpressionDelegate;
     this.keyValueOperations = keyValueOperations;
     this.queryCreator = queryCreator;
   }
@@ -85,6 +84,6 @@ public class TarantoolQueryLookupStrategy implements QueryLookupStrategy {
     }
 
     return new TarantoolPartTreeQuery(
-        queryMethod, evaluationContextProvider, this.keyValueOperations, this.queryCreator);
+        queryMethod, valueExpressionDelegate, this.keyValueOperations, this.queryCreator);
   }
 }
