@@ -25,8 +25,7 @@ public interface TarantoolPageable<T> extends Pageable {
    *
    * @return tuple cursor of domain type.
    */
-  @Nullable
-  T getTupleCursor();
+  @Nullable T getTupleCursor();
 
   /**
    * Returns the {@link TarantoolPageable} for previous page or the {@link TarantoolPageable} for
@@ -66,6 +65,5 @@ public interface TarantoolPageable<T> extends Pageable {
    * @return {@link TarantoolPageable} which has {@code cursor == null}, page number is 0, the rest
    *     parameters are equivalent to the parameters of the current {@link TarantoolPageable}.
    */
-  @NonNull
-  TarantoolPageable<T> first();
+  @NonNull TarantoolPageable<T> first();
 }

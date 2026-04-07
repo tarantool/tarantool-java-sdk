@@ -116,8 +116,8 @@ class TarantoolMappingContextTest {
   }
 
   /**
-   * Create a mappingContext from the passed domain classes. After initialize - create for them PersistentEntities and
-   * add PersistentProperties to them.
+   * Create a mappingContext from the passed domain classes. After initialize - create for them
+   * PersistentEntities and add PersistentProperties to them.
    */
   private void initEntities(Set<Class<?>> entitySet) {
     TarantoolMappingContext<?, ?> mappingContext = new TarantoolMappingContext<>();

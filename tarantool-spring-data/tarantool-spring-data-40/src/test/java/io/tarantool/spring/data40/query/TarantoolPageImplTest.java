@@ -43,15 +43,16 @@ class TarantoolPageImplTest {
   private static final long MULTIPLIER = 2L;
 
   private static final BiFunction<Integer, String, Long> GET_TOTAL_ELEMENTS_FOR_TEST_DATA_CASE =
-      (pageSize, operator) -> switch (operator) {
-        // pageSize > totalPageCount
-        case ">" -> pageSize / MULTIPLIER;
-        // pageSize < totalPageCount
-        case "<" -> MULTIPLIER * pageSize;
-        // pageSize == totalPageCount
-        case "==" -> Long.valueOf(pageSize);
-        default -> throw new IllegalArgumentException("The passed option isn't supported");
-      };
+      (pageSize, operator) ->
+          switch (operator) {
+            // pageSize > totalPageCount
+            case ">" -> pageSize / MULTIPLIER;
+            // pageSize < totalPageCount
+            case "<" -> MULTIPLIER * pageSize;
+            // pageSize == totalPageCount
+            case "==" -> Long.valueOf(pageSize);
+            default -> throw new IllegalArgumentException("The passed option isn't supported");
+          };
 
   private static final List<Person> EMPTY_CONTENT = Collections.emptyList();
 

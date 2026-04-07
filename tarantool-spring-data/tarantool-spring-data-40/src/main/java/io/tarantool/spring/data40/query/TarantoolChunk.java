@@ -28,8 +28,7 @@ import org.springframework.util.Assert;
  */
 abstract class TarantoolChunk<T> implements Slice<T>, Serializable {
 
-  @Serial
-  private static final long serialVersionUID = 867755909294344406L;
+  @Serial private static final long serialVersionUID = 867755909294344406L;
 
   private final List<T> content = new ArrayList<>();
 

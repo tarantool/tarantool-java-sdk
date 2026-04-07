@@ -31,7 +31,8 @@ public abstract class GenericTarantoolConfigurationTest implements ApplicationCo
   @Autowired protected TarantoolProperties properties;
 
   @Override
-  public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NonNull ApplicationContext applicationContext)
+      throws BeansException {
     this.applicationContext = applicationContext;
   }
 
