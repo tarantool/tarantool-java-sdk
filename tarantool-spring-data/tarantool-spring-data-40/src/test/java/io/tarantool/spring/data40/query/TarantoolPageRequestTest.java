@@ -11,10 +11,10 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -254,7 +254,7 @@ class TarantoolPageRequestTest {
       List<TarantoolPageable<GenericPerson<?>>> equalPageableList,
       TarantoolPageable<GenericPerson<?>> notEqualPageable) {
 
-    assertTrue(equalPageableList.size() > 0);
+    assertFalse(equalPageableList.isEmpty());
     final int COUNT = 10;
 
     for (int i = 0; i < COUNT; i++) {
@@ -262,7 +262,7 @@ class TarantoolPageRequestTest {
         for (TarantoolPageable<GenericPerson<?>> secondPageable : equalPageableList) {
           assertEquals(pageable, secondPageable);
         }
-        assertNotEquals(pageable, null);
+        assertNotEquals(null, pageable);
         assertNotEquals(pageable, notEqualPageable);
       }
     }

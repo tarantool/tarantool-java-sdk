@@ -13,22 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.data.keyvalue.annotation.KeySpace;
 import org.springframework.data.keyvalue.core.mapping.KeySpaceResolver;
 import org.springframework.data.keyvalue.core.mapping.KeyValuePersistentEntity;
 import org.springframework.data.keyvalue.core.mapping.KeyValuePersistentProperty;
+import org.springframework.data.mapping.MappingException;
 import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.PersistentProperty;
-import org.springframework.data.mapping.context.MappingContext;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.util.TypeInformation;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
@@ -85,44 +86,43 @@ class TarantoolMappingContextTest {
   @Test
   void testCreateEntityWithWrongCompositeKeyPartTypes() {
     Set<Class<?>> initialSet =
-        new HashSet<Class<?>>() {
+        new HashSet<>() {
           {
             add(EntityWithWrongFieldTypes.class);
           }
         };
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
+    MappingException exception =
+        assertThrows(MappingException.class, () -> initEntities(initialSet));
+    final Throwable cause = exception.getCause();
+    Assertions.assertInstanceOf(IllegalArgumentException.class, cause);
 
     Assertions.assertEquals(
-        KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, exception.getMessage());
+        KeyPartTypeChecker.COMPOSITE_KEY_FIELD_DIFFERENT_EXCEPTION, cause.getMessage());
   }
 
   @Test
   void testCreateEntityWithWrongCompositeKeyPartCount() {
     Set<Class<?>> initialSet =
-        new HashSet<Class<?>>() {
+        new HashSet<>() {
           {
             add(EntityWithWrongCompositeKeyPartsCount.class);
           }
         };
-    IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> initEntities(initialSet));
-
-    assertEquals(KeyPartTypeChecker.COMPOSITE_KEY_FIELDS_NUMBER_EXCEPTION, exception.getMessage());
+    MappingException exception =
+        assertThrows(MappingException.class, () -> initEntities(initialSet));
+    final Throwable cause = exception.getCause();
+    Assertions.assertInstanceOf(IllegalArgumentException.class, cause);
+    assertEquals(KeyPartTypeChecker.COMPOSITE_KEY_FIELDS_NUMBER_EXCEPTION, cause.getMessage());
   }
 
   /**
-   * Create a mappingContext from the passed domain classes. After initialize - create for them
-   * PersistentEntities and add PersistentProperties to them.
-   *
-   * @param entitySet
-   * @return
+   * Create a mappingContext from the passed domain classes. After initialize - create for them PersistentEntities and
+   * add PersistentProperties to them.
    */
-  private MappingContext<?, ?> initEntities(Set<Class<?>> entitySet) {
+  private void initEntities(Set<Class<?>> entitySet) {
     TarantoolMappingContext<?, ?> mappingContext = new TarantoolMappingContext<>();
     mappingContext.setInitialEntitySet(entitySet);
     mappingContext.initialize();
-    return mappingContext;
   }
 
   private enum TestResolver implements KeySpaceResolver {
@@ -130,7 +130,7 @@ class TarantoolMappingContextTest {
 
     @Override
     @Nullable
-    public String resolveKeySpace(Class<?> type) {
+    public String resolveKeySpace(@NonNull Class<?> type) {
 
       Assert.notNull(type, "Type for keyspace for null!");
 

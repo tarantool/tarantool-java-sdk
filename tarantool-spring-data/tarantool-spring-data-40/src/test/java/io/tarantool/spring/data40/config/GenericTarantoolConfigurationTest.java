@@ -8,6 +8,7 @@ package io.tarantool.spring.data40.config;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.BeansException;
@@ -30,7 +31,7 @@ public abstract class GenericTarantoolConfigurationTest implements ApplicationCo
   @Autowired protected TarantoolProperties properties;
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = applicationContext;
   }
 

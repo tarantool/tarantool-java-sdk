@@ -520,7 +520,7 @@ public class TarantoolSliceTest {
         for (Slice<T> secondPageable : equalPageableList) {
           assertEquals(pageable, secondPageable);
         }
-        assertNotEquals(pageable, null);
+        assertNotEquals(null, pageable);
         assertNotEquals(pageable, notEqualPageable);
       }
     }

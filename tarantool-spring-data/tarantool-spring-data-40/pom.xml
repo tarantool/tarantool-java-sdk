@@ -23,6 +23,8 @@
     <spring.boot.version>4.0.4</spring.boot.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
+    <!-- Spring framework 7.x перешел на 6 версию -->
+    <junit.version>6.0.3</junit.version>
   </properties>
 
   <dependencies>

@@ -39,7 +39,7 @@ class IdClassResolverTest {
   @Test
   void testResolveIdClassTypeWithEntityWithAnnotation() {
     assertEquals(
-        ID_CLASS_RESOLVER.resolveIdClassType(ComplexPerson.class), CompositePersonKey.class);
+        CompositePersonKey.class, ID_CLASS_RESOLVER.resolveIdClassType(ComplexPerson.class));
   }
 
   @Test

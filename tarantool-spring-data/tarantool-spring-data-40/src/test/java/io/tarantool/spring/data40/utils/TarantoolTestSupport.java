@@ -24,8 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.Property;
@@ -278,7 +278,7 @@ public class TarantoolTestSupport {
       @Nullable Integer connectionNumber,
       @Nullable String tag,
       @Nullable String user,
-      @Nullable IProtoAuth.AuthType type,
+      IProtoAuth.@Nullable AuthType type,
       @Nullable PropertyFlushConsolidationHandler propertyFlushConsolidationHandler) {
 
     PropertyInstanceConnectionGroup propertyInstanceConnectionGroup =
