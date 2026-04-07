@@ -60,7 +60,7 @@ public class ProxyTarantoolCrudKeyValueAdapter {
     return unwrapTuple(client.space(keyspace).delete(id, type).join());
   }
 
-  public Iterable<?> getAllOf(String keyspace) {
+  public Iterable<Object> getAllOf(String keyspace) {
     throw new UnsupportedOperationException(POTENTIAL_PERFORMANCE_ISSUES_EXCEPTION_MESSAGE);
   }
 

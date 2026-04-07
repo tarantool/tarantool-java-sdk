@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.keyvalue.core.QueryEngine;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.spring.data.ProxyTarantoolQueryEngine;

@@ -33,7 +33,7 @@ public class ProxyTarantoolBoxKeyValueAdapter {
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
-  public Iterable<?> getAllOf(String keyspace) {
+  public Iterable<Object> getAllOf(String keyspace) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
 

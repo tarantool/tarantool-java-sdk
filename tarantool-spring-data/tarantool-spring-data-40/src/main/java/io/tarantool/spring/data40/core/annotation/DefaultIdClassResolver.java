@@ -5,8 +5,8 @@
 
 package io.tarantool.spring.data40.core.annotation;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import io.tarantool.spring.data.core.annotation.IdClass;
@@ -22,7 +22,7 @@ public enum DefaultIdClassResolver implements IdClassResolver {
 
   @Nullable
   @Override
-  public Class<?> resolveIdClassType(Class<?> type) {
+  public Class<?> resolveIdClassType(@Nullable Class<?> type) {
     Assert.notNull(type, "Type for IdClass must be not null!");
 
     IdClass idClassTypeAnnotation = AnnotatedElementUtils.findMergedAnnotation(type, IdClass.class);

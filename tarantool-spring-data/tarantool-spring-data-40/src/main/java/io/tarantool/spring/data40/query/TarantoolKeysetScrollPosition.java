@@ -8,7 +8,7 @@ package io.tarantool.spring.data40.query;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 import static io.tarantool.spring.data.query.PaginationDirection.BACKWARD;

@@ -9,16 +9,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.core.PropertyPath;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.keyvalue.core.query.KeyValueQuery;
-import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.repository.query.ParameterAccessor;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -145,20 +145,18 @@ public class TarantoolQueryCreator
   }
 
   private boolean isIgnoreCase(Part part) {
-    switch (part.shouldIgnoreCase()) {
-      case ALWAYS:
+    return switch (part.shouldIgnoreCase()) {
+      case ALWAYS -> {
         Assert.state(
             canUpperCase(part.getProperty()),
             String.format(
                 "Unable to ignore case of %s types, the property '%s' must reference a String",
                 part.getProperty().getType().getName(), part.getProperty().getSegment()));
-        return true;
-      case WHEN_POSSIBLE:
-        return canUpperCase(part.getProperty());
-      case NEVER:
-      default:
-        return false;
-    }
+        yield true;
+      }
+      case WHEN_POSSIBLE -> canUpperCase(part.getProperty());
+      default -> false;
+    };
   }
 
   private boolean canUpperCase(PropertyPath path) {

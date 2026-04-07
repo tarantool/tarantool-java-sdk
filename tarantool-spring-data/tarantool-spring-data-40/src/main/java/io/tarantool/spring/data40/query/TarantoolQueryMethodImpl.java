@@ -22,7 +22,7 @@ public class TarantoolQueryMethodImpl extends QueryMethod implements TarantoolQu
 
   public TarantoolQueryMethodImpl(
       Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
-    super(method, metadata, factory);
+    super(method, metadata, factory, null);
     this.method = method;
   }
 

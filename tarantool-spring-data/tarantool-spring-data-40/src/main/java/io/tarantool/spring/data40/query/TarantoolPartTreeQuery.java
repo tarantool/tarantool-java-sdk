@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
@@ -31,7 +32,6 @@ import org.springframework.data.repository.query.parser.AbstractQueryCreator;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.PartTree;
 import org.springframework.data.util.StreamUtils;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import static io.tarantool.client.crud.ConditionOperator.GREATER_EQ;
@@ -117,7 +117,7 @@ public class TarantoolPartTreeQuery extends KeyValuePartTreeQuery {
    * @return Query result
    */
   @Override
-  public Object execute(@NonNull Object[] parameters) {
+  public Object execute(Object @NonNull [] parameters) {
     ParametersParameterAccessor accessor = this.prepareAccessor(parameters, tree);
 
     KeyValueQuery<?> query = prepareQuery(accessor);

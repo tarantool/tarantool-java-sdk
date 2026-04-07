@@ -5,6 +5,7 @@
 
 package io.tarantool.spring.data40.query;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,10 +15,10 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 /**
@@ -27,6 +28,7 @@ import org.springframework.util.Assert;
  */
 abstract class TarantoolChunk<T> implements Slice<T>, Serializable {
 
+  @Serial
   private static final long serialVersionUID = 867755909294344406L;
 
   private final List<T> content = new ArrayList<>();
@@ -110,6 +112,7 @@ abstract class TarantoolChunk<T> implements Slice<T>, Serializable {
   }
 
   @Override
+  @NonNull
   public Iterator<T> iterator() {
     return content.iterator();
   }
@@ -170,10 +173,9 @@ abstract class TarantoolChunk<T> implements Slice<T>, Serializable {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof TarantoolChunk)) {
+    if (!(o instanceof TarantoolChunk<?> that)) {
       return false;
     }
-    TarantoolChunk<?> that = (TarantoolChunk<?>) o;
     return content.equals(that.content) && pageable.equals(that.pageable);
   }
 

@@ -8,9 +8,9 @@ package io.tarantool.spring.data40.query;
 import java.io.Serial;
 import java.util.Objects;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.AbstractPageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import static io.tarantool.spring.data.query.PaginationDirection.BACKWARD;

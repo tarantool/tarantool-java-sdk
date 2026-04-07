@@ -1,3 +1,3 @@
 /** Config package. */
-@org.springframework.lang.NonNullApi
+@org.jspecify.annotations.NullMarked
 package io.tarantool.spring.data40.config;

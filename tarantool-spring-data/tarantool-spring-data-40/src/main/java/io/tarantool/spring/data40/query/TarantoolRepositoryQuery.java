@@ -5,6 +5,7 @@
 
 package io.tarantool.spring.data40.query;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.RepositoryQuery;
 
@@ -24,11 +25,12 @@ public class TarantoolRepositoryQuery implements RepositoryQuery {
   }
 
   @Override
-  public Object execute(Object[] parameters) {
+  public Object execute(Object @NonNull [] parameters) {
     return proxy.execute(parameters);
   }
 
   @Override
+  @NonNull
   public QueryMethod getQueryMethod() {
     return queryMethod;
   }

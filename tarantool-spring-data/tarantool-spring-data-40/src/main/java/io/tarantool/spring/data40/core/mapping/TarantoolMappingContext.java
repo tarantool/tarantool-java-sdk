@@ -5,6 +5,8 @@
 
 package io.tarantool.spring.data40.core.mapping;
 
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.core.TypeInformation;
 import org.springframework.data.keyvalue.core.mapping.BasicKeyValuePersistentEntity;
 import org.springframework.data.keyvalue.core.mapping.KeySpaceResolver;
 import org.springframework.data.keyvalue.core.mapping.KeyValuePersistentEntity;
@@ -12,8 +14,6 @@ import org.springframework.data.keyvalue.core.mapping.KeyValuePersistentProperty
 import org.springframework.data.keyvalue.core.mapping.context.KeyValueMappingContext;
 import org.springframework.data.mapping.model.Property;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
-import org.springframework.data.util.TypeInformation;
-import org.springframework.lang.Nullable;
 
 import io.tarantool.spring.data.core.annotation.IdClassResolver;
 import io.tarantool.spring.data40.core.annotation.DefaultIdClassResolver;

@@ -1,4 +1,3 @@
 /** Core annotations of data mapping. */
-@org.springframework.lang.NonNullFields
-@org.springframework.lang.NonNullApi
+@org.jspecify.annotations.NullMarked
 package io.tarantool.spring.data40.core.annotation;

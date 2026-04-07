@@ -5,9 +5,9 @@
 
 package io.tarantool.spring.data40.query;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import io.tarantool.spring.data.query.PaginationDirection;
 

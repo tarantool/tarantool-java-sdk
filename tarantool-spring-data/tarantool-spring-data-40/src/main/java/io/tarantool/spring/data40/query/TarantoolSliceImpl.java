@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.lang.NonNull;
 
 /**
  * Default implementation of {@link Slice} for Tarantool.
@@ -84,7 +84,7 @@ class TarantoolSliceImpl<T> extends TarantoolChunk<T> {
     String contentType = "UNKNOWN";
     List<T> content = getContent();
 
-    if (content.size() > 0) {
+    if (!content.isEmpty()) {
       contentType = content.get(0).getClass().getName();
     }
 

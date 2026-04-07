@@ -9,9 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.mapping.TargetAwareIdentifierAccessor;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 
@@ -27,7 +26,7 @@ public class CompositeIdPropertyAccessor extends TargetAwareIdentifierAccessor {
   private final Object target;
 
   public CompositeIdPropertyAccessor(
-      Object target, @NonNull Map<Field, Field> entityIdClassFields, Class<?> idClassType) {
+      Object target, Map<Field, Field> entityIdClassFields, Class<?> idClassType) {
 
     super(target);
     this.target = target;

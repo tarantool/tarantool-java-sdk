@@ -1,4 +1,3 @@
 /** Base package for the mapping subsystem. */
-@org.springframework.lang.NonNullFields
-@org.springframework.lang.NonNullApi
+@org.jspecify.annotations.NullMarked
 package io.tarantool.spring.data40.core.mapping;

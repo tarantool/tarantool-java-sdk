@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Window;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**

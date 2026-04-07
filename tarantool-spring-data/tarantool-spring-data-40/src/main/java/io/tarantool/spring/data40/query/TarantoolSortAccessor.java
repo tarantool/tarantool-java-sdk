@@ -8,6 +8,7 @@ package io.tarantool.spring.data40.query;
 import java.util.Comparator;
 import java.util.Map.Entry;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.keyvalue.core.SortAccessor;
@@ -26,7 +27,7 @@ public class TarantoolSortAccessor implements SortAccessor<Comparator<Entry<?, ?
    * @param query If not null, will contain one of more {@link Order} objects.
    * @return A sequence of comparators or {@code null}
    */
-  public Comparator<Entry<?, ?>> resolve(KeyValueQuery<?> query) {
+  public Comparator<Entry<?, ?>> resolve(@NonNull KeyValueQuery<?> query) {
     if (query == null || query.getSort() == Sort.unsorted()) {
       return null;
     }

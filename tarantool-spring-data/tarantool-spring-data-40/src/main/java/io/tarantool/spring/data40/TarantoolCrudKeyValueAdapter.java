@@ -9,10 +9,10 @@ import java.util.Collections;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.keyvalue.core.AbstractKeyValueAdapter;
 import org.springframework.data.util.CloseableIterator;
-import org.springframework.lang.NonNull;
 
 import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.spring.data.ProxyTarantoolCrudKeyValueAdapter;
@@ -28,37 +28,38 @@ public class TarantoolCrudKeyValueAdapter extends AbstractKeyValueAdapter {
   }
 
   @Override
-  public Object put(Object id, Object item, String keyspace) {
+  public Object put(@NonNull Object id, @NonNull Object item, @NonNull String keyspace) {
     return adapter.put(convertId(id), item, keyspace);
   }
 
   @Override
-  public boolean contains(Object id, String keyspace) {
+  public boolean contains(@NonNull Object id, @NonNull String keyspace) {
     return adapter.contains(convertId(id), keyspace);
   }
 
   @Override
-  public Object get(Object id, String keyspace) {
+  public Object get(@NonNull Object id, @NonNull String keyspace) {
     return adapter.get(convertId(id), keyspace);
   }
 
   @Override
-  public <T> T get(Object id, String keyspace, Class<T> type) {
+  public <T> T get(@NonNull Object id, @NonNull String keyspace, @NonNull Class<T> type) {
     return adapter.get(convertId(id), keyspace, type);
   }
 
   @Override
-  public Object delete(Object id, String keyspace) {
+  public Object delete(@NonNull Object id, @NonNull String keyspace) {
     return adapter.delete(convertId(id), keyspace);
   }
 
   @Override
-  public <T> T delete(Object id, String keyspace, Class<T> type) {
+  public <T> T delete(@NonNull Object id, @NonNull String keyspace, @NonNull Class<T> type) {
     return adapter.delete(convertId(id), keyspace, type);
   }
 
   @Override
-  public Iterable<?> getAllOf(String keyspace) {
+  @NonNull
+  public Iterable<Object> getAllOf(@NonNull String keyspace) {
     return adapter.getAllOf(keyspace);
   }
 
