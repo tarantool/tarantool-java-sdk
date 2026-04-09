@@ -6,6 +6,15 @@
 
 - Add `tarantool-spring-data-40` module with support for Spring Boot 4.0.x and Spring Data 4.0.x
 
+### Testcontainers
+
+- Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, and optional additional script paths copied into the container data directory (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); simplify bundled `server.lua` accordingly.
+
+### Documentation
+
+- Document supported Java types for Tarantool data mapping in `tuple_pojo_mapping` docs (RU/EN), including Tarantool extension types (`decimal`, `uuid`, `datetime`, `interval`, `tuple`) and related mapping notes.
+- Document Jackson MsgPack deserialization: integers, `bin`/`str` vs `byte[]`/`String`, floating-point vs `decimal`; reference `jackson-dataformat-msgpack` for defaults and type coercion.
+
 ## [1.6.0] - 2026-04-01
 
 ### BOM Module
