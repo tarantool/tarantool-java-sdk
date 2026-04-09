@@ -6,6 +6,7 @@
 package org.testcontainers.containers.cluster.cartridge;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,19 +71,48 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
   protected String topologyConfigurationFile;
   protected String instancesFile;
   protected SslContext sslContext;
+  protected final List<String> additionalScriptPaths;
 
   public CartridgeClusterContainer(String instancesFile, String topologyConfigurationFile) {
-    this(DOCKERFILE, instancesFile, topologyConfigurationFile);
+    this(DOCKERFILE, instancesFile, topologyConfigurationFile, Collections.emptyList());
+  }
+
+  public CartridgeClusterContainer(
+      String instancesFile, String topologyConfigurationFile, List<String> additionalScriptPaths) {
+    this(DOCKERFILE, instancesFile, topologyConfigurationFile, additionalScriptPaths);
   }
 
   public CartridgeClusterContainer(
       String instancesFile, String topologyConfigurationFile, Map<String, String> buildArgs) {
-    this(DOCKERFILE, "", instancesFile, topologyConfigurationFile, buildArgs);
+    this(
+        DOCKERFILE,
+        "",
+        instancesFile,
+        topologyConfigurationFile,
+        buildArgs,
+        Collections.emptyList());
+  }
+
+  public CartridgeClusterContainer(
+      String instancesFile,
+      String topologyConfigurationFile,
+      Map<String, String> buildArgs,
+      List<String> additionalScriptPaths) {
+    this(
+        DOCKERFILE, "", instancesFile, topologyConfigurationFile, buildArgs, additionalScriptPaths);
   }
 
   public CartridgeClusterContainer(
       String dockerFile, String instancesFile, String topologyConfigurationFile) {
-    this(dockerFile, "", instancesFile, topologyConfigurationFile);
+    this(dockerFile, "", instancesFile, topologyConfigurationFile, Collections.emptyList());
+  }
+
+  public CartridgeClusterContainer(
+      String dockerFile,
+      String instancesFile,
+      String topologyConfigurationFile,
+      List<String> additionalScriptPaths) {
+    this(dockerFile, "", instancesFile, topologyConfigurationFile, additionalScriptPaths);
   }
 
   public CartridgeClusterContainer(
@@ -95,7 +125,23 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
         buildImageName,
         instancesFile,
         topologyConfigurationFile,
-        Collections.emptyMap());
+        Collections.emptyMap(),
+        Collections.emptyList());
+  }
+
+  public CartridgeClusterContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String topologyConfigurationFile,
+      List<String> additionalScriptPaths) {
+    this(
+        dockerFile,
+        buildImageName,
+        instancesFile,
+        topologyConfigurationFile,
+        Collections.emptyMap(),
+        additionalScriptPaths);
   }
 
   public CartridgeClusterContainer(
@@ -105,17 +151,34 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
       String topologyConfigurationFile,
       final Map<String, String> buildArgs) {
     this(
-        buildImage(dockerFile, buildImageName, buildArgs),
+        buildImage(dockerFile, buildImageName, buildArgs, Collections.emptyList()),
         instancesFile,
         topologyConfigurationFile,
-        buildArgs);
+        buildArgs,
+        Collections.emptyList());
+  }
+
+  public CartridgeClusterContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String topologyConfigurationFile,
+      final Map<String, String> buildArgs,
+      final List<String> additionalScriptPaths) {
+    this(
+        buildImage(dockerFile, buildImageName, buildArgs, additionalScriptPaths),
+        instancesFile,
+        topologyConfigurationFile,
+        buildArgs,
+        additionalScriptPaths);
   }
 
   protected CartridgeClusterContainer(
       ImageFromDockerfile image,
       String instancesFile,
       String topologyConfigurationFile,
-      Map<String, String> buildArgs) {
+      Map<String, String> buildArgs,
+      List<String> additionalScriptPaths) {
     super(withBuildArgs(image, buildArgs));
 
     TARANTOOL_RUN_DIR =
@@ -129,6 +192,10 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
     }
     this.instancesFile = instancesFile;
     this.topologyConfigurationFile = topologyConfigurationFile;
+    this.additionalScriptPaths =
+        additionalScriptPaths == null
+            ? Collections.emptyList()
+            : List.copyOf(additionalScriptPaths);
     this.instanceFileParser = new CartridgeConfigParser(instancesFile);
     this.configurator = new CartridgeClusterConfigurator(this);
   }
@@ -179,20 +246,46 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
   }
 
   protected static ImageFromDockerfile buildImage(
-      String dockerFile, String buildImageName, final Map<String, String> buildArgs) {
+      String dockerFile,
+      String buildImageName,
+      final Map<String, String> buildArgs,
+      final List<String> additionalScriptPaths) {
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
     }
-    return image
-        .withFileFromClasspath("Dockerfile", dockerFile)
-        .withFileFromClasspath(
-            "cartridge",
-            buildArgs.get("CARTRIDGE_SRC_DIR") == null
-                ? "cartridge"
-                : buildArgs.get("CARTRIDGE_SRC_DIR"));
+    ImageFromDockerfile imageFromDockerfile =
+        image
+            .withFileFromClasspath("Dockerfile", dockerFile)
+            .withFileFromClasspath(
+                "cartridge",
+                buildArgs.get("CARTRIDGE_SRC_DIR") == null
+                    ? "cartridge"
+                    : buildArgs.get("CARTRIDGE_SRC_DIR"));
+    return withAdditionalScripts(imageFromDockerfile, "cartridge", additionalScriptPaths);
+  }
+
+  private static ImageFromDockerfile withAdditionalScripts(
+      ImageFromDockerfile image, String targetDirectory, List<String> additionalScriptPaths) {
+    if (additionalScriptPaths == null || additionalScriptPaths.isEmpty()) {
+      return image;
+    }
+    for (String scriptPath : additionalScriptPaths) {
+      if (scriptPath == null || scriptPath.isBlank()) {
+        throw new IllegalArgumentException("Additional script path must not be null or blank");
+      }
+      Path scriptFilePath = Path.of(scriptPath);
+      Path scriptFileName = scriptFilePath.getFileName();
+      if (scriptFileName == null) {
+        throw new IllegalArgumentException(
+            String.format("Cannot resolve file name for additional script path '%s'", scriptPath));
+      }
+      image.withFileFromClasspath(
+          Path.of(targetDirectory, scriptFileName.toString()).toString(), scriptPath);
+    }
+    return image;
   }
 
   public String getRouterHost() {

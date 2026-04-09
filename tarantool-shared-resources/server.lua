@@ -21,7 +21,7 @@ box.cfg {
 local log = require('log')
 local fiber = require('fiber')
 local socket = require('socket')
-local tarantool = require('tarantool')
+local utils = dofile('/data/utils.lua')
 
 local LIMIT = 512
 local BIND = '0.0.0.0'
@@ -33,37 +33,10 @@ pipe_lock = false
 ------------------------------------------------------------------------------
 -- UTILITY FUNCTIONS
 ------------------------------------------------------------------------------
-local function get_version()
-    local version = unpack(tarantool.version:split('-'))
-    return version
-end
-
-local function create_kv_space(name)
-    local space = box.schema.space.create(name, {
-        if_not_exists = true,
-        format = {
-            { 'id', type = 'string' },
-            { 'value', type = 'string', is_nullable = true }
-        }
-    })
-    space:create_index('pk', { parts = { 'id' } })
-end
-
-local function create_complex_space(name)
-    local space = box.schema.space.create(name, {
-        if_not_exists = true,
-        format = {
-            { 'id', type = 'number' },
-            { 'is_married', type = 'boolean', is_nullable = true },
-            { 'name', type = 'string' }
-        }
-    })
-    space:create_index('pk', { parts = { 'id' } })
-end
-
-local function fail()
-    error('Fail!')
-end
+local get_version = utils.get_version
+local create_kv_space = utils.create_kv_space
+local create_complex_space = utils.create_complex_space
+local fail = utils.fail
 
 ------------------------------------------------------------------------------
 -- SCHEMA
@@ -207,8 +180,8 @@ end
 ------------------------------------------------------------------------------
 -- PUBLIC FUNCTIONS
 ------------------------------------------------------------------------------
-get_version = get_version
-fail = fail
+_G.get_version = get_version
+_G.fail = fail
 
 function echo_with_wrapping(...)
     -- we use table packing because it's more popular than multi return value

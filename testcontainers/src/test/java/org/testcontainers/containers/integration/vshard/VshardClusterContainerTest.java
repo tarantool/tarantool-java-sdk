@@ -21,6 +21,7 @@ class VshardClusterContainerTest {
   private static final String dockerRegistry =
       System.getenv().getOrDefault("TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX", "");
 
+  @SuppressWarnings("resource")
   protected static Stream<Arguments> dataForTestEqualsAndHashCode() {
     VshardClusterContainer firstEqualContainer =
         new VshardClusterContainer(
@@ -47,13 +48,24 @@ class VshardClusterContainerTest {
                 "tarantool/tarantool")
             .withRouterPort(3302);
 
+    VshardClusterContainer withAdditionalScripts =
+        new VshardClusterContainer(
+            "vshard_cluster/Dockerfile",
+            dockerRegistry + "vshard-cluster-java",
+            "vshard_cluster/instances.yaml",
+            "vshard_cluster/config.yaml",
+            "tarantool/tarantool",
+            List.of("vshard_cluster/helpers.lua"));
+
     return Stream.of(
         Arguments.of(
             Arrays.asList(firstEqualContainer, firstEqualContainer), notEqualContainer, 1_000),
         Arguments.of(
             Arrays.asList(firstEqualContainer, firstEqualContainer),
             secondNotEqualContainer,
-            1_000));
+            1_000),
+        Arguments.of(
+            Arrays.asList(firstEqualContainer, firstEqualContainer), withAdditionalScripts, 1_000));
   }
 
   @ParameterizedTest
@@ -62,16 +74,23 @@ class VshardClusterContainerTest {
       List<VshardClusterContainer> equalContainers,
       VshardClusterContainer notEqualContainer,
       int iterationCount) {
-    for (int i = 0; i < iterationCount; i++) {
-      for (VshardClusterContainer container : equalContainers) {
-        for (VshardClusterContainer otherContainer : equalContainers) {
-          assertEquals(container, otherContainer);
-          assertEquals(container.hashCode(), otherContainer.hashCode());
+    try {
+      for (int i = 0; i < iterationCount; i++) {
+        for (VshardClusterContainer container : equalContainers) {
+          for (VshardClusterContainer otherContainer : equalContainers) {
+            assertEquals(container, otherContainer);
+            assertEquals(container.hashCode(), otherContainer.hashCode());
+          }
+          assertNotEquals(container, notEqualContainer);
+          if (notEqualContainer != null) {
+            assertNotEquals(container.hashCode(), notEqualContainer.hashCode());
+          }
         }
-        assertNotEquals(container, notEqualContainer);
-        if (notEqualContainer != null) {
-          assertNotEquals(container.hashCode(), notEqualContainer.hashCode());
-        }
+      }
+    } finally {
+      equalContainers.stream().distinct().forEach(VshardClusterContainer::close);
+      if (notEqualContainer != null) {
+        notEqualContainer.close();
       }
     }
   }

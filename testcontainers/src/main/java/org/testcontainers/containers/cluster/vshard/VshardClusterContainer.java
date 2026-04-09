@@ -101,23 +101,66 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected String configFile;
   protected String instancesFile;
   protected SslContext sslContext;
+  protected final List<String> additionalScriptPaths;
 
   public VshardClusterContainer(String instancesFile, String configFile) {
-    this(DOCKERFILE, instancesFile, configFile);
+    this(DOCKERFILE, instancesFile, configFile, Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      String instancesFile, String configFile, List<String> additionalScriptPaths) {
+    this(DOCKERFILE, instancesFile, configFile, additionalScriptPaths);
   }
 
   public VshardClusterContainer(
       String instancesFile, String configFile, Map<String, String> buildArgs) {
-    this(DOCKERFILE, "", instancesFile, configFile, buildArgs);
+    this(DOCKERFILE, "", instancesFile, configFile, buildArgs, Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      String instancesFile,
+      String configFile,
+      Map<String, String> buildArgs,
+      List<String> additionalScriptPaths) {
+    this(DOCKERFILE, "", instancesFile, configFile, buildArgs, additionalScriptPaths);
   }
 
   public VshardClusterContainer(String dockerFile, String instancesFile, String configFile) {
-    this(dockerFile, "", instancesFile, configFile);
+    this(dockerFile, "", instancesFile, configFile, Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      String dockerFile,
+      String instancesFile,
+      String configFile,
+      List<String> additionalScriptPaths) {
+    this(dockerFile, "", instancesFile, configFile, additionalScriptPaths);
   }
 
   public VshardClusterContainer(
       String dockerFile, String buildImageName, String instancesFile, String configFile) {
-    this(dockerFile, buildImageName, instancesFile, configFile, Collections.emptyMap());
+    this(
+        dockerFile,
+        buildImageName,
+        instancesFile,
+        configFile,
+        Collections.emptyMap(),
+        Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String configFile,
+      List<String> additionalScriptPaths) {
+    this(
+        dockerFile,
+        buildImageName,
+        instancesFile,
+        configFile,
+        Collections.emptyMap(),
+        additionalScriptPaths);
   }
 
   public VshardClusterContainer(
@@ -126,7 +169,27 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
       String instancesFile,
       String configFile,
       final Map<String, String> buildArgs) {
-    this(buildImage(dockerFile, buildImageName, buildArgs), instancesFile, configFile, buildArgs);
+    this(
+        buildImage(dockerFile, buildImageName, buildArgs, Collections.emptyList()),
+        instancesFile,
+        configFile,
+        buildArgs,
+        Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      String dockerFile,
+      String buildImageName,
+      String instancesFile,
+      String configFile,
+      final Map<String, String> buildArgs,
+      final List<String> additionalScriptPaths) {
+    this(
+        buildImage(dockerFile, buildImageName, buildArgs, additionalScriptPaths),
+        instancesFile,
+        configFile,
+        buildArgs,
+        additionalScriptPaths);
   }
 
   public VshardClusterContainer(
@@ -136,17 +199,42 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
       final String configFile,
       final String baseImage) {
     this(
-        buildImage(dockerFile, buildImageName, Arguments.get(baseImage, "enterprise")),
+        buildImage(
+            dockerFile,
+            buildImageName,
+            Arguments.get(baseImage, "enterprise"),
+            Collections.emptyList()),
         instancesFile,
         configFile,
-        Arguments.get(baseImage));
+        Arguments.get(baseImage),
+        Collections.emptyList());
+  }
+
+  public VshardClusterContainer(
+      final String dockerFile,
+      final String buildImageName,
+      final String instancesFile,
+      final String configFile,
+      final String baseImage,
+      final List<String> additionalScriptPaths) {
+    this(
+        buildImage(
+            dockerFile,
+            buildImageName,
+            Arguments.get(baseImage, "enterprise"),
+            additionalScriptPaths),
+        instancesFile,
+        configFile,
+        Arguments.get(baseImage),
+        additionalScriptPaths);
   }
 
   protected VshardClusterContainer(
       ImageFromDockerfile image,
       String instancesFile,
       String configFile,
-      Map<String, String> buildArgs) {
+      Map<String, String> buildArgs,
+      List<String> additionalScriptPaths) {
     super(withBuildArgs(image, buildArgs));
 
     TARANTOOL_RUN_DIR =
@@ -160,6 +248,10 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     }
     this.instancesFile = instancesFile;
     this.configFile = configFile;
+    this.additionalScriptPaths =
+        additionalScriptPaths == null
+            ? Collections.emptyList()
+            : List.copyOf(additionalScriptPaths);
     this.configParser = new TarantoolConfigParser(configFile);
     this.instanceNames = parseInstanceNames(instancesFile);
     this.lock = new ReentrantLock();
@@ -212,20 +304,47 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   }
 
   protected static ImageFromDockerfile buildImage(
-      String dockerFile, String buildImageName, final Map<String, String> buildArgs) {
+      String dockerFile,
+      String buildImageName,
+      final Map<String, String> buildArgs,
+      final List<String> additionalScriptPaths) {
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
     }
-    return image
-        .withFileFromClasspath("Dockerfile", dockerFile)
-        .withFileFromClasspath(
-            "cluster",
-            buildArgs.get("CLUSTER_SRC_DIR") == null
-                ? "cluster"
-                : buildArgs.get("CLUSTER_SRC_DIR"));
+    ImageFromDockerfile imageFromDockerfile =
+        image
+            .withFileFromClasspath("Dockerfile", dockerFile)
+            .withFileFromClasspath(
+                "cluster",
+                buildArgs.get("CLUSTER_SRC_DIR") == null
+                    ? "cluster"
+                    : buildArgs.get("CLUSTER_SRC_DIR"));
+    return withAdditionalScripts(imageFromDockerfile, "cluster", additionalScriptPaths);
+  }
+
+  private static ImageFromDockerfile withAdditionalScripts(
+      ImageFromDockerfile image, String targetDirectory, List<String> additionalScriptPaths) {
+    if (additionalScriptPaths == null || additionalScriptPaths.isEmpty()) {
+      return image;
+    }
+
+    for (String scriptPath : additionalScriptPaths) {
+      if (scriptPath == null || scriptPath.isBlank()) {
+        throw new IllegalArgumentException("Additional script path must not be null or blank");
+      }
+      Path scriptFilePath = Path.of(scriptPath);
+      Path scriptFileName = scriptFilePath.getFileName();
+      if (scriptFileName == null) {
+        throw new IllegalArgumentException(
+            String.format("Cannot resolve file name for additional script path '%s'", scriptPath));
+      }
+      image.withFileFromClasspath(
+          Path.of(targetDirectory, scriptFileName.toString()).toString(), scriptPath);
+    }
+    return image;
   }
 
   public int getRouterPort() {
@@ -595,6 +714,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
         && instanceDir.equals(that.instanceDir)
         && configFile.equals(that.configFile)
         && instancesFile.equals(that.instancesFile)
+        && additionalScriptPaths.equals(that.additionalScriptPaths)
         && Objects.equals(sslContext, that.sslContext);
   }
 
@@ -613,6 +733,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
         instanceDir,
         configFile,
         instancesFile,
+        additionalScriptPaths,
         sslContext);
   }
 }

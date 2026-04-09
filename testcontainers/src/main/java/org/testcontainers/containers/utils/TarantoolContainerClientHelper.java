@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
 import lombok.SneakyThrows;
 import org.testcontainers.containers.Container;
+import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.cluster.ClusterContainer;
 import org.testcontainers.containers.tarantool.Tarantool2Container;
@@ -223,6 +224,7 @@ public final class TarantoolContainerClientHelper {
 
   public static TarantoolContainer<?> createTarantoolContainer(Integer... exposedPorts) {
     Path initScriptPath = null;
+    Path utilsScriptPath = null;
     TarantoolContainer<?> container;
     try {
       initScriptPath =
@@ -232,14 +234,27 @@ public final class TarantoolContainerClientHelper {
                           .getClassLoader()
                           .getResource("server.lua"))
                   .toURI());
+      utilsScriptPath =
+          Paths.get(
+              Objects.requireNonNull(
+                      TarantoolContainerClientHelper.class
+                          .getClassLoader()
+                          .getResource("utils.lua"))
+                  .toURI());
     } catch (Exception e) {
       // ignore
+    }
+
+    if (initScriptPath == null || utilsScriptPath == null) {
+      throw new ContainerLaunchException("No init scripts");
     }
 
     String containerName = String.format("node-%s", UUID.randomUUID());
     container =
         switch (Character.getNumericValue(TARANTOOL_VERSION.charAt(0))) {
-          case 2 -> Tarantool2Container.builder(DOCKER_IMAGE, initScriptPath).build();
+          case 2 ->
+              Tarantool2Container.builder(DOCKER_IMAGE, initScriptPath, List.of(utilsScriptPath))
+                  .build();
           case 3 ->
               new Tarantool3Container(DOCKER_IMAGE, containerName)
                   .withConfigPath(createConfig(containerName, exposedPorts))
