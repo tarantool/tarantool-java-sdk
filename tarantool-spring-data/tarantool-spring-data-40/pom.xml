@@ -18,12 +18,12 @@
   <packaging>jar</packaging>
 
   <properties>
-    <!--Рекомендованная версия JAVA == 25, минимальная - 17-->
+    <!-- Recommended Java version is 25, minimal version is 17 -->
     <maven.compiler.release>17</maven.compiler.release>
     <spring.boot.version>4.0.4</spring.boot.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
-    <!-- Spring framework 7.x перешел на 6 версию -->
+    <!-- Spring Framework 7.x uses JUnit 6 -->
     <junit.version>6.0.3</junit.version>
   </properties>
 
