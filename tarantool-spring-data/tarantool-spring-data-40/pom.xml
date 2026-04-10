@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>tarantool-spring-data-40</name>
+  <description>Minimalistic java connector for Tarantool versions 2.11+ based on Netty framework</description>
+  <url>https://tarantool.io</url>
+
+  <parent>
+    <groupId>io.tarantool</groupId>
+    <artifactId>tarantool-spring-data</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>tarantool-spring-data-40</artifactId>
+  <packaging>jar</packaging>
+
+  <properties>
+    <!-- Recommended Java version is 25, minimal version is 17 -->
+    <maven.compiler.release>17</maven.compiler.release>
+    <spring.boot.version>4.0.4</spring.boot.version>
+    <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
+    <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
+    <!-- Spring Framework 7.x uses JUnit 6 -->
+    <junit.version>6.0.3</junit.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.tarantool</groupId>
+      <artifactId>tarantool-spring-data-core</artifactId>
+    </dependency>
+  </dependencies>
+</project>

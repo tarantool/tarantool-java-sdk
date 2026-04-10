@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Spring-data
+
+- Add `tarantool-spring-data-40` module with support for Spring Boot 4.0.x and Spring Data 4.0.x
+
 ## [1.6.0] - 2026-04-01
 
 ### BOM Module
