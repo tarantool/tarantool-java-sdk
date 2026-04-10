@@ -10,6 +10,10 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import com.github.dockerjava.api.command.InspectContainerResponse;
@@ -37,6 +41,7 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     implements TarantoolContainer<Tarantool2Container> {
 
   private final String initScript;
+  private final List<Path> additionalScriptPaths;
 
   private final String node;
 
@@ -46,10 +51,15 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
 
   private boolean configured;
 
-  private Tarantool2Container(DockerImageName dockerImageName, String initScript, String node) {
+  private Tarantool2Container(
+      DockerImageName dockerImageName,
+      String initScript,
+      List<Path> additionalScriptPaths,
+      String node) {
     super(dockerImageName);
     this.node = node;
     this.initScript = initScript;
+    this.additionalScriptPaths = new ArrayList<>(additionalScriptPaths);
     this.mountPath = Utils.createTempDirectory(this.node);
   }
 
@@ -83,6 +93,7 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
       final Path initialScriptOnContainer = DEFAULT_DATA_DIR.resolve(initScriptName);
 
       Files.write(initialScriptOnHost, this.initScript.getBytes(StandardCharsets.UTF_8));
+      copyAdditionalScripts(this.additionalScriptPaths, this.mountPath);
 
       withCreateContainerCmdModifier(cmd -> cmd.withName(this.node).withUser("root"));
       withNetworkAliases(this.node);
@@ -180,18 +191,32 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     return new InetSocketAddress(this.node, TarantoolContainer.DEFAULT_TARANTOOL_PORT);
   }
 
+  public List<Path> getAdditionalScriptPaths() {
+    return Collections.unmodifiableList(this.additionalScriptPaths);
+  }
+
   public static Builder builder(DockerImageName image, Path initScriptPath) {
+    return builder(image, initScriptPath, Collections.emptyList());
+  }
+
+  public static Builder builder(
+      DockerImageName image, Path initScriptPath, List<Path> additionalScriptPaths) {
     try {
       final String rawScript =
           new String(Files.readAllBytes(initScriptPath), StandardCharsets.UTF_8);
-      return builder(image, rawScript);
+      return builder(image, rawScript, additionalScriptPaths);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   public static Builder builder(DockerImageName dockerImageName, String initScript) {
-    return new Builder(dockerImageName, initScript);
+    return builder(dockerImageName, initScript, Collections.emptyList());
+  }
+
+  public static Builder builder(
+      DockerImageName dockerImageName, String initScript, List<Path> additionalScriptPaths) {
+    return new Builder(dockerImageName, initScript, additionalScriptPaths);
   }
 
   public static class Builder {
@@ -199,12 +224,16 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
     private final DockerImageName dockerImageName;
 
     private final String initScript;
+    private List<Path> additionalScriptPaths;
 
     private String node;
 
-    public Builder(DockerImageName dockerImageName, String initScript) {
+    public Builder(
+        DockerImageName dockerImageName, String initScript, List<Path> additionalScriptPaths) {
       this.dockerImageName = dockerImageName;
       this.initScript = initScript;
+      this.additionalScriptPaths =
+          additionalScriptPaths == null ? Collections.emptyList() : additionalScriptPaths;
     }
 
     public Builder withNode(String node) {
@@ -212,11 +241,18 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
       return this;
     }
 
+    public Builder withAdditionalScriptPaths(List<Path> additionalScriptPaths) {
+      this.additionalScriptPaths =
+          additionalScriptPaths == null ? Collections.emptyList() : additionalScriptPaths;
+      return this;
+    }
+
     public Tarantool2Container build() {
       validateName(this.node);
       final String totalNodeName =
           this.node == null ? "tarantool-2.11.x-" + UUID.randomUUID() : this.node;
-      return new Tarantool2Container(dockerImageName, this.initScript, totalNodeName);
+      return new Tarantool2Container(
+          dockerImageName, this.initScript, this.additionalScriptPaths, totalNodeName);
     }
 
     private static void validateName(String node) {
@@ -227,6 +263,27 @@ public class Tarantool2Container extends GenericContainer<Tarantool2Container>
       if (node.strip().isEmpty()) {
         throw new ContainerLaunchException("instance name can't be blank");
       }
+    }
+  }
+
+  private static void copyAdditionalScripts(List<Path> additionalScriptPaths, Path mountPath)
+      throws IOException {
+    if (additionalScriptPaths == null || additionalScriptPaths.isEmpty()) {
+      return;
+    }
+
+    for (Path additionalScriptPath : additionalScriptPaths) {
+      if (additionalScriptPath == null) {
+        throw new IllegalArgumentException("Additional script path must not be null");
+      }
+      if (!Files.isRegularFile(additionalScriptPath)) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Additional script path '%s' must point to an existing regular file",
+                additionalScriptPath));
+      }
+      Path targetOnHost = mountPath.resolve(additionalScriptPath.getFileName());
+      Files.copy(additionalScriptPath, targetOnHost, StandardCopyOption.REPLACE_EXISTING);
     }
   }
 }

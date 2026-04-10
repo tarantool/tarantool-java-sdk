@@ -10,6 +10,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -44,7 +46,11 @@ public class Tarantool2ContainerTest {
 
   private static final String USERNAME = "user";
 
+  private static final String API_USER = "api_user";
+
   private static final String PASSWORD = "user";
+
+  private static final String API_USER_PASSWORD = "secret";
 
   private static final String CREATE_USER_SCRIPT =
       String.format(
@@ -256,5 +262,87 @@ public class Tarantool2ContainerTest {
             c.start();
           }
         });
+  }
+
+  @Test
+  void testBuilderStoresAdditionalScriptsFromPath() throws IOException {
+    final String totalScript = "box.cfg{}";
+    final Path initScriptPath =
+        Files.write(
+            TEMP_DIR.resolve(UUID.randomUUID().toString()),
+            totalScript.getBytes(StandardCharsets.UTF_8));
+    final Path helperScriptPath =
+        Files.write(
+            TEMP_DIR.resolve(UUID.randomUUID() + ".lua"),
+            "return 'ok'".getBytes(StandardCharsets.UTF_8));
+
+    try (Tarantool2Container container =
+        Tarantool2Container.builder(IMAGE, initScriptPath, Stream.of(helperScriptPath).toList())
+            .build()) {
+      final List<Path> additionalScripts = container.getAdditionalScriptPaths();
+      Assertions.assertEquals(1, additionalScripts.size());
+      Assertions.assertEquals(helperScriptPath, additionalScripts.get(0));
+    }
+  }
+
+  @Test
+  void testBuilderStoresEmptyAdditionalScriptsWhenNullPassed() {
+    try (Tarantool2Container container =
+        Tarantool2Container.builder(IMAGE, "box.cfg{}", null).build()) {
+      final List<Path> additionalScripts = container.getAdditionalScriptPaths();
+      Assertions.assertTrue(additionalScripts.isEmpty());
+    }
+  }
+
+  @Test
+  void testBuilderSetterOverridesAdditionalScripts() throws IOException {
+    final Path helperScriptPath =
+        Files.write(
+            TEMP_DIR.resolve(UUID.randomUUID() + ".lua"),
+            "return 'override'".getBytes(StandardCharsets.UTF_8));
+    try (Tarantool2Container container =
+        Tarantool2Container.builder(IMAGE, "box.cfg{}")
+            .withAdditionalScriptPaths(List.of(helperScriptPath))
+            .build()) {
+      final List<Path> additionalScripts = container.getAdditionalScriptPaths();
+      Assertions.assertEquals(List.of(helperScriptPath), additionalScripts);
+    }
+  }
+
+  @Test
+  void testAdditionalScriptsAreCopiedAndUsedByServerScript()
+      throws IOException, InterruptedException {
+    final Path serverScriptPath =
+        Path.of(
+            Objects.requireNonNull(
+                    Tarantool2ContainerTest.class.getClassLoader().getResource("server.lua"))
+                .getPath());
+    final Path utilsScriptPath =
+        Path.of(
+            Objects.requireNonNull(
+                    Tarantool2ContainerTest.class.getClassLoader().getResource("utils.lua"))
+                .getPath());
+
+    try (Tarantool2Container c =
+        Tarantool2Container.builder(IMAGE, serverScriptPath, List.of(utilsScriptPath)).build()) {
+      c.withNetwork(NETWORK_FOR_TEST_CLASS)
+          .waitingFor(new Tarantool2WaitStrategy(c.node(), API_USER, API_USER_PASSWORD));
+      c.start();
+
+      final ExecResult scriptsInContainer =
+          c.execInContainer("/bin/sh", "-c", "test -f /data/init.lua && test -f /data/utils.lua");
+      Assertions.assertEquals(0, scriptsInContainer.getExitCode());
+
+      final String command = "echo \"return get_version()\" | tarantoolctl connect %s:%s@%s:3301";
+      final ExecResult execResult =
+          c.execInContainer(
+              "/bin/sh", "-c", String.format(command, API_USER, API_USER_PASSWORD, c.node()));
+
+      Assertions.assertFalse(
+          execResult.getStderr().contains("Error while executing remote command"),
+          execResult.getStderr());
+      Assertions.assertEquals(0, execResult.getExitCode());
+      Assertions.assertTrue(execResult.getStdout().startsWith("---\n- "));
+    }
   }
 }
