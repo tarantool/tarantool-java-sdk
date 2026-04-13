@@ -1271,6 +1271,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#supported-java-types-for-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Java Types for Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jackson-msgpack-defaults-and-deserialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jackson MsgPack: defaults and deserialization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jackson MsgPack: defaults and deserialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deserialization-into-object-untyped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deserialization into Object (untyped)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#byte-and-string-bin-and-str-families" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        byte[] and String (bin and str families)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float-double-and-decimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        float / double and decimal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#efficient-mapping-flatten-input-flatten-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2379,6 +2451,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#supported-java-types-for-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported Java Types for Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jackson-msgpack-defaults-and-deserialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jackson MsgPack: defaults and deserialization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jackson MsgPack: defaults and deserialization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deserialization-into-object-untyped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deserialization into Object (untyped)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#byte-and-string-bin-and-str-families" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        byte[] and String (bin and str families)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float-double-and-decimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        float / double and decimal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#efficient-mapping-flatten-input-flatten-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2690,6 +2834,126 @@ using the Jackson library.</p>
 guide, but will help you understand the principles of interaction. Mastering them will allow you to work
 efficiently with the database in any scenarios, whether it's a cluster or a single instance, and with any POJO
 objects.</p>
+<h2 id="supported-java-types-for-mapping">Supported Java Types for Mapping</h2>
+<p>The SDK uses <code>Jackson + jackson-dataformat-msgpack</code>, so:</p>
+<ul>
+<li>standard Java/Jackson types (primitives and wrappers, <code>String</code>, <code>byte[]</code>, <code>List</code>, <code>Map</code>, nested POJOs)
+  are supported by default;</li>
+<li>Tarantool extension types are additionally supported.</li>
+</ul>
+<p>Below are the types that have explicit Tarantool extension-type mapping in the SDK:</p>
+<table>
+<thead>
+<tr>
+<th>Tarantool type</th>
+<th>Java type</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decimal</code></td>
+<td><code>java.math.BigDecimal</code></td>
+<td>Uses MsgPack <code>decimal</code> extension; scale with absolute value up to and including <code>38</code> is supported.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>java.util.UUID</code></td>
+<td>Uses MsgPack <code>uuid</code> extension.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td><code>java.time.Instant</code>, <code>java.time.LocalDateTime</code>, <code>java.time.LocalDate</code>, <code>java.time.LocalTime</code>, <code>java.time.OffsetDateTime</code>, <code>java.time.ZonedDateTime</code></td>
+<td>Uses MsgPack <code>datetime</code> extension.</td>
+</tr>
+<tr>
+<td><code>interval</code></td>
+<td><code>io.tarantool.mapping.Interval</code></td>
+<td>Uses MsgPack <code>interval</code> extension.</td>
+</tr>
+<tr>
+<td><code>tuple</code> (Tarantool 3.x, <code>TUPLE_EXT</code>)</td>
+<td><code>io.tarantool.mapping.Tuple&lt;T&gt;</code></td>
+<td>Uses MsgPack <code>tuple</code> extension; useful when tuple format is returned with tuple data.</td>
+</tr>
+</tbody>
+</table>
+<details class="note" open="open">
+<summary>Note</summary>
+<p>If you read data as <code>Object</code> (without an explicit target type), extension values are
+deserialized to SDK Java objects automatically:
+<code>decimal -&gt; BigDecimal</code>, <code>uuid -&gt; UUID</code>, <code>datetime -&gt; ZonedDateTime</code>,
+<code>interval -&gt; Interval</code>, <code>tuple -&gt; Tuple&lt;?&gt;</code>.</p>
+</details>
+<h2 id="jackson-msgpack-defaults-and-deserialization">Jackson MsgPack: defaults and deserialization</h2>
+<p>POJO mapping uses <strong>Jackson</strong> and the <a href="https://github.com/FasterXML/jackson-dataformats-binary/tree/2.18/msg-pack"><strong>jackson-dataformat-msgpack</strong></a> module.
+Handling of <strong>missing properties</strong>, <strong>default values</strong>, and <strong>type coercion</strong> on deserialization is defined by Jackson configuration and API (<code>DeserializationFeature</code>, constructors, <code>@JsonCreator</code>, etc.) and by the actual MsgPack value type on the wire. Authoritative specification is in the <code>jackson-dataformat-msgpack</code> documentation and release notes for the Jackson line in use.</p>
+<h3 id="integers">Integers</h3>
+<p>MsgPack encodes integers with variable width (fixint, int8/16/32/64, uint<em>). The deserializer coerces them to the declared Java type (<code>int</code>, <code>long</code>, <code>Integer</code>, <code>BigInteger</code>, ...).
+If the target type is </em><em>narrower</em>* than the wire value allows, deserialization may fail or lose precision; the Java field type must match the value range stored in Tarantool (including large <code>unsigned</code> values).</p>
+<h3 id="deserialization-into-object-untyped">Deserialization into <code>Object</code> (untyped)</h3>
+<p>If the target type is <code>java.lang.Object</code> (including elements of <code>List&lt;?&gt;</code>, values in <code>Map&lt;String, Object&gt;</code>, and raw <code>Object</code> fields), Jackson uses <code>UntypedObjectDeserializer</code> and, for numbers, <code>JsonParser.getNumberValue()</code>. The SDK depends on <strong><code>org.msgpack:jackson-dataformat-msgpack</code></strong>; scalar shapes are determined by its <code>MessagePackParser</code> (integers are <strong>not</strong> mapped to <code>Byte</code>/<code>Short</code> just because the wire encoding is small).</p>
+<table>
+<thead>
+<tr>
+<th>MsgPack on the wire</th>
+<th>Java type when binding to <code>Object</code> (default <code>ObjectMapper</code> in the SDK)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Signed</strong> integer (fixint, int8, int16, int32, int64)</td>
+<td><code>Integer</code> if the value fits in <code>int</code>; otherwise <code>Long</code></td>
+</tr>
+<tr>
+<td><strong>uint64</strong></td>
+<td><code>Long</code> if the value fits in signed <code>long</code>; otherwise <code>BigInteger</code></td>
+</tr>
+<tr>
+<td><strong>float32</strong> / <strong>float64</strong></td>
+<td><code>Double</code> (both are read as double-precision)</td>
+</tr>
+<tr>
+<td><strong>nil</strong></td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><strong>boolean</strong></td>
+<td><code>Boolean</code></td>
+</tr>
+<tr>
+<td><strong>binary</strong> (<code>bin</code>)</td>
+<td><code>byte[]</code></td>
+</tr>
+<tr>
+<td><strong>string</strong> (<code>str</code>)</td>
+<td><code>String</code></td>
+</tr>
+<tr>
+<td><strong>map</strong></td>
+<td><code>LinkedHashMap&lt;String, Object&gt;</code></td>
+</tr>
+<tr>
+<td><strong>array</strong></td>
+<td><code>ArrayList&lt;Object&gt;</code></td>
+</tr>
+<tr>
+<td>Tarantool/SDK <strong>extensions</strong> (<code>decimal</code>, <code>uuid</code>, <code>datetime</code>, …)</td>
+<td><code>BigDecimal</code>, <code>UUID</code>, <code>ZonedDateTime</code>, <code>Interval</code>, <code>Tuple&lt;?&gt;</code>, … (see the Tarantool/SDK type table and the <code>Object</code> note at the start of the POJO section)</td>
+</tr>
+</tbody>
+</table>
+<p>With <code>DeserializationFeature.USE_BIG_INTEGER_FOR_INTS</code> enabled on the <code>ObjectMapper</code>, untyped integers may always deserialize as <code>BigInteger</code> — see Jackson Javadoc. <code>BaseTarantoolJacksonMapping</code> does <strong>not</strong> enable this flag.</p>
+<h3 id="byte-and-string-bin-and-str-families"><code>byte[]</code> and <code>String</code> (<code>bin</code> and <code>str</code> families)</h3>
+<p>In MsgPack, <strong>binary</strong> (<code>bin</code> family) and <strong>string</strong> (<code>str</code> family) are distinct. Default mapping:</p>
+<ul>
+<li><strong><code>byte[]</code></strong> — <strong>binary</strong> payload;</li>
+<li><strong><code>String</code></strong> — <strong>string</strong> payload (UTF-8).</li>
+</ul>
+<p>A mismatch between the MsgPack format and the Java field type (for example, <strong>string</strong> on the wire and <strong><code>byte[]</code></strong> in the POJO) does not guarantee successful deserialization with the module defaults. Alternatives: aligned storage schema and POJO types, an intermediate type with conversion, <strong><code>@JsonDeserialize</code></strong>, or a custom <code>JsonDeserializer</code> (see <code>jackson-dataformat-msgpack</code> documentation).</p>
+<h3 id="float-double-and-decimal"><code>float</code> / <code>double</code> and <code>decimal</code></h3>
+<p>Non-extension floating-point values in MsgPack are <strong>float32</strong> / <strong>float64</strong>. Tarantool <strong><code>decimal</code></strong> is transmitted as a <strong>MsgPack extension</strong> in this SDK and maps to <strong><code>java.math.BigDecimal</code></strong> (table above).</p>
+<p>Pairing <strong>float32/float64</strong> on the wire with a <strong><code>BigDecimal</code></strong> field, or a <strong>decimal extension</strong> with <strong><code>float</code></strong> / <strong><code>double</code></strong>, follows Jackson type-coercion rules and the module version; an explicit field type or a boundary deserializer may be required.</p>
 <h2 id="efficient-mapping-flatten-input-flatten-output">Efficient Mapping (Flatten input, Flatten output)</h2>
 <p>By default, field mapping in any of the clients (CrudClient, BoxClient) is performed in the most
 efficient way — by the field's ordinal number.</p>

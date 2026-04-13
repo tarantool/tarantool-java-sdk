@@ -1265,6 +1265,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#java-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Поддерживаемые Java-типы при маппинге
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jackson-msgpack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jackson MsgPack: значения по умолчанию и десериализация
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jackson MsgPack: значения по умолчанию и десериализация">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Целые числа
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Десериализация в Object (без явного типа)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#byte-string-bin-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        byte[] и String (семейства bin и str)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float-double-decimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        float / double и decimal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flatten-input-flatten-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1293,7 +1365,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Гибкий маппинг с использованием ключей
@@ -2373,6 +2445,78 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#java-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Поддерживаемые Java-типы при маппинге
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jackson-msgpack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Jackson MsgPack: значения по умолчанию и десериализация
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Jackson MsgPack: значения по умолчанию и десериализация">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Целые числа
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Десериализация в Object (без явного типа)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#byte-string-bin-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        byte[] и String (семейства bin и str)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float-double-decimal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        float / double и decimal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#flatten-input-flatten-output" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2401,7 +2545,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Гибкий маппинг с использованием ключей
@@ -2686,6 +2830,126 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 руководством, но помогут вам понять принципы взаимодействия. Освоив их, вы сможете эффективно
 работать с базой данных в любых сценариях, будь то кластер или одиночный экземпляр, и с любыми POJO
 объектами.</p>
+<h2 id="java-">Поддерживаемые Java-типы при маппинге</h2>
+<p>SDK использует <code>Jackson + jackson-dataformat-msgpack</code>, поэтому:</p>
+<ul>
+<li>базовые типы Java/Jackson (примитивы и их обертки, <code>String</code>, <code>byte[]</code>, <code>List</code>, <code>Map</code>, вложенные POJO)
+  поддерживаются по умолчанию;</li>
+<li>дополнительно поддерживаются extension-типы Tarantool.</li>
+</ul>
+<p>Ниже приведены типы, для которых в SDK есть явный маппинг из/в Tarantool extension types:</p>
+<table>
+<thead>
+<tr>
+<th>Tarantool type</th>
+<th>Java type</th>
+<th>Комментарий</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>decimal</code></td>
+<td><code>java.math.BigDecimal</code></td>
+<td>Используется MsgPack extension <code>decimal</code>; поддерживается scale по модулю до <code>38</code> включительно.</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td><code>java.util.UUID</code></td>
+<td>Используется MsgPack extension <code>uuid</code>.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td><code>java.time.Instant</code>, <code>java.time.LocalDateTime</code>, <code>java.time.LocalDate</code>, <code>java.time.LocalTime</code>, <code>java.time.OffsetDateTime</code>, <code>java.time.ZonedDateTime</code></td>
+<td>Используется MsgPack extension <code>datetime</code>.</td>
+</tr>
+<tr>
+<td><code>interval</code></td>
+<td><code>io.tarantool.mapping.Interval</code></td>
+<td>Используется MsgPack extension <code>interval</code>.</td>
+</tr>
+<tr>
+<td><code>tuple</code> (Tarantool 3.x, <code>TUPLE_EXT</code>)</td>
+<td><code>io.tarantool.mapping.Tuple&lt;T&gt;</code></td>
+<td>Используется MsgPack extension <code>tuple</code>; полезно, когда вместе с данными приходит формат кортежа.</td>
+</tr>
+</tbody>
+</table>
+<details class="note" open="open">
+<summary>Заметка</summary>
+<p>Если вы читаете данные как <code>Object</code> (без явного целевого класса), extension-типы будут
+десериализованы в Java-объекты SDK автоматически:
+<code>decimal -&gt; BigDecimal</code>, <code>uuid -&gt; UUID</code>, <code>datetime -&gt; ZonedDateTime</code>,
+<code>interval -&gt; Interval</code>, <code>tuple -&gt; Tuple&lt;?&gt;</code>.</p>
+</details>
+<h2 id="jackson-msgpack">Jackson MsgPack: значения по умолчанию и десериализация</h2>
+<p>Маппинг POJO выполняется через <strong>Jackson</strong> и модуль <a href="https://github.com/FasterXML/jackson-dataformats-binary/tree/2.18/msg-pack"><strong>jackson-dataformat-msgpack</strong></a>.
+Обработка <strong>отсутствующих свойств</strong>, <strong>значений по умолчанию</strong> и <strong>приведения типов</strong> при десериализации определяется настройками и API Jackson (<code>DeserializationFeature</code>, конструкторы, <code>@JsonCreator</code> и др.) и фактическим типом значения в MsgPack. Нормативное описание — в документации и release notes <code>jackson-dataformat-msgpack</code> для используемой линии Jackson.</p>
+<h3 id="_1">Целые числа</h3>
+<p>В MsgPack целые значения кодируются с переменной шириной (fixint, int8/16/32/64, uint<em>). Десериализатор приводит их к объявленному типу Java (<code>int</code>, <code>long</code>, <code>Integer</code>, <code>BigInteger</code> и т.д.).
+При </em><em>более узком</em>* целевом типе, чем допускает значение на wire, возможны ошибка десериализации или потеря точности; тип поля в Java должен соответствовать диапазону данных на стороне Tarantool (в том числе для больших <code>unsigned</code>).</p>
+<h3 id="object">Десериализация в <code>Object</code> (без явного типа)</h3>
+<p>Если целевой тип — <code>java.lang.Object</code> (в т.ч. элементы <code>List&lt;?&gt;</code>, значения в <code>Map&lt;String, Object&gt;</code> и поля с сырым <code>Object</code>), Jackson использует <code>UntypedObjectDeserializer</code>, а для чисел вызывает <code>JsonParser.getNumberValue()</code>. В SDK подключается <strong><code>org.msgpack:jackson-dataformat-msgpack</code></strong>; фактические классы для скаляров задаёт его <code>MessagePackParser</code> (целые не становятся <code>Byte</code>/<code>Short</code> только из‑за «малого» значения на wire).</p>
+<table>
+<thead>
+<tr>
+<th>Что приходит в MsgPack</th>
+<th>Тип в Java при десериализации в <code>Object</code> (настройки <code>ObjectMapper</code> по умолчанию в SDK)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Целое <strong>signed</strong> (fixint, int8, int16, int32, int64)</td>
+<td><code>Integer</code>, если значение в диапазоне <code>int</code>; иначе <code>Long</code></td>
+</tr>
+<tr>
+<td><strong>uint64</strong></td>
+<td><code>Long</code>, если значение помещается в диапазон signed <code>long</code>; иначе <code>BigInteger</code></td>
+</tr>
+<tr>
+<td><strong>float32</strong> / <strong>float64</strong></td>
+<td><code>Double</code> (оба формата читаются как double-precision)</td>
+</tr>
+<tr>
+<td><strong>nil</strong></td>
+<td><code>null</code></td>
+</tr>
+<tr>
+<td><strong>boolean</strong></td>
+<td><code>Boolean</code></td>
+</tr>
+<tr>
+<td><strong>binary</strong> (<code>bin</code>)</td>
+<td><code>byte[]</code></td>
+</tr>
+<tr>
+<td><strong>string</strong> (<code>str</code>)</td>
+<td><code>String</code></td>
+</tr>
+<tr>
+<td><strong>map</strong></td>
+<td><code>LinkedHashMap&lt;String, Object&gt;</code></td>
+</tr>
+<tr>
+<td><strong>array</strong></td>
+<td><code>ArrayList&lt;Object&gt;</code></td>
+</tr>
+<tr>
+<td><strong>extension</strong> Tarantool/SDK (<code>decimal</code>, <code>uuid</code>, <code>datetime</code>, …)</td>
+<td><code>BigDecimal</code>, <code>UUID</code>, <code>ZonedDateTime</code>, <code>Interval</code>, <code>Tuple&lt;?&gt;</code>, … (таблица типов и заметка про чтение как <code>Object</code> — в начале раздела про POJO)</td>
+</tr>
+</tbody>
+</table>
+<p>Если на <code>ObjectMapper</code> включён <code>DeserializationFeature.USE_BIG_INTEGER_FOR_INTS</code>, целые в контексте «untyped» могут стабильно приходить как <code>BigInteger</code> — см. Javadoc Jackson. В <code>BaseTarantoolJacksonMapping</code> этот флаг <strong>не</strong> включается.</p>
+<h3 id="byte-string-bin-str"><code>byte[]</code> и <code>String</code> (семейства <code>bin</code> и <code>str</code>)</h3>
+<p>В MsgPack типы <strong>binary</strong> (семейство <code>bin</code>) и <strong>string</strong> (семейство <code>str</code>) различны. Сопоставление по умолчанию:</p>
+<ul>
+<li><strong><code>byte[]</code></strong> — полезная нагрузка в формате <strong>binary</strong>;</li>
+<li><strong><code>String</code></strong> — полезная нагрузка в формате <strong>string</strong> (UTF-8).</li>
+</ul>
+<p>Несовпадение формата MsgPack и типа поля Java (например, <strong>string</strong> на wire и <strong><code>byte[]</code></strong> в POJO) не гарантирует успешную десериализацию стандартными средствами модуля. Альтернативы: согласованный тип в схеме хранения и в POJO, промежуточный тип с последующим преобразованием, <strong><code>@JsonDeserialize</code></strong> или пользовательский <code>JsonDeserializer</code> (см. документацию <code>jackson-dataformat-msgpack</code>).</p>
+<h3 id="float-double-decimal"><code>float</code> / <code>double</code> и <code>decimal</code></h3>
+<p>В MsgPack значения с плавающей точкой без extension — <strong>float32</strong> / <strong>float64</strong>. Значение <strong><code>decimal</code></strong> Tarantool в SDK передаётся как <strong>MsgPack extension</strong> и мапится на <strong><code>java.math.BigDecimal</code></strong> (таблица выше).</p>
+<p>Сочетание <strong>float32/float64</strong> на wire с полем <strong><code>BigDecimal</code></strong>, либо <strong>decimal extension</strong> с полем <strong><code>float</code></strong> / <strong><code>double</code></strong>, задаётся правилами приведения типов Jackson и версией модуля; при необходимости используется явный тип поля или десериализатор на границе.</p>
 <h2 id="flatten-input-flatten-output">Эффективный Маппинг (Flatten input, Flatten output)</h2>
 <p>По умолчанию маппинг полей в любом из клиентов(CrudClient, BoxClient), выполняется наиболее
 эффективным путём — по порядковому номеру поля.</p>
@@ -2822,7 +3086,7 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 <summary>Заметка</summary>
 <p>На запись кортежа в Tarantool действует аналогичная чтению кортежа логика.</p>
 </details>
-<h2 id="_1">Гибкий маппинг с использованием ключей</h2>
+<h2 id="_2">Гибкий маппинг с использованием ключей</h2>
 <p>Вы также можете настроить гибкий маппинг и работать с ключами несколькими способами. В этих способах
 мы будем использовать ту же схему данных на стороне Tarantool, что использовали и для эффективного
 маппинга:</p>
