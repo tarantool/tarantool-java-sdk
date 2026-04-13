@@ -25,6 +25,75 @@ guide, but will help you understand the principles of interaction. Mastering the
 efficiently with the database in any scenarios, whether it's a cluster or a single instance, and with any POJO
 objects.
 
+## Supported Java Types for Mapping
+
+The SDK uses `Jackson + jackson-dataformat-msgpack`, so:
+
+- standard Java/Jackson types (primitives and wrappers, `String`, `byte[]`, `List`, `Map`, nested POJOs)
+  are supported by default;
+- Tarantool extension types are additionally supported.
+
+Below are the types that have explicit Tarantool extension-type mapping in the SDK:
+
+| Tarantool type | Java type | Comment |
+| --- | --- | --- |
+| `decimal` | `java.math.BigDecimal` | Uses MsgPack `decimal` extension; scale with absolute value up to and including `38` is supported. |
+| `uuid` | `java.util.UUID` | Uses MsgPack `uuid` extension. |
+| `datetime` | `java.time.Instant`, `java.time.LocalDateTime`, `java.time.LocalDate`, `java.time.LocalTime`, `java.time.OffsetDateTime`, `java.time.ZonedDateTime` | Uses MsgPack `datetime` extension. |
+| `interval` | `io.tarantool.mapping.Interval` | Uses MsgPack `interval` extension. |
+| `tuple` (Tarantool 3.x, `TUPLE_EXT`) | `io.tarantool.mapping.Tuple<T>` | Uses MsgPack `tuple` extension; useful when tuple format is returned with tuple data. |
+
+???+ note "Note"
+
+    If you read data as `Object` (without an explicit target type), extension values are
+    deserialized to SDK Java objects automatically:
+    `decimal -> BigDecimal`, `uuid -> UUID`, `datetime -> ZonedDateTime`,
+    `interval -> Interval`, `tuple -> Tuple<?>`.
+
+## Jackson MsgPack: defaults and deserialization
+
+POJO mapping uses **Jackson** and the [**jackson-dataformat-msgpack**](https://github.com/FasterXML/jackson-dataformats-binary/tree/2.18/msg-pack) module.
+Handling of **missing properties**, **default values**, and **type coercion** on deserialization is defined by Jackson configuration and API (`DeserializationFeature`, constructors, `@JsonCreator`, etc.) and by the actual MsgPack value type on the wire. Authoritative specification is in the `jackson-dataformat-msgpack` documentation and release notes for the Jackson line in use.
+
+### Integers
+
+MsgPack encodes integers with variable width (fixint, int8/16/32/64, uint*). The deserializer coerces them to the declared Java type (`int`, `long`, `Integer`, `BigInteger`, ...).
+If the target type is **narrower** than the wire value allows, deserialization may fail or lose precision; the Java field type must match the value range stored in Tarantool (including large `unsigned` values).
+
+### Deserialization into `Object` (untyped)
+
+If the target type is `java.lang.Object` (including elements of `List<?>`, values in `Map<String, Object>`, and raw `Object` fields), Jackson uses `UntypedObjectDeserializer` and, for numbers, `JsonParser.getNumberValue()`. The SDK depends on **`org.msgpack:jackson-dataformat-msgpack`**; scalar shapes are determined by its `MessagePackParser` (integers are **not** mapped to `Byte`/`Short` just because the wire encoding is small).
+
+| MsgPack on the wire | Java type when binding to `Object` (default `ObjectMapper` in the SDK) |
+| --- | --- |
+| **Signed** integer (fixint, int8, int16, int32, int64) | `Integer` if the value fits in `int`; otherwise `Long` |
+| **uint64** | `Long` if the value fits in signed `long`; otherwise `BigInteger` |
+| **float32** / **float64** | `Double` (both are read as double-precision) |
+| **nil** | `null` |
+| **boolean** | `Boolean` |
+| **binary** (`bin`) | `byte[]` |
+| **string** (`str`) | `String` |
+| **map** | `LinkedHashMap<String, Object>` |
+| **array** | `ArrayList<Object>` |
+| Tarantool/SDK **extensions** (`decimal`, `uuid`, `datetime`, …) | `BigDecimal`, `UUID`, `ZonedDateTime`, `Interval`, `Tuple<?>`, … (see the Tarantool/SDK type table and the `Object` note at the start of the POJO section) |
+
+With `DeserializationFeature.USE_BIG_INTEGER_FOR_INTS` enabled on the `ObjectMapper`, untyped integers may always deserialize as `BigInteger` — see Jackson Javadoc. `BaseTarantoolJacksonMapping` does **not** enable this flag.
+
+### `byte[]` and `String` (`bin` and `str` families)
+
+In MsgPack, **binary** (`bin` family) and **string** (`str` family) are distinct. Default mapping:
+
+- **`byte[]`** — **binary** payload;
+- **`String`** — **string** payload (UTF-8).
+
+A mismatch between the MsgPack format and the Java field type (for example, **string** on the wire and **`byte[]`** in the POJO) does not guarantee successful deserialization with the module defaults. Alternatives: aligned storage schema and POJO types, an intermediate type with conversion, **`@JsonDeserialize`**, or a custom `JsonDeserializer` (see `jackson-dataformat-msgpack` documentation).
+
+### `float` / `double` and `decimal`
+
+Non-extension floating-point values in MsgPack are **float32** / **float64**. Tarantool **`decimal`** is transmitted as a **MsgPack extension** in this SDK and maps to **`java.math.BigDecimal`** (table above).
+
+Pairing **float32/float64** on the wire with a **`BigDecimal`** field, or a **decimal extension** with **`float`** / **`double`**, follows Jackson type-coercion rules and the module version; an explicit field type or a boundary deserializer may be required.
+
 ## Efficient Mapping (Flatten input, Flatten output)
 
 By default, field mapping in any of the clients (CrudClient, BoxClient) is performed in the most

@@ -27,6 +27,75 @@ tarantool-java-sdk SDK есть модуль, который будет сери
 работать с базой данных в любых сценариях, будь то кластер или одиночный экземпляр, и с любыми POJO
 объектами.
 
+## Поддерживаемые Java-типы при маппинге
+
+SDK использует `Jackson + jackson-dataformat-msgpack`, поэтому:
+
+- базовые типы Java/Jackson (примитивы и их обертки, `String`, `byte[]`, `List`, `Map`, вложенные POJO)
+  поддерживаются по умолчанию;
+- дополнительно поддерживаются extension-типы Tarantool.
+
+Ниже приведены типы, для которых в SDK есть явный маппинг из/в Tarantool extension types:
+
+| Tarantool type | Java type | Комментарий |
+| --- | --- | --- |
+| `decimal` | `java.math.BigDecimal` | Используется MsgPack extension `decimal`; поддерживается scale по модулю до `38` включительно. |
+| `uuid` | `java.util.UUID` | Используется MsgPack extension `uuid`. |
+| `datetime` | `java.time.Instant`, `java.time.LocalDateTime`, `java.time.LocalDate`, `java.time.LocalTime`, `java.time.OffsetDateTime`, `java.time.ZonedDateTime` | Используется MsgPack extension `datetime`. |
+| `interval` | `io.tarantool.mapping.Interval` | Используется MsgPack extension `interval`. |
+| `tuple` (Tarantool 3.x, `TUPLE_EXT`) | `io.tarantool.mapping.Tuple<T>` | Используется MsgPack extension `tuple`; полезно, когда вместе с данными приходит формат кортежа. |
+
+???+ note "Заметка"
+
+    Если вы читаете данные как `Object` (без явного целевого класса), extension-типы будут
+    десериализованы в Java-объекты SDK автоматически:
+    `decimal -> BigDecimal`, `uuid -> UUID`, `datetime -> ZonedDateTime`,
+    `interval -> Interval`, `tuple -> Tuple<?>`.
+
+## Jackson MsgPack: значения по умолчанию и десериализация
+
+Маппинг POJO выполняется через **Jackson** и модуль [**jackson-dataformat-msgpack**](https://github.com/FasterXML/jackson-dataformats-binary/tree/2.18/msg-pack).
+Обработка **отсутствующих свойств**, **значений по умолчанию** и **приведения типов** при десериализации определяется настройками и API Jackson (`DeserializationFeature`, конструкторы, `@JsonCreator` и др.) и фактическим типом значения в MsgPack. Нормативное описание — в документации и release notes `jackson-dataformat-msgpack` для используемой линии Jackson.
+
+### Целые числа
+
+В MsgPack целые значения кодируются с переменной шириной (fixint, int8/16/32/64, uint*). Десериализатор приводит их к объявленному типу Java (`int`, `long`, `Integer`, `BigInteger` и т.д.).
+При **более узком** целевом типе, чем допускает значение на wire, возможны ошибка десериализации или потеря точности; тип поля в Java должен соответствовать диапазону данных на стороне Tarantool (в том числе для больших `unsigned`).
+
+### Десериализация в `Object` (без явного типа)
+
+Если целевой тип — `java.lang.Object` (в т.ч. элементы `List<?>`, значения в `Map<String, Object>` и поля с сырым `Object`), Jackson использует `UntypedObjectDeserializer`, а для чисел вызывает `JsonParser.getNumberValue()`. В SDK подключается **`org.msgpack:jackson-dataformat-msgpack`**; фактические классы для скаляров задаёт его `MessagePackParser` (целые не становятся `Byte`/`Short` только из‑за «малого» значения на wire).
+
+| Что приходит в MsgPack | Тип в Java при десериализации в `Object` (настройки `ObjectMapper` по умолчанию в SDK) |
+| --- | --- |
+| Целое **signed** (fixint, int8, int16, int32, int64) | `Integer`, если значение в диапазоне `int`; иначе `Long` |
+| **uint64** | `Long`, если значение помещается в диапазон signed `long`; иначе `BigInteger` |
+| **float32** / **float64** | `Double` (оба формата читаются как double-precision) |
+| **nil** | `null` |
+| **boolean** | `Boolean` |
+| **binary** (`bin`) | `byte[]` |
+| **string** (`str`) | `String` |
+| **map** | `LinkedHashMap<String, Object>` |
+| **array** | `ArrayList<Object>` |
+| **extension** Tarantool/SDK (`decimal`, `uuid`, `datetime`, …) | `BigDecimal`, `UUID`, `ZonedDateTime`, `Interval`, `Tuple<?>`, … (таблица типов и заметка про чтение как `Object` — в начале раздела про POJO) |
+
+Если на `ObjectMapper` включён `DeserializationFeature.USE_BIG_INTEGER_FOR_INTS`, целые в контексте «untyped» могут стабильно приходить как `BigInteger` — см. Javadoc Jackson. В `BaseTarantoolJacksonMapping` этот флаг **не** включается.
+
+### `byte[]` и `String` (семейства `bin` и `str`)
+
+В MsgPack типы **binary** (семейство `bin`) и **string** (семейство `str`) различны. Сопоставление по умолчанию:
+
+- **`byte[]`** — полезная нагрузка в формате **binary**;
+- **`String`** — полезная нагрузка в формате **string** (UTF-8).
+
+Несовпадение формата MsgPack и типа поля Java (например, **string** на wire и **`byte[]`** в POJO) не гарантирует успешную десериализацию стандартными средствами модуля. Альтернативы: согласованный тип в схеме хранения и в POJO, промежуточный тип с последующим преобразованием, **`@JsonDeserialize`** или пользовательский `JsonDeserializer` (см. документацию `jackson-dataformat-msgpack`).
+
+### `float` / `double` и `decimal`
+
+В MsgPack значения с плавающей точкой без extension — **float32** / **float64**. Значение **`decimal`** Tarantool в SDK передаётся как **MsgPack extension** и мапится на **`java.math.BigDecimal`** (таблица выше).
+
+Сочетание **float32/float64** на wire с полем **`BigDecimal`**, либо **decimal extension** с полем **`float`** / **`double`**, задаётся правилами приведения типов Jackson и версией модуля; при необходимости используется явный тип поля или десериализатор на границе.
+
 ## Эффективный Маппинг (Flatten input, Flatten output)
 
 По умолчанию маппинг полей в любом из клиентов(CrudClient, BoxClient), выполняется наиболее
