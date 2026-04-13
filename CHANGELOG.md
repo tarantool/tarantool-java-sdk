@@ -15,6 +15,40 @@
 - Document supported Java types for Tarantool data mapping in `tuple_pojo_mapping` docs (RU/EN), including Tarantool extension types (`decimal`, `uuid`, `datetime`, `interval`, `tuple`) and related mapping notes.
 - Document Jackson MsgPack deserialization: integers, `bin`/`str` vs `byte[]`/`String`, floating-point vs `decimal`; reference `jackson-dataformat-msgpack` for defaults and type coercion.
 
+### Dependencies
+- Updated dependencies:
+
+  Compile:
+    * Bump jackson version from 2.18.4 to 2.21.2
+    * Bump msgpack version from 0.9.10 to 0.9.11
+    * Bump netty version from 4.2.7.Final to 4.2.12.Final
+    * Bump httpclient5 version from 5.5 to 5.5.2
+    * Bump httpcore5 version from 5.3.4 to 5.3.6
+    * Bump spring-boot version from 3.5.8 to 3.5.10 in tarantool-spring-data-35
+    * Pin spring-data-keyvalue version to 3.5.10 for tarantool-spring-data-35 and 4.0.4 for tarantool-spring-data-40
+
+  Tests:
+    * Bump testcontainers version from 2.0.1 to 2.0.4
+    * Bump junit-jupiter version from 5.13.4 to 5.14.3
+    * Bump logback version from 1.5.21 to 1.5.32 in spring-data module
+    * Bump grpc version from 1.76.0 to 1.77.0
+    * Bump protobuf version from 3.25.8 to 3.25.9
+    * Bump commons-io version from 2.20.0 to 2.21.0
+    * Bump commons-codec version from 1.19.0 to 1.21.0
+    * Bump opentelemetry version from 1.48.0 to 1.61.0
+
+  Maven:
+    * Bump maven-enforcer-plugin from 3.6.1 to 3.6.2
+    * Bump maven-release-plugin from 3.1.1 to 3.3.1
+    * Bump maven-compiler-plugin from 3.14.0 to 3.15.0
+    * Bump maven-surefire-plugin from 3.5.4 to 3.5.5
+    * Bump maven-pmd-plugin from 3.27.0 to 3.28.0
+    * Bump spotbugs-maven-plugin from 4.9.8.1 to 4.9.8.3
+    * Bump maven-resources-plugin from 3.3.1 to 3.5.0
+    * Bump jacoco-maven-plugin from 0.8.13 to 0.8.14
+    * Bump maven-antrun-plugin from 3.1.0 to 3.2.0
+    * Bump central-publishing-maven-plugin from 0.9.0 to 0.10.0
+
 ## [1.6.0] - 2026-04-01
 
 ### BOM Module

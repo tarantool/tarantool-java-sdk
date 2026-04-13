@@ -14,6 +14,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.msgpack.jackson.dataformat.MessagePackExtensionType;
@@ -41,7 +42,7 @@ public class UniversalExtensionModule {
     private final HashMap<Byte, TarantoolDeserializer<?>> deserializers = new HashMap<>();
 
     public ObjectDeserializer() {
-      super(null, null);
+      super(null, (JavaType) null);
       deserializers.put(
           IPROTO_EXT_DECIMAL, new DecimalExtensionModule.BigDecimalDeserializer(BigDecimal.class));
       deserializers.put(IPROTO_EXT_UUID, new UUIDExtensionModule.UUIDDeserializer(UUID.class));
