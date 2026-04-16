@@ -12,28 +12,28 @@
     <version>2.0.0-SNAPSHOT</version>
 
     <properties>
-        <jackson.version>2.18.4</jackson.version>
-        <msgpack.version>0.9.10</msgpack.version>
-        <netty.version>4.2.7.Final</netty.version>
+        <jackson.version>2.21.2</jackson.version>
+        <msgpack.version>0.9.11</msgpack.version>
+        <netty.version>4.2.12.Final</netty.version>
         <slf4j.api.version>2.0.17</slf4j.api.version>
-        <testcontainers.version>2.0.1</testcontainers.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
         <logback.version>1.3.16</logback.version>
-        <junit-jupiter.version>5.13.4</junit-jupiter.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
-        <lombok.version>1.18.38</lombok.version>
-        <guava.version>33.4.8-jre</guava.version>
-        <micrometer.version>1.14.12</micrometer.version>
-        <httpclient5.version>5.5</httpclient5.version>
-        <httpcore5.version>5.3.4</httpcore5.version>
+        <junit-jupiter.version>5.14.3</junit-jupiter.version>
+        <commons-lang3.version>3.19.0</commons-lang3.version>
+        <lombok.version>1.18.44</lombok.version>
+        <guava.version>33.5.0-jre</guava.version>
+        <micrometer.version>1.16.4</micrometer.version>
+        <httpclient5.version>5.5.2</httpclient5.version>
+        <httpcore5.version>5.3.6</httpcore5.version>
         <jetcd.version>0.8.6</jetcd.version>
-        <grpc.version>1.76.0</grpc.version>
-        <protobuf.version>3.25.8</protobuf.version>
+        <grpc.version>1.77.0</grpc.version>
+        <protobuf.version>3.25.9</protobuf.version>
         <commons-compress.version>1.28.0</commons-compress.version>
-        <commons-codec.version>1.19.0</commons-codec.version>
-        <commons-io.version>2.20.0</commons-io.version>
+        <commons-codec.version>1.21.0</commons-codec.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <instancio.version>5.5.1</instancio.version>
         <jsonschema2pojo.version>1.2.2</jsonschema2pojo.version>
-        <opentelemetry.version>1.48.0</opentelemetry.version>
+        <opentelemetry.version>1.61.0</opentelemetry.version>
     </properties>
 
     <dependencyManagement>
@@ -345,7 +345,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.9.0</version>
+                        <version>0.10.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central-portal-snapshots</publishingServerId>
@@ -363,7 +363,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.9.0</version>
+                        <version>0.10.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
