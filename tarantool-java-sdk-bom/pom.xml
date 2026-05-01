@@ -24,7 +24,7 @@
         <guava.version>33.5.0-jre</guava.version>
         <micrometer.version>1.16.4</micrometer.version>
         <httpclient5.version>5.5.2</httpclient5.version>
-        <httpcore5.version>5.3.6</httpcore5.version>
+        <httpcore5.version>5.4.2</httpcore5.version>
         <jetcd.version>0.8.6</jetcd.version>
         <grpc.version>1.77.0</grpc.version>
         <protobuf.version>3.25.9</protobuf.version>
