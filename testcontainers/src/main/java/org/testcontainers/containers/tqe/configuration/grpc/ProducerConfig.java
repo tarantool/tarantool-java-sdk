@@ -11,13 +11,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /*
-type PublisherConfig struct {
+type ProducerConfig struct {
 	Enabled      bool                  `mapstructure:"enabled"`
 	LocalRouting bool                  `mapstructure:"local_routing"`
 	Tarantool    TarantoolClientConfig `mapstructure:"tarantool"`
 }
  */
-public class PublisherConfig {
+public class ProducerConfig {
 
   @JsonProperty("enabled")
   private final Boolean enabled;
@@ -29,7 +29,7 @@ public class PublisherConfig {
   private final TarantoolClientConfig tarantool;
 
   @JsonCreator
-  public PublisherConfig(
+  public ProducerConfig(
       @JsonProperty("enabled") Boolean enabled,
       @JsonProperty("local_routing") Boolean localRoutingEnabled,
       @JsonProperty("tarantool") TarantoolClientConfig tarantool) {

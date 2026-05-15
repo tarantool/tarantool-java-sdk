@@ -26,7 +26,7 @@ import org.testcontainers.containers.tarantool.config.tarantool3.HostPort;
 import org.testcontainers.containers.tqe.configuration.grpc.ConsumerConfig;
 import org.testcontainers.containers.tqe.configuration.grpc.GrpcConfiguration;
 import org.testcontainers.containers.tqe.configuration.grpc.GrpcListen;
-import org.testcontainers.containers.tqe.configuration.grpc.PublisherConfig;
+import org.testcontainers.containers.tqe.configuration.grpc.ProducerConfig;
 import org.testcontainers.containers.utils.Utils;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
@@ -224,10 +224,10 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl>
    */
   private static Set<GrpcRole> resolveRoles(GrpcConfiguration config, Path configPath) {
     final Optional<Boolean> isPublisher =
-        config.getPublisher().flatMap(PublisherConfig::getEnabled);
+        config.getProducer().flatMap(ProducerConfig::getEnabled);
     final Set<GrpcRole> roles = new LinkedHashSet<>();
     if (isPublisher.isPresent() && isPublisher.get()) {
-      roles.add(GrpcRole.PUBLISHER);
+      roles.add(GrpcRole.PRODUCER);
       LOGGER.trace("Publisher role is enabled for: {}", configPath);
     }
 

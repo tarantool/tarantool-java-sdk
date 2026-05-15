@@ -50,7 +50,7 @@ public interface GrpcContainer<SELF extends GrpcContainer<SELF>>
   enum GrpcRole {
     CONSUMER("consumer"),
 
-    PUBLISHER("publisher");
+    PRODUCER("producer");
 
     private final String role;
 

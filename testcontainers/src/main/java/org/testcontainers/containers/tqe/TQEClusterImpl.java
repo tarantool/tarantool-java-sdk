@@ -41,18 +41,8 @@ public class TQEClusterImpl implements TQECluster {
         this.queue().size(),
         this.grpc().size());
 
-    startParallel(this.configurator.queue(), this.configurator);
-    startParallel(this.configurator.grpc(), this.configurator);
-    if (this.configurator.isConfigured()) {
-      LOGGER.warn(
-          "TQE cluster [name = {}, queue = {}, grpc = {}] already configured",
-          this.configurator.clusterName(),
-          this.configurator.queue().size(),
-          this.configurator.grpc().size());
-      return;
-    }
-
-    this.configurator.configure();
+    startTarantoolCluster();
+    startGrpcEndpoints();
   }
 
   @Override
@@ -93,6 +83,24 @@ public class TQEClusterImpl implements TQECluster {
               + configurator.clusterName()
               + "'] cannot start. See logs for details.");
     }
+  }
+
+  private void startTarantoolCluster() {
+    startParallel(this.configurator.queue(), this.configurator);
+    if (this.configurator.isConfigured()) {
+      LOGGER.warn(
+          "TQE cluster [name = {}, queue = {}, grpc = {}] already configured",
+          this.configurator.clusterName(),
+          this.configurator.queue().size(),
+          this.configurator.grpc().size());
+      return;
+    }
+
+    this.configurator.configure();
+  }
+
+  private void startGrpcEndpoints() {
+    startParallel(this.configurator.grpc(), this.configurator);
   }
 
   @Override

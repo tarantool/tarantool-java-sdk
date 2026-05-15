@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+package tarantool.queue_ee;
+
+import "messages/message.proto";
+
+option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v3/server/protocol";
+
+// Сервер публикации сообщений брокера очередей
+service Producer {
+  // Публикация набора сообщений в очередь
+  rpc Produce(ProduceRequest) returns (ProduceResponse);
+  // Публикация набора сообщений в очередь через двусторонний стрим
+  rpc ProduceStream(
+    stream ProduceStreamRequest
+  ) returns (
+    stream ProduceStreamResponse
+  );
+
+  // Публикация сообщения на указанные шарды очереди
+  rpc Broadcast(BroadcastRequest) returns (BroadcastResponse);
+}
+
+// Режим дедупликации сообщения
+enum Deduplication {
+  DEDUPLICATION_UNSPECIFIED = 0;
+  DEDUPLICATION_BASIC = 1;
+  DEDUPLICATION_EXTENDED = 2;
+  DEDUPLICATION_KEEP_FIRST = 3;
+  DEDUPLICATION_KEEP_LATEST = 4;
+}
+
+// Запрос на публикация набора сообщений в очередь
+message ProduceRequest {
+  // Название очереди в которой необходимо опубликовать сообщения
+  string queue = 1;
+
+  // Ключ шардирования
+  // необходим для распределения данных в системе
+  optional bytes sharding_key = 2;
+
+  // Набор сообщений
+  repeated ProduceMessage messages = 3;
+
+  // Произвольные данные в формате списка из пар ключ-значение.
+  repeated Pair metadata = 4;
+
+  // Режим дедупликации сообщения
+  Deduplication deduplication = 5;
+}
+
+// Сообщение для публикации
+message ProduceMessage {
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди на консьюмерах
+  optional bytes routing_key = 1;
+
+  // Ключ дедупликации
+  // Необходим для проверки повторных сообщений,
+  // если не указан, то проверка не производится
+  optional bytes deduplication_key = 2;
+
+  // Произвольные данные в бинарном формате, содержит тело сообщения
+  bytes payload = 3;
+
+  // Произвольные данные в формате списка из пар ключ-значение.
+  repeated Pair metadata = 4;
+}
+
+// Ответ на публикацию набора сообщений
+message ProduceResponse {
+  // Идентификаторы сообщений
+  repeated uint64 ids = 1;
+  // Флаги наличия дубликатов
+  repeated bool is_duplicates = 2;
+}
+
+// Запрос на публикацию набора сообщений через двусторонний стрим
+message ProduceStreamRequest {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  // Запрос на публикацию набора сообщений
+  ProduceRequest request = 2;
+}
+
+// Ответ на публикацию набора сообщений через двусторонний стрим
+message ProduceStreamResponse {
+  // Идентификатор запроса на публикацию сообщения
+  uint64 request_id = 1;
+
+  oneof result {
+    // Сообщение об успешной публикации
+    ProduceResponse success = 2;
+    // Сообщение об ошибке публикации
+    Error error = 3;
+  }
+}
+
+// Запрос на рассылку сообщения на указанные шарды
+message BroadcastRequest {
+  // Название очереди, в которую необходимо опубликовать сообщение
+  string queue = 1;
+
+  // Ключ маршрутизации сообщения (тип сообщения)
+  // необходим для фильтрации сообщений из очереди на консьюмерах
+  optional bytes routing_key = 2;
+
+  // Ключ дедупликации
+  // необходим для проверки повторных сообщений,
+  // если не указан, то проверка не производится
+  optional bytes deduplication_key = 3;
+
+  // Произвольные данные в бинарном формате, содержит тело сообщения
+  bytes payload = 4;
+
+  // Произвольные данные в формате списка из пар ключ-значение.
+  repeated Pair metadata = 5;
+
+  // Список с названиями репликасетов, на которые нужно опубликовать сообщение.
+  // По умолчанию рассылка происходит на все шарды.
+  repeated string replicasets = 6;
+
+  // Максимальное время на рассылку сообщения
+  optional uint64 timeout = 7;
+
+  // Режим дедупликации сообщения
+  Deduplication deduplication = 8;
+}
+
+// Сообщение об успешной публикации
+message Success {
+  // Идентификатор сообщения добавленного в очередь
+  uint64 id = 1;
+  // Флаги наличия дубликатов
+  bool is_duplicate = 2;
+}
+
+// Сообщение об ошибке публикации
+message Error {
+  // Код ошибки
+  uint32 code = 1;
+  // Сообщение об ошибке
+  string message = 2;
+}
+
+// Ответ репликасета на публикацию сообщения
+message ReplicasetResponse {
+  // Сообщение с результатами публикации сообщения
+  oneof result {
+    // Сообщение об успешной публикации
+    Success success = 1;
+
+    // Сообщение об ошибке публикации
+    Error error = 2;
+  }
+}
+
+// Ответ на рассылку сообщения
+message BroadcastResponse {
+  // Код завершения рассылки:
+  // 0 - Успешная публикация
+  // 1 - Ошибка на роутере
+  // 2 - Ошибка на репликасете
+  uint32 code = 1;
+
+  // Сообщение об ошибке
+  optional string error = 2;
+
+  // Набор ответов с шардов
+  map<string, ReplicasetResponse> replicasets = 3;
+}

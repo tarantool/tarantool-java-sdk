@@ -2,14 +2,31 @@ syntax = "proto3";
 
 package tarantool.queue_ee;
 
+import "messages/cursor.proto";
 import "messages/message.proto";
 
-option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v2/server/protocol";
+option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v3/server/protocol";
 
 // Сервер подписок на сообщения брокера очередей
 service ConsumerService {
   // Подписка на сообщения с фильтром
-  rpc Subscribe(SubscriptionRequest) returns (stream SubscriptionNotifications);
+  rpc Subscribe(stream SubscriptionStreamRequest)
+    returns (stream SubscriptionStreamResponse);
+
+  // Подписка на сообщения Consumer Group
+  rpc ConsumeGroup(stream ConsumeGroupStreamRequest)
+    returns (stream ConsumeGroupStreamResponse);
+}
+
+// Поток запросов подписки.
+message SubscriptionStreamRequest {
+  oneof request {
+    // Запрос на подписку
+    SubscriptionRequest subscribe_request = 1;
+
+    // Запрос на обновление состояния подписки.
+    CommitRequest commit_request = 2;
+  }
 }
 
 // Запрос на подписку
@@ -38,6 +55,32 @@ message SubscriptionRequest {
   // Ключи шардирования позволяют производить фильтрацию по нескольким ключам
   // шардирования в рамках одной подписки
   repeated string sharding_keys = 5;
+
+  // Идентификатор состояния подписки.
+  optional string consume_id = 6;
+
+  // Время жизни состояние подписки.
+  optional float ttl = 7;
+
+  // Флаг чтения с последнего сохраненного состояния.
+  optional bool restore = 8;
+}
+
+// Запрос на обновление состояния подписки.
+message CommitRequest {
+  // Указатель на последнее обработанное сообщение.
+  string cursor = 1;
+}
+
+// Поток ответов подписки.
+message SubscriptionStreamResponse {
+  oneof response {
+    // Сообщение в стриме подписки
+    SubscriptionNotifications notifications = 1;
+
+    // Ответ на обновление состояния подписки.
+    CommitResponse commit_response = 2;
+  }
 }
 
 // Сообщение в стриме подписки
@@ -46,11 +89,81 @@ message SubscriptionNotifications {
   repeated SubscriptionNotification notifications = 1;
 }
 
-// Уведомление клиента о новых сообщения в очереди
+// Уведомление клиента о новых сообщениях в очереди
 message SubscriptionNotification {
   // Строка-указатель сообщения
   string cursor = 1;
 
   // Сообщение
   QueueMessage message = 2;
+}
+
+// Ответ на обновление состояния подписки.
+message CommitResponse {
+  // Обновленная строка-указатель сообщения.
+  string cursor = 1;
+}
+
+// Поток запросов к Consumer Group
+message ConsumeGroupStreamRequest {
+  oneof request {
+    // Запрос к Consumer Group
+    ConsumeGroupRequest consume_request = 1;
+
+    // Запрос на подтверждение обработки сообщения
+    CommitGroupRequest commit_request = 2;
+  }
+}
+
+// Поток ответов Consumer Group
+message ConsumeGroupStreamResponse {
+  oneof response {
+    // Сообщение в стриме подписки
+    ConsumeGroupResponse consume_response = 1;
+
+    // Ответ на подтверждение обработки сообщения
+    CommitGroupResponse commit_response = 2;
+  }
+}
+
+// Запрос в Consumer Group
+message ConsumeGroupRequest {
+  // Идентификатор группы потребителей
+  string group_id = 1;
+
+  // Название очереди
+  string queue = 2;
+
+  // Опциональный ключ фильтрации
+  optional string routing_key = 3;
+
+  // Время жизни состояния подписки
+  optional float ttl = 4;
+}
+
+// Ответ с потребленными сообщениями группы
+message ConsumeGroupResponse {
+  // Список потребленных сообщений
+  repeated ConsumeGroupNotification notifications = 1;
+}
+
+// Уведомление о сообщении в Consumer Group
+message ConsumeGroupNotification {
+  // Указатель на текущее сообщение
+  Cursor cursor = 1;
+
+  // Сообщение
+  QueueMessage message = 2;
+}
+
+// Запрос на подтверждение обработки сообщения Consumer Group
+message CommitGroupRequest {
+  // Указатель на сообщение
+  Cursor cursor = 1;
+}
+
+// Ответ на подтверждение обработки сообщения Consumer Group
+message CommitGroupResponse {
+  // Обновленный указатель сообщения
+  Cursor cursor = 1;
 }
