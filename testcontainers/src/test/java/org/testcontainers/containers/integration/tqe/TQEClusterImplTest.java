@@ -19,6 +19,11 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
+import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import io.grpc.stub.StreamObserver;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.instancio.generators.Generators;
@@ -38,10 +43,6 @@ import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.containers.utils.pojo.User;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 import tarantool.queue_ee.Consumer.SubscriptionRequest;
 import tarantool.queue_ee.Consumer.SubscriptionStreamRequest;
 import tarantool.queue_ee.Consumer.SubscriptionStreamResponse;
@@ -402,8 +403,7 @@ class TQEClusterImplTest extends CommonTest {
                     .usePlaintext()
                     .build();
 
-            final ProducerBlockingStub producer =
-                ProducerGrpc.newBlockingStub(producerChannel);
+            final ProducerBlockingStub producer = ProducerGrpc.newBlockingStub(producerChannel);
             final ConsumerServiceStub consumer = ConsumerServiceGrpc.newStub(consumerChannel);
 
             final List<User> users =
@@ -415,9 +415,8 @@ class TQEClusterImplTest extends CommonTest {
                     .generate(Select.field(User::getAge), Generators::ints)
                     .create();
 
-            final ProduceRequest.Builder requestBuilder = ProduceRequest
-                .newBuilder()
-                .setQueue(queueName);
+            final ProduceRequest.Builder requestBuilder =
+                ProduceRequest.newBuilder().setQueue(queueName);
             for (User user : users) {
               requestBuilder.addMessages(
                   ProduceMessage.newBuilder()
@@ -427,41 +426,35 @@ class TQEClusterImplTest extends CommonTest {
             producer.produce(produceRequest);
 
             final Set<User> result = new CopyOnWriteArraySet<>();
-            StreamObserver<SubscriptionStreamRequest> requestsStream = consumer.subscribe(
-                new StreamObserver<SubscriptionStreamResponse>() {
-                  @Override
-                  public void onNext(SubscriptionStreamResponse response) {
-                    response.getNotifications().getNotificationsList().stream()
-                        .map(
-                            n -> {
-                              try {
-                                return MAPPER.readValue(
-                                    n.getMessage().getPayload().toByteArray(), User.class);
-                              } catch (IOException e) {
-                                throw new RuntimeException(e);
-                              }
-                            })
-                        .forEach(result::add);
-                  }
+            StreamObserver<SubscriptionStreamRequest> requestsStream =
+                consumer.subscribe(
+                    new StreamObserver<SubscriptionStreamResponse>() {
+                      @Override
+                      public void onNext(SubscriptionStreamResponse response) {
+                        response.getNotifications().getNotificationsList().stream()
+                            .map(
+                                n -> {
+                                  try {
+                                    return MAPPER.readValue(
+                                        n.getMessage().getPayload().toByteArray(), User.class);
+                                  } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                  }
+                                })
+                            .forEach(result::add);
+                      }
 
-                  @Override
-                  public void onError(Throwable t) {}
+                      @Override
+                      public void onError(Throwable t) {}
 
-                  @Override
-                  public void onCompleted() {}
-                }
-            );
+                      @Override
+                      public void onCompleted() {}
+                    });
             requestsStream.onNext(
-              SubscriptionStreamRequest
-                  .newBuilder()
-                  .setSubscribeRequest(
-                      SubscriptionRequest
-                          .newBuilder()
-                          .setCursor("")
-                          .setQueue(queueName)
-                      )
-                  .build()
-            );
+                SubscriptionStreamRequest.newBuilder()
+                    .setSubscribeRequest(
+                        SubscriptionRequest.newBuilder().setCursor("").setQueue(queueName))
+                    .build());
 
             Unreliables.retryUntilTrue(
                 5, TimeUnit.SECONDS, () -> new LinkedHashSet<>(users).size() == result.size());

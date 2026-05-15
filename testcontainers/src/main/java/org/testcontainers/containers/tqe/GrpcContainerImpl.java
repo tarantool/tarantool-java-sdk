@@ -223,8 +223,7 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl>
    * (required).
    */
   private static Set<GrpcRole> resolveRoles(GrpcConfiguration config, Path configPath) {
-    final Optional<Boolean> isPublisher =
-        config.getProducer().flatMap(ProducerConfig::getEnabled);
+    final Optional<Boolean> isPublisher = config.getProducer().flatMap(ProducerConfig::getEnabled);
     final Set<GrpcRole> roles = new LinkedHashSet<>();
     if (isPublisher.isPresent() && isPublisher.get()) {
       roles.add(GrpcRole.PRODUCER);
