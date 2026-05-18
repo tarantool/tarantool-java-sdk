@@ -23,10 +23,10 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 
 ## Project Status
 
-| tarantool-java-sdk Version | tarantool-spring-data Version |                    Spring Boot Version                    |
-|:--------------------------:|:-----------------------------:|:---------------------------------------------------------:|
-|        1.5.x/1.6.x         |          1.5.x/1.6.x          |     2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8     |
-|           1.7.x            |             1.7.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8 / 4.0.5 |
+| tarantool-java-sdk Version | tarantool-spring-data Version |                    Spring Boot Version                     |
+|:--------------------------:|:-----------------------------:|:----------------------------------------------------------:|
+|        1.5.x/1.6.x         |          1.5.x/1.6.x          |     2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.11     |
+|           1.7.x            |             1.7.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.11 / 4.0.5 |
 
 ### Tarantool Version and Supported Client Modules
 
