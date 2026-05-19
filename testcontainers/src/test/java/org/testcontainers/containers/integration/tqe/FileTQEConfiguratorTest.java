@@ -30,6 +30,7 @@ class FileTQEConfiguratorTest extends CommonTest {
         FileTQEConfigurator.builder(IMAGE_NAME, SIMPLE_QUEUE_CONFIG, Set.of(SIMPLE_GRPC_CONFIG))
             .build()) {
       configurator.queue().values().parallelStream().forEach(Startable::start);
+      configurator.configure();
       configurator.grpc().values().parallelStream().forEach(Startable::start);
     } catch (Exception e) {
       throw new RuntimeException(e);

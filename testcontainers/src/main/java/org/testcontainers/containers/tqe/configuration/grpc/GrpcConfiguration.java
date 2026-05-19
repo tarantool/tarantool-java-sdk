@@ -28,7 +28,7 @@ type AppConfig struct {
 	EtcdAddr    string       `mapstructure:"etcd_addr"`
 	Daemon      bool         `mapstructure:"daemon"`
 
-	Publisher  PublisherConfig  `mapstructure:"publisher"`
+	Publisher  ProducerConfig   `mapstructure:"producer"`
 	Consumer   ConsumerConfig   `mapstructure:"consumer"`
 	MockServer MockServerConfig `mapstructure:"mock_server"`
 
@@ -72,8 +72,8 @@ public class GrpcConfiguration {
   @JsonProperty("daemon")
   private final Boolean daemon;
 
-  @JsonProperty("publisher")
-  private final PublisherConfig publisher;
+  @JsonProperty("producer")
+  private final ProducerConfig producer;
 
   @JsonProperty("consumer")
   private final ConsumerConfig consumer;
@@ -100,7 +100,7 @@ public class GrpcConfiguration {
       @JsonProperty("config_path") String configPath,
       @JsonProperty("etcd_addr") String etcdAddr,
       @JsonProperty("daemon") Boolean daemon,
-      @JsonProperty("publisher") PublisherConfig publisher,
+      @JsonProperty("producer") ProducerConfig producer,
       @JsonProperty("consumer") ConsumerConfig consumer,
       @JsonProperty("mock_server") MockServerConfig mockServer,
       @JsonProperty("tracing") TracingConfig tracing,
@@ -116,7 +116,7 @@ public class GrpcConfiguration {
     this.configPath = configPath;
     this.etcdAddr = etcdAddr;
     this.daemon = daemon;
-    this.publisher = publisher;
+    this.producer = producer;
     this.consumer = consumer;
     this.mockServer = mockServer;
     this.tracing = tracing;
@@ -167,8 +167,8 @@ public class GrpcConfiguration {
     return Optional.ofNullable(this.daemon);
   }
 
-  public Optional<PublisherConfig> getPublisher() {
-    return Optional.ofNullable(this.publisher);
+  public Optional<ProducerConfig> getProducer() {
+    return Optional.ofNullable(this.producer);
   }
 
   public Optional<ConsumerConfig> getConsumer() {

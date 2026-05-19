@@ -43,14 +43,15 @@ import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.containers.utils.pojo.User;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import tarantool.queue_ee.Consumer.SubscriptionNotifications;
 import tarantool.queue_ee.Consumer.SubscriptionRequest;
+import tarantool.queue_ee.Consumer.SubscriptionStreamRequest;
+import tarantool.queue_ee.Consumer.SubscriptionStreamResponse;
 import tarantool.queue_ee.ConsumerServiceGrpc;
 import tarantool.queue_ee.ConsumerServiceGrpc.ConsumerServiceStub;
-import tarantool.queue_ee.Publisher.BatchRequestMessage;
-import tarantool.queue_ee.Publisher.PublishBatchRequest;
-import tarantool.queue_ee.PublisherServiceGrpc;
-import tarantool.queue_ee.PublisherServiceGrpc.PublisherServiceBlockingStub;
+import tarantool.queue_ee.ProducerGrpc;
+import tarantool.queue_ee.ProducerGrpc.ProducerBlockingStub;
+import tarantool.queue_ee.ProducerOuterClass.ProduceMessage;
+import tarantool.queue_ee.ProducerOuterClass.ProduceRequest;
 
 class TQEClusterImplTest extends CommonTest {
 
@@ -237,7 +238,7 @@ class TQEClusterImplTest extends CommonTest {
             grpc_listen:
               - uri: 'tcp://0.0.0.0:18182'
 
-            publisher:
+            producer:
               enabled: true
               tarantool:
                 user: test-super
@@ -255,13 +256,13 @@ class TQEClusterImplTest extends CommonTest {
                   storage:
                     - "master:3301"
             """,
-            // no consumers and publishers
+            // no consumers and producers
             """
             core_port: 1111
             grpc_listen:
               - uri: 'tcp://0.0.0.0:18182'
 
-            publisher:
+            producer:
               enabled: false
               tarantool:
                 user: test-super
@@ -284,7 +285,7 @@ class TQEClusterImplTest extends CommonTest {
             grpc_listen:
               - uri: 'tcp://0.0.0.0:18182'
 
-            publisher:
+            producer:
               enabled: true
               tarantool:
                 user: test-super
@@ -306,7 +307,7 @@ class TQEClusterImplTest extends CommonTest {
             """
             core_port: 1111
 
-            publisher:
+            producer:
               enabled: true
               tarantool:
                 user: test-super
@@ -369,19 +370,19 @@ class TQEClusterImplTest extends CommonTest {
 
             final String queueName = "test";
 
-            final List<GrpcContainer<?>> publishers =
+            final List<GrpcContainer<?>> producers =
                 cluster.grpc().values().stream()
-                    .filter(g -> g.roles().contains(GrpcRole.PUBLISHER))
+                    .filter(g -> g.roles().contains(GrpcRole.PRODUCER))
                     .toList();
             final List<GrpcContainer<?>> consumers =
                 cluster.grpc().values().stream()
                     .filter(g -> g.roles().contains(GrpcRole.CONSUMER))
                     .toList();
 
-            Assertions.assertFalse(publishers.isEmpty());
+            Assertions.assertFalse(producers.isEmpty());
             Assertions.assertFalse(consumers.isEmpty());
 
-            final Set<InetSocketAddress> grpcAddresses = publishers.get(0).grpcAddresses();
+            final Set<InetSocketAddress> grpcAddresses = producers.get(0).grpcAddresses();
             final Set<InetSocketAddress> consumerAddresses = consumers.get(0).grpcAddresses();
 
             final Optional<InetSocketAddress> publisherAddress = grpcAddresses.stream().findFirst();
@@ -390,7 +391,7 @@ class TQEClusterImplTest extends CommonTest {
                 consumerAddresses.stream().findFirst();
             Assertions.assertTrue(consumerAddress.isPresent());
 
-            final ManagedChannel publisherChannel =
+            final ManagedChannel producerChannel =
                 ManagedChannelBuilder.forAddress(
                         publisherAddress.get().getHostName(), publisherAddress.get().getPort())
                     .usePlaintext()
@@ -402,9 +403,8 @@ class TQEClusterImplTest extends CommonTest {
                     .usePlaintext()
                     .build();
 
-            final PublisherServiceBlockingStub pService =
-                PublisherServiceGrpc.newBlockingStub(publisherChannel);
-            final ConsumerServiceStub cService = ConsumerServiceGrpc.newStub(consumerChannel);
+            final ProducerBlockingStub producer = ProducerGrpc.newBlockingStub(producerChannel);
+            final ConsumerServiceStub consumer = ConsumerServiceGrpc.newStub(consumerChannel);
 
             final List<User> users =
                 Instancio.ofList(User.class)
@@ -415,46 +415,52 @@ class TQEClusterImplTest extends CommonTest {
                     .generate(Select.field(User::getAge), Generators::ints)
                     .create();
 
-            final PublishBatchRequest.Builder requestBuilder = PublishBatchRequest.newBuilder();
+            final ProduceRequest.Builder requestBuilder =
+                ProduceRequest.newBuilder().setQueue(queueName);
             for (User user : users) {
               requestBuilder.addMessages(
-                  BatchRequestMessage.newBuilder()
+                  ProduceMessage.newBuilder()
                       .setPayload(ByteString.copyFrom(MAPPER.writeValueAsBytes(user))));
             }
-            final PublishBatchRequest publishRequest = requestBuilder.setQueue(queueName).build();
-            pService.publishBatch(publishRequest);
+            final ProduceRequest produceRequest = requestBuilder.build();
+            producer.produce(produceRequest);
 
             final Set<User> result = new CopyOnWriteArraySet<>();
-            cService.subscribe(
-                SubscriptionRequest.newBuilder().setCursor("").setQueue(queueName).build(),
-                new StreamObserver<>() {
-                  @Override
-                  public void onNext(SubscriptionNotifications value) {
-                    value.getNotificationsList().stream()
-                        .map(
-                            n -> {
-                              try {
-                                return MAPPER.readValue(
-                                    n.getMessage().getPayload().toByteArray(), User.class);
-                              } catch (IOException e) {
-                                throw new RuntimeException(e);
-                              }
-                            })
-                        .forEach(result::add);
-                  }
+            StreamObserver<SubscriptionStreamRequest> requestsStream =
+                consumer.subscribe(
+                    new StreamObserver<SubscriptionStreamResponse>() {
+                      @Override
+                      public void onNext(SubscriptionStreamResponse response) {
+                        response.getNotifications().getNotificationsList().stream()
+                            .map(
+                                n -> {
+                                  try {
+                                    return MAPPER.readValue(
+                                        n.getMessage().getPayload().toByteArray(), User.class);
+                                  } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                  }
+                                })
+                            .forEach(result::add);
+                      }
 
-                  @Override
-                  public void onError(Throwable t) {}
+                      @Override
+                      public void onError(Throwable t) {}
 
-                  @Override
-                  public void onCompleted() {}
-                });
+                      @Override
+                      public void onCompleted() {}
+                    });
+            requestsStream.onNext(
+                SubscriptionStreamRequest.newBuilder()
+                    .setSubscribeRequest(
+                        SubscriptionRequest.newBuilder().setCursor("").setQueue(queueName))
+                    .build());
 
             Unreliables.retryUntilTrue(
                 5, TimeUnit.SECONDS, () -> new LinkedHashSet<>(users).size() == result.size());
             Assertions.assertEquals(new LinkedHashSet<>(users), result);
             consumerChannel.shutdownNow();
-            publisherChannel.shutdownNow();
+            producerChannel.shutdownNow();
           }
         });
   }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package tarantool.queue_ee;
+
+option go_package = "gitlab.vkteam.ru/tarantool/tqe/message-queue.git/v3/server/protocol";
+
+// Cursor — позиция внутри очереди consumer-group с привязкой к партиции.
+// Схема Lua-оркестратора представляет это же значение как массив из двух
+// элементов [partition_id, message_id]; см. client/consumer/group/cursor.go —
+// in-process Go-аналог (consumer.Cursor).
+message Cursor {
+  // Идентификатор партиции, на которую указывает курсор.
+  uint32 partition_id = 1;
+
+  // Идентификатор сообщения внутри партиции.
+  uint64 message_id = 2;
+}

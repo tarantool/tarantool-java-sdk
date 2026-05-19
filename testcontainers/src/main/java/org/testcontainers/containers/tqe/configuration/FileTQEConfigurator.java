@@ -67,7 +67,7 @@ public class FileTQEConfigurator implements TQEConfigurator {
   private static final String CONFIGURATOR_ERROR_MSG =
       "An error occurred when configuring the TQE cluster. See logs for details.";
 
-  private static final String TQE_ROUTER_ROLE = "app.roles.api";
+  private static final String TQE_ROUTER_ROLE = "roles.tqe-router";
 
   /*
   /**********************************************************

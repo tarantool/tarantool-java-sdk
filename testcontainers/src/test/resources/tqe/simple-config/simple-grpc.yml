@@ -1,21 +1,29 @@
 core_port: 1111
 grpc_listen:
-  - uri: 'tcp://0.0.0.0:18182'
+- uri: 'tcp://0.0.0.0:18182'
 
-publisher:
+producer:
   enabled: true
   tarantool:
     user: test-super
     pass: test
+    initial_connection:
+      retry_count: 30
+      retry_timeout: 120s
+      retry_delay: 5s
     connections:
       routers:
-        - "router:3301"
+      - "router:3301"
 
 consumer:
   enabled: true
   tarantool:
     user: test-super
     pass: test
+    initial_connection:
+      retry_count: 30
+      retry_timeout: 120s
+      retry_delay: 5s
     connections:
       storage:
-        - "master:3301"
+      - "master:3301"

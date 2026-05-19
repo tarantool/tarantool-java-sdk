@@ -20,7 +20,7 @@ public abstract class CommonTest {
   protected static final DockerImageName IMAGE_NAME =
       DockerImageName.parse(
           System.getenv().getOrDefault("TARANTOOL_REGISTRY", "")
-              + "tarantool/message-queue-ee:2.5.3");
+              + "tarantool/message-queue-ee:v3.5.0");
 
   protected static final Path SIMPLE_GRPC_CONFIG;
   protected static final Path SIMPLE_QUEUE_CONFIG;

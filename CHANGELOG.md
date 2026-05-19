@@ -9,6 +9,7 @@
 ### Testcontainers
 
 - Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, and optional additional script paths copied into the container data directory (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); simplify bundled `server.lua` accordingly.
+- Upgrade TQE to v3.5.0.
 
 ### Documentation
 
@@ -65,7 +66,7 @@
 - Fix a memory leak due to the use of a local thread pool
 
 ### Spring-data
-- Add `tarantool-spring-data-35` module with support for Spring Boot 3.5.x and Spring Data 3.5 
+- Add `tarantool-spring-data-35` module with support for Spring Boot 3.5.x and Spring Data 3.5
 
 ### Client
 - Add `TupleMapper` utility class for easy tuple-to-POJO mapping using field format
