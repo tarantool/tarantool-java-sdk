@@ -2302,7 +2302,7 @@ using <a href="https://www.tarantool.io">Tarantool</a> as a data store.</p>
 <ul>
 <li>Implementation of CRUD methods for data model classes specific to working with the Tarantool cluster
   through the <a href="https://github.com/tarantool/crud">tarantool/crud</a> library</li>
-<li>Working with stored procedures and LUA scripts through dynamic methods</li>
+<li>Working with stored procedures and Lua scripts through dynamic methods</li>
 <li>Ability to integrate custom repository code</li>
 <li>Flexible access configuration to Tarantool<ul>
 <li>via spring-bean</li>
@@ -2326,7 +2326,17 @@ using <a href="https://www.tarantool.io">Tarantool</a> as a data store.</p>
 <tr>
 <td style="text-align: center;">1.5.x</td>
 <td style="text-align: center;">1.5.x</td>
-<td style="text-align: center;">2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8</td>
+<td style="text-align: center;">2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.6.x</td>
+<td style="text-align: center;">1.6.x</td>
+<td style="text-align: center;">2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8</td>
+</tr>
+<tr>
+<td style="text-align: center;">1.7.x</td>
+<td style="text-align: center;">1.7.x</td>
+<td style="text-align: center;">2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.11 / 4.0.5</td>
 </tr>
 </tbody>
 </table>
@@ -2410,11 +2420,11 @@ the time spent using <code>Tarantool</code> with <code>testcontainers</code> in 
 </span><span id="__spanz-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&lt;dependency&gt;</span>
 </span><span id="__spanz-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
 </span><span id="__spanz-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>spring-boot-starter<span class="nt">&lt;/artifactId&gt;</span>
-</span><span id="__spanz-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&lt;version&gt;</span>3.4.12<span class="nt">&lt;/version&gt;</span>
+</span><span id="__spanz-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">&lt;version&gt;</span>4.0.5<span class="nt">&lt;/version&gt;</span>
 </span><span id="__spanz-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">&lt;/dependency&gt;</span>
 </span><span id="__spanz-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">&lt;dependency&gt;</span>
 </span><span id="__spanz-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">&lt;groupId&gt;</span>io.tarantool<span class="nt">&lt;/groupId&gt;</span>
-</span><span id="__spanz-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>tarantool-spring-data-35<span class="nt">&lt;/artifactId&gt;</span>
+</span><span id="__spanz-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>tarantool-spring-data-40<span class="nt">&lt;/artifactId&gt;</span>
 </span><span id="__spanz-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="nt">&lt;version&gt;</span>${tarantool-spring-data.version}<span class="nt">&lt;/version&gt;</span>
 </span><span id="__spanz-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">&lt;/dependency&gt;</span>
 </span><span id="__spanz-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="nt">&lt;/dependencies&gt;</span>
