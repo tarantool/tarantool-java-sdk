@@ -12,7 +12,7 @@ hide:
 
 - Реализация CRUD методов для классов моделей данных, специфичных для работы с кластером Tarantool
   через библиотеку [tarantool/crud](https://github.com/tarantool/crud)
-- Работа с хранимыми процедурами и скриптами LUA через динамические методы
+- Работа с хранимыми процедурами и скриптами Lua через динамические методы
 - Возможность интеграции пользовательского кода репозитория
 - Возможности гибкой настройки доступа к Tarantool
     - через spring-bean
@@ -23,9 +23,11 @@ hide:
 
 ## Статус проекта
 
-| Версия tarantool-java-sdk | Версия tarantool-spring-data |                Версия Spring Boot                 |
-|:-------------------------:|:----------------------------:|:-------------------------------------------------:|
-|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8 |
+| Версия tarantool-java-sdk | Версия tarantool-spring-data |                     Версия Spring Boot                      |
+|:-------------------------:|:----------------------------:|:-----------------------------------------------------------:|
+|           1.5.x           |            1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
+|           1.6.x           |            1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
+|           1.7.x           |            1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.11 / 4.0.5 |
 
 ### Версия Tarantool и поддерживаемые модули-клиенты
 
@@ -84,11 +86,11 @@ Tarantool можно найти
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter</artifactId>
-    <version>3.5.8</version>
+    <version>4.0.5</version>
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-35</artifactId>
+    <artifactId>tarantool-spring-data-40</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>

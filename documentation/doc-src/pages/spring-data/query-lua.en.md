@@ -2,7 +2,7 @@
 title: Stored Procedures
 ---
 
-## Working with Stored Procedures and LUA Scripts
+## Working with Stored Procedures and Lua Scripts
 
 To work with LUA or stored procedures through `Repository`, declare a custom method (
 the name is chosen at your discretion) and add the `@Query` annotation, selecting the

@@ -13,7 +13,7 @@ Supported usage scenarios:
     Tarantool version:
 
     - [x] 3.x
-    - [ ] 2.11.x
+    - [x] 2.11.x
 
 === "TDB Cluster"
 

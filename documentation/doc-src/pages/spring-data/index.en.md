@@ -12,7 +12,7 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 
 - Implementation of CRUD methods for data model classes specific to working with the Tarantool cluster
   through the [tarantool/crud](https://github.com/tarantool/crud) library
-- Working with stored procedures and LUA scripts through dynamic methods
+- Working with stored procedures and Lua scripts through dynamic methods
 - Ability to integrate custom repository code
 - Flexible access configuration to Tarantool
     - via spring-bean
@@ -23,25 +23,27 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 
 ## Project Status
 
-| tarantool-java-sdk Version | tarantool-spring-data Version |                Spring Boot Version                |
-|:-------------------------:|:----------------------------:|:-------------------------------------------------:|
-|           1.5.x           |            1.5.x             | 2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.13 / 3.5.8 |
+| tarantool-java-sdk Version | tarantool-spring-data Version |                     Spring Boot Version                     |
+|:--------------------------:|:-----------------------------:|:-----------------------------------------------------------:|
+|           1.5.x            |             1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
+|           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
+|           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.11 / 4.0.5 |
 
 ### Tarantool Version and Supported Client Modules
 
 | Tarantool Version | CRUD API (cluster) | BOX API (single instance) |
-|:----------------:|:------------------:|:------------------------:|
-|      2.11.x      |         Yes        |     Yes (limited*)     |
-|       3.x        |         Yes        |     Yes (limited*)     |
+|:-----------------:|:------------------:|:-------------------------:|
+|      2.11.x       |        Yes         |      Yes (limited*)       |
+|        3.x        |        Yes         |      Yes (limited*)       |
 
 ???+ note "Note"
 
     Only the configuration and retrieval of the spring bean `TarantoolBoxClient` is supported.
 
-| Tarantool Data Grid Version |  Repository API  |
-|:--------------------------:|:----------------:|
-|            1.x             | Yes (limited*) |
-|            2.x             | Yes (limited*) |
+| Tarantool Data Grid Version | Repository API |
+|:---------------------------:|:--------------:|
+|             1.x             | Yes (limited*) |
+|             2.x             | Yes (limited*) |
 
 ???+ note "Note"
 
@@ -84,11 +86,11 @@ Include the module in your project as follows:
   <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter</artifactId>
-    <version>3.4.12</version>
+    <version>4.0.5</version>
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-35</artifactId>
+    <artifactId>tarantool-spring-data-40</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>
