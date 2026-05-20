@@ -20,23 +20,24 @@
 - Updated dependencies:
 
   Compile:
-    * Bump jackson version from 2.18.4 to 2.21.2
-    * Bump msgpack version from 0.9.10 to 0.9.11
-    * Bump netty version from 4.2.7.Final to 4.2.12.Final
+    * Bump jackson version from 2.18.4 to 2.21.3
+    * Bump msgpack version from 0.9.10 to 0.9.12
+    * Bump netty version from 4.2.7.Final to 4.2.13.Final
     * Bump httpclient5 version from 5.5 to 5.5.2
-    * Bump httpcore5 version from 5.3.4 to 5.3.6
+    * Bump httpcore5 version from 5.3.4 to 5.4.2
     * Bump spring-boot version from 3.5.8 to 3.5.10 in tarantool-spring-data-35
     * Pin spring-data-keyvalue version to 3.5.10 for tarantool-spring-data-35 and 4.0.4 for tarantool-spring-data-40
+    * Bump micrometer version from 1.16.4 to 1.16.5
 
   Tests:
-    * Bump testcontainers version from 2.0.1 to 2.0.4
-    * Bump junit-jupiter version from 5.13.4 to 5.14.3
+    * Bump testcontainers version from 2.0.1 to 2.0.5
+    * Bump junit-jupiter version from 5.13.4 to 5.14.4
     * Bump logback version from 1.5.21 to 1.5.32 in spring-data module
     * Bump grpc version from 1.76.0 to 1.77.0
     * Bump protobuf version from 3.25.8 to 3.25.9
     * Bump commons-io version from 2.20.0 to 2.21.0
-    * Bump commons-codec version from 1.19.0 to 1.21.0
-    * Bump opentelemetry version from 1.48.0 to 1.61.0
+    * Bump commons-codec version from 1.19.0 to 1.22.0
+    * Bump opentelemetry version from 1.48.0 to 1.62.0
 
   Maven:
     * Bump maven-enforcer-plugin from 3.6.1 to 3.6.2
