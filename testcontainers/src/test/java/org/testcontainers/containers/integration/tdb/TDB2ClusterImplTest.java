@@ -394,4 +394,16 @@ class TDB2ClusterImplTest {
       c.restart(1, TimeUnit.SECONDS);
     }
   }
+
+  @RepeatedTest(3)
+  void testSequentialClustersWithSameInstanceNamesDoNotConflict() {
+    for (int i = 0; i < 2; i++) {
+      try (TDBCluster c =
+          TDB2ClusterImpl.builder(TARANTOOL_DB_IMAGE_NAME)
+              .withStartupTimeout(STARTUP_TIMEOUT)
+              .build()) {
+        c.start();
+      }
+    }
+  }
 }
