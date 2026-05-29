@@ -3,11 +3,13 @@ name: Publish Release to Maven Central
 on:
   push:
     tags:
-      - '*'
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-M[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-RC[0-9]+'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to checkout and publish'
+        description: 'Tag to checkout and publish (e.g., 2.0.0, 2.0.0-M1, 2.0.0-RC1)'
         required: true
         type: string
 
@@ -19,6 +21,16 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.tag }}
+
+      - name: Validate tag format
+        run: |
+          TAG="${{ github.ref_name || inputs.tag }}"
+          if [[ ! "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-M[0-9]+|-RC[0-9]+)?$ ]]; then
+            echo "Error: Tag '$TAG' does not match valid version pattern"
+            echo "Expected formats: X.Y.Z, X.Y.Z-MN, or X.Y.Z-RCN"
+            exit 1
+          fi
+          echo "Tag '$TAG' is valid"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
