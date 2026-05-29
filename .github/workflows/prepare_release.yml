@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       releaseVersion:
-        description: 'Release and tag version'
+        description: 'Release version (e.g., 2.0.0, 2.0.0-M1, 2.0.0-RC1)'
         required: true
-        default: "1.5.0"
+        default: "2.0.0"
       developmentVersion:
         description: 'Version to use for new working copy'
         required: true
@@ -32,6 +32,16 @@ jobs:
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.releaseVersion }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-M[0-9]+|-RC[0-9]+)?$ ]]; then
+            echo "Error: Version '$VERSION' does not match valid pattern"
+            echo "Expected formats: X.Y.Z, X.Y.Z-MN, or X.Y.Z-RCN"
+            exit 1
+          fi
+          echo "Version '$VERSION' is valid"
 
       - name: Run release release.yml
         env:
