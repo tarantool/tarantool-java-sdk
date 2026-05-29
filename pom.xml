@@ -64,9 +64,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</connection>
-    <developerConnection>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</developerConnection>
-    <url>scm:git:https://github.com/tarantool/tarantool-java-sdk.git</url>
+    <connection>scm:git:git@github.com:tarantool/tarantool-java-sdk.git</connection>
+    <developerConnection>scm:git:git@github.com:tarantool/tarantool-java-sdk.git</developerConnection>
+    <url>https://github.com/tarantool/tarantool-java-sdk.git</url>
     <tag>HEAD</tag>
   </scm>
 
