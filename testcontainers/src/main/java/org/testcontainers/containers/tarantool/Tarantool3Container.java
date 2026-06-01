@@ -230,7 +230,10 @@ public class Tarantool3Container extends GenericContainer<Tarantool3Container>
       withPrivilegedMode(true);
       withCreateContainerCmdModifier(
           cmd -> {
-            cmd.withName(this.node).withUser("root");
+            cmd.withUser("root");
+            if (cmd.getName() == null) {
+              cmd.withName(this.node);
+            }
             String[] originalEntrypoint =
                 cmd.getEntrypoint() != null && cmd.getEntrypoint().length > 0
                     ? cmd.getEntrypoint()
