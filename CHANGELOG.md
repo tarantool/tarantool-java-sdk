@@ -13,6 +13,7 @@
   surface into a single parameterized suite.
 - Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, and optional additional script paths copied into the container data directory (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); simplify bundled `server.lua` accordingly.
 - Upgrade TQE to v3.5.0.
+- Extract `ObjectMapper` to a static field in the test `tdg.Utils` helper to avoid recreating it on every `sendUsers`/`getUsers` call.
 
 ### Documentation
 
