@@ -25,15 +25,16 @@ import org.testcontainers.containers.utils.pojo.User;
 
 public abstract class Utils {
 
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
   private Utils() {}
 
   public static List<User> sendUsers(List<User> users, TDGContainer<?> container)
       throws IOException {
     final List<User> result = new ArrayList<>();
-    final ObjectMapper objectMapper = new ObjectMapper();
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       for (final User user : users) {
-        final String jsonUser = objectMapper.writeValueAsString(user);
+        final String jsonUser = OBJECT_MAPPER.writeValueAsString(user);
         final String address = HttpHost.unsecure(container.httpMappedAddress()) + "/data/User";
         final HttpPost post = new HttpPost(address);
         final HttpEntity entity = new StringEntity(jsonUser, ContentType.APPLICATION_JSON);
@@ -50,7 +51,7 @@ public abstract class Utils {
                             + ", "
                             + response.getReasonPhrase());
                   }
-                  return objectMapper.readValue(
+                  return OBJECT_MAPPER.readValue(
                       EntityUtils.toString(response.getEntity()), User.class);
                 }));
       }
@@ -59,7 +60,6 @@ public abstract class Utils {
   }
 
   public static List<User> getUsers(int count, TDGContainer<?> node) throws IOException {
-    final ObjectMapper objectMapper = new ObjectMapper();
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       final String address =
           HttpHost.unsecure(node.httpMappedAddress()) + "/data/User?first=" + count;
@@ -73,7 +73,7 @@ public abstract class Utils {
                       + ", "
                       + response.getReasonPhrase());
             }
-            return objectMapper.readValue(
+            return OBJECT_MAPPER.readValue(
                 EntityUtils.toString(response.getEntity()), new TypeReference<List<User>>() {});
           });
     }
