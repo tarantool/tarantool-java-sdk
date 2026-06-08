@@ -13,27 +13,27 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.lifecycle.Startable;
 
-class FileTQEConfiguratorTest extends CommonTest {
+class FileTQEConfiguratorTest {
 
-  @Test
-  void simpleConfiguration() {
+  @ParameterizedTest
+  @EnumSource(TQEVersion.class)
+  void simpleConfiguration(TQEVersion version) throws Exception {
     try (TQEConfigurator configurator =
-        FileTQEConfigurator.builder(IMAGE_NAME, SIMPLE_QUEUE_CONFIG, Set.of(SIMPLE_GRPC_CONFIG))
-            .build()) {
+        version.configuratorBuilder(version.queueConfig(), Set.of(version.grpcConfig())).build()) {
       configurator.queue().values().parallelStream().forEach(Startable::start);
-      configurator.configure();
+      if (version.requiresConfigure()) {
+        configurator.configure();
+      }
       configurator.grpc().values().parallelStream().forEach(Startable::start);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -171,42 +171,51 @@ class FileTQEConfiguratorTest extends CommonTest {
   @ParameterizedTest
   @MethodSource("dataForTestInvalidQueueConfigShouldThrow")
   void testInvalidQueueConfig(String invalidQueueConfig) throws IOException {
-    final Path invalidConfigPath = TEST_TEMP_DIR.resolve(UUID.randomUUID().toString());
+    final Path invalidConfigPath =
+        TQETestHelper.TEST_TEMP_DIR.resolve(UUID.randomUUID().toString());
     Files.writeString(invalidConfigPath, invalidQueueConfig);
 
-    Assertions.assertThrows(
-        ContainerLaunchException.class,
-        () -> {
-          try (FileTQEConfigurator c =
-              FileTQEConfigurator.builder(IMAGE_NAME, invalidConfigPath, Set.of(SIMPLE_GRPC_CONFIG))
-                  .build()) {}
-        });
+    for (TQEVersion version : TQEVersion.values()) {
+      Assertions.assertThrows(
+          ContainerLaunchException.class,
+          () -> {
+            try (FileTQEConfigurator c =
+                version
+                    .configuratorBuilder(invalidConfigPath, Set.of(version.grpcConfig()))
+                    .build()) {}
+          });
+    }
   }
 
   public static Stream<Arguments> dataForTestInvalidConfigsPaths() {
-    return Stream.of(
-        // invalid grpc configs
-        // null
-        Arguments.of(SIMPLE_QUEUE_CONFIG, null),
-        // empty
-        Arguments.of(SIMPLE_QUEUE_CONFIG, Set.of()),
-        // non regular
-        Arguments.of(SIMPLE_QUEUE_CONFIG, Set.of(TEST_TEMP_DIR)),
-
-        // invalid queue config
-        Arguments.of(null, Set.of(SIMPLE_GRPC_CONFIG)),
-        Arguments.of(TEST_TEMP_DIR, Set.of(SIMPLE_GRPC_CONFIG)));
+    return TQEVersion.all()
+        .flatMap(
+            version -> {
+              Path qc = version.queueConfig();
+              Path gc = version.grpcConfig();
+              return Stream.of(
+                  // invalid grpc configs
+                  // null
+                  Arguments.of(version, qc, null),
+                  // empty
+                  Arguments.of(version, qc, Set.<Path>of()),
+                  // non regular
+                  Arguments.of(version, qc, Set.of(TQETestHelper.TEST_TEMP_DIR)),
+                  // invalid queue config
+                  Arguments.of(version, (Path) null, Set.of(gc)),
+                  Arguments.of(version, TQETestHelper.TEST_TEMP_DIR, Set.of(gc)));
+            });
   }
 
   @ParameterizedTest
   @MethodSource("dataForTestInvalidConfigsPaths")
-  void testInvalidConfigsPaths(Path invalidGrpcConfig, Set<Path> invalidQueueConfigs) {
+  void testInvalidConfigsPaths(
+      TQEVersion version, Path invalidGrpcConfig, Set<Path> invalidQueueConfigs) {
     Assertions.assertThrows(
         IllegalArgumentException.class,
         () -> {
           try (FileTQEConfigurator c =
-              FileTQEConfigurator.builder(IMAGE_NAME, invalidGrpcConfig, invalidQueueConfigs)
-                  .build()) {}
+              version.configuratorBuilder(invalidGrpcConfig, invalidQueueConfigs).build()) {}
         });
   }
 }

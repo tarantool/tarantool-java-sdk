@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,24 +51,26 @@ public interface GrpcContainer<SELF extends GrpcContainer<SELF>>
   enum GrpcRole {
     CONSUMER("consumer"),
 
-    PRODUCER("producer");
+    PRODUCER("producer", "publisher");
 
-    private final String role;
+    private final List<String> aliases;
 
     private static final Map<String, GrpcRole> ROLES = new HashMap<>();
 
     static {
       for (GrpcRole value : values()) {
-        ROLES.put(value.getRole(), value);
+        for (String alias : value.aliases) {
+          ROLES.put(alias, value);
+        }
       }
     }
 
-    GrpcRole(String role) {
-      this.role = role;
+    GrpcRole(String... aliases) {
+      this.aliases = List.of(aliases);
     }
 
     public String getRole() {
-      return this.role;
+      return this.aliases.get(0);
     }
 
     public static GrpcRole from(String role) {

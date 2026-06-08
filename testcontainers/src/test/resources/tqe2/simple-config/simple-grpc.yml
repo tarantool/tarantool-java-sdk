@@ -1,0 +1,21 @@
+core_port: 1111
+grpc_listen:
+  - uri: 'tcp://0.0.0.0:18182'
+
+publisher:
+  enabled: true
+  tarantool:
+    user: test-super
+    pass: test
+    connections:
+      routers:
+        - "router:3301"
+
+consumer:
+  enabled: true
+  tarantool:
+    user: test-super
+    pass: test
+    connections:
+      storage:
+        - "master:3301"

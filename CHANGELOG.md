@@ -8,6 +8,9 @@
 
 ### Testcontainers
 
+- Add TQE 3.x (message-queue-ee 3.x) integration on top of the
+  existing TQE 2.x support; consolidate the TQE 2.x / 3.x test
+  surface into a single parameterized suite.
 - Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, and optional additional script paths copied into the container data directory (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); simplify bundled `server.lua` accordingly.
 - Upgrade TQE to v3.5.0.
 
