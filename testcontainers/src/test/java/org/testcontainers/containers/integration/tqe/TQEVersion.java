@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import io.grpc.ManagedChannel;
 import org.testcontainers.containers.tqe.GrpcContainer.GrpcRole;
 import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.utility.DockerImageName;
@@ -21,7 +22,7 @@ import org.testcontainers.utility.DockerImageName;
  * override the abstract methods — no test code needs to change.
  */
 enum TQEVersion {
-  TQE2("TQE 2.x", "publisher", GrpcRole.PRODUCER, TQE2Client.INSTANCE) {
+  TQE2("TQE 2.x", "publisher", GrpcRole.PRODUCER) {
     @Override
     public DockerImageName imageName() {
       return IMAGE_TQE2;
@@ -41,9 +42,14 @@ enum TQEVersion {
     public FileTQEConfigurator.Builder configuratorBuilder(Path queue, Set<Path> grpc) {
       return FileTQEConfigurator.tqe2Builder(imageName(), queue, grpc);
     }
+
+    @Override
+    public TQEClient client(ManagedChannel channel) {
+      return new TQE2Client(channel);
+    }
   },
 
-  TQE3("TQE 3.x", "producer", GrpcRole.PRODUCER, TQE3Client.INSTANCE) {
+  TQE3("TQE 3.x", "producer", GrpcRole.PRODUCER) {
     @Override
     public DockerImageName imageName() {
       return IMAGE_TQE3;
@@ -62,6 +68,11 @@ enum TQEVersion {
     @Override
     public FileTQEConfigurator.Builder configuratorBuilder(Path queue, Set<Path> grpc) {
       return FileTQEConfigurator.tqe3Builder(imageName(), queue, grpc);
+    }
+
+    @Override
+    public TQEClient client(ManagedChannel channel) {
+      return new TQE3Client(channel);
     }
   };
 
@@ -87,13 +98,11 @@ enum TQEVersion {
   private final String displayName;
   private final String producerRoleName;
   private final GrpcRole producerRole;
-  private final TQEClient client;
 
-  TQEVersion(String displayName, String producerRoleName, GrpcRole producerRole, TQEClient client) {
+  TQEVersion(String displayName, String producerRoleName, GrpcRole producerRole) {
     this.displayName = displayName;
     this.producerRoleName = producerRoleName;
     this.producerRole = producerRole;
-    this.client = client;
   }
 
   public String producerRoleName() {
@@ -104,10 +113,6 @@ enum TQEVersion {
     return producerRole;
   }
 
-  public TQEClient client() {
-    return client;
-  }
-
   public abstract DockerImageName imageName();
 
   public abstract Path queueConfig();
@@ -115,6 +120,12 @@ enum TQEVersion {
   public abstract Path grpcConfig();
 
   public abstract FileTQEConfigurator.Builder configuratorBuilder(Path queue, Set<Path> grpc);
+
+  /**
+   * Creates a {@link TQEClient} bound to the given channel. The channel is owned by the caller; the
+   * client does not shut it down.
+   */
+  public abstract TQEClient client(ManagedChannel channel);
 
   static Stream<TQEVersion> all() {
     return Stream.of(values());

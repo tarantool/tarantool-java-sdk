@@ -18,14 +18,18 @@ import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 
 /**
  * Encapsulates the lifecycle of a {@link TQECluster} for a single test: builds the configurator,
- * creates the cluster, starts it, and exposes helpers for resolving gRPC channels by role. {@link
- * #close()} stops the cluster.
+ * creates the cluster, starts it, resolves gRPC containers by role, and exposes pre-bound {@link
+ * TQEClient} instances. {@link #close()} stops the cluster and shuts down all gRPC channels.
  */
 final class TQEClusterFixture implements AutoCloseable {
 
   private final TQEVersion version;
   private final TQEConfigurator configurator;
   private final TQECluster cluster;
+  private final ManagedChannel publisherChannel;
+  private final ManagedChannel consumerChannel;
+  private final TQEClient publisherClient;
+  private final TQEClient consumerClient;
 
   TQEClusterFixture(TQEVersion version) {
     this.version = version;
@@ -33,18 +37,22 @@ final class TQEClusterFixture implements AutoCloseable {
         version.configuratorBuilder(version.queueConfig(), Set.of(version.grpcConfig())).build();
     this.cluster = new TQEClusterImpl(configurator);
     this.cluster.start();
+    this.publisherChannel = createReadyChannel(findByRole(version.producerRole()));
+    this.consumerChannel = createReadyChannel(findByRole(GrpcRole.CONSUMER));
+    this.publisherClient = version.client(publisherChannel);
+    this.consumerClient = version.client(consumerChannel);
   }
 
   TQEVersion version() {
     return version;
   }
 
-  ManagedChannel createPublisherChannel() {
-    return createReadyChannel(findByRole(version.producerRole()));
+  TQEClient publisherClient() {
+    return publisherClient;
   }
 
-  ManagedChannel createConsumerChannel() {
-    return createReadyChannel(findByRole(GrpcRole.CONSUMER));
+  TQEClient consumerClient() {
+    return consumerClient;
   }
 
   void restart(long delayBefore, TimeUnit unitBefore, long delayAfter, TimeUnit unitAfter)
@@ -54,7 +62,12 @@ final class TQEClusterFixture implements AutoCloseable {
 
   @Override
   public void close() {
-    this.cluster.stop();
+    try {
+      publisherChannel.shutdownNow();
+      consumerChannel.shutdownNow();
+    } finally {
+      this.cluster.stop();
+    }
   }
 
   private GrpcContainer<?> findByRole(GrpcRole role) {

@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
-import io.grpc.ManagedChannel;
 import org.instancio.Instancio;
 import org.instancio.Select;
 import org.instancio.generators.Generators;
@@ -35,35 +34,28 @@ class TQEClusterIntegrationTest {
     Assertions.assertDoesNotThrow(
         () -> {
           try (TQEClusterFixture fx = new TQEClusterFixture(version)) {
-            ManagedChannel publisherChannel = fx.createPublisherChannel();
-            ManagedChannel consumerChannel = fx.createConsumerChannel();
-            try {
-              final List<User> users = generateUsers();
+            final List<User> users = generateUsers();
 
-              Unreliables.retryUntilSuccess(
-                  RETRY_TIMEOUT_SECONDS,
-                  TimeUnit.SECONDS,
-                  () -> {
-                    version.client().publish(publisherChannel, users, QUEUE_NAME);
-                    return true;
-                  });
+            Unreliables.retryUntilSuccess(
+                RETRY_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS,
+                () -> {
+                  fx.publisherClient().publish(users, QUEUE_NAME);
+                  return true;
+                });
 
-              final Set<User> result = new CopyOnWriteArraySet<>();
-              Unreliables.retryUntilSuccess(
-                  RETRY_TIMEOUT_SECONDS,
-                  TimeUnit.SECONDS,
-                  () -> {
-                    version.client().subscribe(consumerChannel, QUEUE_NAME, result::add);
-                    return true;
-                  });
+            final Set<User> result = new CopyOnWriteArraySet<>();
+            Unreliables.retryUntilSuccess(
+                RETRY_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS,
+                () -> {
+                  fx.consumerClient().subscribe(QUEUE_NAME, result::add);
+                  return true;
+                });
 
-              Unreliables.retryUntilTrue(
-                  RETRY_TIMEOUT_SECONDS, TimeUnit.SECONDS, () -> users.size() == result.size());
-              Assertions.assertEquals(new LinkedHashSet<>(users), result);
-            } finally {
-              consumerChannel.shutdownNow();
-              publisherChannel.shutdownNow();
-            }
+            Unreliables.retryUntilTrue(
+                RETRY_TIMEOUT_SECONDS, TimeUnit.SECONDS, () -> users.size() == result.size());
+            Assertions.assertEquals(new LinkedHashSet<>(users), result);
           }
         });
   }

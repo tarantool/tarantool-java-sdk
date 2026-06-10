@@ -26,12 +26,16 @@ import tarantool.queue_ee.v2.PublisherServiceGrpc.PublisherServiceBlockingStub;
 /** TQE 2.x gRPC API: {@code publishBatch} + unidirectional server-streaming subscribe. */
 final class TQE2Client implements TQEClient {
 
-  static final TQE2Client INSTANCE = new TQE2Client();
-
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
+  private final ManagedChannel channel;
+
+  TQE2Client(ManagedChannel channel) {
+    this.channel = channel;
+  }
+
   @Override
-  public void publish(ManagedChannel channel, List<User> users, String queue) throws Exception {
+  public void publish(List<User> users, String queue) throws Exception {
     PublisherServiceBlockingStub pService = PublisherServiceGrpc.newBlockingStub(channel);
     PublishBatchRequest.Builder requestBuilder = PublishBatchRequest.newBuilder();
     for (User user : users) {
@@ -43,7 +47,7 @@ final class TQE2Client implements TQEClient {
   }
 
   @Override
-  public void subscribe(ManagedChannel channel, String queue, Consumer<User> resultAcceptor) {
+  public void subscribe(String queue, Consumer<User> resultAcceptor) {
     ConsumerServiceStub cService = ConsumerServiceGrpc.newStub(channel);
     cService.subscribe(
         SubscriptionRequest.newBuilder().setCursor("").setQueue(queue).build(),

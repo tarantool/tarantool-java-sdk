@@ -27,12 +27,16 @@ import tarantool.queue_ee.ProducerOuterClass.ProduceRequest;
 /** TQE 3.x gRPC API: {@code produce} + bidirectional client-streaming subscribe. */
 final class TQE3Client implements TQEClient {
 
-  static final TQE3Client INSTANCE = new TQE3Client();
-
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
+  private final ManagedChannel channel;
+
+  TQE3Client(ManagedChannel channel) {
+    this.channel = channel;
+  }
+
   @Override
-  public void publish(ManagedChannel channel, List<User> users, String queue) throws Exception {
+  public void publish(List<User> users, String queue) throws Exception {
     ProducerBlockingStub producer = ProducerGrpc.newBlockingStub(channel);
     ProduceRequest.Builder requestBuilder = ProduceRequest.newBuilder().setQueue(queue);
     for (User user : users) {
@@ -44,7 +48,7 @@ final class TQE3Client implements TQEClient {
   }
 
   @Override
-  public void subscribe(ManagedChannel channel, String queue, Consumer<User> resultAcceptor) {
+  public void subscribe(String queue, Consumer<User> resultAcceptor) {
     ConsumerServiceStub consumer = ConsumerServiceGrpc.newStub(channel);
     StreamObserver<SubscriptionStreamRequest> requestsStream =
         consumer.subscribe(
