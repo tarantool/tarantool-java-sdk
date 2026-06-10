@@ -451,7 +451,7 @@ public class FileTQEConfigurator implements TQEConfigurator {
    */
   public static Builder tqe2Builder(
       DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
-    return builder(image, queueConfig, grpcConfigs).withRouterRole(TQE2_ROUTER_ROLE);
+    return builder(image, queueConfig, grpcConfigs, TQE2_ROUTER_ROLE);
   }
 
   /**
@@ -464,12 +464,12 @@ public class FileTQEConfigurator implements TQEConfigurator {
    */
   public static Builder tqe3Builder(
       DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
-    return builder(image, queueConfig, grpcConfigs).withRouterRole(TQE3_ROUTER_ROLE);
+    return builder(image, queueConfig, grpcConfigs, TQE3_ROUTER_ROLE);
   }
 
   private static Builder builder(
-      DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
-    return new Builder(image, queueConfig, grpcConfigs);
+      DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs, String routerRole) {
+    return new Builder(image, queueConfig, grpcConfigs, routerRole);
   }
 
   /**
@@ -485,9 +485,10 @@ public class FileTQEConfigurator implements TQEConfigurator {
     private String clusterName;
     private Duration startupTimeout;
     private Duration bootstrapTimeout;
-    private String routerRole;
+    private final String routerRole;
 
-    private Builder(DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
+    private Builder(
+        DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs, String routerRole) {
       if (queueConfig == null || !Files.isRegularFile(queueConfig)) {
         LOGGER.error("Queue config file is invalid (null or not regular): {})", queueConfig);
         throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
@@ -505,14 +506,11 @@ public class FileTQEConfigurator implements TQEConfigurator {
               throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
             }
           });
+
       this.image = image;
       this.queueConfig = queueConfig;
       this.grpcConfigs = new LinkedHashSet<>(grpcConfigs);
-    }
-
-    public Builder withRouterRole(String routerRole) {
-      this.routerRole = Objects.requireNonNull(routerRole, "routerRole must not be null");
-      return this;
+      this.routerRole = routerRole;
     }
 
     public Builder withClusterName(String clusterName) {
@@ -549,11 +547,6 @@ public class FileTQEConfigurator implements TQEConfigurator {
           this.startupTimeout == null ? DEFAULT_STARTUP_TIMEOUT : this.startupTimeout;
       final Duration bootstrapTimeout =
           this.bootstrapTimeout == null ? DEFAULT_BOOTSTRAP_TIMEOUT : this.bootstrapTimeout;
-      if (this.routerRole == null) {
-        throw new IllegalStateException(
-            "routerRole must be set. Use tqe2Builder() or tqe3Builder() factory method, "
-                + "or call withRouterRole() explicitly.");
-      }
       return new FileTQEConfigurator(
           this.image,
           this.queueConfig,

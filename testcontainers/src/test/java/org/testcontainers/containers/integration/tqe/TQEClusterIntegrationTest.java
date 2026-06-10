@@ -44,7 +44,7 @@ class TQEClusterIntegrationTest {
                   RETRY_TIMEOUT_SECONDS,
                   TimeUnit.SECONDS,
                   () -> {
-                    version.strategy().publish(publisherChannel, users, QUEUE_NAME);
+                    version.client().publish(publisherChannel, users, QUEUE_NAME);
                     return true;
                   });
 
@@ -53,14 +53,12 @@ class TQEClusterIntegrationTest {
                   RETRY_TIMEOUT_SECONDS,
                   TimeUnit.SECONDS,
                   () -> {
-                    version.strategy().subscribe(consumerChannel, QUEUE_NAME, result);
+                    version.client().subscribe(consumerChannel, QUEUE_NAME, result::add);
                     return true;
                   });
 
               Unreliables.retryUntilTrue(
-                  RETRY_TIMEOUT_SECONDS,
-                  TimeUnit.SECONDS,
-                  () -> new LinkedHashSet<>(users).size() == result.size());
+                  RETRY_TIMEOUT_SECONDS, TimeUnit.SECONDS, () -> users.size() == result.size());
               Assertions.assertEquals(new LinkedHashSet<>(users), result);
             } finally {
               consumerChannel.shutdownNow();

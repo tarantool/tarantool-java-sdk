@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.tqe.TQECluster;
+import org.testcontainers.containers.tqe.TQEClusterImpl;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 
 class TQEClusterTest {
@@ -196,7 +197,7 @@ class TQEClusterTest {
                       .configuratorBuilder(queueConfig, Set.of(version.grpcConfig()))
                       .withStartupTimeout(Duration.ofSeconds(5))
                       .build();
-              TQECluster cluster = version.createCluster(configurator)) {
+              TQECluster cluster = new TQEClusterImpl(configurator)) {
             cluster.start();
           }
         });
@@ -332,7 +333,7 @@ class TQEClusterTest {
                       .configuratorBuilder(version.queueConfig(), Set.of(grpcConfig))
                       .withStartupTimeout(Duration.ofSeconds(5))
                       .build();
-              TQECluster cluster = version.createCluster(configurator)) {
+              TQECluster cluster = new TQEClusterImpl(configurator)) {
             cluster.start();
           }
         });

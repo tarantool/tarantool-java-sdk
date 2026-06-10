@@ -13,6 +13,7 @@ import io.grpc.ManagedChannel;
 import org.testcontainers.containers.tqe.GrpcContainer;
 import org.testcontainers.containers.tqe.GrpcContainer.GrpcRole;
 import org.testcontainers.containers.tqe.TQECluster;
+import org.testcontainers.containers.tqe.TQEClusterImpl;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 
 /**
@@ -30,7 +31,7 @@ final class TQEClusterFixture implements AutoCloseable {
     this.version = version;
     this.configurator =
         version.configuratorBuilder(version.queueConfig(), Set.of(version.grpcConfig())).build();
-    this.cluster = version.createCluster(configurator);
+    this.cluster = new TQEClusterImpl(configurator);
     this.cluster.start();
   }
 

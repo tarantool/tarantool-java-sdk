@@ -7,7 +7,7 @@ package org.testcontainers.containers.integration.tqe;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
@@ -24,9 +24,9 @@ import tarantool.queue_ee.v2.PublisherServiceGrpc;
 import tarantool.queue_ee.v2.PublisherServiceGrpc.PublisherServiceBlockingStub;
 
 /** TQE 2.x gRPC API: {@code publishBatch} + unidirectional server-streaming subscribe. */
-final class TQE2GrpcTestStrategy implements GrpcTestStrategy {
+final class TQE2Client implements TQEClient {
 
-  static final TQE2GrpcTestStrategy INSTANCE = new TQE2GrpcTestStrategy();
+  static final TQE2Client INSTANCE = new TQE2Client();
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -43,7 +43,7 @@ final class TQE2GrpcTestStrategy implements GrpcTestStrategy {
   }
 
   @Override
-  public void subscribe(ManagedChannel channel, String queue, Set<User> result) {
+  public void subscribe(ManagedChannel channel, String queue, Consumer<User> resultAcceptor) {
     ConsumerServiceStub cService = ConsumerServiceGrpc.newStub(channel);
     cService.subscribe(
         SubscriptionRequest.newBuilder().setCursor("").setQueue(queue).build(),
@@ -60,7 +60,7 @@ final class TQE2GrpcTestStrategy implements GrpcTestStrategy {
                         throw new RuntimeException(e);
                       }
                     })
-                .forEach(result::add);
+                .forEach(resultAcceptor);
           }
 
           @Override

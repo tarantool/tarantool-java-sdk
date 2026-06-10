@@ -30,9 +30,7 @@ class FileTQEConfiguratorTest {
     try (TQEConfigurator configurator =
         version.configuratorBuilder(version.queueConfig(), Set.of(version.grpcConfig())).build()) {
       configurator.queue().values().parallelStream().forEach(Startable::start);
-      if (version.requiresConfigure()) {
-        configurator.configure();
-      }
+      configurator.configure();
       configurator.grpc().values().parallelStream().forEach(Startable::start);
     }
   }
