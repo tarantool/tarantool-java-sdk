@@ -47,8 +47,8 @@ import io.tarantool.autogen.iproto.advertise.peer.Peer;
 import io.tarantool.autogen.iproto.listen.Listen;
 
 /**
- * Base implementation of {@link TQEConfigurator} that configure TQE cluster using configuration
- * files. All other implementations should extend this class.
+ * Configures TQE cluster using configuration files. Supports both TQE 2.x and TQE 3.x via factory
+ * methods {@link #tqe2Builder} and {@link #tqe3Builder}.
  */
 public class FileTQEConfigurator implements TQEConfigurator {
 
@@ -64,10 +64,11 @@ public class FileTQEConfigurator implements TQEConfigurator {
   /* Constants
   /**********************************************************
   */
+  private static final String TQE2_ROUTER_ROLE = "app.roles.api";
+  private static final String TQE3_ROUTER_ROLE = "roles.tqe-router";
+
   private static final String CONFIGURATOR_ERROR_MSG =
       "An error occurred when configuring the TQE cluster. See logs for details.";
-
-  private static final String TQE_ROUTER_ROLE = "roles.tqe-router";
 
   /*
   /**********************************************************
@@ -97,6 +98,8 @@ public class FileTQEConfigurator implements TQEConfigurator {
 
   private final Network network;
 
+  private final String routerRole;
+
   private boolean configured;
 
   private FileTQEConfigurator(
@@ -105,11 +108,13 @@ public class FileTQEConfigurator implements TQEConfigurator {
       Collection<Path> grpcConfigs,
       String clusterName,
       Duration startupTimeout,
-      Duration bootstrapTimeout) {
+      Duration bootstrapTimeout,
+      String routerRole) {
     this.queueConfig = queueConfig;
     this.grpcConfigs = grpcConfigs;
     this.clusterName = clusterName;
     this.bootstrapTimeout = bootstrapTimeout;
+    this.routerRole = routerRole;
     this.routerNames = new LinkedHashSet<>(1);
     this.image = image;
     this.startupTimeout = startupTimeout;
@@ -156,9 +161,9 @@ public class FileTQEConfigurator implements TQEConfigurator {
     final Map<String, TarantoolContainer<?>> nodes = new LinkedHashMap<>(instances.size());
 
     this.routerNames.addAll(
-        ConfigurationUtils.findInstancesWithRole(this.queueParsedConfig, TQE_ROUTER_ROLE));
+        ConfigurationUtils.findInstancesWithRole(this.queueParsedConfig, this.routerRole));
     if (this.routerNames.isEmpty()) {
-      LOGGER.error("At least one container must have the 'router' and '{}' roles", TQE_ROUTER_ROLE);
+      LOGGER.error("At least one container must have the 'router' and '{}' roles", this.routerRole);
       throw new ContainerLaunchException(CONFIGURATOR_ERROR_MSG);
     }
 
@@ -436,11 +441,41 @@ public class FileTQEConfigurator implements TQEConfigurator {
     }
   }
 
-  public static Builder builder(
+  /**
+   * Creates a builder pre-configured for TQE 2.x (router role: {@value #TQE2_ROUTER_ROLE}).
+   *
+   * @param image Docker image name
+   * @param queueConfig path to queue configuration file
+   * @param grpcConfigs paths to gRPC configuration files
+   * @return builder with TQE 2.x router role pre-set
+   */
+  public static Builder tqe2Builder(
       DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
-    return new Builder(image, queueConfig, grpcConfigs);
+    return builder(image, queueConfig, grpcConfigs, TQE2_ROUTER_ROLE);
   }
 
+  /**
+   * Creates a builder pre-configured for TQE 3.x (router role: {@value #TQE3_ROUTER_ROLE}).
+   *
+   * @param image Docker image name
+   * @param queueConfig path to queue configuration file
+   * @param grpcConfigs paths to gRPC configuration files
+   * @return builder with TQE 3.x router role pre-set
+   */
+  public static Builder tqe3Builder(
+      DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
+    return builder(image, queueConfig, grpcConfigs, TQE3_ROUTER_ROLE);
+  }
+
+  private static Builder builder(
+      DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs, String routerRole) {
+    return new Builder(image, queueConfig, grpcConfigs, routerRole);
+  }
+
+  /**
+   * Builder for {@link FileTQEConfigurator}. Use factory methods {@link #tqe2Builder} or {@link
+   * #tqe3Builder} to obtain a pre-configured builder.
+   */
   public static class Builder {
 
     private static final String DEFAULT_CLUSTER_NAME_PREFIX = "tqe-test";
@@ -450,8 +485,10 @@ public class FileTQEConfigurator implements TQEConfigurator {
     private String clusterName;
     private Duration startupTimeout;
     private Duration bootstrapTimeout;
+    private final String routerRole;
 
-    public Builder(DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs) {
+    private Builder(
+        DockerImageName image, Path queueConfig, Collection<Path> grpcConfigs, String routerRole) {
       if (queueConfig == null || !Files.isRegularFile(queueConfig)) {
         LOGGER.error("Queue config file is invalid (null or not regular): {})", queueConfig);
         throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
@@ -469,9 +506,11 @@ public class FileTQEConfigurator implements TQEConfigurator {
               throw new IllegalArgumentException(CONFIGURATOR_ERROR_MSG);
             }
           });
+
       this.image = image;
       this.queueConfig = queueConfig;
       this.grpcConfigs = new LinkedHashSet<>(grpcConfigs);
+      this.routerRole = routerRole;
     }
 
     public Builder withClusterName(String clusterName) {
@@ -514,7 +553,8 @@ public class FileTQEConfigurator implements TQEConfigurator {
           this.grpcConfigs,
           clusterName,
           startupTimeout,
-          bootstrapTimeout);
+          bootstrapTimeout,
+          this.routerRole);
     }
   }
 }

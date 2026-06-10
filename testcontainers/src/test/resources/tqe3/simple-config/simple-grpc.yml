@@ -1,6 +1,6 @@
 core_port: 1111
 grpc_listen:
-- uri: 'tcp://0.0.0.0:18182'
+  - uri: 'tcp://0.0.0.0:18182'
 
 producer:
   enabled: true
@@ -13,7 +13,7 @@ producer:
       retry_delay: 5s
     connections:
       routers:
-      - "router:3301"
+        - "router:3301"
 
 consumer:
   enabled: true
@@ -26,4 +26,4 @@ consumer:
       retry_delay: 5s
     connections:
       storage:
-      - "master:3301"
+        - "master:3301"

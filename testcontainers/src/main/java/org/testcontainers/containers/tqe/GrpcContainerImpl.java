@@ -163,7 +163,7 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl>
     if (configPath == null
         || !Files.exists(configPath)
         || !Files.isRegularFile(configPath)
-        || configPath.endsWith(".yml")) {
+        || !configPath.toString().endsWith(".yml")) {
       LOGGER.error(
           "Invalid config file. Config path is null or not exists or not regular or not having"
               + " '.yml' extension: {}",
@@ -223,11 +223,11 @@ public class GrpcContainerImpl extends GenericContainer<GrpcContainerImpl>
    * (required).
    */
   private static Set<GrpcRole> resolveRoles(GrpcConfiguration config, Path configPath) {
-    final Optional<Boolean> isPublisher = config.getProducer().flatMap(ProducerConfig::getEnabled);
+    final Optional<Boolean> isProducer = config.getProducer().flatMap(ProducerConfig::getEnabled);
     final Set<GrpcRole> roles = new LinkedHashSet<>();
-    if (isPublisher.isPresent() && isPublisher.get()) {
+    if (isProducer.isPresent() && isProducer.get()) {
       roles.add(GrpcRole.PRODUCER);
-      LOGGER.trace("Publisher role is enabled for: {}", configPath);
+      LOGGER.trace("Producer role is enabled for: {}", configPath);
     }
 
     final Optional<Boolean> isConsumer = config.getConsumer().flatMap(ConsumerConfig::getEnabled);

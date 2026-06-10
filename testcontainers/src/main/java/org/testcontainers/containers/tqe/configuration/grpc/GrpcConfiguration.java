@@ -8,6 +8,7 @@ package org.testcontainers.containers.tqe.configuration.grpc;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -73,6 +74,7 @@ public class GrpcConfiguration {
   private final Boolean daemon;
 
   @JsonProperty("producer")
+  @JsonAlias("publisher")
   private final ProducerConfig producer;
 
   @JsonProperty("consumer")
