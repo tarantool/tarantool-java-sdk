@@ -14,7 +14,7 @@
     <properties>
         <jackson.version>2.21.3</jackson.version>
         <msgpack.version>0.9.12</msgpack.version>
-        <netty.version>4.2.13.Final</netty.version>
+        <netty.version>4.2.15.Final</netty.version>
         <slf4j.api.version>2.0.17</slf4j.api.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <logback.version>1.3.16</logback.version>

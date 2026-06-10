@@ -25,11 +25,11 @@
   Compile:
     * Bump jackson version from 2.18.4 to 2.21.3
     * Bump msgpack version from 0.9.10 to 0.9.12
-    * Bump netty version from 4.2.7.Final to 4.2.13.Final
+    * Bump netty version from 4.2.7.Final to 4.2.15.Final
     * Bump httpclient5 version from 5.5 to 5.5.2
     * Bump httpcore5 version from 5.3.4 to 5.4.2
-    * Bump spring-boot version from 3.5.8 to 3.5.10 in tarantool-spring-data-35
-    * Pin spring-data-keyvalue version to 3.5.10 for tarantool-spring-data-35 and 4.0.4 for tarantool-spring-data-40
+    * Bump spring-boot version from 3.5.8 to 3.5.12 in tarantool-spring-data-35
+    * Add spring-boot version 4.0.6 in tarantool-spring-data-40
     * Bump micrometer version from 1.16.4 to 1.16.5
 
   Tests:
@@ -42,7 +42,8 @@
     * Bump commons-codec version from 1.19.0 to 1.22.0
     * Bump opentelemetry version from 1.48.0 to 1.62.0
 
-  Maven:
+  Maven: 
+    * Bump Maven version from 3.9.11 to 3.9.16
     * Bump maven-enforcer-plugin from 3.6.1 to 3.6.2
     * Bump maven-release-plugin from 3.1.1 to 3.3.1
     * Bump maven-compiler-plugin from 3.14.0 to 3.15.0
@@ -50,6 +51,8 @@
     * Bump maven-pmd-plugin from 3.27.0 to 3.28.0
     * Bump spotbugs-maven-plugin from 4.9.8.1 to 4.9.8.3
     * Bump maven-resources-plugin from 3.3.1 to 3.5.0
+    * Bump maven-source-plugin from 3.3.1 to 3.4.0
+    * Bump maven-wrapper from 3.3.2 to 3.3.4
     * Bump jacoco-maven-plugin from 0.8.13 to 0.8.14
     * Bump maven-antrun-plugin from 3.1.0 to 3.2.0
     * Bump central-publishing-maven-plugin from 0.9.0 to 0.10.0
