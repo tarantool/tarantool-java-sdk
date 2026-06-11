@@ -7,6 +7,7 @@ package io.tarantool.mapping.integration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
@@ -14,11 +15,31 @@ import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
 import io.netty.util.Timer;
 
 import io.tarantool.core.connection.ConnectionFactory;
 
 public abstract class BaseTest {
+
+  private static final boolean SHUTDOWN_HOOK_REGISTERED = registerShutdownHook();
+
+  private static boolean registerShutdownHook() {
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  Timer t = timerService;
+                  if (t != null) {
+                    Set<Timeout> pending = t.stop();
+                    if (pending != null && !pending.isEmpty()) {
+                      pending.forEach(Timeout::cancel);
+                    }
+                  }
+                },
+                "jackson-mapping-base-test-timer-shutdown"));
+    return true;
+  }
 
   protected static final String API_USER = "api_user";
 

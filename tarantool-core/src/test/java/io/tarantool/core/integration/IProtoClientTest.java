@@ -68,6 +68,7 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_TUPLE_FO
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.IProtoFeature;
+import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.core.exceptions.BoxErrorStackItem;
 import io.tarantool.core.exceptions.ClientException;
@@ -1515,16 +1516,18 @@ public class IProtoClientTest extends BaseTest {
 
   @Test
   public void testTimeoutCancel() throws Exception {
-    IProtoClient client = createClientAndConnect(address, true);
+    io.netty.util.Timer localTimer = new HashedWheelTimer();
+    ConnectionFactory localFactory = new ConnectionFactory(bootstrap, localTimer);
+    IProtoClient client =
+        new IProtoClientImpl(localFactory, localTimer, DEFAULT_WATCHER_OPTS, null, null, true);
+    client.connect(address, 3_000).get();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.ping().get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(0, message.getBody().map().size());
 
-    Set<io.netty.util.Timeout> timers = timerService.stop();
+    Set<io.netty.util.Timeout> timers = localTimer.stop();
     assertTrue(timers.isEmpty());
-
-    timerService = new HashedWheelTimer();
   }
 
   @Test

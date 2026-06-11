@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.netty.bootstrap.Bootstrap;
@@ -46,6 +47,25 @@ import io.tarantool.schema.TarantoolSchemaFetcher;
 
 @Timeout(value = 5)
 public class TarantoolSchemaFetcherTest {
+
+  private static final boolean SHUTDOWN_HOOK_REGISTERED = registerShutdownHook();
+
+  private static boolean registerShutdownHook() {
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  Timer t = timerService;
+                  if (t != null) {
+                    Set<io.netty.util.Timeout> pending = t.stop();
+                    if (pending != null && !pending.isEmpty()) {
+                      pending.forEach(io.netty.util.Timeout::cancel);
+                    }
+                  }
+                },
+                "tarantool-schema-fetcher-test-timer-shutdown"));
+    return true;
+  }
 
   private static final String API_USER = "api_user";
 
