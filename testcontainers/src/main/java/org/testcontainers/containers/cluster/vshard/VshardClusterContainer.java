@@ -65,6 +65,16 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final String VSHARD_BOOTSTRAP_COMMAND =
       "return require('vshard').router.bootstrap({if_not_bootstrapped = true})";
   protected static final String ROUTER_HEALTH_COMMAND = "return box.info.status";
+  protected static final String VSHARD_STORAGES_READY_COMMAND =
+      "local info = require('vshard').router.info();"
+          + " for _, rs in pairs(info.replicasets or {}) do"
+          + "   if rs.master == nil or rs.master == box.NULL then return false end;"
+          + "   for _, r in pairs(rs.replicas or {}) do"
+          + "     if r.status == nil or r.status ~= 'available' then return false end;"
+          + "   end;"
+          + " end;"
+          + " if info.bucket and (info.bucket.unreachable or 0) > 0 then return false end;"
+          + " return true";
   private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
   public static final String ENV_TARANTOOL_VERSION = "TARANTOOL_VERSION";
@@ -82,6 +92,7 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final int TIMEOUT_CRUD_HEALTH_IN_SECONDS = 60;
   protected static final int TIMEOUT_ROUTER_HEALTH_IN_SECONDS = 90;
   protected static final int TIMEOUT_VSHARD_BOOTSTRAP_IN_SECONDS = 90;
+  protected static final int TIMEOUT_VSHARD_STORAGES_READY_IN_SECONDS = 120;
   protected static final int TIMEOUT_CONTAINER_START_IN_SECONDS = 600;
 
   protected final String TARANTOOL_RUN_DIR;
@@ -557,6 +568,23 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     }
   }
 
+  /**
+   * Waits until every vshard replica is in the {@code available} state (i.e. the vshard handshake
+   * with each storage has completed) and there are no unreachable buckets. {@link
+   * #vshardIsBootstrapped()} only verifies that {@code vshard.router.bootstrap} returned cleanly,
+   * which does not preclude individual storages from still being in {@code VHANDSHAKE_NOT_COMPLETE}
+   * (vshard code 40) during the initial rebalance. Issuing a CRUD request against such a cluster
+   * fails immediately, so the readiness check must additionally inspect the per-replica status
+   * surfaced by {@code vshard.router.info()}.
+   */
+  protected void waitUntilVshardStoragesAreReady(int secondsToWait) {
+    if (!waitUntilTrue(secondsToWait, this::vshardStoragesAreReady)) {
+      throw new RuntimeException(
+          "Timeout exceeded while waiting for vshard storages to complete handshake."
+              + " See the specific error in logs.");
+    }
+  }
+
   protected boolean waitUntilTrue(int secondsToWait, Supplier<Boolean> waitFunc) {
     int secondsPassed = 0;
     boolean result = waitFunc.get();
@@ -625,6 +653,31 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
       return result.size() >= 1 && Boolean.TRUE.equals(result.get(0));
     } catch (Exception e) {
       logger().warn("Vshard bootstrap attempt failed: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Returns {@code true} when {@code vshard.router.info()} reports every replica as {@code
+   * available} and {@code info.bucket.unreachable == 0}, i.e. the vshard handshake has completed
+   * for all storages. See {@link #waitUntilVshardStoragesAreReady(int)} for rationale.
+   */
+  protected boolean vshardStoragesAreReady() {
+    try {
+      List<?> result =
+          TarantoolContainerClientHelper.executeCommandDecoded(
+              this, VSHARD_STORAGES_READY_COMMAND, null);
+      if (result.isEmpty()) {
+        logger().warn("Vshard storages readiness probe returned an empty response");
+        return false;
+      }
+      boolean ready = Boolean.TRUE.equals(result.get(0));
+      if (!ready) {
+        logger().warn("Vshard storages are not handshaked yet");
+      }
+      return ready;
+    } catch (Exception e) {
+      logger().warn("Vshard storages readiness probe failed: {}", e.getMessage());
       return false;
     }
   }
