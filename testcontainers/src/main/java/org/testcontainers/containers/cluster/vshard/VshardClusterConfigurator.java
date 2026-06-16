@@ -47,6 +47,8 @@ public class VshardClusterConfigurator implements ClusterConfigurator<VshardClus
     this.container.waitUntilVshardIsBootstrapped(
         VshardClusterContainer.TIMEOUT_VSHARD_BOOTSTRAP_IN_SECONDS);
     this.container.waitUntilCrudIsUp(VshardClusterContainer.TIMEOUT_CRUD_HEALTH_IN_SECONDS);
+    this.container.waitUntilVshardStoragesAreReady(
+        VshardClusterContainer.TIMEOUT_VSHARD_STORAGES_READY_IN_SECONDS);
     this.configured.set(true);
   }
 

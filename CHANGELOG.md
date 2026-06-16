@@ -23,6 +23,7 @@
   simplify bundled `server.lua` accordingly.
 - Upgrade TQE to v3.5.0.
 - Extract `ObjectMapper` to a static field in the test `tdg.Utils` helper to avoid recreating it on every `sendUsers`/`getUsers` call.
+- Wait for vshard storages to complete the handshake (`vshard.router.info()` reports every replica as `available` and no unreachable buckets) before declaring a `VshardClusterContainer` ready, preventing intermittent `VHANDSHAKE_NOT_COMPLETE` CRUD failures right after bootstrap.
 
 ### Client
 
