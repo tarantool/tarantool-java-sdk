@@ -33,7 +33,6 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.core.exceptions.BoxError;
-import io.tarantool.core.integration.TimerShutdownHook;
 import io.tarantool.mapping.Tuple;
 
 @Timeout(value = 5)

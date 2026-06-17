@@ -17,7 +17,6 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 
 import io.tarantool.core.connection.ConnectionFactory;
-import io.tarantool.core.integration.TimerShutdownHook;
 
 public abstract class BaseTest {
 
