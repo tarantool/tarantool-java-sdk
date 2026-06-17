@@ -27,3 +27,4 @@ documentation/target
 release.properties
 *.releaseBackup
 *.tag
+CLAUDE.local.md
