@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -1515,19 +1516,23 @@ public class IProtoClientTest extends BaseTest {
   }
 
   @Test
-  public void testTimeoutCancel() throws Exception {
-    io.netty.util.Timer localTimer = new HashedWheelTimer();
-    ConnectionFactory localFactory = new ConnectionFactory(bootstrap, localTimer);
+  public void testLocalTimerHasNoPending() throws Exception {
+    Timer localTimer = new HashedWheelTimer();
     IProtoClient client =
-        new IProtoClientImpl(localFactory, localTimer, DEFAULT_WATCHER_OPTS, null, null, true);
+        new IProtoClientImpl(
+            new ConnectionFactory(bootstrap, localTimer),
+            localTimer,
+            DEFAULT_WATCHER_OPTS,
+            null,
+            null,
+            true);
     client.connect(address, 3_000).get();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.ping().get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(0, message.getBody().map().size());
 
-    Set<io.netty.util.Timeout> timers = localTimer.stop();
-    assertTrue(timers.isEmpty());
+    assertTrue(localTimer.stop().isEmpty());
   }
 
   @Test

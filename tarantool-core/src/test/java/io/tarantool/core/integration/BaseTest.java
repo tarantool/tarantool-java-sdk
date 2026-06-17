@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
@@ -19,7 +18,6 @@ import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
@@ -33,25 +31,6 @@ import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.connection.ConnectionFactory;
 
 public abstract class BaseTest {
-
-  private static final boolean SHUTDOWN_HOOK_REGISTERED = registerShutdownHook();
-
-  private static boolean registerShutdownHook() {
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  Timer t = timerService;
-                  if (t != null) {
-                    Set<Timeout> pending = t.stop();
-                    if (pending != null && !pending.isEmpty()) {
-                      pending.forEach(Timeout::cancel);
-                    }
-                  }
-                },
-                "base-test-timer-shutdown"));
-    return true;
-  }
 
   protected static final Bootstrap bootstrap =
       new Bootstrap()
@@ -82,6 +61,10 @@ public abstract class BaseTest {
   protected static Timer timerService = new HashedWheelTimer();
 
   protected static ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
+
+  static {
+    TimerShutdownHook.register(() -> timerService, "base-test-timer-shutdown");
+  }
 
   protected static ArrayValue decodeTuple(IProtoClient client, ArrayValue arrayValue)
       throws IOException {

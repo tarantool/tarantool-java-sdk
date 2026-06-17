@@ -207,7 +207,6 @@ public class IProtoClientWatchersTest extends BaseTest {
   private void checkTTVersion(TarantoolContainer<?> tt, String version) throws Exception {
     List<?> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, "return _TARANTOOL");
     String ttVersion = (String) result.get(0);
-    String expectedPrefix = version == null ? ttVersion.split("-")[0] : version.split("-")[0];
-    assertTrue(ttVersion.startsWith(expectedPrefix));
+    assertTrue(ttVersion.startsWith(version.split("-")[0]));
   }
 }

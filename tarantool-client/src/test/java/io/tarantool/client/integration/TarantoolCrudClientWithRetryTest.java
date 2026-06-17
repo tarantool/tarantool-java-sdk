@@ -7,7 +7,6 @@ package io.tarantool.client.integration;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
@@ -34,30 +33,12 @@ import io.tarantool.client.crud.TarantoolCrudClient;
 import io.tarantool.client.crud.TarantoolCrudSpace;
 import io.tarantool.client.factory.TarantoolFactory;
 import io.tarantool.core.exceptions.BoxError;
+import io.tarantool.core.integration.TimerShutdownHook;
 import io.tarantool.mapping.Tuple;
 
 @Timeout(value = 5)
 @Testcontainers
 public class TarantoolCrudClientWithRetryTest {
-
-  private static final boolean SHUTDOWN_HOOK_REGISTERED = registerShutdownHook();
-
-  private static boolean registerShutdownHook() {
-    Runtime.getRuntime()
-        .addShutdownHook(
-            new Thread(
-                () -> {
-                  Timer t = timerService;
-                  if (t != null) {
-                    Set<io.netty.util.Timeout> pending = t.stop();
-                    if (pending != null && !pending.isEmpty()) {
-                      pending.forEach(io.netty.util.Timeout::cancel);
-                    }
-                  }
-                },
-                "tarantool-crud-client-retry-test-timer-shutdown"));
-    return true;
-  }
 
   public class OperationsRepeater<T> {
 
@@ -118,6 +99,11 @@ public class TarantoolCrudClientWithRetryTest {
   private static TarantoolCrudClient client;
   private static final Person personInstance = new Person(1, true, "Roman");
   private static final Timer timerService = new HashedWheelTimer();
+
+  static {
+    TimerShutdownHook.register(
+        () -> timerService, "tarantool-crud-client-retry-test-timer-shutdown");
+  }
 
   @BeforeAll
   public static void setUp() throws Exception {
