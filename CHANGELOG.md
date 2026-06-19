@@ -23,7 +23,6 @@
 ### Pooling
 
 - Fix race conditions, ABBA deadlock between `PoolEntry` and `ConnectionImpl` monitors, NPE on inline connect failure, and connection leak after a KILL/reconnect cycle in `PoolEntry` and `IProtoClientPoolImpl`.
-- Synchronize `IProtoClientPoolImpl.forEach()` on the pool lock to avoid `ConcurrentModificationException` under concurrent `setGroups()`.
 
 ### Dependencies
 - Updated dependencies:

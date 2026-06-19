@@ -167,11 +167,13 @@ final class PoolEntry {
   private volatile boolean isLocked;
 
   /**
-   * Idempotency flag for {@link #shutdown()}.
+   * Idempotency flag for {@link #shutdown()}, scoped to a single connection generation.
    *
-   * <p>Guarantees that the close listener is invoked only once even if both {@link #close()} and
-   * {@link #shutdown()} are called, or shutdown is invoked multiple times due to overlapping
-   * connection error events.
+   * <p>Guarantees that the close listener is invoked only once per generation even if both {@link
+   * #close()} and {@link #shutdown()} are called, or shutdown is invoked multiple times due to
+   * overlapping connection error events. It is reset in {@link #internalConnect()} when a new
+   * connection generation begins, so a KILL/reconnect cycle still emits one {@code
+   * onConnectionClosed} per generation.
    */
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
@@ -379,10 +381,7 @@ final class PoolEntry {
    *
    * @return {@link java.util.concurrent.CompletableFuture} with client
    */
-  public synchronized CompletableFuture<IProtoClient> connect() {
-    if (connectFuture != null) {
-      return connectFuture;
-    }
+  public CompletableFuture<IProtoClient> connect() {
     return internalConnect();
   }
 
@@ -432,20 +431,21 @@ final class PoolEntry {
   /**
    * Internal method used by reconnect task and public connect.
    *
-   * <p>Returns the local chain {@code cf} rather than the {@link #connectFuture} field. If the
-   * underlying {@code client.connect()} fails inline (e.g. connection refused), the {@code
-   * whenComplete} callback fires reentrantly on the calling thread, which causes {@link
-   * #handleConnectError(Object, Throwable)} to clear the field for reconnect purposes. The local
-   * variable still references the (failed) future, so callers always receive a non-null result and
-   * observe the failure via {@code ExecutionException} from {@code .get()}, while the field being
-   * null guarantees that the next reconnect attempt actually reconnects instead of returning a
-   * stale failed future.
+   * <p>The {@code client.connect()} chain is built without holding the entry monitor: holding it
+   * across {@code client.connect()} (which takes the {@code ConnectionImpl} monitor) would create
+   * an ABBA deadlock with the Netty close-callback path, which takes the {@code ConnectionImpl}
+   * monitor first and then re-enters {@link #handleConnectError(Object, Throwable)} on the entry.
+   * Concurrent callers are de-duplicated via the {@link #connectFuture} field; if two threads race
+   * past the first check, the second {@code client.connect()} is a no-op because {@code
+   * ConnectionImpl.connect()} only opens a channel on a {@code CLOSED -> CONNECTING} transition.
    *
    * @return {@link java.util.concurrent.CompletableFuture} with client
    */
-  private synchronized CompletableFuture<IProtoClient> internalConnect() {
-    if (connectFuture != null) {
-      return connectFuture;
+  private CompletableFuture<IProtoClient> internalConnect() {
+    synchronized (this) {
+      if (connectFuture != null) {
+        return connectFuture;
+      }
     }
     log.info("connect {}/{}", tag, index);
     LongTaskTimer.Sample timer = startTimer(connectTime);
@@ -463,7 +463,15 @@ final class PoolEntry {
                   return client.ping(firstPingOpts);
                 })
             .thenApply(r -> client);
-    connectFuture = cf;
+    synchronized (this) {
+      if (connectFuture != null) {
+        // ponytail: lost the race; ConnectionImpl's CLOSED->CONNECTING CAS already de-duped the
+        // channel, so our `cf` wraps the same promise and is safely discarded.
+        return connectFuture;
+      }
+      connectFuture = cf;
+      isShutdown.set(false);
+    }
     cf.whenComplete(this::onConnectComplete);
     return cf;
   }
