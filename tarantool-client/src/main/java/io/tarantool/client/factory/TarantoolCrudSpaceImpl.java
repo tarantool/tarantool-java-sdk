@@ -726,12 +726,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
 
   @Override
   public CompletableFuture<Void> upsert(Options options, Object... arguments) {
-    return crudCallSingleResult(options, CRUD_UPSERT, arguments).thenAccept((r) -> {});
+    Object[] args = ensureOpts(arguments, DEFAULT_UPDATE_OPTIONS.getOptions());
+    return crudCallSingleResult(options, CRUD_UPSERT, args).thenAccept((r) -> {});
   }
 
   @Override
   public CompletableFuture<Void> upsertObject(Options options, Object... arguments) {
-    return crudCallSingleResult(options, CRUD_UPSERT_OBJECT, arguments).thenAccept((r) -> {});
+    Object[] args = ensureOpts(arguments, DEFAULT_UPDATE_OPTIONS.getOptions());
+    return crudCallSingleResult(options, CRUD_UPSERT_OBJECT, args).thenAccept((r) -> {});
   }
 
   @Override
@@ -895,6 +897,14 @@ final class TarantoolCrudSpaceImpl extends IProtoCallClusterSpace implements Tar
       throw new IllegalArgumentException("options can't be null");
     }
     return new Object[] {tuple, operations, options.getOptions()};
+  }
+
+  // CRUD 1.5.0+ needs an opts table; append a default one when the caller didn't supply it.
+  private static Object[] ensureOpts(Object[] args, Map<String, Object> defaultOpts) {
+    if (args.length > 0 && args[args.length - 1] instanceof Map) return args;
+    Object[] withOpts = Arrays.copyOf(args, args.length + 1);
+    withOpts[args.length] = defaultOpts;
+    return withOpts;
   }
 
   /**

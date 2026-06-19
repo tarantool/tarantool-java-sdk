@@ -13,9 +13,6 @@ WORKDIR "$TARANTOOL_WORKDIR/$APP_NAME"
 RUN mkdir -p /etc/tarantool/instances.enabled && \
     ln -s "$TARANTOOL_WORKDIR/$APP_NAME" /etc/tarantool/instances.enabled/app
 
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror.yandex.ru/ubuntu/|g; s|http://security.ubuntu.com/ubuntu/|http://mirror.yandex.ru/ubuntu/|g' /etc/apt/sources.list
-
-# install dependencies
 RUN apt-get -y update && \
     apt-get -y install build-essential cmake make gcc git unzip && \
     apt-get -y clean
