@@ -8,6 +8,7 @@ package io.tarantool.pool;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -146,16 +147,16 @@ final class PoolEntry {
   private CompletableFuture<IProtoClient> connectFuture;
 
   /** Last heartbeat state/event. */
-  private HeartbeatEvent lastHeartbeatEvent;
+  private volatile HeartbeatEvent lastHeartbeatEvent;
 
   /** Heartbeat timer/task. */
-  private Timeout heartbeatTask;
+  private volatile Timeout heartbeatTask;
 
   /** Reconnection task. */
   private Timeout reconnectTask;
 
   /** Flag signaling if heartbeat started or not. */
-  private boolean isHeartbeatStarted;
+  private volatile boolean isHeartbeatStarted;
 
   /**
    * Flag signaling if connection is available or not.
@@ -163,7 +164,16 @@ final class PoolEntry {
    * <p>When connection comes to invalidated state or killed, pool entry is locked and connection
    * will not be returned to outer client.
    */
-  private boolean isLocked;
+  private volatile boolean isLocked;
+
+  /**
+   * Idempotency flag for {@link #shutdown()}.
+   *
+   * <p>Guarantees that the close listener is invoked only once even if both {@link #close()} and
+   * {@link #shutdown()} are called, or shutdown is invoked multiple times due to overlapping
+   * connection error events.
+   */
+  private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   /** Count of failed pings occurred in invalidated state. */
   private int currentDeathPings;
@@ -305,7 +315,7 @@ final class PoolEntry {
    *
    * <p>Also increments count of unavailable clients.
    */
-  public void lock() {
+  public synchronized void lock() {
     if (!isLocked) {
       unavailable.incrementAndGet();
       isLocked = true;
@@ -317,7 +327,7 @@ final class PoolEntry {
    *
    * <p>Also decrements count of unavailable clients and cancels reconnect task.
    */
-  public void unlock() {
+  public synchronized void unlock() {
     if (isLocked) {
       stopReconnectTask();
       unavailable.decrementAndGet();
@@ -340,16 +350,28 @@ final class PoolEntry {
     shutdown();
   }
 
-  /** Closes client and stops heartbeat task is started. */
+  /**
+   * Closes the underlying client and stops the heartbeat task.
+   *
+   * <p>Performs field mutations under the entry monitor, then releases it before calling {@code
+   * client.close()} (which acquires the {@code ConnectionImpl} monitor) and emitting the close
+   * event. Holding the entry monitor across either of those calls would create an ABBA deadlock
+   * with the Netty close-callback path, which takes the {@code ConnectionImpl} monitor first and
+   * then re-enters {@link #handleConnectError(Object, Throwable)} on the entry.
+   */
   public void shutdown() {
-    connectFuture = null;
-    stopHeartbeat();
+    synchronized (this) {
+      connectFuture = null;
+      stopHeartbeat();
+    }
     try {
       client.close();
     } catch (Exception e) {
       log.warn("Cannot close client in pool", e);
     }
-    emit(listener -> listener.onConnectionClosed(tag, index));
+    if (isShutdown.compareAndSet(false, true)) {
+      emit(listener -> listener.onConnectionClosed(tag, index));
+    }
   }
 
   /**
@@ -410,15 +432,27 @@ final class PoolEntry {
   /**
    * Internal method used by reconnect task and public connect.
    *
+   * <p>Returns the local chain {@code cf} rather than the {@link #connectFuture} field. If the
+   * underlying {@code client.connect()} fails inline (e.g. connection refused), the {@code
+   * whenComplete} callback fires reentrantly on the calling thread, which causes {@link
+   * #handleConnectError(Object, Throwable)} to clear the field for reconnect purposes. The local
+   * variable still references the (failed) future, so callers always receive a non-null result and
+   * observe the failure via {@code ExecutionException} from {@code .get()}, while the field being
+   * null guarantees that the next reconnect attempt actually reconnects instead of returning a
+   * stale failed future.
+   *
    * @return {@link java.util.concurrent.CompletableFuture} with client
    */
-  private CompletableFuture<IProtoClient> internalConnect() {
+  private synchronized CompletableFuture<IProtoClient> internalConnect() {
+    if (connectFuture != null) {
+      return connectFuture;
+    }
     log.info("connect {}/{}", tag, index);
     LongTaskTimer.Sample timer = startTimer(connectTime);
     CompletableFuture<?> future =
         client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
     String user = group.getUser();
-    connectFuture =
+    CompletableFuture<IProtoClient> cf =
         future
             .thenCompose(
                 greeting -> {
@@ -428,9 +462,10 @@ final class PoolEntry {
                   }
                   return client.ping(firstPingOpts);
                 })
-            .thenApply(r -> client)
-            .whenComplete(this::onConnectComplete);
-    return connectFuture;
+            .thenApply(r -> client);
+    connectFuture = cf;
+    cf.whenComplete(this::onConnectComplete);
+    return cf;
   }
 
   /**
@@ -462,6 +497,10 @@ final class PoolEntry {
   /**
    * Handler for connection close.
    *
+   * <p>The {@code connectFuture} reset is performed under this monitor; emit, {@link #lock()},
+   * {@link #shutdown()} and {@link #connectAfter()} run outside it (see {@link #shutdown()} for
+   * why).
+   *
    * @param r connection instance
    * @param exc exception which led to connection close
    */
@@ -470,7 +509,9 @@ final class PoolEntry {
       return;
     }
     Throwable failure = exc.getCause() != null ? exc.getCause() : exc;
-    connectFuture = null;
+    synchronized (this) {
+      connectFuture = null;
+    }
     log.error("connect error {}/{}: {}", tag, index, failure.toString());
     emit(listener -> listener.onConnectionFailed(tag, index, failure));
     lock();
@@ -480,13 +521,19 @@ final class PoolEntry {
 
   /** Reconnect task scheduler. */
   private void connectAfter() {
-    log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
-    if (reconnectTask == null) {
-      reconnecting.incrementAndGet();
+    synchronized (this) {
+      log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
+      if (reconnectTask != null) {
+        // existing task is being replaced; the existing increment in `reconnecting` carries over
+        // to the new task, so no counter change is needed here.
+        reconnectTask.cancel();
+      } else {
+        reconnecting.incrementAndGet();
+      }
+      reconnectTask =
+          timerService.newTimeout(
+              timeout -> internalConnect(), reconnectAfter, TimeUnit.MILLISECONDS);
     }
-    reconnectTask =
-        timerService.newTimeout(
-            timeout -> internalConnect(), reconnectAfter, TimeUnit.MILLISECONDS);
     emit(listener -> listener.onReconnectScheduled(tag, index, reconnectAfter));
   }
 
@@ -658,7 +705,7 @@ final class PoolEntry {
   }
 
   /** Stops reconnecting task if it is active. */
-  private void stopReconnectTask() {
+  private synchronized void stopReconnectTask() {
     if (reconnectTask != null) {
       reconnecting.decrementAndGet();
       reconnectTask.cancel();
