@@ -167,13 +167,8 @@ final class PoolEntry {
   private volatile boolean isLocked;
 
   /**
-   * Idempotency flag for {@link #shutdown()}, scoped to a single connection generation.
-   *
-   * <p>Guarantees that the close listener is invoked only once per generation even if both {@link
-   * #close()} and {@link #shutdown()} are called, or shutdown is invoked multiple times due to
-   * overlapping connection error events. It is reset in {@link #internalConnect()} when a new
-   * connection generation begins, so a KILL/reconnect cycle still emits one {@code
-   * onConnectionClosed} per generation.
+   * Per-generation idempotency flag for {@link #shutdown()} close-event emit; reset in {@link
+   * #internalConnect()} when a new connection generation begins.
    */
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
@@ -431,13 +426,8 @@ final class PoolEntry {
   /**
    * Internal method used by reconnect task and public connect.
    *
-   * <p>The {@code client.connect()} chain is built without holding the entry monitor: holding it
-   * across {@code client.connect()} (which takes the {@code ConnectionImpl} monitor) would create
-   * an ABBA deadlock with the Netty close-callback path, which takes the {@code ConnectionImpl}
-   * monitor first and then re-enters {@link #handleConnectError(Object, Throwable)} on the entry.
-   * Concurrent callers are de-duplicated via the {@link #connectFuture} field; if two threads race
-   * past the first check, the second {@code client.connect()} is a no-op because {@code
-   * ConnectionImpl.connect()} only opens a channel on a {@code CLOSED -> CONNECTING} transition.
+   * <p>See {@link #shutdown()} for the monitor-ordering reasoning; {@code client.connect()} runs
+   * outside the entry monitor for the same reason.
    *
    * @return {@link java.util.concurrent.CompletableFuture} with client
    */
@@ -465,8 +455,6 @@ final class PoolEntry {
             .thenApply(r -> client);
     synchronized (this) {
       if (connectFuture != null) {
-        // ponytail: lost the race; ConnectionImpl's CLOSED->CONNECTING CAS already de-duped the
-        // channel, so our `cf` wraps the same promise and is safely discarded.
         return connectFuture;
       }
       connectFuture = cf;
@@ -504,10 +492,6 @@ final class PoolEntry {
 
   /**
    * Handler for connection close.
-   *
-   * <p>The {@code connectFuture} reset is performed under this monitor; emit, {@link #lock()},
-   * {@link #shutdown()} and {@link #connectAfter()} run outside it (see {@link #shutdown()} for
-   * why).
    *
    * @param r connection instance
    * @param exc exception which led to connection close

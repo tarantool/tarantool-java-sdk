@@ -94,10 +94,8 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
-      // box.stat.net().CONNECTIONS.current is updated asynchronously by the IProto
-      // worker; when many connections are opened in a burst it lags behind by
-      // 100-500 ms. Wait for it to stabilise (fiber.sleep yields the worker so it
-      // can accept the pending connections) before reading the value.
+      // box.stat.net().CONNECTIONS.current is updated asynchronously by the IProto worker;
+      // the loop's fiber.sleep lets it drain pending connections before we read.
       String lua =
           "local last = box.stat.net().CONNECTIONS.current;"
               + " for i = 1, 50 do"
@@ -119,12 +117,8 @@ public class BasePoolTest {
   }
 
   /**
-   * Asserts that the active connection count on the given Tarantool container reaches {@code
-   * expected}, retrying until it does. The IProto worker updates {@code
-   * box.stat.net().CONNECTIONS.current} asynchronously, and closing administrative connections
-   * (e.g. the {@code net.box} connection used by {@code executeCommandDecoded}) is asynchronous on
-   * the server, so a single read can briefly observe a stale or transitional value. Retrying the
-   * assert lets the worker converge on the final value.
+   * Retries {@link #getActiveConnectionsCount} until it equals {@code expected} — see there for why
+   * a single read is unreliable.
    *
    * @param tt the Tarantool container under test
    * @param expected the expected number of active connections
