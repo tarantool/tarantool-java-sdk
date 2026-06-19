@@ -76,7 +76,7 @@ public class TarantoolSchemaFetcherTest {
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   static {
-    TimerShutdownHook.register(() -> timerService, "tarantool-schema-fetcher-test-timer-shutdown");
+    TimerShutdownHook.register(timerService, "tarantool-schema-fetcher-test-timer-shutdown");
   }
 
   private static TarantoolContainer<?> tt;

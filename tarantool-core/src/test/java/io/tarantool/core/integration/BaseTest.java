@@ -63,7 +63,7 @@ public abstract class BaseTest {
   protected static ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   static {
-    TimerShutdownHook.register(() -> timerService, "base-test-timer-shutdown");
+    TimerShutdownHook.register(timerService, "base-test-timer-shutdown");
   }
 
   protected static ArrayValue decodeTuple(IProtoClient client, ArrayValue arrayValue)

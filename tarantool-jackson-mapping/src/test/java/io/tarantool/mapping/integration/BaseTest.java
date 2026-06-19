@@ -49,6 +49,6 @@ public abstract class BaseTest {
   protected static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
   static {
-    TimerShutdownHook.register(() -> timerService, "jackson-mapping-base-test-timer-shutdown");
+    TimerShutdownHook.register(timerService, "jackson-mapping-base-test-timer-shutdown");
   }
 }

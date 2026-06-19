@@ -100,8 +100,7 @@ public class TarantoolCrudClientWithRetryTest {
   private static final Timer timerService = new HashedWheelTimer();
 
   static {
-    TimerShutdownHook.register(
-        () -> timerService, "tarantool-crud-client-retry-test-timer-shutdown");
+    TimerShutdownHook.register(timerService, "tarantool-crud-client-retry-test-timer-shutdown");
   }
 
   @BeforeAll
