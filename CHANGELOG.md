@@ -15,6 +15,10 @@
 - Upgrade TQE to v3.5.0.
 - Extract `ObjectMapper` to a static field in the test `tdg.Utils` helper to avoid recreating it on every `sendUsers`/`getUsers` call.
 
+### Client
+
+- Append a default opts map to the varargs `upsert`/`upsertObject` calls so the request reaches the CRUD rock as the 4-arg form; CRUD 1.5.0+'s conditions parser rejects the legacy 3-arg form with `ParseConditionError`.
+
 ### Documentation
 
 - Document supported Java types for Tarantool data mapping in `tuple_pojo_mapping` docs (RU/EN), including Tarantool extension types (`decimal`, `uuid`, `datetime`, `interval`, `tuple`) and related mapping notes.
