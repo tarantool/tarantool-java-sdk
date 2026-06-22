@@ -58,9 +58,13 @@ public abstract class BaseTest {
         }
       };
 
-  protected Timer timerService = new HashedWheelTimer();
+  protected static Timer timerService = new HashedWheelTimer();
 
-  protected ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
+  protected static ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
+
+  static {
+    TimerShutdownHook.register(timerService, "base-test-timer-shutdown");
+  }
 
   protected static ArrayValue decodeTuple(IProtoClient client, ArrayValue arrayValue)
       throws IOException {

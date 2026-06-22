@@ -99,6 +99,10 @@ public class TarantoolCrudClientWithRetryTest {
   private static final Person personInstance = new Person(1, true, "Roman");
   private static final Timer timerService = new HashedWheelTimer();
 
+  static {
+    TimerShutdownHook.register(timerService, "tarantool-crud-client-retry-test-timer-shutdown");
+  }
+
   @BeforeAll
   public static void setUp() throws Exception {
     if (isCartridgeAvailable()) {

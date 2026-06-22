@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -68,6 +69,7 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_TUPLE_FO
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
 import io.tarantool.core.IProtoFeature;
+import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.exceptions.BoxError;
 import io.tarantool.core.exceptions.BoxErrorStackItem;
 import io.tarantool.core.exceptions.ClientException;
@@ -1514,17 +1516,23 @@ public class IProtoClientTest extends BaseTest {
   }
 
   @Test
-  public void testTimeoutCancel() throws Exception {
-    IProtoClient client = createClientAndConnect(address, true);
+  public void testLocalTimerHasNoPending() throws Exception {
+    Timer localTimer = new HashedWheelTimer();
+    IProtoClient client =
+        new IProtoClientImpl(
+            new ConnectionFactory(bootstrap, localTimer),
+            localTimer,
+            DEFAULT_WATCHER_OPTS,
+            null,
+            null,
+            true);
+    client.connect(address, 3_000).get();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     IProtoMessage message = client.ping().get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(0, message.getBody().map().size());
 
-    Set<io.netty.util.Timeout> timers = timerService.stop();
-    assertTrue(timers.isEmpty());
-
-    timerService = new HashedWheelTimer();
+    assertTrue(localTimer.stop().isEmpty());
   }
 
   @Test

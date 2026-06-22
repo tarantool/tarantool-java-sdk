@@ -75,6 +75,10 @@ public class TarantoolSchemaFetcherTest {
   private static final Timer timerService = new HashedWheelTimer();
   private static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
 
+  static {
+    TimerShutdownHook.register(timerService, "tarantool-schema-fetcher-test-timer-shutdown");
+  }
+
   private static TarantoolContainer<?> tt;
 
   private Long spacePersonId;

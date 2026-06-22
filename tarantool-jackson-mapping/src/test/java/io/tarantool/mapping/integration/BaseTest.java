@@ -47,4 +47,8 @@ public abstract class BaseTest {
           .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000);
   protected static final Timer timerService = new HashedWheelTimer();
   protected static final ConnectionFactory factory = new ConnectionFactory(bootstrap, timerService);
+
+  static {
+    TimerShutdownHook.register(timerService, "jackson-mapping-base-test-timer-shutdown");
+  }
 }
