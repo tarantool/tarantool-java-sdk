@@ -250,6 +250,8 @@ public interface IProtoClient {
 
   Integer getServerProtocolVersion();
 
+  CompletableFuture<Void> awaitConnectionReady();
+
   Set<IProtoFeature> getClientFeatures();
 
   Set<IProtoFeature> getServerFeatures();

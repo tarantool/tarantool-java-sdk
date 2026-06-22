@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterAll;
@@ -116,6 +117,18 @@ public class IProtoClientWatchersTest extends BaseTest {
     testWatchOnceOnContainer(tarantoolContainer, System.getenv("TARANTOOL_VERSION"));
   }
 
+  @Test
+  @Timeout(5)
+  public void testAwaitConnectionReady() throws Exception {
+    IProtoClient client = getClientAndConnect(tarantoolContainer);
+
+    // must not hang; @Timeout guards a missed completion
+    client.awaitConnectionReady().join();
+    assertTrue(client.getServerProtocolVersion() >= 0);
+
+    client.close();
+  }
+
   private void testWatchOnceOnContainer(TarantoolContainer tt, String version) throws Exception {
     IProtoClient client = getClientAndConnect(tt);
     Integer serverVersion = client.getServerProtocolVersion();
@@ -123,7 +136,7 @@ public class IProtoClientWatchersTest extends BaseTest {
       CompletionException ex =
           assertThrows(CompletionException.class, () -> client.watchOnce("key1").join());
       Throwable cause = ex.getCause();
-      assertTrue(cause instanceof BoxError);
+      assertInstanceOf(BoxError.class, cause);
       assertTrue(cause.getMessage().contains("Unknown request type 77"));
       return;
     }
