@@ -77,7 +77,7 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
     assertTrue(pool.hasAvailableClients());
     List<IProtoClient> clients = getConnects(pool, "node-a", count1);
     assertTrue(pingClients(clients));
-    assertEquals(count1, getActiveConnectionsCount(tt));
+    waitForActiveConnections(tt, count1);
 
     tt.stop();
     Thread.sleep(1000);
@@ -110,7 +110,7 @@ public class ConnectionPoolReconnectsTest extends BasePoolTest {
         });
 
     assertTrue(pingClients(clients));
-    assertEquals(count1, getActiveConnectionsCount(tt));
+    waitForActiveConnections(tt, count1);
 
     assertEquals(count1, metricsRegistry.get("pool.size").gauge().value());
     assertEquals(count1, metricsRegistry.get("pool.available").gauge().value());
