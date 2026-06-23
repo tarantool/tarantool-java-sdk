@@ -566,8 +566,8 @@ final class PoolEntry {
 
   /** Reconnect task scheduler. */
   private void connectAfter() {
+    log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
     synchronized (this) {
-      log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
       if (reconnectTask != null) {
         // existing task is being replaced; the existing increment in `reconnecting` carries over
         // to the new task, so no counter change is needed here.
