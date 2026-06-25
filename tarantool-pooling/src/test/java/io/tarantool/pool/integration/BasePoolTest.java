@@ -94,15 +94,21 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
-      // box.stat.net().CONNECTIONS.current is updated asynchronously by the IProto worker;
-      // the loop's fiber.sleep lets it drain pending connections before we read.
+      // IProto worker updates CONNECTIONS.current asynchronously; require 5 consecutive equal
+      // reads at 100ms intervals before trusting the value (100 iters = 10s safety net).
       String lua =
           "local last = box.stat.net().CONNECTIONS.current;"
-              + " for i = 1, 50 do"
-              + " require('fiber').sleep(0.05);"
+              + " local stable = 1;"
+              + " for i = 1, 100 do"
+              + " require('fiber').sleep(0.1);"
               + " local cur = box.stat.net().CONNECTIONS.current;"
-              + " if cur == last then return cur - 1 end;"
+              + " if cur == last then"
+              + " stable = stable + 1;"
+              + " if stable >= 5 then return cur - 1 end;"
+              + " else"
               + " last = cur;"
+              + " stable = 1;"
+              + " end;"
               + " end;"
               + " return last - 1";
       List<? extends Object> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, lua);
@@ -116,22 +122,8 @@ public class BasePoolTest {
     return getActiveConnectionsCount(tt) - baseline;
   }
 
-  /**
-   * Retries {@link #getActiveConnectionsCount} until it equals {@code expected} — see there for why
-   * a single read is unreliable.
-   *
-   * @param tt the Tarantool container under test
-   * @param expected the expected number of active connections
-   */
   protected void waitForActiveConnections(TarantoolContainer<?> tt, int expected) {
-    try {
-      waitFor(
-          "Active connections count never reached " + expected,
-          Duration.ofSeconds(10),
-          () -> assertEquals(expected, getActiveConnectionsCount(tt)));
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    assertEquals(expected, getActiveConnectionsCount(tt));
   }
 
   protected MeterRegistry createMetricsRegistry() {

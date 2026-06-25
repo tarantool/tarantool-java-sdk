@@ -9,8 +9,8 @@
 ### Bug fixes
 
 - Fix flaky `ConnectionPoolReconnectsTest` assertions on active connection count by polling 
-  `box.stat.net().CONNECTIONS.current` from Lua until the value stabilizes, instead of relying on a single read 
-  that races with the IProto worker
+  `box.stat.net().CONNECTIONS.current` from Lua until it holds the same value across 
+  5 consecutive reads at 100ms intervals, instead of a single read that races with the IProto worker
 
 ### Testcontainers
 
