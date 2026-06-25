@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import io.micrometer.core.instrument.Counter;
@@ -93,10 +94,19 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
-      List<? extends Object> result =
-          TarantoolContainerClientHelper.executeCommandDecoded(
-              tt, "return box.stat.net().CONNECTIONS.current");
-      return (Integer) result.get(0) - 1;
+      // box.stat.net().CONNECTIONS.current is updated asynchronously by the IProto worker;
+      // the loop's fiber.sleep lets it drain pending connections before we read.
+      String lua =
+          "local last = box.stat.net().CONNECTIONS.current;"
+              + " for i = 1, 50 do"
+              + " require('fiber').sleep(0.05);"
+              + " local cur = box.stat.net().CONNECTIONS.current;"
+              + " if cur == last then return cur - 1 end;"
+              + " last = cur;"
+              + " end;"
+              + " return last - 1";
+      List<? extends Object> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, lua);
+      return (Integer) result.get(0);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -104,6 +114,24 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCountDelta(TarantoolContainer<?> tt, int baseline) {
     return getActiveConnectionsCount(tt) - baseline;
+  }
+
+  /**
+   * Retries {@link #getActiveConnectionsCount} until it equals {@code expected} — see there for why
+   * a single read is unreliable.
+   *
+   * @param tt the Tarantool container under test
+   * @param expected the expected number of active connections
+   */
+  protected void waitForActiveConnections(TarantoolContainer<?> tt, int expected) {
+    try {
+      waitFor(
+          "Active connections count never reached " + expected,
+          Duration.ofSeconds(10),
+          () -> assertEquals(expected, getActiveConnectionsCount(tt)));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected MeterRegistry createMetricsRegistry() {

@@ -524,11 +524,15 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
 
   @Override
   public void forEach(Consumer<IProtoClient> action) {
-    for (List<PoolEntry> group : entries.values()) {
-      for (PoolEntry entry : group) {
-        action.accept(entry.getClient());
+    List<IProtoClient> clients = new ArrayList<>();
+    synchronized (connectionPoolLock) {
+      for (List<PoolEntry> group : entries.values()) {
+        for (PoolEntry entry : group) {
+          clients.add(entry.getClient());
+        }
       }
     }
+    clients.forEach(action);
   }
 
   /**
