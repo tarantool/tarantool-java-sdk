@@ -38,13 +38,7 @@ class TQEClusterIntegrationTest {
             // produced — avoids relying on cursor="" replay, which is unreliable while the
             // TQE 3.x broker is still settling.
             final Set<User> result = new CopyOnWriteArraySet<>();
-            Unreliables.retryUntilSuccess(
-                RETRY_TIMEOUT_SECONDS,
-                TimeUnit.SECONDS,
-                () -> {
-                  fx.consumerClient().subscribe(QUEUE_NAME, result::add);
-                  return true;
-                });
+            fx.consumerClient().subscribe(QUEUE_NAME, result::add);
 
             Unreliables.retryUntilSuccess(
                 RETRY_TIMEOUT_SECONDS,
