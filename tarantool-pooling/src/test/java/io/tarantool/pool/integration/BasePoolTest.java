@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import io.micrometer.core.instrument.Counter;
@@ -93,10 +94,25 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCount(TarantoolContainer<?> tt) {
     try {
-      List<? extends Object> result =
-          TarantoolContainerClientHelper.executeCommandDecoded(
-              tt, "return box.stat.net().CONNECTIONS.current");
-      return (Integer) result.get(0) - 1;
+      // IProto worker updates CONNECTIONS.current asynchronously; require 5 consecutive equal
+      // reads at 100ms intervals before trusting the value (100 iters = 10s safety net).
+      String lua =
+          "local last = box.stat.net().CONNECTIONS.current;"
+              + " local stable = 1;"
+              + " for i = 1, 100 do"
+              + " require('fiber').sleep(0.1);"
+              + " local cur = box.stat.net().CONNECTIONS.current;"
+              + " if cur == last then"
+              + " stable = stable + 1;"
+              + " if stable >= 5 then return cur - 1 end;"
+              + " else"
+              + " last = cur;"
+              + " stable = 1;"
+              + " end;"
+              + " end;"
+              + " return last - 1";
+      List<? extends Object> result = TarantoolContainerClientHelper.executeCommandDecoded(tt, lua);
+      return (Integer) result.get(0);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -104,6 +120,10 @@ public class BasePoolTest {
 
   protected int getActiveConnectionsCountDelta(TarantoolContainer<?> tt, int baseline) {
     return getActiveConnectionsCount(tt) - baseline;
+  }
+
+  protected void waitForActiveConnections(TarantoolContainer<?> tt, int expected) {
+    assertEquals(expected, getActiveConnectionsCount(tt));
   }
 
   protected MeterRegistry createMetricsRegistry() {

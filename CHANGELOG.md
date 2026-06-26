@@ -6,12 +6,21 @@
 
 - Add `tarantool-spring-data-40` module with support for Spring Boot 4.0.x and Spring Data 4.0.x
 
+### Bug fixes
+
+- Fix flaky `ConnectionPoolReconnectsTest` assertions on active connection count by polling 
+  `box.stat.net().CONNECTIONS.current` from Lua until it holds the same value across 
+  5 consecutive reads at 100ms intervals, instead of a single read that races with the IProto worker
+
 ### Testcontainers
 
 - Add TQE 3.x (message-queue-ee 3.x) integration on top of the
   existing TQE 2.x support; consolidate the TQE 2.x / 3.x test
   surface into a single parameterized suite.
-- Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, and optional additional script paths copied into the container data directory (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); simplify bundled `server.lua` accordingly.
+- Add constructor/builder parameters to supply the initial Lua script as a string or as a file path, 
+  and optional additional script paths copied into the container data directory 
+  (`Tarantool2Container`, `CartridgeClusterContainer`, `VshardClusterContainer`); 
+  simplify bundled `server.lua` accordingly.
 - Upgrade TQE to v3.5.0.
 - Extract `ObjectMapper` to a static field in the test `tdg.Utils` helper to avoid recreating it on every `sendUsers`/`getUsers` call.
 
@@ -21,8 +30,10 @@
 
 ### Documentation
 
-- Document supported Java types for Tarantool data mapping in `tuple_pojo_mapping` docs (RU/EN), including Tarantool extension types (`decimal`, `uuid`, `datetime`, `interval`, `tuple`) and related mapping notes.
-- Document Jackson MsgPack deserialization: integers, `bin`/`str` vs `byte[]`/`String`, floating-point vs `decimal`; reference `jackson-dataformat-msgpack` for defaults and type coercion.
+- Document supported Java types for Tarantool data mapping in `tuple_pojo_mapping` docs (RU/EN), 
+  including Tarantool extension types (`decimal`, `uuid`, `datetime`, `interval`, `tuple`) and related mapping notes.
+- Document Jackson MsgPack deserialization: integers, `bin`/`str` vs `byte[]`/`String`, floating-point vs `decimal`; 
+  reference `jackson-dataformat-msgpack` for defaults and type coercion.
 
 ### Dependencies
 - Updated dependencies:
