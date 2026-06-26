@@ -37,6 +37,8 @@ public class WatcherStateMachine implements IProtoStateMachine {
 
   private final WatcherOptions opts;
 
+  private final CompletableFuture<Void> registered = new CompletableFuture<>();
+
   private boolean calledOnce;
 
   public WatcherStateMachine(
@@ -80,6 +82,7 @@ public class WatcherStateMachine implements IProtoStateMachine {
     log.debug("WatcherStateMachine:process() - \"{}\"", message);
 
     if (!message.isError()) {
+      registered.complete(null);
       callback.accept(message);
       // Used to avoid sending a response to the box.shutdown event during a
       // graceful shutdown.
@@ -87,26 +90,37 @@ public class WatcherStateMachine implements IProtoStateMachine {
         send();
       }
     } else {
+      ClientException error = new ClientException("watcher error: %s", message);
+      registered.completeExceptionally(error);
       log.warn("got error for watcher: {}", message);
-      opts.getErrorHandler().accept(key, new ClientException("watcher error: %s", message));
+      opts.getErrorHandler().accept(key, error);
     }
 
     return false;
   }
 
   @Override
-  public void kill(Throwable exc) {}
+  public void kill(Throwable exc) {
+    registered.completeExceptionally(
+        exc != null ? exc : new ClientException("watcher '%s' killed before registration", key));
+  }
+
+  /** Completes when the server acknowledges the watch */
+  public CompletableFuture<Void> registered() {
+    return registered;
+  }
 
   private void onSendComplete(Void r, Throwable exc) {
     if (exc != null) {
-      log.warn("could not send IPROTO_WATCH packet: %s", exc);
+      log.warn("could not send IPROTO_WATCH packet", exc);
+      registered.completeExceptionally(exc);
     } else {
       log.debug("IPROTO_WATCH sent");
     }
   }
 
   private void send() {
-    CompletableFuture<Void> future = connection.send(request).whenComplete(this::onSendComplete);
+    CompletableFuture<Void> future = connection.send(request);
     Timeout timer =
         timerService.newTimeout(
             timeoutHandler -> {
@@ -116,6 +130,10 @@ public class WatcherStateMachine implements IProtoStateMachine {
             },
             opts.getSendTimeout(),
             TimeUnit.MILLISECONDS);
-    future.whenComplete((r, exc) -> timer.cancel());
+    future.whenComplete(
+        (r, exc) -> {
+          timer.cancel();
+          onSendComplete(r, exc);
+        });
   }
 }

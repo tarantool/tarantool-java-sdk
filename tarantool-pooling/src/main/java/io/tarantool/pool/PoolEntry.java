@@ -428,6 +428,7 @@ final class PoolEntry {
                   }
                   return client.ping(firstPingOpts);
                 })
+            .thenCompose(r -> client.awaitConnectionReady())
             .thenApply(r -> client)
             .whenComplete(this::onConnectComplete);
     return connectFuture;

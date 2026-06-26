@@ -741,6 +741,19 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
+  public CompletableFuture<Void> awaitConnectionReady() {
+    List<CompletableFuture<?>> ready = new ArrayList<>();
+    ready.add(serverProtocolVersion);
+    for (Watcher watcher : watchers.values()) {
+      WatcherStateMachine context = watcher.getStateContext();
+      if (context != null) {
+        ready.add(context.registered());
+      }
+    }
+    return CompletableFuture.allOf(ready.toArray(new CompletableFuture[0]));
+  }
+
+  @Override
   public Set<IProtoFeature> getClientFeatures() {
     return clientFeaturesEnum;
   }
