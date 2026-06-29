@@ -31,7 +31,7 @@ env:
 
 jobs:
   tests-unit:
-    runs-on: ubuntu-20.04-self-hosted
+    runs-on: ubuntu-22.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v6
@@ -64,7 +64,7 @@ jobs:
       #    retention-days: 1
 
   tests-box-integration:
-    runs-on: ubuntu-20.04-self-hosted
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -89,9 +89,6 @@ jobs:
 
       - name: Set locale environment variables
         run: |
-          # Замена зеркала в sources.list
-          sudo sed -i "s|archive.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
-          sudo sed -i "s|security.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
           
           sudo apt-get update
           sudo apt-get install -y locales
@@ -123,7 +120,7 @@ jobs:
       #    retention-days: 1
 
   tests-crud-integration:
-    runs-on: ubuntu-20.04-self-hosted
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -144,9 +141,6 @@ jobs:
 
       - name: Set locale environment variables
         run: |
-          # Замена зеркала в sources.list
-          sudo sed -i "s|archive.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
-          sudo sed -i "s|security.ubuntu.com|mirror.yandex.ru|g" /etc/apt/sources.list
           
           sudo apt-get update
           sudo apt-get install -y locales

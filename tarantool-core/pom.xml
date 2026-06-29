@@ -10,6 +10,7 @@
     <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
 
+
   <parent>
     <groupId>io.tarantool</groupId>
     <artifactId>tarantool-java-sdk</artifactId>
