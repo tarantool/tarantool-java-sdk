@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-06-29
+
 ### Spring-data
 
 - Add `tarantool-spring-data-40` module with support for Spring Boot 4.0.x and Spring Data 4.0.x
@@ -45,7 +47,7 @@
     * Bump netty version from 4.2.7.Final to 4.2.15.Final
     * Bump httpclient5 version from 5.5 to 5.5.2
     * Bump httpcore5 version from 5.3.4 to 5.4.2
-    * Bump spring-boot version from 3.5.8 to 3.5.12 in tarantool-spring-data-35
+    * Bump spring-boot version from 3.5.8 to 3.5.13 in tarantool-spring-data-35
     * Add spring-boot version 4.0.6 in tarantool-spring-data-40
     * Bump micrometer version from 1.16.4 to 1.16.5
 
