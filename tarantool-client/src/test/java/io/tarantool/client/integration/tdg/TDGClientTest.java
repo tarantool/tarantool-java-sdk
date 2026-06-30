@@ -16,12 +16,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.tdg.cluster.TDGCluster;
 import org.testcontainers.containers.tdg.cluster.TDGClusterImpl;
 import org.testcontainers.containers.tdg.configuration.TDGConfigurator;
@@ -40,6 +42,8 @@ class TDGClientTest {
   private static final DockerImageName TDG_IMAGE =
       DockerImageName.parse(
           System.getenv().getOrDefault("TARANTOOL_REGISTRY", "") + "tdg2:2.11.5-0-geff8adb3");
+
+  private static final int MODEL_READINESS_TIMEOUT_SECONDS = 60;
 
   private static final Path ROOT_CONFIG_PATH;
 
@@ -73,6 +77,18 @@ class TDGClientTest {
             .withHost(configurator.core().getValue().iprotoMappedAddress().getHostName())
             .withPort(configurator.core().getValue().iprotoMappedAddress().getPort())
             .build();
+    awaitModelReady();
+  }
+
+  private static void awaitModelReady() {
+    Unreliables.retryUntilSuccess(
+        MODEL_READINESS_TIMEOUT_SECONDS,
+        TimeUnit.SECONDS,
+        () -> {
+          client.space("User").get(1).join();
+          client.space("person").get(1).join();
+          return null;
+        });
   }
 
   @AfterAll
