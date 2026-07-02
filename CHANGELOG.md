@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Dependencies
+
+- Pin `spring-data-keyvalue` to 3.5.13 in `tarantool-spring-data-35` (parent defaults
+  it to `${spring.boot.version}` = 3.5.16, which does not exist on Maven Central)
+- Bump spring-boot version from 3.5.13 to 3.5.16 in tarantool-spring-data-35
+
 ## [1.7.0] - 2026-06-29
 
 ### Spring-data
