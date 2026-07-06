@@ -18,7 +18,10 @@
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
-    <spring.boot.version>3.5.13</spring.boot.version>
+    <spring.boot.version>3.5.16</spring.boot.version>
+    <!--spring-data-keyvalue has not published a 3.5.14+ release; pin to 3.5.13,
+        the latest matching artifact on Maven Central-->
+    <spring-data-keyvalue.version>3.5.13</spring-data-keyvalue.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
@@ -27,6 +30,11 @@
     <dependency>
       <groupId>io.tarantool</groupId>
       <artifactId>tarantool-spring-data-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-keyvalue</artifactId>
+      <version>${spring-data-keyvalue.version}</version>
     </dependency>
   </dependencies>
 </project>
