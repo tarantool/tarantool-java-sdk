@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Bug fixes
+
+- Remove the root-level `logback.xml` from the `tarantool-core` runtime JAR.
+  Logback auto-discovered it as application-level config in consumer apps
+  (e.g. Spring Boot with `logback-spring.xml`), overriding the host's logging
+  configuration. [#109](https://github.com/tarantool/tarantool-java-sdk/issues/109)
+
 ### Dependencies
 
 - Pin `spring-data-keyvalue` to 3.5.13 in `tarantool-spring-data-35` (parent defaults
