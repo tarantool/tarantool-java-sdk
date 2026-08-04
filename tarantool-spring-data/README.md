@@ -40,13 +40,16 @@ data storage.
 
 *Only configuration and getting spring bean `TarantoolBoxClient` is supported.
 
-| Tarantool Data Grid Version | Repository API |
-|:---------------------------:|:--------------:|
-|             1.x             |   Yes (limited*) |
-|             2.x             |   Yes (limited*) |
+| Tarantool Data Grid Version | TDG Repository API (`TarantoolDataGridClient`) | Spring Data `Repository` |
+|:---------------------------:|:----------------------------------------------:|:------------------------:|
+|             1.x             |                Yes (limited*)                  |            No            |
+|             2.x             |                Yes (limited*)                  |            No            |
 
-*Experimental version of the client for Tarantool Data Grid added in release 1.4.0,
-with CRUD operation support.
+*Experimental version of the client for Tarantool Data Grid added in release 1.4.0. It supports the
+CRUD operations of the
+[TDG Repository API](https://www.tarantool.io/docs/tdg/ru/2_x/reference/sandbox-api/repository-api)
+(`repository.get` / `put` / `find` / `count` / `update` / `delete`), which is not related to the
+[tarantool/crud](https://github.com/tarantool/crud) module.
 
 > [!TIP]
 > - Learn more about the `crud` client:
@@ -69,6 +72,15 @@ with CRUD operation support.
 > (you can add it as a bean and work in the Spring context). The ability to work
 > through `Repository` and
 > `@EnableTarantoolRepositories` is not implemented at this time.
+
+> [!IMPORTANT]
+> Working with Tarantool Data Grid is currently performed **only** through the interface
+> [`TarantoolDataGridClient`](../tarantool-client/src/main/java/io/tarantool/client/tdg/TarantoolDataGridClient.java)
+> (you can add it as a bean and work in the Spring context). The ability to work
+> through `Repository` and `@EnableTarantoolRepositories` is not implemented at this time:
+> the repository layer is bound to `TarantoolCrudClient` and calls `crud.*` stored procedures,
+> which are not available in TDG. Using a `Repository` with a TDG connection fails with
+> `BoxError{code=33, message='Procedure 'crud.select' is not defined'}`.
 
 > [!IMPORTANT] 
 > #### Spring Data 3.4.x
