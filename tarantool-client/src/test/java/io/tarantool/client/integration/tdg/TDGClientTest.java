@@ -233,4 +233,50 @@ class TDGClientTest {
     Assertions.assertEquals(
         "Type \"NoSpace\" not found", tarantoolSlashErrorsException.getReason().getErr());
   }
+
+  @Test
+  void testServiceWithArgs() {
+
+    // service name from config file!
+    final String serviceName = "get_by_id";
+
+    final TarantoolDataGridSpace space = client.space("User");
+    final Map<String, Object> user =
+        new HashMap<String, Object>() {
+          {
+            put("age", 1);
+            put("name", "nick");
+          }
+        };
+
+    final Map<?, ?> insertedUser = space.put(user).join();
+    Assertions.assertEquals(user, insertedUser);
+
+    final Map<String, Object> serviceArgs = new HashMap<>();
+    serviceArgs.put("model_type", "User");
+    serviceArgs.put("id", 1);
+
+    final List<?> callResult =
+        client.call("call_service", Arrays.asList(serviceName, serviceArgs)).join().get();
+    // 0 - response, 1 - error
+    Assertions.assertEquals(2, callResult.size());
+    Assertions.assertInstanceOf(Map.class, callResult.get(0));
+    Assertions.assertEquals(user, callResult.get(0));
+  }
+
+  @Test
+  void testServiceWithoutArgs() {
+
+    // service name from config file!
+    final String serviceName = "hello";
+
+    final String expectedString = "hello!";
+    final List<?> callResult =
+        client.call("call_service", Collections.singletonList(serviceName)).join().get();
+
+    // 0 - response, 1 - error
+    Assertions.assertEquals(2, callResult.size());
+    Assertions.assertInstanceOf(String.class, callResult.get(0));
+    Assertions.assertEquals(expectedString, callResult.get(0));
+  }
 }

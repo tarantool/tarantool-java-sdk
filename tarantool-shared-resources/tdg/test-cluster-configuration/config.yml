@@ -1,3 +1,16 @@
 ---
 types:
   __file: model.avsc
+
+services:
+  get_by_id:
+    doc: "Return User data by id"
+    function: services.users.get_by_id
+    args:
+      model_type: string
+      id: int
+    return_type: User
+  hello:
+    doc: "Return 'hello!' string"
+    function: services.users.say_hello
+    return_type: string
