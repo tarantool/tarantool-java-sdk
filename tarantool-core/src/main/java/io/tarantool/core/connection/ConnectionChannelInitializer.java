@@ -5,6 +5,7 @@
 
 package io.tarantool.core.connection;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -29,6 +30,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final CompletableFuture<Greeting> promise;
   private final BiConsumer<IProtoResponse, Throwable> messageHandler;
   private final SslContext sslContext;
+  private final InetSocketAddress peerAddress;
   private final ChannelFutureListener closeHandler;
   private final FlushConsolidationHandler flushConsolidationHandler;
   private final int idleTimeout;
@@ -37,12 +39,14 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
       CompletableFuture<Greeting> promise,
       BiConsumer<IProtoResponse, Throwable> messageHandler,
       SslContext sslContext,
+      InetSocketAddress peerAddress,
       ChannelFutureListener closeHandler,
       FlushConsolidationHandler flushConsolidationHandler,
       int idleTimeout) {
     this.promise = promise;
     this.messageHandler = messageHandler;
     this.sslContext = sslContext;
+    this.peerAddress = peerAddress;
     this.closeHandler = closeHandler;
     this.flushConsolidationHandler = flushConsolidationHandler;
     this.idleTimeout = idleTimeout;
@@ -58,7 +62,9 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
     }
 
     if (this.sslContext != null) {
-      pipeline.addLast(this.sslContext.newHandler(socketChannel.alloc()));
+      pipeline.addLast(
+          this.sslContext.newHandler(
+              socketChannel.alloc(), peerAddress.getHostString(), peerAddress.getPort()));
     }
 
     if (this.idleTimeout > 0) {
@@ -80,6 +86,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
     private CompletableFuture<Greeting> promise;
     private BiConsumer<IProtoResponse, Throwable> messageHandler;
     private SslContext sslContext = null;
+    private InetSocketAddress peerAddress = null;
     private ChannelFutureListener closeHandler;
     private FlushConsolidationHandler flushConsolidationHandler = null;
     private int idleTimeout = -1;
@@ -96,8 +103,9 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
       return this;
     }
 
-    public Builder withSSLContext(SslContext sslContext) {
+    public Builder withSSLContext(SslContext sslContext, InetSocketAddress peerAddress) {
       this.sslContext = sslContext;
+      this.peerAddress = peerAddress;
       return this;
     }
 
@@ -122,6 +130,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
           this.promise,
           this.messageHandler,
           this.sslContext,
+          this.peerAddress,
           this.closeHandler,
           this.flushConsolidationHandler,
           this.idleTimeout);

@@ -199,7 +199,7 @@ public class ConnectionImpl implements Connection {
 
       channel =
           bootstrap
-              .handler(getInitializer(promise, sslContext))
+              .handler(getInitializer(promise, sslContext, address))
               .remoteAddress(address)
               .connect()
               .addListener(onChannelConnect(promise, address))
@@ -311,7 +311,7 @@ public class ConnectionImpl implements Connection {
   }
 
   private ConnectionChannelInitializer getInitializer(
-      CompletableFuture<Greeting> promise, SslContext sslContext) {
+      CompletableFuture<Greeting> promise, SslContext sslContext, InetSocketAddress peerAddress) {
     ConnectionChannelInitializer.Builder initializerBuilder =
         new ConnectionChannelInitializer.Builder()
             .withConnectPromise(promise)
@@ -324,7 +324,7 @@ public class ConnectionImpl implements Connection {
       return initializerBuilder.build();
     }
 
-    return initializerBuilder.withSSLContext(sslContext).build();
+    return initializerBuilder.withSSLContext(sslContext, peerAddress).build();
   }
 
   /**

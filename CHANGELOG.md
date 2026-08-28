@@ -8,6 +8,10 @@
   Logback auto-discovered it as application-level config in consumer apps
   (e.g. Spring Boot with `logback-spring.xml`), overriding the host's logging
   configuration. [#109](https://github.com/tarantool/tarantool-java-sdk/issues/109)
+- Pass the peer address to the SSL engine, so that a TLS connection can verify the server
+  certificate against the host it was opened for. Endpoint identification is enabled by default
+  since netty 4.2, and without the address the JDK aborted every handshake with
+  `Hostname or IP address is undefined`, which made `withSslContext` unusable.
 
 ### Dependencies
 
