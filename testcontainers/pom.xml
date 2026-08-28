@@ -108,7 +108,6 @@
       <plugin>
         <groupId>org.jsonschema2pojo</groupId>
         <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-        <version>${jsonschema2pojo.version}</version>
         <configuration>
           <sourceDirectory>${basedir}/src/main/resources/tarantool</sourceDirectory>
           <targetPackage>io.tarantool.autogen</targetPackage>

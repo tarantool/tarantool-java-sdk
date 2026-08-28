@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Dependencies
+- Updated dependencies:
+
+  Compile:
+  * Bump jsonschema2pojo version from 1.2.2 to 1.3.3
+
 ### Bug fixes
 
 - Remove the root-level `logback.xml` from the `tarantool-core` runtime JAR.

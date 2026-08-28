@@ -37,8 +37,6 @@ import org.yaml.snakeyaml.Yaml;
 
 import io.tarantool.autogen.Tarantool3Configuration;
 import io.tarantool.autogen.credentials.Credentials;
-import io.tarantool.autogen.credentials.roles.rolesProperty.privilege.Permission;
-import io.tarantool.autogen.credentials.roles.rolesProperty.privilege.Privilege;
 import io.tarantool.autogen.credentials.users.Users;
 import io.tarantool.autogen.credentials.users.usersProperty.UsersProperty;
 import io.tarantool.autogen.groups.Groups;
@@ -293,13 +291,41 @@ public final class TarantoolContainerClientHelper {
                             .withPassword("secret_a")
                             .withPrivileges(
                                 List.of(
-                                    Privilege.builder()
+                                    io.tarantool
+                                        .autogen
+                                        .credentials
+                                        .users
+                                        .usersProperty
+                                        .privilege
+                                        .Privilege
+                                        .builder()
                                         .withPermissions(
                                             new LinkedHashSet<>(
                                                 List.of(
-                                                    Permission.READ,
-                                                    Permission.WRITE,
-                                                    Permission.EXECUTE)))
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .READ,
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .WRITE,
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .EXECUTE)))
                                         .build()))
                             .build())
                     .withAdditionalProperty(
@@ -308,13 +334,41 @@ public final class TarantoolContainerClientHelper {
                             .withPassword("secret_b")
                             .withPrivileges(
                                 List.of(
-                                    Privilege.builder()
+                                    io.tarantool
+                                        .autogen
+                                        .credentials
+                                        .users
+                                        .usersProperty
+                                        .privilege
+                                        .Privilege
+                                        .builder()
                                         .withPermissions(
                                             new LinkedHashSet<>(
                                                 List.of(
-                                                    Permission.READ,
-                                                    Permission.WRITE,
-                                                    Permission.EXECUTE)))
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .READ,
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .WRITE,
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .EXECUTE)))
                                         .build()))
                             .build())
                     .withAdditionalProperty(
@@ -325,10 +379,25 @@ public final class TarantoolContainerClientHelper {
                             .withPassword("secret_d")
                             .withPrivileges(
                                 Collections.singletonList(
-                                    Privilege.builder()
+                                    io.tarantool
+                                        .autogen
+                                        .credentials
+                                        .users
+                                        .usersProperty
+                                        .privilege
+                                        .Privilege
+                                        .builder()
                                         .withPermissions(
                                             new LinkedHashSet<>(
-                                                Collections.singletonList(Permission.EXECUTE)))
+                                                Collections.singletonList(
+                                                    io.tarantool
+                                                        .autogen
+                                                        .credentials
+                                                        .users
+                                                        .usersProperty
+                                                        .privilege
+                                                        .Permission
+                                                        .EXECUTE)))
                                         .build()))
                             .build())
                     .withAdditionalProperty(
