@@ -43,6 +43,8 @@
       <groupId>io.tarantool</groupId>
       <artifactId>tarantool-spring-data-core</artifactId>
     </dependency>
+
+    <!--Версия зашита в spring-data-commons-->
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
