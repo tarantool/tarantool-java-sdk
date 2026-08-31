@@ -90,7 +90,6 @@
     <shared.dir>${project.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.basedir}/LICENSE_HEADER.txt</license.header.file>
     <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
-    <jsonschema2pojo.version>1.2.2</jsonschema2pojo.version>
   </properties>
 
   <build>

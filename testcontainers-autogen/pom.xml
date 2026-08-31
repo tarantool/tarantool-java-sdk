@@ -25,7 +25,6 @@
     <dependency>
       <groupId>org.jsonschema2pojo</groupId>
       <artifactId>jsonschema2pojo-core</artifactId>
-      <version>${jsonschema2pojo.version}</version>
     </dependency>
   </dependencies>
 </project>

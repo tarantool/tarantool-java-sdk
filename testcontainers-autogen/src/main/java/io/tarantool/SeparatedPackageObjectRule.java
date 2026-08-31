@@ -12,11 +12,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.commons.lang.StringUtils.substringAfter;
-import static org.apache.commons.lang.StringUtils.substringBefore;
-import static org.jsonschema2pojo.rules.PrimitiveTypes.isPrimitive;
-import static org.jsonschema2pojo.rules.PrimitiveTypes.primitiveType;
-import static org.jsonschema2pojo.util.TypeUtil.resolveType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JBlock;
@@ -34,18 +29,21 @@ import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
+import org.apache.commons.lang3.StringUtils;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.jsonschema2pojo.Annotator;
 import org.jsonschema2pojo.Schema;
 import org.jsonschema2pojo.exception.ClassAlreadyExistsException;
 import org.jsonschema2pojo.exception.GenerationException;
 import org.jsonschema2pojo.rules.ObjectRule;
+import org.jsonschema2pojo.rules.PrimitiveTypes;
 import org.jsonschema2pojo.rules.Rule;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.jsonschema2pojo.util.AnnotationHelper;
 import org.jsonschema2pojo.util.ParcelableHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
 import org.jsonschema2pojo.util.SerializableHelper;
+import org.jsonschema2pojo.util.TypeUtil;
 
 public class SeparatedPackageObjectRule extends ObjectRule {
 
@@ -194,18 +192,20 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
     try {
       if (node.has("existingJavaType")) {
-        String fqn = substringBefore(node.get("existingJavaType").asText(), "<");
+        String fqn = StringUtils.substringBefore(node.get("existingJavaType").asText(), "<");
 
-        if (isPrimitive(fqn, _package.owner())) {
-          throw new ClassAlreadyExistsException(primitiveType(fqn, _package.owner()));
+        if (PrimitiveTypes.isPrimitive(fqn, _package.owner())) {
+          throw new ClassAlreadyExistsException(
+              PrimitiveTypes.primitiveType(fqn, _package.owner()));
         }
 
         JClass existingClass =
-            resolveType(
+            TypeUtil.resolveType(
                 _package,
                 fqn
                     + (node.get("existingJavaType").asText().contains("<")
-                        ? "<" + substringAfter(node.get("existingJavaType").asText(), "<")
+                        ? "<"
+                            + StringUtils.substringAfter(node.get("existingJavaType").asText(), "<")
                         : ""));
         throw new ClassAlreadyExistsException(existingClass);
       }
@@ -215,7 +215,7 @@ public class SeparatedPackageObjectRule extends ObjectRule {
       if (node.has("javaType")) {
         String fqn = node.path("javaType").asText();
 
-        if (isPrimitive(fqn, _package.owner())) {
+        if (PrimitiveTypes.isPrimitive(fqn, _package.owner())) {
           throw new GenerationException(
               "javaType cannot refer to a primitive type ("
                   + fqn
@@ -590,7 +590,7 @@ public class SeparatedPackageObjectRule extends ObjectRule {
 
   private void addInterfaces(JDefinedClass jclass, JsonNode javaInterfaces) {
     for (JsonNode i : javaInterfaces) {
-      jclass._implements(resolveType(jclass._package(), i.asText()));
+      jclass._implements(TypeUtil.resolveType(jclass._package(), i.asText()));
     }
   }
 
