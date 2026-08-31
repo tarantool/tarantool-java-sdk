@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-08-31
+
 ### Dependencies
 - Updated dependencies:
 
@@ -11,6 +13,9 @@
   * Bump micrometer version from 1.16.5 to 1.16.6
   * Bump netty version from 4.2.15.Final to 4.2.16.Final
   * Bump org.apache.httpcomponents.core5 version from 5.4.2 to 5.4.3
+  * Pin `spring-data-keyvalue` to 3.5.13 in `tarantool-spring-data-35` 
+    (parent defaults it to `${spring.boot.version}` = 3.5.16, which does not exist on Maven Central)
+  * Bump spring-boot version from 3.5.13 to 3.5.16 in tarantool-spring-data-35
 
 ### Bug fixes
 
@@ -22,12 +27,6 @@
   certificate against the host it was opened for. Endpoint identification is enabled by default
   since netty 4.2, and without the address the JDK aborted every handshake with
   `Hostname or IP address is undefined`, which made `withSslContext` unusable.
-
-### Dependencies
-
-- Pin `spring-data-keyvalue` to 3.5.13 in `tarantool-spring-data-35` (parent defaults
-  it to `${spring.boot.version}` = 3.5.16, which does not exist on Maven Central)
-- Bump spring-boot version from 3.5.13 to 3.5.16 in tarantool-spring-data-35
 
 ## [1.7.0] - 2026-06-29
 
