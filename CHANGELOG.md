@@ -9,6 +9,7 @@
   * Bump jsonschema2pojo version from 1.2.2 to 1.3.3
   * Bump jackson version from 2.21.3 to 2.21.6
   * Bump micrometer version from 1.16.5 to 1.16.6
+  * Bump org.apache.httpcomponents.core5 version from 5.4.2 to 5.4.3
 
 ### Bug fixes
 
