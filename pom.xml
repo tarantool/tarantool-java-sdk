@@ -71,7 +71,6 @@
   </scm>
 
   <properties>
-    <jackson.version>2.21.3</jackson.version>
     <msgpack.version>0.9.12</msgpack.version>
     <javadoc.plugin.version>3.12.0</javadoc.plugin.version>
     <logging.config>${project.basedir}/src/test/resources/logback-test.xml</logging.config>
@@ -119,7 +118,7 @@
             <importOrder>
               <order>\#javax|\#java|javax|java,\#|,\#io.tarantool|io.tarantool</order>
               <!-- you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\#` prefix for static imports. -->
-              <!--                  <file>${project.basedir}/eclipse.importorder</file>-->
+              <!-- <file>${project.basedir}/eclipse.importorder</file>-->
             </importOrder>
 
             <removeUnusedImports />
