@@ -9,6 +9,7 @@
   * Bump jsonschema2pojo version from 1.2.2 to 1.3.3
   * Bump jackson version from 2.21.3 to 2.21.6
   * Bump micrometer version from 1.16.5 to 1.16.6
+  * Bump netty version from 4.2.15.Final to 4.2.16.Final
 
 ### Bug fixes
 
