@@ -20,7 +20,7 @@ Add the following dependency to your `pom.xml`:
 <dependency>
     <groupId>io.tarantool</groupId>
     <artifactId>tarantool-client</artifactId>
-    <version>1.5.0</version>
+    <version>1.7.1</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ Add the following to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'io.tarantool:tarantool-client:1.5.0'
+    implementation 'io.tarantool:tarantool-client:1.7.1'
 }
 ```
 
@@ -40,7 +40,7 @@ Or for Gradle Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("io.tarantool:tarantool-client:1.5.0")
+    implementation("io.tarantool:tarantool-client:1.7.1")
 }
 ```
 
