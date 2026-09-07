@@ -307,6 +307,88 @@ public class IntervalTest {
     }
   }
 
+  public static Stream<Arguments> dataForIsoRoundTrip() {
+    return Stream.of(
+        Arguments.of(
+            new Interval()
+                .setYear(1)
+                .setMonth(2)
+                .setDay(3)
+                .setHour(4)
+                .setMin(5)
+                .setSec(6)
+                .setNsec(789_000_000),
+            "P1Y2M3DT4H5M6.789S"),
+        Arguments.of(new Interval(), "P0Y0M0DT0H0M0S"),
+        Arguments.of(
+            new Interval()
+                .setYear(-1)
+                .setMonth(-2)
+                .setDay(-3)
+                .setHour(-4)
+                .setMin(-5)
+                .setSec(-6)
+                .setNsec(-789_000_000),
+            "P-1Y-2M-3DT-4H-5M-6.789S"),
+        Arguments.of(new Interval().setYear(1).setMonth(-2).setDay(3), "P1Y-2M3DT0H0M0S"),
+        Arguments.of(new Interval().setMonth(14), "P0Y14M0DT0H0M0S"),
+        Arguments.of(new Interval().setSec(30), "P0Y0M0DT0H0M30S"),
+        Arguments.of(
+            new Interval().setHour(2).setMin(30).setSec(45).setNsec(500_000_000),
+            "P0Y0M0DT2H30M45.5S"),
+        Arguments.of(new Interval().setWeek(2), "P0Y0M2W0DT0H0M0S"),
+        Arguments.of(new Interval().setNsec(-500_000_000), "P0Y0M0DT0H0M-0.5S"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataForIsoRoundTrip")
+  void testToIsoStringProducesExpectedFormat(Interval interval, String iso) {
+    assertEquals(iso, interval.toIsoString());
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataForIsoRoundTrip")
+  void testParseIsInverseOfToIsoString(Interval interval, String iso) {
+    assertEquals(interval, Interval.parse(iso));
+  }
+
+  public static Stream<Interval> dataForMixedSignSecNsec() {
+    return Stream.of(
+        new Interval().setSec(6).setNsec(-500_000_000),
+        new Interval().setSec(-6).setNsec(500_000_000));
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataForMixedSignSecNsec")
+  void testToIsoStringRejectsMixedSignSecNsec(Interval interval) {
+    assertThrows(IllegalArgumentException.class, interval::toIsoString);
+  }
+
+  public static Stream<String> dataForInvalidIso() {
+    return Stream.of(
+        "",
+        "garbage",
+        "P",
+        "PT",
+        "1Y2M3D",
+        "P1X",
+        // overflows long even after truncating the fractional part
+        "P0Y0M0DT0H0M99999999999999999999999S",
+        // overflow outside the seconds field
+        "P99999999999999999999Y");
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataForInvalidIso")
+  void testParseRejectsInvalidIso(String text) {
+    assertThrows(IllegalArgumentException.class, () -> Interval.parse(text));
+  }
+
+  @Test
+  void testParseRejectsNull() {
+    assertThrows(IllegalArgumentException.class, () -> Interval.parse(null));
+  }
+
   @AfterEach
   public void cleanUp() {
     futures.clear();

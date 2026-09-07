@@ -13,6 +13,8 @@ import static java.time.temporal.ChronoUnit.NANOS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.ChronoUnit.WEEKS;
 import static java.time.temporal.ChronoUnit.YEARS;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +26,9 @@ import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.LongConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.tarantool.core.Assert;
 
@@ -58,6 +63,20 @@ public class Interval implements TemporalAmount {
   private static final List<TemporalUnit> SUPPORTED_UNITS =
       Collections.unmodifiableList(
           Arrays.<TemporalUnit>asList(YEARS, MONTHS, WEEKS, DAYS, HOURS, MINUTES, SECONDS, NANOS));
+
+  // per-field sign, not one leading sign, e.g. "P-1Y-2M" (a lenient variant beyond strict ISO 8601)
+  private static final Pattern ISO_8601_PATTERN =
+      Pattern.compile(
+          "P"
+              + "(?:(?<year>[+-]?\\d+)Y)?"
+              + "(?:(?<month>[+-]?\\d+)M)?"
+              + "(?:(?<week>[+-]?\\d+)W)?"
+              + "(?:(?<day>[+-]?\\d+)D)?"
+              + "(?:T"
+              + "(?:(?<hour>[+-]?\\d+)H)?"
+              + "(?:(?<minute>[+-]?\\d+)M)?"
+              + "(?:(?<second>[+-]?\\d+(?:\\.\\d+)?)S)?"
+              + ")?");
 
   public static final long MAX_NSEC_RANGE = Integer.MAX_VALUE;
   public static final long MAX_YEAR_RANGE = MAX_DATE_YEAR - MIN_DATE_YEAR;
@@ -335,6 +354,81 @@ public class Interval implements TemporalAmount {
   public Interval setAdjust(Adjust adjust) {
     this.adjust = adjust;
     return this;
+  }
+
+  public static Interval parse(String text) {
+    Assert.state(text != null, "Text to parse must not be null");
+    Matcher matcher = ISO_8601_PATTERN.matcher(text);
+    Assert.state(matcher.matches(), "'" + text + "' is not a valid ISO 8601 duration");
+
+    Interval interval = new Interval();
+    boolean hasAnyField = false;
+    hasAnyField |= applyField(matcher, "year", interval::setYear, text);
+    hasAnyField |= applyField(matcher, "month", interval::setMonth, text);
+    hasAnyField |= applyField(matcher, "week", interval::setWeek, text);
+    hasAnyField |= applyField(matcher, "day", interval::setDay, text);
+    hasAnyField |= applyField(matcher, "hour", interval::setHour, text);
+    hasAnyField |= applyField(matcher, "minute", interval::setMin, text);
+
+    String second = matcher.group("second");
+    if (second != null) {
+      BigDecimal value = new BigDecimal(second);
+      // longValueExact throws on overflow; setScale drops the fraction first
+      long wholeSeconds;
+      try {
+        wholeSeconds = value.setScale(0, RoundingMode.DOWN).longValueExact();
+      } catch (ArithmeticException e) {
+        throw new IllegalArgumentException("'" + text + "' is not a valid ISO 8601 duration", e);
+      }
+      interval.setSec(wholeSeconds);
+      interval.setNsec(
+          value.subtract(BigDecimal.valueOf(wholeSeconds)).movePointRight(9).longValue());
+      hasAnyField = true;
+    }
+
+    Assert.state(hasAnyField, "'" + text + "' does not contain any duration fields");
+    return interval;
+  }
+
+  private static boolean applyField(
+      Matcher matcher, String group, LongConsumer setter, String text) {
+    String value = matcher.group(group);
+    if (value == null) {
+      return false;
+    }
+    try {
+      setter.accept(Long.parseLong(value));
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("'" + text + "' is not a valid ISO 8601 duration", e);
+    }
+    return true;
+  }
+
+  public String toIsoString() {
+    StringBuilder sb = threadLocalStringBuilder.get();
+    sb.delete(0, sb.length());
+    sb.append('P').append(year).append('Y').append(month).append('M');
+    if (week != 0) {
+      sb.append(week).append('W');
+    }
+    sb.append(day).append('D');
+    sb.append('T').append(hour).append('H').append(min).append('M');
+    sb.append(formatSeconds()).append('S');
+    return sb.toString();
+  }
+
+  private String formatSeconds() {
+    if (nsec == 0) {
+      return Long.toString(sec);
+    }
+    // ISO 8601 has one sign per number; sec and nsec of opposite sign can't be combined into one
+    Assert.state(
+        sec == 0 || (sec > 0) == (nsec > 0),
+        "sec=" + sec + " and nsec=" + nsec + " have different signs; cannot format as ISO 8601");
+    return BigDecimal.valueOf(sec)
+        .add(BigDecimal.valueOf(nsec, 9))
+        .stripTrailingZeros()
+        .toPlainString();
   }
 
   @Override

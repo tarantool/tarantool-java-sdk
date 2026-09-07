@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Client
+
+- Support ISO 8601 duration parsing and formatting for `Interval`
+
 ## [1.7.1] - 2026-08-31
 
 ### Dependencies
