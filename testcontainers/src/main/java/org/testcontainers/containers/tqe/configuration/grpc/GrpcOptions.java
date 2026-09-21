@@ -23,7 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 	ReadBufferSize        int     `mapstructure:"read_buffer_size"`
  * 	WriteBufferSize       int     `mapstructure:"write_buffer_size"`
  * 	SharedWriteBuffer     bool    `mapstructure:"shared_write_buffer"`
- * 	ReflectionEnabled     bool    `mapstructure:"reflection_enabled"`
+ * 	ReflectionEnabled     bool      `mapstructure:"reflection_enabled"`
+ * 	TLS                   TLSParams `mapstructure:"tls"`
  * }
  */
 public class GrpcOptions {
@@ -64,6 +65,9 @@ public class GrpcOptions {
   @JsonProperty("reflection_enabled")
   private final Boolean reflectionEnabled;
 
+  @JsonProperty("tls")
+  private final TLSParams tls;
+
   @JsonCreator
   public GrpcOptions(
       @JsonProperty("initial_conn_window_size") Integer initialConnWindowSize,
@@ -77,7 +81,8 @@ public class GrpcOptions {
       @JsonProperty("read_buffer_size") Integer readBufferSize,
       @JsonProperty("write_buffer_size") Integer writeBufferSize,
       @JsonProperty("shared_write_buffer") Boolean sharedWriteBuffer,
-      @JsonProperty("reflection_enabled") Boolean reflectionEnabled) {
+      @JsonProperty("reflection_enabled") Boolean reflectionEnabled,
+      @JsonProperty("tls") TLSParams tls) {
     this.initialConnWindowSize = initialConnWindowSize;
     this.initialWindowSize = initialWindowSize;
     this.headerTableSize = headerTableSize;
@@ -90,6 +95,7 @@ public class GrpcOptions {
     this.writeBufferSize = writeBufferSize;
     this.sharedWriteBuffer = sharedWriteBuffer;
     this.reflectionEnabled = reflectionEnabled;
+    this.tls = tls;
   }
 
   public Optional<Integer> getInitialConnWindowSize() {
@@ -138,5 +144,9 @@ public class GrpcOptions {
 
   public Optional<Boolean> getReflectionEnabled() {
     return Optional.ofNullable(this.reflectionEnabled);
+  }
+
+  public Optional<TLSParams> getTls() {
+    return Optional.ofNullable(this.tls);
   }
 }
