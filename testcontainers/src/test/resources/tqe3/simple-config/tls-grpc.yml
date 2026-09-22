@@ -1,0 +1,21 @@
+core_port: 1111
+grpc_listen:
+  - uri: 'tcp://0.0.0.0:18182'
+
+grpc_options:
+  reflection_enabled: true
+  tls:
+    enabled: true
+    cert_file: /certs/server.crt
+    key_file: /certs/server.key
+    ca_file: /certs/ca.crt
+    ciphers: ECDHE-RSA-AES256-GCM-SHA384
+
+producer:
+  enabled: true
+  tarantool:
+    user: test-super
+    pass: test
+    connections:
+      routers:
+        - "router:3301"
