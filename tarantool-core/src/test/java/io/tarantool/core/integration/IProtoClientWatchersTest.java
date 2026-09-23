@@ -58,6 +58,8 @@ public class IProtoClientWatchersTest extends BaseTest {
     InetSocketAddress address = tt.mappedAddress();
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
     client.connect(address, 3_000).get();
+    // Complete the handshake with ping so that watchers are sent
+    client.ping().get();
     return client;
   }
 
