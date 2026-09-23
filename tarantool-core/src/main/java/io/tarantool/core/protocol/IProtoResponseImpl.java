@@ -21,7 +21,6 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_SYNC_ID;
 
 public class IProtoResponseImpl implements IProtoMessage {
 
-  private StringBuilder stringBuilder;
   protected MapValue header;
   protected MapValue body;
   protected Map<Integer, Value> headerMap;
@@ -51,19 +50,13 @@ public class IProtoResponseImpl implements IProtoMessage {
 
   @Override
   public String toString() {
-    if (this.stringBuilder == null) {
-      this.stringBuilder = new StringBuilder();
-    }
-
-    this.stringBuilder.append("IProtoResponseImpl(header = ").append(getHeader().toJson());
+    String result = "IProtoResponseImpl(header = " + getHeader().toJson();
 
     if (getBody() != null) {
-      this.stringBuilder.append(", body = ").append(getBody().toJson());
+      result += ", body = " + getBody().toJson();
     }
 
-    this.stringBuilder.append(")");
-
-    return this.stringBuilder.toString();
+    return result + ")";
   }
 
   @Override
