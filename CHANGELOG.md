@@ -6,6 +6,16 @@
 
 - Support ISO 8601 duration parsing and formatting for `Interval`
 
+### Bug fixes
+
+- Register watchers (including the automatic `box.shutdown` watcher created when
+  `gracefulShutdown` is enabled) only after the session is authenticated, i.e. after
+  `authorize()` or `ping()` completes, instead of right after the greeting. Tarantool EE 
+  builds with option `security.disable_guest: true` allow only `auth`, `ping`, `id` and
+  `vote` requests before authentication and answered the early `IPROTO_WATCH` with
+  `ER_AUTH_REQUIRED`; since 1.7.0 that watcher error failed the whole connect procedure
+  and put the connection into an endless reconnect loop.
+
 ## [1.7.1] - 2026-08-31
 
 ### Dependencies

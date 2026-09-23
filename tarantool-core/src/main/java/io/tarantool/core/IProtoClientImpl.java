@@ -185,20 +185,13 @@ public class IProtoClientImpl implements IProtoClient {
   public CompletableFuture<Void> connect(
       InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
     if (gracefulShutdown) {
-      // it does not send watch message if connection is not connected,
-      // it sends immediately after successful connect
+      // the watch request is sent later, after authorize() or ping()
       watch(SHUTDOWN_EVENT_KEY, this::shutdownEventCallback);
     }
 
     serverProtocolVersion = new CompletableFuture<>();
     serverFeatures = new CompletableFuture<>();
-    return connection
-        .connect(address, timeoutMs)
-        .thenRun(
-            () -> {
-              updateWatchers();
-              updateServerInfo();
-            });
+    return connection.connect(address, timeoutMs).thenRun(this::updateServerInfo);
   }
 
   @Override
@@ -227,7 +220,13 @@ public class IProtoClientImpl implements IProtoClient {
       promise.completeExceptionally(new ClientException("No greeting, connect firstly!"));
       return promise;
     }
-    return runRequest(new IProtoAuth(user, password, greeting.get().getSalt(), authType), opts);
+    // Tarantool EE rejects IPROTO_WATCH sent before IPROTO_AUTH with ER_AUTH_REQUIRED
+    return runRequest(new IProtoAuth(user, password, greeting.get().getSalt(), authType), opts)
+        .thenApply(
+            response -> {
+              updateWatchers();
+              return response;
+            });
   }
 
   @Override
@@ -617,12 +616,18 @@ public class IProtoClientImpl implements IProtoClient {
 
   @Override
   public CompletableFuture<IProtoResponse> ping() {
-    return runRequest(new IProtoPing(), DEFAULT_REQUEST_OPTS);
+    return ping(DEFAULT_REQUEST_OPTS);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> ping(IProtoRequestOpts opts) {
-    return runRequest(new IProtoPing(), opts);
+    // guest connect path: ping is allowed before authentication
+    return runRequest(new IProtoPing(), opts)
+        .thenApply(
+            response -> {
+              updateWatchers();
+              return response;
+            });
   }
 
   @Override
