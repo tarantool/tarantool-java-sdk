@@ -58,8 +58,6 @@ public class IProtoClientWatchersTest extends BaseTest {
     InetSocketAddress address = tt.mappedAddress();
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
     client.connect(address, 3_000).get();
-    // Complete the handshake with ping so that watchers are sent
-    client.ping().get();
     return client;
   }
 
@@ -179,17 +177,12 @@ public class IProtoClientWatchersTest extends BaseTest {
         "box.broadcast('keyA', 'myEvent');"
             + "box.broadcast('keyB', {1, 2, 3});"
             + "box.broadcast('keyC', 'wontbecaught');");
-    // let the first broadcast events arrive before the connection is closed
     Thread.sleep(100);
     client.close();
-    Thread.sleep(200);
+    Thread.sleep(100);
     InetSocketAddress address = tt.mappedAddress();
     client.connect(address, 3_000).get();
-    // Re-trigger watcher registration after reconnect (same as getClientAndConnect)
-    client.ping().get();
-    // Give time for handleClose to finish clearing stateContext on the Netty thread
-    // and for IPROTO_WATCH responses to arrive before sending new broadcast
-    Thread.sleep(1500);
+    Thread.sleep(1000);
 
     TarantoolContainerClientHelper.executeCommand(
         tt,

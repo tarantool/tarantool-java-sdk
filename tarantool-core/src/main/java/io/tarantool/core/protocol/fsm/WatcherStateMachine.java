@@ -23,6 +23,9 @@ import io.tarantool.core.protocol.requests.IProtoWatch;
 
 public class WatcherStateMachine implements IProtoStateMachine {
 
+  /** Tarantool error code for requests rejected before authentication (EE only). */
+  public static final int ER_AUTH_REQUIRED = 258;
+
   private final Connection connection;
 
   private static final Logger log = LoggerFactory.getLogger(WatcherStateMachine.class);
@@ -37,7 +40,11 @@ public class WatcherStateMachine implements IProtoStateMachine {
 
   private final WatcherOptions opts;
 
+  private final Consumer<WatcherStateMachine> onAuthRequired;
+
   private final CompletableFuture<Void> registered = new CompletableFuture<>();
+
+  private final long syncId;
 
   private boolean calledOnce;
 
@@ -48,13 +55,26 @@ public class WatcherStateMachine implements IProtoStateMachine {
       Connection connection,
       WatcherOptions opts,
       Timer timerService) {
+    this(key, syncId, callback, connection, opts, timerService, null);
+  }
+
+  public WatcherStateMachine(
+      String key,
+      long syncId,
+      Consumer<IProtoResponse> callback,
+      Connection connection,
+      WatcherOptions opts,
+      Timer timerService,
+      Consumer<WatcherStateMachine> onAuthRequired) {
     this.key = key;
+    this.syncId = syncId;
     this.connection = connection;
     this.callback = callback;
     this.request = new IProtoWatch(key);
     this.request.setSyncId(syncId);
     this.opts = opts;
     this.timerService = timerService;
+    this.onAuthRequired = onAuthRequired;
   }
 
   @Override
@@ -92,8 +112,13 @@ public class WatcherStateMachine implements IProtoStateMachine {
     } else {
       ClientException error = new ClientException("watcher error: %s", message);
       registered.completeExceptionally(error);
-      log.warn("got error for watcher: {}", message);
-      opts.getErrorHandler().accept(key, error);
+      if (onAuthRequired != null && message.getErrorCode() == ER_AUTH_REQUIRED) {
+        log.debug("watcher '{}' rejected before authentication, deferred", key);
+        onAuthRequired.accept(this);
+      } else {
+        log.warn("got error for watcher: {}", message);
+        opts.getErrorHandler().accept(key, error);
+      }
     }
 
     return false;
@@ -108,6 +133,10 @@ public class WatcherStateMachine implements IProtoStateMachine {
   /** Completes when the server acknowledges the watch */
   public CompletableFuture<Void> registered() {
     return registered;
+  }
+
+  public long getSyncId() {
+    return syncId;
   }
 
   private void onSendComplete(Void r, Throwable exc) {

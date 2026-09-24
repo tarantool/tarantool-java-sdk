@@ -101,6 +101,7 @@ public class IProtoClientImpl implements IProtoClient {
   private final WatcherOptions watcherOpts;
   private CompletableFuture<Integer> serverProtocolVersion;
   private CompletableFuture<EnumSet<IProtoFeature>> serverFeatures;
+  private volatile boolean authorized;
   private Set<IProtoFeature> clientFeaturesEnum;
   private List<Integer> clientFeaturesList;
   private LongTaskTimer requestTimer;
@@ -185,13 +186,19 @@ public class IProtoClientImpl implements IProtoClient {
   public CompletableFuture<Void> connect(
       InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
     if (gracefulShutdown) {
-      // the watch request is sent later, after authorize() or ping()
       watch(SHUTDOWN_EVENT_KEY, this::shutdownEventCallback);
     }
 
+    authorized = false;
     serverProtocolVersion = new CompletableFuture<>();
     serverFeatures = new CompletableFuture<>();
-    return connection.connect(address, timeoutMs).thenRun(this::updateServerInfo);
+    return connection
+        .connect(address, timeoutMs)
+        .thenRun(
+            () -> {
+              updateWatchers();
+              updateServerInfo();
+            });
   }
 
   @Override
@@ -220,10 +227,11 @@ public class IProtoClientImpl implements IProtoClient {
       promise.completeExceptionally(new ClientException("No greeting, connect firstly!"));
       return promise;
     }
-    // Tarantool EE rejects IPROTO_WATCH sent before IPROTO_AUTH with ER_AUTH_REQUIRED
+    // re-register watchers rejected before authentication
     return runRequest(new IProtoAuth(user, password, greeting.get().getSalt(), authType), opts)
         .thenApply(
             response -> {
+              authorized = true;
               updateWatchers();
               return response;
             });
@@ -621,13 +629,7 @@ public class IProtoClientImpl implements IProtoClient {
 
   @Override
   public CompletableFuture<IProtoResponse> ping(IProtoRequestOpts opts) {
-    // guest connect path: ping is allowed before authentication
-    return runRequest(new IProtoPing(), opts)
-        .thenApply(
-            response -> {
-              updateWatchers();
-              return response;
-            });
+    return runRequest(new IProtoPing(), opts);
   }
 
   @Override
@@ -812,7 +814,13 @@ public class IProtoClientImpl implements IProtoClient {
         long syncId = allocateSyncIds(1);
         fsm =
             new WatcherStateMachine(
-                watcherEntry.getKey(), syncId, watcher, connection, watcherOpts, timerService);
+                watcherEntry.getKey(),
+                syncId,
+                watcher,
+                connection,
+                watcherOpts,
+                timerService,
+                failed -> onWatchAuthRequired(watcher, failed));
         watcher.setStateContext(fsm);
         watcher.setSyncId(syncId);
         fsmRegistry.put(syncId, fsm);
@@ -833,6 +841,21 @@ public class IProtoClientImpl implements IProtoClient {
                 }
                 toUnwatch.remove(key);
               });
+    }
+  }
+
+  /**
+   * Resets a watcher rejected before authentication, so that it is re-registered after authorize()
+   * or immediately, if the client is already authorized.
+   */
+  private synchronized void onWatchAuthRequired(Watcher watcher, WatcherStateMachine failed) {
+    fsmRegistry.remove(failed.getSyncId());
+    // a newer registration attempt may already be active
+    if (watcher.getStateContext() == failed) {
+      watcher.setStateContext(null);
+    }
+    if (authorized) {
+      updateWatchers();
     }
   }
 

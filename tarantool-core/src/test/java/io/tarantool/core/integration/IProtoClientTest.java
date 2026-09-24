@@ -83,7 +83,6 @@ public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
       IProtoRequestOpts.empty().withRequestTimeout(5000);
-  private static final long AUTH_SYNC_ID = 2;
   private static TarantoolContainer<?> tt;
   private static int spaceAId;
   private static int spaceBId;
@@ -1387,7 +1386,7 @@ public class IProtoClientTest extends BaseTest {
   public void testAuthorization() throws Exception {
     IProtoClient client = createClientAndConnect(address, true);
     IProtoMessage message = client.authorize("user_a", "secret_a").get();
-    checkMessageHeader(message, IPROTO_OK, AUTH_SYNC_ID);
+    checkMessageHeader(message, IPROTO_OK, 3);
     assertEquals(0, message.getBody().asMapValue().map().size());
   }
 
