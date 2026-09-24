@@ -179,12 +179,17 @@ public class IProtoClientWatchersTest extends BaseTest {
         "box.broadcast('keyA', 'myEvent');"
             + "box.broadcast('keyB', {1, 2, 3});"
             + "box.broadcast('keyC', 'wontbecaught');");
+    // let the first broadcast events arrive before the connection is closed
     Thread.sleep(100);
     client.close();
-    Thread.sleep(100);
+    Thread.sleep(200);
     InetSocketAddress address = tt.mappedAddress();
     client.connect(address, 3_000).get();
-    Thread.sleep(1000);
+    // Re-trigger watcher registration after reconnect (same as getClientAndConnect)
+    client.ping().get();
+    // Give time for handleClose to finish clearing stateContext on the Netty thread
+    // and for IPROTO_WATCH responses to arrive before sending new broadcast
+    Thread.sleep(1500);
 
     TarantoolContainerClientHelper.executeCommand(
         tt,
