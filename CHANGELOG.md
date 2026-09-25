@@ -2,12 +2,20 @@
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-09-25
+
 ### Client
 
 - Support ISO 8601 duration parsing and formatting for `Interval`
 
+### Testcontainers
+
+- Accept `grpc_options.tls` in the TQE gRPC configuration
+
 ### Bug fixes
 
+- Make `IProtoResponseImpl.toString()` idempotent — repeated calls no longer duplicate
+  the output
 - Handle `ER_AUTH_REQUIRED` for watcher registration. Watchers (including the automatic
   `box.shutdown` watcher created when `gracefulShutdown` is enabled) are now deferred when
   the server rejects their registration before authentication and re-registered after
