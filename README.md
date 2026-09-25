@@ -18,14 +18,14 @@ You need to download and install the library according to the [instructions](INS
 <dependency>
     <groupId>io.tarantool</groupId>
     <artifactId>tarantool-client</artifactId>
-    <version>1.7.1</version>
+    <version>1.7.2</version>
 </dependency>
 ```
 
 **Gradle:**
 ```kotlin
 dependencies {
-    implementation("io.tarantool:tarantool-client:1.7.1")
+    implementation("io.tarantool:tarantool-client:1.7.2")
 }
 ```
 
