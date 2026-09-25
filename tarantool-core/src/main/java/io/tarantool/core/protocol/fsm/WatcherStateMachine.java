@@ -110,7 +110,8 @@ public class WatcherStateMachine implements IProtoStateMachine {
     } else {
       ClientException error = new ClientException("watcher error: %s", message);
       registered.completeExceptionally(error);
-      if (onAuthRequired != null && message.getErrorCode() == IProtoConstant.IPROTO_ERR_AUTH_REQUIRED) {
+      if (onAuthRequired != null
+          && message.getErrorCode() == IProtoConstant.IPROTO_ERR_AUTH_REQUIRED) {
         log.debug("watcher '{}' rejected before authentication, deferred", key);
         onAuthRequired.accept(this);
       } else {
