@@ -21,7 +21,7 @@
     <spring.boot.version>3.5.16</spring.boot.version>
     <!--spring-data-keyvalue has not published a 3.5.14+ release; pin to 3.5.13,
         the latest matching artifact on Maven Central-->
-    <spring-data-keyvalue.version>3.5.13</spring-data-keyvalue.version>
+    <spring-data-keyvalue.version>3.5.12</spring-data-keyvalue.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
