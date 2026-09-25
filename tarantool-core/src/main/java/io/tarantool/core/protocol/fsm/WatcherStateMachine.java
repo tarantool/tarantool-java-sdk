@@ -19,12 +19,10 @@ import io.tarantool.core.connection.Connection;
 import io.tarantool.core.exceptions.ClientException;
 import io.tarantool.core.protocol.IProtoRequest;
 import io.tarantool.core.protocol.IProtoResponse;
+import io.tarantool.core.protocol.requests.IProtoConstant;
 import io.tarantool.core.protocol.requests.IProtoWatch;
 
 public class WatcherStateMachine implements IProtoStateMachine {
-
-  /** Tarantool error code for requests rejected before authentication (EE only). */
-  public static final int ER_AUTH_REQUIRED = 258;
 
   private final Connection connection;
 
@@ -112,7 +110,7 @@ public class WatcherStateMachine implements IProtoStateMachine {
     } else {
       ClientException error = new ClientException("watcher error: %s", message);
       registered.completeExceptionally(error);
-      if (onAuthRequired != null && message.getErrorCode() == ER_AUTH_REQUIRED) {
+      if (onAuthRequired != null && message.getErrorCode() == IProtoConstant.IPROTO_ERR_AUTH_REQUIRED) {
         log.debug("watcher '{}' rejected before authentication, deferred", key);
         onAuthRequired.accept(this);
       } else {
