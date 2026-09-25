@@ -1,5 +1,4 @@
 stages:
-  - ee_tests
   - package
 
 variables:
@@ -34,19 +33,6 @@ cache:
     KUBERNETES_SERVICE_CPU_REQUEST: "2"
     KUBERNETES_SERVICE_MEMORY_REQUEST: "2Gi"
     KUBERNETES_SERVICE_MEMORY_LIMIT: "10Gi"
-
-# Trigger `Tarantool Java SDK` enterprise tests run
-run_ee_tests:
-  stage: ee_tests
-  allow_failure: true
-  trigger:
-    project: tarantool/java/tarantool-java-sdk-ee-testing
-    strategy: depend
-    branch: master
-  variables:
-    MAIN_REPO_SHA: "${CI_COMMIT_SHA}"
-    MAIN_REPO_COMMIT_REF_NAME: "${CI_COMMIT_REF_NAME}"
-    PARENT_PIPELINE_ID: "${CI_PIPELINE_ID}"
 
 run_ee_release:
   stage: package

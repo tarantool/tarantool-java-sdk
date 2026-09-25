@@ -6,6 +6,16 @@
 
 - Support ISO 8601 duration parsing and formatting for `Interval`
 
+### Bug fixes
+
+- Handle `ER_AUTH_REQUIRED` for watcher registration. Watchers (including the automatic
+  `box.shutdown` watcher created when `gracefulShutdown` is enabled) are now deferred when
+  the server rejects their registration before authentication and re-registered after
+  `authorize()` completes. Tarantool EE builds with option `security.disable_guest: true`
+  reject pre-authentication watcher registration with `ER_AUTH_REQUIRED`; since 1.7.0 that
+  watcher error failed the whole connect procedure and put the connection into an endless
+  reconnect loop.
+
 ## [1.7.1] - 2026-08-31
 
 ### Dependencies
