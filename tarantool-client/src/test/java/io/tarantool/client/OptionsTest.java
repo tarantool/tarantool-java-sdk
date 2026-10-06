@@ -47,10 +47,10 @@ public class OptionsTest {
 
   public static Stream<Arguments> dataForDefaultTimeout() {
     return Stream.of(
-        Arguments.of(BaseOptions.builder().build().getTimeout()),
-        Arguments.of(SelectOptions.builder().build().getTimeout()),
-        Arguments.of(DeleteOptions.builder().build().getTimeout()),
-        Arguments.of(UpdateOptions.builder().build().getTimeout()));
+        Arguments.of(BaseOptions.builder().build().timeout()),
+        Arguments.of(SelectOptions.builder().build().timeout()),
+        Arguments.of(DeleteOptions.builder().build().timeout()),
+        Arguments.of(UpdateOptions.builder().build().timeout()));
   }
 
   @ParameterizedTest

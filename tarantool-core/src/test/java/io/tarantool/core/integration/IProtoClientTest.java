@@ -7,6 +7,7 @@ package io.tarantool.core.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,7 +83,7 @@ import io.tarantool.core.protocol.IProtoResponse;
 public class IProtoClientTest extends BaseTest {
 
   private static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
-      IProtoRequestOpts.empty().withRequestTimeout(5000);
+      IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(5));
   private static TarantoolContainer<?> tt;
   private static int spaceAId;
   private static int spaceBId;
@@ -1687,7 +1688,7 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", args, opts);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
@@ -1707,7 +1708,7 @@ public class IProtoClientTest extends BaseTest {
     client.onIgnoredPacket(packet -> ignoredPackets.put(packet.getSyncId(), packet));
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", args, opts);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
@@ -1732,7 +1733,7 @@ public class IProtoClientTest extends BaseTest {
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     byte[] rawArgs = ArrayValueToBytes(args);
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1000));
     CompletableFuture<IProtoResponse> future = client.call("slow_echo", rawArgs, null, opts);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
@@ -1745,7 +1746,7 @@ public class IProtoClientTest extends BaseTest {
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
     IProtoMessage message = client.call("nonslow_echo", args, opts).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));
@@ -1758,7 +1759,7 @@ public class IProtoClientTest extends BaseTest {
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     byte[] rawArgs = ArrayValueToBytes(args);
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1000));
     IProtoMessage message = client.call("nonslow_echo", rawArgs, null, opts).get();
     checkMessageHeader(message, IPROTO_OK, 4);
     assertEquals(args, message.getBodyArrayValue(IPROTO_DATA));

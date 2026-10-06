@@ -5,6 +5,7 @@
 
 package io.tarantool.client.box.options;
 
+import java.time.Duration;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -37,15 +38,12 @@ public class UpdateOptions implements OptionsWithIndex {
   /** Default {@link UpdateOptions#indexId} value. Primary index id has always 0. */
   public static final int PRIMARY = 0;
 
-  /** Default {@link UpdateOptions#timeout} value. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    */
-  private final long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for update operation.
@@ -76,7 +74,7 @@ public class UpdateOptions implements OptionsWithIndex {
    * @param indexId see also: {@link UpdateOptions#indexId}.
    * @param indexName see also: {@link UpdateOptions#indexName}.
    */
-  private UpdateOptions(long timeout, Long streamId, int indexId, String indexName) {
+  private UpdateOptions(Duration timeout, Long streamId, int indexId, String indexName) {
     this.timeout = timeout;
     this.streamId = streamId;
     this.indexId = indexId;
@@ -97,7 +95,14 @@ public class UpdateOptions implements OptionsWithIndex {
    *
    * @return {@link UpdateOptions#timeout} value in milliseconds.
    */
+  @Override
+  @Deprecated
   public long getTimeout() {
+    return this.timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return this.timeout;
   }
 
@@ -107,6 +112,7 @@ public class UpdateOptions implements OptionsWithIndex {
    * @return null - if {@link UpdateOptions#streamId} is null, otherwise - {@link
    *     UpdateOptions#streamId} value.
    */
+  @Override
   public Long getStreamId() {
     return this.streamId;
   }
@@ -135,7 +141,7 @@ public class UpdateOptions implements OptionsWithIndex {
     /**
      * @see UpdateOptions#timeout
      */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /**
      * @see UpdateOptions#streamId
@@ -181,8 +187,42 @@ public class UpdateOptions implements OptionsWithIndex {
      * @return {@link UpdateOptions.Builder} instance.
      * @throws IllegalArgumentException when {@code timeout <= 0}.
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets the {@link UpdateOptions#timeout} parameter when constructing an instance of a builder
+     * class. The following example creates a {@link UpdateOptions} object with a specified {@link
+     * UpdateOptions#timeout} parameter:
+     *
+     * <pre>{@code
+     * UpdateOptions options = UpdateOptions
+     *                               .builder()
+     *                               .withTimeout(Duration.ofSeconds(1))   // OK!
+     *                               .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * <pre>{@code
+     * UpdateOptions options = UpdateOptions
+     *                              .builder()
+     *                              .withTimeout(Duration.ofSeconds(-11L)) // Wrong! Throws exception!
+     *                              .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * @param timeout see {@link UpdateOptions#timeout} field.
+     * @return {@link UpdateOptions.Builder} instance.
+     * @throws IllegalArgumentException when {@code timeout <= 0}.
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

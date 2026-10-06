@@ -224,7 +224,7 @@ public class TarantoolCrudClientTest extends BaseTest {
   public void testCallTimeoutWithIgnoredPacketsHandler() throws Exception {
     clusterContainer.executeCommand("return crud_aux.slow_api()");
     TarantoolCrudSpace person = client.space("person");
-    Options options = BaseOptions.builder().withTimeout(1_000L).build();
+    Options options = BaseOptions.builder().withTimeout(Duration.ofSeconds(1)).build();
     Exception ex =
         assertThrows(
             CompletionException.class,
@@ -1052,7 +1052,7 @@ public class TarantoolCrudClientTest extends BaseTest {
         Collections.singletonList(Arrays.asList("=", updField, newFieldValue));
     final Operations operationsAsClass = Operations.create().set(updField, newFieldValue);
 
-    final Options options = BaseOptions.builder().withTimeout(3_000L).build();
+    final Options options = BaseOptions.builder().withTimeout(Duration.ofSeconds(3)).build();
     final UpdateOptions updateOptions = UpdateOptions.builder().build();
 
     return Stream.of(
@@ -1128,7 +1128,7 @@ public class TarantoolCrudClientTest extends BaseTest {
             .collect(Collectors.toList());
 
     final List<List<?>> operations = Collections.singletonList(Arrays.asList("=", "name", "Kolya"));
-    final Options options = BaseOptions.builder().withTimeout(3_000L).build();
+    final Options options = BaseOptions.builder().withTimeout(Duration.ofSeconds(3)).build();
     final UpsertManyOptions upsertManyOptions = UpsertManyOptions.builder().build();
     final Operations operationsAsClass = Operations.create().set("name", "Kolya");
     final Supplier<List<List<?>>> selectSupplier =
@@ -1422,7 +1422,7 @@ public class TarantoolCrudClientTest extends BaseTest {
     Person oldPerson = new Person(0, true, "1");
     Person newPerson = new Person(1, true, "2");
 
-    Options options = BaseOptions.builder().withTimeout(2_000).build();
+    Options options = BaseOptions.builder().withTimeout(Duration.ofSeconds(2)).build();
 
     Executable checkPersons =
         () -> {
@@ -1548,7 +1548,8 @@ public class TarantoolCrudClientTest extends BaseTest {
             new Person(2, true, "Second"),
             new Person(3, true, "Third"),
             new Person(4, true, "Fourth"));
-    UpsertManyOptions options = UpsertManyOptions.builder().withTimeout(2_000).build();
+    UpsertManyOptions options =
+        UpsertManyOptions.builder().withTimeout(Duration.ofSeconds(2_000)).build();
     List<?> batchOpsAsList =
         persons.stream()
             .map(

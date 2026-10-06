@@ -5,6 +5,8 @@
 
 package io.tarantool.client.box.options;
 
+import java.time.Duration;
+
 /**
  * Represents a contract for classes that implement options that work with the index.
  *
@@ -15,6 +17,9 @@ package io.tarantool.client.box.options;
  *     documentation</a>
  */
 public interface OptionsWithIndex {
+
+  /** Default request timeout. */
+  Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
 
   /**
    * Returns the id of the index.
@@ -29,4 +34,14 @@ public interface OptionsWithIndex {
    * @return index name.
    */
   String getIndexName();
+
+  /** Returns stream id of operation. */
+  Long getStreamId();
+
+  /** Returns timeout of operation im milliseconds. */
+  @Deprecated
+  long getTimeout();
+
+  /** Returns timeout of operation. */
+  Duration timeout();
 }

@@ -5,6 +5,7 @@
 
 package io.tarantool.client.crud.options;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
- *  long timeout = 3_000L;
+ *  Duration timeout = Duration.ofSeconds(3);
  *  Map<String, Object> options = new HashMap<String, Object>(){{
  *      put("mode", Mode.WRITE);
  *      put("timeout", 2_000L);
@@ -75,7 +76,7 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *
  *  Condition condition = Condition.create("==", "pk", 1);
  *  CountOptions options = CountOptions.builder()
- *                                          .withTimeout(3_000L)
+ *                                          .withTimeout(Duration.ofSeconds(3))
  *                                          .withStreamId(null)
  *                                          .withCrudTimeout(2_000L)
  *                                          .withMode(Mode.WRITE)
@@ -155,19 +156,16 @@ public class CountOptions implements CrudOptions {
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
-  /** Default value for {@link #timeout}. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    *
    * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
    * message from the connector to Tarantool and the time when the answer will come from Tarantool
    * to connector.
    */
-  private final Long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for count operation.
@@ -191,7 +189,20 @@ public class CountOptions implements CrudOptions {
    * @param options {@link #crudOptions}
    * @see CountOptions
    */
+  @Deprecated
   public CountOptions(Long timeout, Long streamId, Map<String, Object> options) {
+    this(Duration.ofMillis(timeout), streamId, options);
+  }
+
+  /**
+   * Creates a {@link CountOptions} object with the given parameters.
+   *
+   * @param timeout {@link #timeout}
+   * @param streamId {@link #streamId}
+   * @param options {@link #crudOptions}
+   * @see CountOptions
+   */
+  public CountOptions(Duration timeout, Long streamId, Map<String, Object> options) {
     this.crudOptions = options;
 
     this.timeout = timeout;
@@ -213,7 +224,13 @@ public class CountOptions implements CrudOptions {
    * @return {@link #timeout} value.
    */
   @Override
+  @Deprecated
   public long getTimeout() {
+    return timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return timeout;
   }
 
@@ -248,7 +265,7 @@ public class CountOptions implements CrudOptions {
     private final Map<String, Object> options = new HashMap<>();
 
     /** See also: {@link CountOptions#timeout}. */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /** See also: {@link CountOptions#streamId}. */
     private Long streamId;
@@ -266,8 +283,22 @@ public class CountOptions implements CrudOptions {
      * @see CountOptions#timeout
      * @see CountOptions
      */
+    @Deprecated
     public Builder withTimeout(long timeout) throws IllegalArgumentException {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
+     *
+     * @param timeout value of timeout option.
+     * @return {@link Builder} object.
+     * @throws IllegalArgumentException when timeout &#8804; 0.
+     * @see CountOptions#timeout
+     * @see CountOptions
+     */
+    public Builder withTimeout(Duration timeout) throws IllegalArgumentException {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

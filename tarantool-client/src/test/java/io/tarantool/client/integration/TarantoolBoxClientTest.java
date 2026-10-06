@@ -7,6 +7,7 @@ package io.tarantool.client.integration;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -331,7 +332,7 @@ public class TarantoolBoxClientTest extends BaseTest {
                 })
             .build();
 
-    Options options = BaseOptions.builder().withTimeout(1_000L).build();
+    Options options = BaseOptions.builder().withTimeout(Duration.ofSeconds(1)).build();
     Exception ex =
         assertThrows(
             CompletionException.class,
@@ -1871,7 +1872,7 @@ public class TarantoolBoxClientTest extends BaseTest {
     System.out.println("Sent successful request trace to Jaeger");
 
     // Test timeout scenario
-    Options timeoutOptions = BaseOptions.builder().withTimeout(100L).build();
+    Options timeoutOptions = BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build();
 
     Exception ex =
         assertThrows(

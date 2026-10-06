@@ -5,6 +5,7 @@
 
 package io.tarantool.client.box.options;
 
+import java.time.Duration;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,18 +35,15 @@ import io.tarantool.client.box.TarantoolBoxSpace;
  */
 public class DeleteOptions implements OptionsWithIndex {
 
-  /** Default {@link DeleteOptions#timeout} value. */
-  public static final long DEFAULT_TIMEOUT = 5_000L;
-
   /** Default {@link DeleteOptions#indexId} value. Primary index id has always 0. */
   public static final int PRIMARY = 0;
 
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    */
-  private final long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for delete operation.
@@ -77,7 +75,7 @@ public class DeleteOptions implements OptionsWithIndex {
    * @param indexName see also: {@link DeleteOptions#indexName}.
    * @see Builder#build()
    */
-  private DeleteOptions(long timeout, Long streamId, int indexId, String indexName) {
+  private DeleteOptions(Duration timeout, Long streamId, int indexId, String indexName) {
     this.timeout = timeout;
     this.streamId = streamId;
     this.indexId = indexId;
@@ -98,7 +96,14 @@ public class DeleteOptions implements OptionsWithIndex {
    *
    * @return {@link DeleteOptions#timeout} value in milliseconds.
    */
+  @Override
+  @Deprecated
   public long getTimeout() {
+    return this.timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return this.timeout;
   }
 
@@ -108,6 +113,7 @@ public class DeleteOptions implements OptionsWithIndex {
    * @return null - if {@link DeleteOptions#streamId} is null, otherwise - {@link
    *     DeleteOptions#streamId} value.
    */
+  @Override
   public Long getStreamId() {
     return this.streamId;
   }
@@ -136,7 +142,7 @@ public class DeleteOptions implements OptionsWithIndex {
     /**
      * @see DeleteOptions#timeout
      */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /**
      * @see DeleteOptions#streamId
@@ -182,8 +188,42 @@ public class DeleteOptions implements OptionsWithIndex {
      * @return {@link Builder} object.
      * @throws IllegalArgumentException when {@code timeout <= 0}.
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets the {@link DeleteOptions#timeout} parameter when constructing an instance of a builder
+     * class. The following example creates a {@link DeleteOptions} object with a specified {@link
+     * DeleteOptions#timeout} parameter:
+     *
+     * <pre>{@code
+     * DeleteOptions options = DeleteOptions
+     *                               .builder()
+     *                               .withTimeout(Duration.ofSeconds(5))   // OK!
+     *                               .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * <pre>{@code
+     * DeleteOptions options = DeleteOptions
+     *                              .builder()
+     *                              .withTimeout(Duration.ofSeconds(-1L)) // Wrong! Throws exception!
+     *                              .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * @param timeout see {@link DeleteOptions#timeout} field.
+     * @return {@link Builder} object.
+     * @throws IllegalArgumentException when {@code timeout <= 0}.
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

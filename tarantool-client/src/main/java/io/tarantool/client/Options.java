@@ -5,6 +5,8 @@
 
 package io.tarantool.client;
 
+import java.time.Duration;
+
 /**
  * Provides a contract for basic client options.
  *
@@ -13,12 +15,23 @@ package io.tarantool.client;
  */
 public interface Options {
 
+  /** Default request timeout. */
+  Duration DEFAULT_TIMEOUT = Duration.ofSeconds(5);
+
   /**
    * Returns timeout of operation.
    *
    * @return timeout value in milliseconds.
    */
+  @Deprecated
   long getTimeout();
+
+  /**
+   * Returns timeout of operation.
+   *
+   * @return timeout value.
+   */
+  Duration timeout();
 
   /**
    * Returns stream id of operation.

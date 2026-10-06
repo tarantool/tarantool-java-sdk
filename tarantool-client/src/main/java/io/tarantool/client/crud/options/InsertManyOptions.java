@@ -5,6 +5,7 @@
 
 package io.tarantool.client.crud.options;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ import io.tarantool.mapping.crud.CrudBatchResponse;
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
- *  long timeout = 3_000L;
+ *  Duration timeout = Duration.ofSeconds(3);
  *  Map<String, Object> options = new HashMap<String, Object>(){{
  *      put("timeout", 2_000L);
  *      // Determine which fields will be returned
@@ -79,7 +80,7 @@ import io.tarantool.mapping.crud.CrudBatchResponse;
  *
  * InsertManyOptions options = InsertManyOptions.builder()
  *                                                  .withTimeout(3_000L)
- *                                                  .withCrudTimeout(2_000L)
+ *                                                  .withCrudTimeout(Duration.ofSeconds(2))
  *                                                  .withFields("id", "name")
  *                                                  .build();
  *
@@ -158,19 +159,16 @@ public class InsertManyOptions implements CrudOptions {
    */
   private static final String FETCH_LATEST_METADATA = "fetch_latest_metadata";
 
-  /** Default value for {@link #timeout}. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    *
    * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
    * message from the connector to Tarantool and the time when the answer will come from Tarantool
    * to connector.
    */
-  private final Long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for count operation.
@@ -194,7 +192,20 @@ public class InsertManyOptions implements CrudOptions {
    * @param options {@link #crudOptions}
    * @see InsertManyOptions
    */
+  @Deprecated
   public InsertManyOptions(Long timeout, Long streamId, Map<String, Object> options) {
+    this(Duration.ofMillis(timeout), streamId, options);
+  }
+
+  /**
+   * Creates a {@link InsertManyOptions} object with the given parameters.
+   *
+   * @param timeout {@link #timeout}
+   * @param streamId {@link #streamId}
+   * @param options {@link #crudOptions}
+   * @see InsertManyOptions
+   */
+  public InsertManyOptions(Duration timeout, Long streamId, Map<String, Object> options) {
     this.crudOptions = options;
 
     this.timeout = timeout;
@@ -216,7 +227,13 @@ public class InsertManyOptions implements CrudOptions {
    * @return {@link #timeout} value.
    */
   @Override
+  @Deprecated
   public long getTimeout() {
+    return timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return timeout;
   }
 
@@ -251,7 +268,7 @@ public class InsertManyOptions implements CrudOptions {
     private final Map<String, Object> options = new HashMap<>();
 
     /** See also: {@link InsertManyOptions#timeout}. */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /** See also: {@link InsertManyOptions#streamId}. */
     private Long streamId;
@@ -265,8 +282,22 @@ public class InsertManyOptions implements CrudOptions {
      * @see InsertManyOptions#timeout
      * @see InsertManyOptions
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
+     *
+     * @param timeout value of timeout option.
+     * @return {@link InsertManyOptions.Builder} object.
+     * @throws IllegalArgumentException when timeout &#8804; 0.
+     * @see InsertManyOptions#timeout
+     * @see InsertManyOptions
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isZero() || timeout.isNegative()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

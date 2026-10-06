@@ -78,7 +78,7 @@ abstract class IProtoCallClusterSpace extends AbstractTarantoolSpace implements 
                     TarantoolJacksonMapping.toValue(withSpaceName(args)),
                     null,
                     IProtoRequestOpts.empty()
-                        .withRequestTimeout(options.getTimeout())
+                        .withRequestTimeout(options.timeout())
                         .withStreamId(options.getStreamId())));
   }
 

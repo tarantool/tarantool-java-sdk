@@ -5,6 +5,7 @@
 
 package io.tarantool.pool;
 
+import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,7 @@ final class PoolEntry {
    * @see io.tarantool.core.protocol.IProtoRequestOpts
    */
   private static final IProtoRequestOpts firstPingOpts =
-      IProtoRequestOpts.empty().withRequestTimeout(1000);
+      IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
 
   /** Logger instance. */
   private static final Logger log = LoggerFactory.getLogger(PoolEntry.class);
@@ -262,7 +263,8 @@ final class PoolEntry {
     } else {
       this.heartbeatOpts = heartbeatOpts;
       this.heartbeatPingOpts =
-          IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
+          IProtoRequestOpts.empty()
+              .withRequestTimeout(Duration.ofSeconds(heartbeatOpts.getPingInterval()));
       this.deathThreshold = heartbeatOpts.getDeathThreshold();
       this.failedPingsThreshold = heartbeatOpts.getInvalidationThreshold();
       this.windowSize = heartbeatOpts.getWindowSize();

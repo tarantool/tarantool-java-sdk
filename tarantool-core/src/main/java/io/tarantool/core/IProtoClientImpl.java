@@ -6,6 +6,7 @@
 package io.tarantool.core;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,7 +79,7 @@ public class IProtoClientImpl implements IProtoClient {
 
   public static final IProtoAuth.AuthType DEFAULT_AUTH_TYPE = IProtoAuth.AuthType.CHAP_SHA1;
   public static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
-      IProtoRequestOpts.empty().withRequestTimeout(5000);
+      IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(5));
   public static final WatcherOptions DEFAULT_WATCHER_OPTS = WatcherOptions.builder().build();
   private static final Set<IProtoFeature> FEATURES_SET_ENUM = EnumSet.allOf(IProtoFeature.class);
   private static final List<Integer> FEATURES_LIST_INT =
@@ -297,7 +298,7 @@ public class IProtoClientImpl implements IProtoClient {
             offset,
             iterator.getCode(),
             key,
-            opts.getStreamId(),
+            opts.streamId(),
             fetchPosition,
             after,
             afterMode),
@@ -328,7 +329,7 @@ public class IProtoClientImpl implements IProtoClient {
             offset,
             iterator.getCode(),
             key,
-            opts.getStreamId(),
+            opts.streamId(),
             fetchPosition,
             after,
             afterMode),
@@ -348,13 +349,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> insert(
       Integer spaceId, String spaceName, ArrayValue tuple, IProtoRequestOpts opts) {
-    return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.getStreamId()), opts);
+    return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> insert(
       Integer spaceId, String spaceName, byte[] tuple, IProtoRequestOpts opts) {
-    return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.getStreamId()), opts);
+    return runRequest(new IProtoInsert(spaceId, spaceName, tuple, opts.streamId()), opts);
   }
 
   @Override
@@ -370,13 +371,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> replace(
       Integer spaceId, String spaceName, ArrayValue tuple, IProtoRequestOpts opts) {
-    return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.getStreamId()), opts);
+    return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> replace(
       Integer spaceId, String spaceName, byte[] tuple, IProtoRequestOpts opts) {
-    return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.getStreamId()), opts);
+    return runRequest(new IProtoReplace(spaceId, spaceName, tuple, opts.streamId()), opts);
   }
 
   @Override
@@ -398,7 +399,7 @@ public class IProtoClientImpl implements IProtoClient {
       ArrayValue key,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
+        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.streamId()), opts);
   }
 
   @Override
@@ -410,7 +411,7 @@ public class IProtoClientImpl implements IProtoClient {
       byte[] key,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.getStreamId()), opts);
+        new IProtoDelete(spaceId, spaceName, indexId, indexName, key, opts.streamId()), opts);
   }
 
   @Override
@@ -435,8 +436,7 @@ public class IProtoClientImpl implements IProtoClient {
       ArrayValue operations,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoUpdate(
-            spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
+        new IProtoUpdate(spaceId, spaceName, indexId, indexName, key, operations, opts.streamId()),
         opts);
   }
 
@@ -450,8 +450,7 @@ public class IProtoClientImpl implements IProtoClient {
       byte[] operations,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoUpdate(
-            spaceId, spaceName, indexId, indexName, key, operations, opts.getStreamId()),
+        new IProtoUpdate(spaceId, spaceName, indexId, indexName, key, operations, opts.streamId()),
         opts);
   }
 
@@ -476,7 +475,7 @@ public class IProtoClientImpl implements IProtoClient {
       ArrayValue operations,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
+        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.streamId()),
         opts);
   }
 
@@ -489,7 +488,7 @@ public class IProtoClientImpl implements IProtoClient {
       byte[] operations,
       IProtoRequestOpts opts) {
     return runRequest(
-        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.getStreamId()),
+        new IProtoUpsert(spaceId, spaceName, indexBaseId, tuple, operations, opts.streamId()),
         opts);
   }
 
@@ -506,13 +505,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> call(
       String function, ArrayValue args, IProtoRequestOpts opts) {
-    return runRequest(new IProtoCall(function, args, opts.getStreamId()), opts);
+    return runRequest(new IProtoCall(function, args, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> call(
       String function, byte[] args, byte[] formats, IProtoRequestOpts opts) {
-    return runRequest(new IProtoCall(function, args, formats, opts.getStreamId()), opts);
+    return runRequest(new IProtoCall(function, args, formats, opts.streamId()), opts);
   }
 
   @Override
@@ -528,13 +527,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> eval(
       String expression, ArrayValue args, IProtoRequestOpts opts) {
-    return runRequest(new IProtoEval(expression, args, opts.getStreamId()), opts);
+    return runRequest(new IProtoEval(expression, args, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> eval(
       String expression, byte[] args, byte[] formats, IProtoRequestOpts opts) {
-    return runRequest(new IProtoEval(expression, args, formats, opts.getStreamId()), opts);
+    return runRequest(new IProtoEval(expression, args, formats, opts.streamId()), opts);
   }
 
   @Override
@@ -589,13 +588,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> execute(
       long statementId, ArrayValue sqlBind, ArrayValue options, IProtoRequestOpts opts) {
-    return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.getStreamId()), opts);
+    return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> execute(
       long statementId, byte[] sqlBind, byte[] options, IProtoRequestOpts opts) {
-    return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.getStreamId()), opts);
+    return runRequest(new IProtoExecute(statementId, sqlBind, options, opts.streamId()), opts);
   }
 
   @Override
@@ -613,13 +612,13 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<IProtoResponse> execute(
       String statementText, ArrayValue sqlBind, ArrayValue options, IProtoRequestOpts opts) {
-    return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.getStreamId()), opts);
+    return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.streamId()), opts);
   }
 
   @Override
   public CompletableFuture<IProtoResponse> execute(
       String statementText, byte[] sqlBind, byte[] options, IProtoRequestOpts opts) {
-    return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.getStreamId()), opts);
+    return runRequest(new IProtoExecute(statementText, sqlBind, options, opts.streamId()), opts);
   }
 
   @Override
@@ -639,7 +638,7 @@ public class IProtoClientImpl implements IProtoClient {
 
   @Override
   public CompletableFuture<IProtoResponse> prepare(String statementText, IProtoRequestOpts opts) {
-    return runRequest(new IProtoPrepare(statementText, opts.getStreamId()), opts);
+    return runRequest(new IProtoPrepare(statementText, opts.streamId()), opts);
   }
 
   @Override

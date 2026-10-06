@@ -168,7 +168,7 @@ abstract class TarantoolClientImpl implements TarantoolClient {
    */
   private IProtoRequestOpts convertOptions(Options opts) {
     return IProtoRequestOpts.empty()
-        .withRequestTimeout(opts.getTimeout())
+        .withRequestTimeout(opts.timeout())
         .withStreamId(opts.getStreamId());
   }
 

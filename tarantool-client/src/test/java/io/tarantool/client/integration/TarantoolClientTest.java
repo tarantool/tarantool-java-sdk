@@ -5,6 +5,7 @@
 
 package io.tarantool.client.integration;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -139,7 +140,10 @@ public class TarantoolClientTest extends BaseTest {
     List<?> input = Arrays.asList(2, null, "IvanD");
     Object output =
         client
-            .call("echo_with_wrapping", input, BaseOptions.builder().withTimeout(100).build())
+            .call(
+                "echo_with_wrapping",
+                input,
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build())
             .join()
             .get();
     assertEquals(Collections.singletonList(input), output);
@@ -150,7 +154,7 @@ public class TarantoolClientTest extends BaseTest {
             .call(
                 "echo_with_wrapping",
                 input,
-                BaseOptions.builder().withTimeout(100).build(),
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
                 Person.class)
             .join()
             .get();
@@ -163,7 +167,7 @@ public class TarantoolClientTest extends BaseTest {
                 "echo_with_wrapping",
                 input,
                 null,
-                BaseOptions.builder().withTimeout(100).build(),
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
                 new TypeReference<List<Person>>() {})
             .join()
             .get();
@@ -175,7 +179,7 @@ public class TarantoolClientTest extends BaseTest {
                 "echo",
                 input,
                 null,
-                BaseOptions.builder().withTimeout(100).build(),
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
                 new TypeReference<Person>() {})
             .join()
             .get();
@@ -229,7 +233,10 @@ public class TarantoolClientTest extends BaseTest {
     List<?> input = Arrays.asList(2, null, "IvanD");
     Object output =
         client
-            .eval("return {...}", input, BaseOptions.builder().withTimeout(100).build())
+            .eval(
+                "return {...}",
+                input,
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build())
             .join()
             .get();
     assertEquals(Collections.singletonList(input), output);
@@ -238,7 +245,10 @@ public class TarantoolClientTest extends BaseTest {
     output =
         client
             .eval(
-                "return {...}", input, BaseOptions.builder().withTimeout(100).build(), Person.class)
+                "return {...}",
+                input,
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
+                Person.class)
             .join()
             .get();
     assertEquals(Collections.singletonList(new Person(2, null, "IvanD")), output);
@@ -250,7 +260,7 @@ public class TarantoolClientTest extends BaseTest {
                 "return {...}",
                 input,
                 null,
-                BaseOptions.builder().withTimeout(100).build(),
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
                 new TypeReference<List<Person>>() {})
             .join()
             .get();
@@ -262,7 +272,7 @@ public class TarantoolClientTest extends BaseTest {
                 "return ...",
                 input,
                 null,
-                BaseOptions.builder().withTimeout(100).build(),
+                BaseOptions.builder().withTimeout(Duration.ofMillis(100)).build(),
                 new TypeReference<Person>() {})
             .join()
             .get();

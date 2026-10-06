@@ -6,6 +6,7 @@
 package io.tarantool.mapping.benchmark;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -139,7 +140,7 @@ public class CustomBenchmarkRunner {
                     "return return_one_tuple()",
                     STUB_ARGS,
                     null,
-                    IProtoRequestOpts.empty().withRequestTimeout(2_000))
+                    IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(2)))
                 .thenApply(TarantoolJacksonMapping::readResponse));
   }
 

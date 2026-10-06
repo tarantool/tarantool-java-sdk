@@ -5,6 +5,7 @@
 
 package io.tarantool.client.crud.options;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,7 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  * <<Example 1>>
  *
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
- *  long timeout = 3_000L;
+ *  Duration timeout = Duration.ofSeconds(3);
  *  Map<String, Object> options = new HashMap<String, Object>(){{
  *      put("timeout", 2_000L);
  *  }};
@@ -63,7 +64,7 @@ import io.tarantool.client.crud.TarantoolCrudSpace;
  *  TarantoolCrudSpace space = crudClient.space("spaceName");
  *
  *  CountOptions options = CountOptions.builder()
- *                                          .withTimeout(3_000L)
+ *                                          .withTimeout(Duration.ofSeconds(3))
  *                                          .withStreamId(null)
  *                                          .withCrudTimeout(2_000L)
  *                                          .build();
@@ -98,19 +99,16 @@ public class TruncateOptions implements CrudOptions {
    */
   private static final String VSHARD_ROUTER = "vshard_router";
 
-  /** Default value for {@link #timeout}. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    *
    * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
    * message from the connector to Tarantool and the time when the answer will come from Tarantool
    * to connector.
    */
-  private final Long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for truncate operation.
@@ -134,7 +132,20 @@ public class TruncateOptions implements CrudOptions {
    * @param options {@link #crudOptions}
    * @see TruncateOptions
    */
+  @Deprecated
   public TruncateOptions(Long timeout, Long streamId, Map<String, Object> options) {
+    this(Duration.ofMillis(timeout), streamId, options);
+  }
+
+  /**
+   * Creates a {@link TruncateOptions} object with the given parameters.
+   *
+   * @param timeout {@link #timeout}
+   * @param streamId {@link #streamId}
+   * @param options {@link #crudOptions}
+   * @see TruncateOptions
+   */
+  public TruncateOptions(Duration timeout, Long streamId, Map<String, Object> options) {
     this.crudOptions = options;
 
     this.timeout = timeout;
@@ -156,7 +167,13 @@ public class TruncateOptions implements CrudOptions {
    * @return {@link #timeout} value.
    */
   @Override
+  @Deprecated
   public long getTimeout() {
+    return timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return timeout;
   }
 
@@ -191,7 +208,7 @@ public class TruncateOptions implements CrudOptions {
     private final Map<String, Object> options = new HashMap<>();
 
     /** See also: {@link TruncateOptions#timeout}. */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /** See also: {@link TruncateOptions#streamId}. */
     private Long streamId;
@@ -205,8 +222,22 @@ public class TruncateOptions implements CrudOptions {
      * @see TruncateOptions#timeout
      * @see TruncateOptions
      */
+    @Deprecated
     public Builder withTimeout(long timeout) throws IllegalArgumentException {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
+     *
+     * @param timeout value of timeout option.
+     * @return {@link TruncateOptions.Builder} object.
+     * @throws IllegalArgumentException when timeout &#8804; 0.
+     * @see TruncateOptions#timeout
+     * @see TruncateOptions
+     */
+    public Builder withTimeout(Duration timeout) throws IllegalArgumentException {
+      if (timeout.isZero() || timeout.isNegative()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

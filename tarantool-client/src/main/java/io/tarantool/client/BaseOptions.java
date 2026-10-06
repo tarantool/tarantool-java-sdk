@@ -5,6 +5,8 @@
 
 package io.tarantool.client;
 
+import java.time.Duration;
+
 /**
  * The class implements base options for operations.
  *
@@ -13,15 +15,12 @@ package io.tarantool.client;
  */
 public class BaseOptions implements Options {
 
-  /** Default {@link BaseOptions#timeout} value. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    */
-  private final long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for operation.
@@ -41,7 +40,7 @@ public class BaseOptions implements Options {
    * @param streamId see also: {@link #streamId}.
    * @see BaseOptions.Builder#build()
    */
-  protected BaseOptions(long timeout, Long streamId) {
+  protected BaseOptions(Duration timeout, Long streamId) {
     this.timeout = timeout;
     this.streamId = streamId;
   }
@@ -60,7 +59,13 @@ public class BaseOptions implements Options {
    *
    * @return {@link BaseOptions#timeout} value in milliseconds.
    */
+  @Deprecated
   public long getTimeout() {
+    return this.timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return this.timeout;
   }
 
@@ -80,7 +85,7 @@ public class BaseOptions implements Options {
     /**
      * @see BaseOptions#timeout
      */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /**
      * @see BaseOptions#streamId
@@ -116,8 +121,42 @@ public class BaseOptions implements Options {
      * @return {@link BaseOptions.Builder} object.
      * @throws IllegalArgumentException when {@code timeout <= 0}.
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets the {@link BaseOptions#timeout} parameter when constructing an instance of a builder
+     * class. The following example creates a {@link BaseOptions} object with a specified {@link
+     * BaseOptions#timeout} parameter:
+     *
+     * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                               .builder()
+     *                               .withTimeout(Duration.ofSeconds(2))   // OK!
+     *                               .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * <pre>{@code
+     * BaseOptions options = BaseOptions
+     *                              .builder()
+     *                              .withTimeout(Duration.ofSeconds(-1L)) // Wrong! Throws exception!
+     *                              .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * @param timeout see {@link BaseOptions#timeout} field.
+     * @return {@link BaseOptions.Builder} object.
+     * @throws IllegalArgumentException when {@code timeout <= 0}.
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

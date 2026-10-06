@@ -5,6 +5,7 @@
 
 package io.tarantool.client;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,19 +18,16 @@ public class OnlyKeyValueOptions implements OptionsMap {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OnlyKeyValueOptions.class);
 
-  /** Default value for {@link #timeout}. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
    * The time after which the request is considered invalid (in milliseconds).
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT} milliseconds.
    *
    * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
    * message from the connector to Tarantool and the time when the answer will come from Tarantool
    * to connector.
    */
-  private final Long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for count operation.
@@ -53,7 +51,12 @@ public class OnlyKeyValueOptions implements OptionsMap {
    * @param options {@link #options}
    * @see OnlyKeyValueOptions
    */
+  @Deprecated
   public OnlyKeyValueOptions(Long timeout, Long streamId, Map<String, Object> options) {
+    this(Duration.ofMillis(timeout), streamId, options);
+  }
+
+  public OnlyKeyValueOptions(Duration timeout, Long streamId, Map<String, Object> options) {
     this.options = options;
 
     this.timeout = timeout;
@@ -75,8 +78,14 @@ public class OnlyKeyValueOptions implements OptionsMap {
    * @return {@link #timeout} value.
    */
   @Override
+  @Deprecated
   public long getTimeout() {
-    return timeout;
+    return timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
+    return this.timeout;
   }
 
   /**
@@ -110,7 +119,7 @@ public class OnlyKeyValueOptions implements OptionsMap {
     private final Map<String, Object> options = new HashMap<>();
 
     /** See also: {@link OnlyKeyValueOptions#timeout}. */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /** See also: {@link OnlyKeyValueOptions#streamId}. */
     private Long streamId;
@@ -124,8 +133,22 @@ public class OnlyKeyValueOptions implements OptionsMap {
      * @see OnlyKeyValueOptions#timeout
      * @see OnlyKeyValueOptions
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
+     *
+     * @param timeout value of timeout option.
+     * @return {@link Builder} object.
+     * @throws IllegalArgumentException when timeout &#8804; 0.
+     * @see OnlyKeyValueOptions#timeout
+     * @see OnlyKeyValueOptions
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

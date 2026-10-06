@@ -5,6 +5,7 @@
 
 package io.tarantool.client.crud.options;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -142,19 +143,16 @@ public class InsertOptions implements CrudOptions {
    */
   private static final String FETCH_LATEST_METADATA = "fetch_latest_metadata";
 
-  /** Default value for {@link #timeout}. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    *
    * <p><i><b>Note</b></i>: The time indicated by this parameter is the time between sending a
    * message from the connector to Tarantool and the time when the answer will come from Tarantool
    * to connector.
    */
-  private final Long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for count operation.
@@ -178,7 +176,20 @@ public class InsertOptions implements CrudOptions {
    * @param options {@link #crudOptions}
    * @see InsertOptions
    */
+  @Deprecated
   public InsertOptions(Long timeout, Long streamId, Map<String, Object> options) {
+    this(Duration.ofMillis(timeout), streamId, options);
+  }
+
+  /**
+   * Creates a {@link InsertOptions} object with the given parameters.
+   *
+   * @param timeout {@link #timeout}
+   * @param streamId {@link #streamId}
+   * @param options {@link #crudOptions}
+   * @see InsertOptions
+   */
+  public InsertOptions(Duration timeout, Long streamId, Map<String, Object> options) {
     this.crudOptions = options;
 
     this.timeout = timeout;
@@ -200,7 +211,13 @@ public class InsertOptions implements CrudOptions {
    * @return {@link #timeout} value.
    */
   @Override
+  @Deprecated
   public long getTimeout() {
+    return timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return timeout;
   }
 
@@ -235,7 +252,7 @@ public class InsertOptions implements CrudOptions {
     private final Map<String, Object> options = new HashMap<>();
 
     /** See also: {@link InsertOptions#timeout}. */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /** See also: {@link InsertOptions#streamId}. */
     private Long streamId;
@@ -249,8 +266,22 @@ public class InsertOptions implements CrudOptions {
      * @see InsertOptions#timeout
      * @see InsertOptions
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets value of {@link #timeout} option. Timeout parameter should be greater than 0.
+     *
+     * @param timeout value of timeout option.
+     * @return {@link InsertOptions.Builder} object.
+     * @throws IllegalArgumentException when timeout &#8804; 0.
+     * @see InsertOptions#timeout
+     * @see InsertOptions
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;

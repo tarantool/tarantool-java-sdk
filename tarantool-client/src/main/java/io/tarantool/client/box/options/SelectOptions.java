@@ -5,6 +5,7 @@
 
 package io.tarantool.client.box.options;
 
+import java.time.Duration;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,9 +43,6 @@ public class SelectOptions implements OptionsWithIndex {
   /** Default {@link SelectOptions#offset} value. */
   public static final int DEFAULT_OFFSET = 0;
 
-  /** Default {@link SelectOptions#timeout} value. */
-  public static final long DEFAULT_TIMEOUT = 5_000;
-
   /** Default {@link SelectOptions#iterator} value. */
   public static final BoxIterator DEFAULT_BOX_ITERATOR = BoxIterator.EQ;
 
@@ -52,11 +50,11 @@ public class SelectOptions implements OptionsWithIndex {
   public static final int PRIMARY = 0;
 
   /**
-   * The time after which the request is considered invalid (in milliseconds).
+   * The time after which the request is considered invalid.
    *
-   * <p>Default value: {@value #DEFAULT_TIMEOUT} milliseconds.
+   * <p>Default value: {@link #DEFAULT_TIMEOUT}.
    */
-  private final long timeout;
+  private final Duration timeout;
 
   /**
    * Stream id for select operation.
@@ -153,7 +151,7 @@ public class SelectOptions implements OptionsWithIndex {
    * @see Builder#build()
    */
   private SelectOptions(
-      long timeout,
+      Duration timeout,
       Long streamId,
       int indexId,
       String indexName,
@@ -187,7 +185,14 @@ public class SelectOptions implements OptionsWithIndex {
    *
    * @return {@link SelectOptions#timeout} value in milliseconds.
    */
+  @Override
+  @Deprecated
   public long getTimeout() {
+    return this.timeout.toMillis();
+  }
+
+  @Override
+  public Duration timeout() {
     return this.timeout;
   }
 
@@ -197,6 +202,7 @@ public class SelectOptions implements OptionsWithIndex {
    * @return null - if {@link SelectOptions#streamId} is null, otherwise - {@link
    *     SelectOptions#streamId} value.
    */
+  @Override
   public Long getStreamId() {
     return this.streamId;
   }
@@ -271,7 +277,7 @@ public class SelectOptions implements OptionsWithIndex {
     /**
      * @see SelectOptions#timeout
      */
-    private long timeout = DEFAULT_TIMEOUT;
+    private Duration timeout = DEFAULT_TIMEOUT;
 
     /**
      * @see SelectOptions#streamId
@@ -342,8 +348,42 @@ public class SelectOptions implements OptionsWithIndex {
      * @return {@link SelectOptions.Builder} object.
      * @throws IllegalArgumentException when {@code timeout <= 0}.
      */
+    @Deprecated
     public Builder withTimeout(long timeout) {
-      if (timeout <= 0) {
+      return withTimeout(Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Sets the {@link SelectOptions#timeout} parameter when constructing an instance of a builder
+     * class. The following example creates a {@link SelectOptions} object with a specified {@link
+     * SelectOptions#timeout} parameter:
+     *
+     * <pre>{@code
+     * SelectOptions options = SelectOptions
+     *                               .builder()
+     *                               .withTimeout(Duration.ofSeconds(2))   // OK!
+     *                               .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * <pre>{@code
+     * SelectOptions options = SelectOptions
+     *                              .builder()
+     *                              .withTimeout(Duration.ofSeconds(-1L)) // Wrong! Throws exception!
+     *                              .build();
+     *
+     *
+     *
+     * }</pre>
+     *
+     * @param timeout see {@link SelectOptions#timeout} field.
+     * @return {@link SelectOptions.Builder} object.
+     * @throws IllegalArgumentException when {@code timeout <= 0}.
+     */
+    public Builder withTimeout(Duration timeout) {
+      if (timeout.isNegative() || timeout.isZero()) {
         throw new IllegalArgumentException("timeout should be greater than 0");
       }
       this.timeout = timeout;
