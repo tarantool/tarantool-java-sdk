@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.StampedLock;
 import java.util.function.Consumer;
 
 import io.micrometer.core.instrument.Counter;
@@ -31,6 +31,7 @@ import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.pool.exceptions.PoolClosedException;
+import io.tarantool.pool.exceptions.PoolException;
 
 /**
  * Basic pool implementation.
@@ -102,11 +103,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /** Options for tuning watchers in connections. */
   private final WatcherOptions watcherOpts;
 
-  /** Count of connections which are invalidated or closed. */
-  private final AtomicInteger unavailable;
-
-  /** Count of connections which are reconnecting */
-  private final AtomicInteger reconnecting;
+  /** Statistics on unavailable and reconnecting and total connections. */
+  private final ConnectionStatistics connectionStatistics;
 
   /** Metrics registry. */
   private final MeterRegistry metricsRegistry;
@@ -128,9 +126,6 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
 
   /** Time in milliseconds after reconnect will be run. */
   private long reconnectAfter;
-
-  /** Total count of connections initialized in pool. */
-  private int totalSize;
 
   /** Count of successful connection requests. */
   private Counter requestSuccess;
@@ -351,10 +346,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     this.isClosed = new AtomicBoolean(false);
     this.gracefulShutdown = gracefulShutdown;
     this.heartbeatOpts = heartbeatOpts;
-    this.unavailable = new AtomicInteger(0);
-    this.reconnecting = new AtomicInteger(0);
+    this.connectionStatistics = new ConnectionStatistics();
     this.watcherOpts = watcherOpts;
-    this.totalSize = 0;
     this.metricsRegistry = metricsRegistry;
     this.ignoredPacketsHandler = ignoredPacketsHandler;
     this.handlers = handlers;
@@ -391,7 +384,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
           shrinkGroup(entries.remove(tag), 0);
         }
       }
-      totalSize = newTotal;
+      this.connectionStatistics.setTotal(newTotal);
     }
   }
 
@@ -501,12 +494,12 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
 
   @Override
   public boolean hasAvailableClients() {
-    return unavailable.get() < totalSize;
+    return this.connectionStatistics.hasAvailableClients();
   }
 
   @Override
   public int availableConnections() {
-    return totalSize - unavailable.get();
+    return this.connectionStatistics.availableConnections();
   }
 
   @Override
@@ -556,8 +549,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
               reconnectAfter,
               heartbeatOpts,
               watcherOpts,
-              unavailable,
-              reconnecting,
+              this.connectionStatistics,
               metricsRegistry,
               ignoredPacketsHandler,
               handlers,
@@ -613,16 +605,19 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     if (this.metricsRegistry == null) {
       return;
     }
-    Gauge.builder("pool.size", () -> totalSize)
+    Gauge.builder("pool.size", this.connectionStatistics::total)
         .description("total number of connections at the moment")
         .register(metricsRegistry);
-    Gauge.builder("pool.available", () -> totalSize - unavailable.get())
+    Gauge.builder("pool.available", this.connectionStatistics::availableConnections)
         .description("total number of connections available at the moment")
         .register(metricsRegistry);
-    Gauge.builder("pool.invalidated", () -> unavailable.get() - reconnecting.get())
-        .description("number of connections unavailable at the moment")
+    Gauge.builder("pool.unavailable", this.connectionStatistics::unavailable)
+        .description("total number of connection unavailable at the moment")
         .register(metricsRegistry);
-    Gauge.builder("pool.reconnecting", reconnecting::get)
+    Gauge.builder("pool.invalidated", this.connectionStatistics::invalidatedConnections)
+        .description("number of connections invalidated at the moment")
+        .register(metricsRegistry);
+    Gauge.builder("pool.reconnecting", this.connectionStatistics::reconnecting)
         .description("number of connections reconnecting at the moment")
         .register(metricsRegistry);
 
@@ -705,5 +700,158 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   @Override
   public ConnectionFactory getFactory() {
     return factory;
+  }
+
+  /** Statistics on unavailable and reconnecting connections. Class is thread-safe. */
+  static final class ConnectionStatistics {
+
+    private final StampedLock lock = new StampedLock();
+
+    /** Count of connections which are invalidated/closed + reconnecting. */
+    private volatile int unavailable = 0;
+
+    /** Count of connections which are reconnecting */
+    private volatile int reconnecting = 0;
+
+    /** Total count of connections initialized in pool. */
+    private volatile int total = 0;
+
+    int unavailable() {
+      return this.unavailable;
+    }
+
+    int reconnecting() {
+      return this.reconnecting;
+    }
+
+    public int availableConnections() {
+      long stamp = lock.tryOptimisticRead();
+
+      int localTotal = this.total;
+      int localUnavailable = this.unavailable;
+
+      if (!lock.validate(stamp)) {
+        stamp = lock.readLock();
+        try {
+          localTotal = this.total;
+          localUnavailable = this.unavailable;
+        } finally {
+          lock.unlockRead(stamp);
+        }
+      }
+
+      final int totalAvailable = localTotal - localUnavailable;
+      if (totalAvailable < 0) {
+        throw new PoolException(
+            String.format(
+                "Invalid pool state! Pool has negative available connections! Total connections:"
+                    + " %s, unavailable: %s, available: %s",
+                localTotal, localUnavailable, totalAvailable)) {};
+      }
+      return totalAvailable;
+    }
+
+    public boolean hasAvailableClients() {
+      long stamp = lock.tryOptimisticRead();
+
+      int localTotal = this.total;
+      int localUnavailable = this.unavailable;
+
+      if (!lock.validate(stamp)) {
+        stamp = lock.readLock();
+        try {
+          localTotal = this.total;
+          localUnavailable = this.unavailable;
+        } finally {
+          lock.unlockRead(stamp);
+        }
+      }
+
+      final int totalAvailable = localTotal - localUnavailable;
+      if (totalAvailable < 0) {
+        throw new PoolException(
+            String.format(
+                "Invalid pool state! Pool has negative available connections! Total connections:"
+                    + " %s, unavailable: %s, available: %s",
+                localTotal, localUnavailable, totalAvailable)) {};
+      }
+      return totalAvailable > 0;
+    }
+
+    public int invalidatedConnections() {
+      long stamp = lock.tryOptimisticRead();
+
+      int localUnavailable = this.unavailable;
+      int localReconnecting = this.reconnecting;
+
+      if (!lock.validate(stamp)) {
+        stamp = lock.readLock();
+        try {
+          localUnavailable = this.unavailable;
+          localReconnecting = this.reconnecting;
+        } finally {
+          lock.unlockRead(stamp);
+        }
+      }
+
+      final int totalInvalidating = localUnavailable - localReconnecting;
+      if (totalInvalidating < 0) {
+        throw new PoolException(
+            String.format(
+                "Invalid pool state! Pool has negative count of invalidated connections!"
+                    + " Unavailable: %s, reconnecting: %s, invalidating: %s",
+                localUnavailable, localReconnecting, totalInvalidating)) {};
+      }
+      return totalInvalidating;
+    }
+
+    void incrementUnavailable() {
+      long stamp = lock.writeLock();
+      try {
+        this.unavailable++;
+      } finally {
+        lock.unlockWrite(stamp);
+      }
+    }
+
+    void decrementUnavailable() {
+      long stamp = lock.writeLock();
+      try {
+        this.unavailable--;
+      } finally {
+        lock.unlockWrite(stamp);
+      }
+    }
+
+    void incrementReconnecting() {
+      long stamp = lock.writeLock();
+      try {
+        this.reconnecting++;
+      } finally {
+        lock.unlockWrite(stamp);
+      }
+    }
+
+    void decrementReconnecting() {
+      long stamp = lock.writeLock();
+      try {
+        this.reconnecting--;
+      } finally {
+        lock.unlockWrite(stamp);
+      }
+    }
+
+    public void setTotal(int newTotal) {
+      long stamp = lock.writeLock();
+      try {
+        this.total = newTotal;
+      } finally {
+        lock.unlockWrite(stamp);
+      }
+    }
+
+    public int total() {
+      return this.total;
+    }
   }
 }

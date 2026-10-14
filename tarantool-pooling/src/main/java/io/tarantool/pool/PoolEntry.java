@@ -8,7 +8,6 @@ package io.tarantool.pool;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -31,6 +30,7 @@ import io.tarantool.core.connection.exceptions.ConnectionException;
 import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoRequestOpts;
 import io.tarantool.core.protocol.IProtoResponse;
+import io.tarantool.pool.IProtoClientPoolImpl.ConnectionStatistics;
 
 /**
  * Client/connection controller for pool.
@@ -56,19 +56,7 @@ final class PoolEntry {
   /** Deque for sliding window. */
   private final ArrayDeque<Integer> window;
 
-  /**
-   * Atomic variable passed from pool for counting unavailable connections.
-   *
-   * <p>When connection becomes unavailable, PoolEntry increments it.
-   */
-  private final AtomicInteger unavailable;
-
-  /**
-   * Atomic variable passed from pool for counting connections in reconnecting state.
-   *
-   * <p>When connection is being closed and reconnect started, PoolEntry increments it.
-   */
-  private final AtomicInteger reconnecting;
+  private final ConnectionStatistics connectionStatistics;
 
   /**
    * Options for heartbeats.
@@ -213,8 +201,8 @@ final class PoolEntry {
    *     io.tarantool.pool.HeartbeatOpts}
    * @param watcherOpts options for connection watcher, instance of {@link
    *     io.tarantool.core.WatcherOptions}
-   * @param unavailable atomic variable to count unavailable clients
-   * @param reconnecting atomic variable to count client in reconnecting state
+   * @param connectionStatistics statistics on unavailable and reconnecting connections. Class is
+   *     thread-safe.
    * @param registry instance of {@code io.micrometer.core.instrument.MeterRegistry}
    * @param ignoredPacketsHandler callback for accepting packets which were ignored by IProtoClient
    *     connections.
@@ -230,8 +218,7 @@ final class PoolEntry {
       long reconnectAfter,
       HeartbeatOpts heartbeatOpts,
       WatcherOptions watcherOpts,
-      AtomicInteger unavailable,
-      AtomicInteger reconnecting,
+      ConnectionStatistics connectionStatistics,
       MeterRegistry registry,
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
       Handlers handlers,
@@ -277,8 +264,7 @@ final class PoolEntry {
     this.reconnectAfter = reconnectAfter;
     this.tag = group.getTag();
     this.timerService = timerService;
-    this.unavailable = unavailable;
-    this.reconnecting = reconnecting;
+    this.connectionStatistics = connectionStatistics;
     this.client.onClose(ConnectionCloseEvent.CLOSE_BY_REMOTE, this::handleConnectError);
     this.client.onClose(ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, this::handleConnectError);
     this.useTupleExtension = useTupleExtension;
@@ -307,7 +293,7 @@ final class PoolEntry {
    */
   public void lock() {
     if (!isLocked) {
-      unavailable.incrementAndGet();
+      this.connectionStatistics.incrementUnavailable();
       isLocked = true;
     }
   }
@@ -320,7 +306,7 @@ final class PoolEntry {
   public void unlock() {
     if (isLocked) {
       stopReconnectTask();
-      unavailable.decrementAndGet();
+      this.connectionStatistics.decrementUnavailable();
       isLocked = false;
     }
   }
@@ -483,7 +469,7 @@ final class PoolEntry {
   private void connectAfter() {
     log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
     if (reconnectTask == null) {
-      reconnecting.incrementAndGet();
+      this.connectionStatistics.incrementReconnecting();
     }
     reconnectTask =
         timerService.newTimeout(
@@ -661,7 +647,7 @@ final class PoolEntry {
   /** Stops reconnecting task if it is active. */
   private void stopReconnectTask() {
     if (reconnectTask != null) {
-      reconnecting.decrementAndGet();
+      this.connectionStatistics.decrementReconnecting();
       reconnectTask.cancel();
       reconnectTask = null;
     }
