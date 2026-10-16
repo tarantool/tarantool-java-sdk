@@ -18,7 +18,6 @@ import java.util.function.Consumer;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.util.Timer;
 import org.slf4j.Logger;
@@ -30,6 +29,7 @@ import io.tarantool.core.WatcherOptions;
 import io.tarantool.core.connection.ConnectionFactory;
 import io.tarantool.core.protocol.Handlers;
 import io.tarantool.core.protocol.IProtoResponse;
+import io.tarantool.pool.PoolEntry.PoolEntryMetrics;
 import io.tarantool.pool.exceptions.PoolClosedException;
 import io.tarantool.pool.exceptions.PoolException;
 
@@ -127,19 +127,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   /** Time in milliseconds after reconnect will be run. */
   private long reconnectAfter;
 
-  /** Count of successful connection requests. */
-  private Counter requestSuccess;
-
-  /** Count of failed connection requests. */
-  private Counter requestErrors;
-
-  /** Count of connection requests for wrong tag or index. */
-  private Counter invalidRequests;
-
-  /**
-   * Count of connection requests for connections which were invalidated or in reconnecting state.
-   */
-  private Counter lockedConnectionRequests;
+  /** Metrics of {@link IProtoClientPoolImpl}. */
+  private final PoolMetrics metrics;
 
   /**
    * Handler for accepting ignored packets and processing them somehow. It is an instance of {@link
@@ -354,7 +343,7 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     this.useTupleExtension = useTupleExtension;
     this.poolEventListener = poolEventListener;
 
-    initMetrics();
+    this.metrics = initMetrics();
   }
 
   @Override
@@ -554,7 +543,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
               ignoredPacketsHandler,
               handlers,
               useTupleExtension,
-              poolEventListener));
+              poolEventListener,
+              this.metrics != null ? this.metrics.poolEntryMetrics : null));
     }
   }
 
@@ -601,62 +591,12 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
   }
 
   /** Metrics initialization. */
-  private void initMetrics() {
+  private PoolMetrics initMetrics() {
     if (this.metricsRegistry == null) {
-      return;
+      return null;
     }
-    Gauge.builder("pool.size", this.connectionStatistics::total)
-        .description("total number of connections at the moment")
-        .register(metricsRegistry);
-    Gauge.builder("pool.available", this.connectionStatistics::availableConnections)
-        .description("total number of connections available at the moment")
-        .register(metricsRegistry);
-    Gauge.builder("pool.unavailable", this.connectionStatistics::unavailable)
-        .description("total number of connection unavailable at the moment")
-        .register(metricsRegistry);
-    Gauge.builder("pool.invalidated", this.connectionStatistics::invalidatedConnections)
-        .description("number of connections invalidated at the moment")
-        .register(metricsRegistry);
-    Gauge.builder("pool.reconnecting", this.connectionStatistics::reconnecting)
-        .description("number of connections reconnecting at the moment")
-        .register(metricsRegistry);
 
-    Counter.builder("pool.connect.success")
-        .description("count of succeeded connects")
-        .register(metricsRegistry);
-    Counter.builder("pool.connect.errors")
-        .description("count of connect failures")
-        .register(metricsRegistry);
-    LongTaskTimer.builder("pool.connect.time")
-        .description("time of connects")
-        .register(metricsRegistry);
-
-    requestSuccess =
-        Counter.builder("pool.request.success")
-            .description("Count of successful connections requests from pool")
-            .register(metricsRegistry);
-    requestErrors =
-        Counter.builder("pool.request.errors")
-            .description("Count of failed connection requests from pool")
-            .register(metricsRegistry);
-    invalidRequests =
-        Counter.builder("pool.request.misses")
-            .description("Count of connection requests with wrong tag or index")
-            .register(metricsRegistry);
-    lockedConnectionRequests =
-        Counter.builder("pool.request.unavail")
-            .description("Count of connection request finished with locked connect")
-            .register(metricsRegistry);
-
-    Counter.builder("pool.heartbeat.success")
-        .description("Count of successful heartbeat ping requests")
-        .register(metricsRegistry);
-    Counter.builder("pool.heartbeat.errors")
-        .description("Count of failed heartbeat ping requests")
-        .register(metricsRegistry);
-    LongTaskTimer.builder("pool.heartbeat.time")
-        .description("Time of ping request")
-        .register(metricsRegistry);
+    return new PoolMetrics(metricsRegistry, this.connectionStatistics);
   }
 
   /**
@@ -668,33 +608,29 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
    *     counter for errors.
    */
   private void incPoolRequestCounters(Object r, Throwable e) {
-    if (requestSuccess == null || requestErrors == null) {
+    if (this.metrics == null) {
       return;
     }
 
     if (e == null) {
-      requestSuccess.increment();
+      this.metrics.poolRequestSuccess.increment();
     } else {
-      requestErrors.increment();
+      this.metrics.poolRequestErrors.increment();
     }
   }
 
   /** Increment misses counter when wrong tag or index requested. */
   private void incPoolInvalidRequests() {
-    if (invalidRequests == null) {
-      return;
+    if (this.metrics != null) {
+      this.metrics.poolRequestMisses.increment();
     }
-
-    invalidRequests.increment();
   }
 
   /** Increment counter when invalidated or closed connection was requested. */
   private void incPoolLockedConnectionRequests() {
-    if (lockedConnectionRequests == null) {
-      return;
+    if (this.metrics != null) {
+      this.metrics.poolRequestUnavailable.increment();
     }
-
-    lockedConnectionRequests.increment();
   }
 
   @Override
@@ -852,6 +788,114 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
 
     public int total() {
       return this.total;
+    }
+  }
+
+  static final class PoolMetrics {
+
+    static final String POOL_SIZE_METRIC = "pool.size";
+    static final String POOL_SIZE_METRIC_DESC = "Total number of connections at the moment";
+    private final Gauge poolSize;
+
+    static final String POOL_AVAILABLE_METRIC = "pool.available";
+    static final String POOL_AVAILABLE_METRIC_DESC =
+        "Total number of connections available at the moment";
+    private final Gauge poolAvailable;
+
+    static final String POOL_UNAVAILABLE_METRIC = "pool.unavailable";
+    static final String POOL_UNAVAILABLE_METRIC_DESC =
+        "Total number of connection unavailable at the moment";
+    private final Gauge poolUnavailable;
+
+    static final String POOL_INVALIDATED_METRIC = "pool.invalidated";
+    static final String POOL_INVALIDATED_METRIC_DESC =
+        "Total number of invalidated connections at the moment";
+    private final Gauge poolInvalidated;
+
+    static final String POOL_RECONNECTING_METRIC = "pool.reconnecting";
+    static final String POOL_RECONNECTING_METRIC_DESC =
+        "Total number of reconnecting connections at the moment";
+    private final Gauge poolReconnecting;
+
+    static final String POOL_REQUEST_SUCCESS_METRIC = "pool.request.success";
+    static final String POOL_REQUEST_SUCCESS_METRIC_DESC =
+        "Total count of successful connections requests from pool";
+
+    /** Count of successful connection requests. */
+    private final Counter poolRequestSuccess;
+
+    static final String POOL_REQUEST_ERRORS_METRIC = "pool.request.errors";
+    static final String POOL_REQUEST_ERRORS_METRIC_DESC =
+        "Total count of failed connection requests from pool";
+
+    /** Count of failed connection requests. */
+    private final Counter poolRequestErrors;
+
+    static final String POOL_REQUEST_MISSES_METRIC = "pool.request.misses";
+    static final String POOL_REQUEST_MISSES_METRIC_DESC =
+        "Total count of connection requests with wrong tag or index";
+
+    /** Count of connection requests for wrong tag or index. */
+    private final Counter poolRequestMisses;
+
+    static final String POOL_REQUEST_UNAVAILABLE_METRIC = "pool.request.unavail";
+    static final String POOL_REQUEST_UNAVAILABLE_METRIC_DESC =
+        "Total count of connection request finished with locked connect";
+
+    /**
+     * Count of connection requests for connections which were invalidated or in reconnecting state.
+     */
+    private final Counter poolRequestUnavailable;
+
+    private final PoolEntryMetrics poolEntryMetrics;
+
+    PoolMetrics(MeterRegistry registry, ConnectionStatistics statistics) {
+      this.poolSize =
+          Gauge.builder(POOL_SIZE_METRIC, statistics::total)
+              .description(POOL_SIZE_METRIC_DESC)
+              .register(registry);
+
+      this.poolAvailable =
+          Gauge.builder(POOL_AVAILABLE_METRIC, statistics::availableConnections)
+              .description(POOL_AVAILABLE_METRIC_DESC)
+              .register(registry);
+
+      this.poolUnavailable =
+          Gauge.builder(POOL_UNAVAILABLE_METRIC, statistics::unavailable)
+              .description(POOL_UNAVAILABLE_METRIC_DESC)
+              .register(registry);
+
+      this.poolInvalidated =
+          Gauge.builder(POOL_INVALIDATED_METRIC, statistics::invalidatedConnections)
+              .description(POOL_INVALIDATED_METRIC_DESC)
+              .register(registry);
+
+      this.poolReconnecting =
+          Gauge.builder(POOL_RECONNECTING_METRIC, statistics::reconnecting)
+              .description(POOL_RECONNECTING_METRIC_DESC)
+              .register(registry);
+
+      this.poolRequestSuccess =
+          Counter.builder(POOL_REQUEST_SUCCESS_METRIC)
+              .description(POOL_REQUEST_SUCCESS_METRIC_DESC)
+              .register(registry);
+
+      this.poolRequestErrors =
+          Counter.builder(POOL_REQUEST_ERRORS_METRIC)
+              .description(POOL_REQUEST_ERRORS_METRIC_DESC)
+              .register(registry);
+
+      this.poolRequestMisses =
+          Counter.builder(POOL_REQUEST_MISSES_METRIC)
+              .description(POOL_REQUEST_MISSES_METRIC_DESC)
+              .register(registry);
+
+      this.poolRequestUnavailable =
+          Counter.builder(POOL_REQUEST_UNAVAILABLE_METRIC)
+              .description(POOL_REQUEST_UNAVAILABLE_METRIC_DESC)
+              .register(registry);
+
+      this.poolEntryMetrics = new PoolEntryMetrics(registry);
     }
   }
 }
