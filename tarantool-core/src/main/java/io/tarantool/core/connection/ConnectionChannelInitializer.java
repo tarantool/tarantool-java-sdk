@@ -6,6 +6,7 @@
 package io.tarantool.core.connection;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -18,6 +19,7 @@ import io.netty.handler.flush.FlushConsolidationHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import io.tarantool.core.TimeoutsUtils;
 import io.tarantool.core.connection.codecs.IProtoFrameDecoder;
 import io.tarantool.core.connection.codecs.IProtoFrameEncoder;
 import io.tarantool.core.connection.handlers.GreetingHandler;
@@ -33,7 +35,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
   private final InetSocketAddress peerAddress;
   private final ChannelFutureListener closeHandler;
   private final FlushConsolidationHandler flushConsolidationHandler;
-  private final int idleTimeout;
+  private final Duration idleTimeout;
 
   private ConnectionChannelInitializer(
       CompletableFuture<Greeting> promise,
@@ -42,7 +44,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
       InetSocketAddress peerAddress,
       ChannelFutureListener closeHandler,
       FlushConsolidationHandler flushConsolidationHandler,
-      int idleTimeout) {
+      Duration idleTimeout) {
     this.promise = promise;
     this.messageHandler = messageHandler;
     this.sslContext = sslContext;
@@ -67,10 +69,10 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
               socketChannel.alloc(), peerAddress.getHostString(), peerAddress.getPort()));
     }
 
-    if (this.idleTimeout > 0) {
+    if (this.idleTimeout.compareTo(Duration.ZERO) > 0) {
       pipeline.addLast(
           "IdleTimeoutHandler",
-          new IdleStateHandler(false, idleTimeout, 0, 0, TimeUnit.MILLISECONDS));
+          new IdleStateHandler(false, this.idleTimeout.toNanos(), 0, 0, TimeUnit.NANOSECONDS));
     }
 
     pipeline.addLast("GreetingHandler", new GreetingHandler(promise));
@@ -89,9 +91,7 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
     private InetSocketAddress peerAddress = null;
     private ChannelFutureListener closeHandler;
     private FlushConsolidationHandler flushConsolidationHandler = null;
-    private int idleTimeout = -1;
-
-    public Builder() {}
+    private Duration idleTimeout = Duration.ZERO;
 
     public Builder withConnectPromise(CompletableFuture<Greeting> promise) {
       this.promise = promise;
@@ -120,8 +120,9 @@ class ConnectionChannelInitializer extends ChannelInitializer<SocketChannel> {
       return this;
     }
 
-    public Builder withIdleTimeout(int idleTimeout) {
-      this.idleTimeout = idleTimeout;
+    public Builder withIdleTimeout(Duration timeout) {
+      TimeoutsUtils.checkTimeoutIsNotNegative(timeout);
+      this.idleTimeout = timeout;
       return this;
     }
 

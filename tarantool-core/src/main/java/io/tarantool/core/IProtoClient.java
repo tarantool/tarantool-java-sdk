@@ -6,9 +6,11 @@
 package io.tarantool.core;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -25,10 +27,23 @@ import io.tarantool.core.protocol.requests.SelectAfterMode;
 
 public interface IProtoClient {
 
+  /**
+   * @deprecated Use {@link #connect(InetSocketAddress, Duration)}
+   */
+  @Deprecated
   CompletableFuture<Void> connect(InetSocketAddress address, long timeoutMs);
 
+  CompletionStage<Void> connect(InetSocketAddress address, Duration timeout);
+
+  /**
+   * @deprecated Use {@link #connect(InetSocketAddress, Duration, boolean)}
+   */
+  @Deprecated
   CompletableFuture<Void> connect(
       InetSocketAddress address, long timeoutMs, boolean gracefulShutdown);
+
+  CompletionStage<Void> connect(
+      InetSocketAddress address, Duration timeout, boolean gracefulShutdown);
 
   CompletableFuture<IProtoResponse> authorize(String user, String password);
 
@@ -201,11 +216,25 @@ public interface IProtoClient {
 
   long allocateStreamId();
 
+  /**
+   * @deprecated Use {@link #begin(Long, Duration, TransactionIsolationLevel)}
+   */
+  @Deprecated
   CompletableFuture<IProtoResponse> begin(
-      Long streamId, long timeout, TransactionIsolationLevel level);
+      Long streamId, long timeoutMs, TransactionIsolationLevel level);
 
+  CompletionStage<IProtoResponse> begin(
+      Long streamId, Duration timeout, TransactionIsolationLevel level);
+
+  /**
+   * @deprecated Use {@link #begin(Long, Duration, TransactionIsolationLevel, IProtoRequestOpts)}
+   */
+  @Deprecated
   CompletableFuture<IProtoResponse> begin(
-      Long streamId, long timeout, TransactionIsolationLevel level, IProtoRequestOpts opts);
+      Long streamId, long timeoutMs, TransactionIsolationLevel level, IProtoRequestOpts opts);
+
+  CompletionStage<IProtoResponse> begin(
+      Long streamId, Duration timeout, TransactionIsolationLevel level, IProtoRequestOpts opts);
 
   CompletableFuture<IProtoResponse> commit(Long streamId);
 
@@ -264,7 +293,13 @@ public interface IProtoClient {
 
   void resume();
 
+  /**
+   * @deprecated Use {@link #setIdleTimeout(Duration)}
+   */
+  @Deprecated
   void setIdleTimeout(int idleTimeout);
+
+  void setIdleTimeout(Duration timeout);
 
   boolean isPaused();
 }

@@ -6,6 +6,7 @@
 package io.tarantool.client.integration;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -100,7 +101,11 @@ public class TarantoolSchemaFetcherTest {
     TarantoolContainerClientHelper.execInitScript(tt);
 
     client = new IProtoClientImpl(factory, timerService);
-    client.connect(new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort()), 3_000).join();
+    client
+        .connect(
+            new InetSocketAddress(tt.getHost(), tt.getFirstMappedPort()), Duration.ofSeconds(3))
+        .toCompletableFuture()
+        .join();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
   }
 

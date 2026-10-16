@@ -5,8 +5,10 @@
 
 package io.tarantool.pool;
 
+import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -48,7 +50,7 @@ final class PoolEntry {
    * @see io.tarantool.core.protocol.IProtoRequestOpts
    */
   private static final IProtoRequestOpts firstPingOpts =
-      IProtoRequestOpts.empty().withRequestTimeout(1000);
+      IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
 
   /** Logger instance. */
   private static final Logger log = LoggerFactory.getLogger(PoolEntry.class);
@@ -131,7 +133,7 @@ final class PoolEntry {
    * <p>It will be returned to all out clients wanting to obtain this client. It is recreated only
    * if client is reconnected.
    */
-  private CompletableFuture<IProtoClient> connectFuture;
+  private CompletionStage<IProtoClient> connectFuture;
 
   /** Last heartbeat state/event. */
   private HeartbeatEvent lastHeartbeatEvent;
@@ -249,7 +251,8 @@ final class PoolEntry {
     } else {
       this.heartbeatOpts = heartbeatOpts;
       this.heartbeatPingOpts =
-          IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
+          IProtoRequestOpts.empty()
+              .withRequestTimeout(Duration.ofMillis(heartbeatOpts.getPingInterval()));
       this.deathThreshold = heartbeatOpts.getDeathThreshold();
       this.failedPingsThreshold = heartbeatOpts.getInvalidationThreshold();
       this.windowSize = heartbeatOpts.getWindowSize();
@@ -345,7 +348,7 @@ final class PoolEntry {
    */
   public synchronized CompletableFuture<IProtoClient> connect() {
     if (connectFuture != null) {
-      return connectFuture;
+      return connectFuture.toCompletableFuture();
     }
     return internalConnect();
   }
@@ -401,8 +404,8 @@ final class PoolEntry {
   private CompletableFuture<IProtoClient> internalConnect() {
     log.info("connect {}/{}", tag, index);
     LongTaskTimer.Sample timer = startTimer(connectTime);
-    CompletableFuture<?> future =
-        client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
+    CompletionStage<?> future =
+        client.connect(group.getAddress(), Duration.ofMillis(connectTimeout), gracefulShutdown);
     String user = group.getUser();
     connectFuture =
         future
@@ -417,7 +420,7 @@ final class PoolEntry {
             .thenCompose(r -> client.awaitConnectionReady())
             .thenApply(r -> client)
             .whenComplete(this::onConnectComplete);
-    return connectFuture;
+    return connectFuture.toCompletableFuture();
   }
 
   /**

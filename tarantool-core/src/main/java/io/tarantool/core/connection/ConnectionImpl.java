@@ -6,11 +6,13 @@
 package io.tarantool.core.connection;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -29,6 +31,7 @@ import io.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.tarantool.core.TimeoutsUtils;
 import io.tarantool.core.connection.exceptions.ConnectionClosedException;
 import io.tarantool.core.connection.exceptions.ConnectionException;
 import io.tarantool.core.connection.exceptions.IdleTimeoutException;
@@ -118,7 +121,7 @@ public class ConnectionImpl implements Connection {
   private Consumer<IProtoResponse> consumer;
   private CompletableFuture<Greeting> connectPromise;
   private Timeout timeoutHandler;
-  private int idleTimeout;
+  private Duration idleTimeout = Duration.ZERO;
 
   /**
    * Instantiates a new Connection.
@@ -179,22 +182,29 @@ public class ConnectionImpl implements Connection {
   }
 
   @Override
+  @Deprecated
   public synchronized CompletableFuture<Greeting> connect(InetSocketAddress address, long timeoutMs)
+      throws IllegalStateException {
+    return connect(address, Duration.ofMillis(timeoutMs)).toCompletableFuture();
+  }
+
+  @Override
+  public synchronized CompletionStage<Greeting> connect(InetSocketAddress address, Duration timeout)
       throws IllegalStateException {
     if (state.compareAndSet(State.CLOSED, State.CONNECTING)) {
       closedBy.set(CloseReason.NO_REASON);
       log.debug("{} is connecting to {}", this, address);
 
       CompletableFuture<Greeting> promise = new CompletableFuture<>();
-      scheduleGreetingTimeout(promise, timeoutMs);
+      scheduleGreetingTimeout(promise, timeout);
       connectPromise =
           promise.thenApply(
-              greeting -> {
+              response -> {
                 cancelGreetingTimeout();
                 log.info("{} connected to {}", this, address);
-                this.greeting = greeting;
+                this.greeting = response;
                 state.set(State.READY);
-                return greeting;
+                return response;
               });
 
       channel =
@@ -280,11 +290,7 @@ public class ConnectionImpl implements Connection {
   @Override
   public Connection onClose(
       ConnectionCloseEvent event, BiConsumer<Connection, Throwable> callback) {
-    if (!closeListeners.containsKey(event)) {
-      closeListeners.put(event, new ArrayList<>());
-    }
-    closeListeners.get(event).add(callback);
-
+    closeListeners.computeIfAbsent(event, k -> new ArrayList<>()).add(callback);
     return this;
   }
 
@@ -300,9 +306,19 @@ public class ConnectionImpl implements Connection {
     channel.config().setAutoRead(true);
   }
 
+  /**
+   * @deprecated Use {@link #setIdleTimeout(Duration)} instead this.
+   */
   @Override
+  @Deprecated
   public void setIdleTimeout(int idleTimeout) {
-    this.idleTimeout = idleTimeout;
+    setIdleTimeout(Duration.ofMillis(idleTimeout));
+  }
+
+  @Override
+  public void setIdleTimeout(Duration timeout) {
+    TimeoutsUtils.checkTimeoutIsNotNegative(timeout);
+    this.idleTimeout = timeout;
   }
 
   @Override
@@ -405,14 +421,14 @@ public class ConnectionImpl implements Connection {
     }
   }
 
-  private void scheduleGreetingTimeout(CompletableFuture<Greeting> promise, long timeoutMs) {
-    log.debug("Schedule timeout for connect in milliseconds: {}", timeoutMs);
-    if (timeoutMs <= 0) {
-      throw new IllegalStateException("Timeout must be greater than zero!");
-    }
+  private void scheduleGreetingTimeout(CompletableFuture<Greeting> promise, Duration timeout) {
+    TimeoutsUtils.checkTimeoutIsPositive(
+        timeout, new IllegalStateException("Timeout must be greater than zero!"));
+
+    log.debug("Schedule timeout for connect: {}", timeout);
     timeoutHandler =
         this.timerService.newTimeout(
-            timeoutHandler -> {
+            handler -> {
               if (promise.isDone()) {
                 return;
               }
@@ -421,8 +437,8 @@ public class ConnectionImpl implements Connection {
                 promise.completeExceptionally(new TimeoutException("Connection timeout"));
               }
             },
-            timeoutMs,
-            TimeUnit.MILLISECONDS);
+            timeout.toNanos(),
+            TimeUnit.NANOSECONDS);
   }
 
   private void cancelGreetingTimeout() {

@@ -6,6 +6,7 @@
 package io.tarantool.core.integration;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -73,7 +74,7 @@ public class ConnectionCloseOnServerSideTest extends BaseTest {
           flags.put(ConnectionCloseEvent.CLOSE_BY_SHUTDOWN, true);
         });
     InetSocketAddress address = tt.mappedAddress();
-    connection.connect(address, 3_000).get();
+    connection.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     tt.stop();
     Exception ex = assertThrows(CompletionException.class, closeFuture::join);
     Throwable cause = ex.getCause();

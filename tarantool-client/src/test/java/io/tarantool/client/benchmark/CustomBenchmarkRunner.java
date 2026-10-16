@@ -6,6 +6,7 @@
 package io.tarantool.client.benchmark;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -189,7 +190,7 @@ public class CustomBenchmarkRunner {
         () -> {
           long streamId = iprotoClient.allocateStreamId();
           return iprotoClient
-              .begin(streamId, 2_000, TransactionIsolationLevel.DEFAULT)
+              .begin(streamId, Duration.ofSeconds(2), TransactionIsolationLevel.DEFAULT)
               .thenCompose(
                   r ->
                       client
@@ -197,7 +198,8 @@ public class CustomBenchmarkRunner {
                           .replace(
                               Arrays.asList(counter.getAndIncrement(), "artyom"),
                               BaseOptions.builder().withStreamId(streamId).build()))
-              .thenCompose(r -> iprotoClient.commit(streamId));
+              .thenCompose(r -> iprotoClient.commit(streamId))
+              .toCompletableFuture();
         });
   }
 
@@ -221,7 +223,7 @@ public class CustomBenchmarkRunner {
         () -> {
           long streamId = iprotoClient.allocateStreamId();
           return iprotoClient
-              .begin(streamId, 2_000, TransactionIsolationLevel.DEFAULT)
+              .begin(streamId, Duration.ofSeconds(2), TransactionIsolationLevel.DEFAULT)
               .thenCompose(
                   r ->
                       client
@@ -243,7 +245,8 @@ public class CustomBenchmarkRunner {
                           .replace(
                               Arrays.asList(counter.getAndIncrement(), "artyom"),
                               BaseOptions.builder().withStreamId(streamId).build()))
-              .thenCompose(r -> iprotoClient.commit(streamId));
+              .thenCompose(r -> iprotoClient.commit(streamId))
+              .toCompletableFuture();
         });
   }
 

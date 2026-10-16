@@ -6,10 +6,12 @@
 package io.tarantool.core.protocol.fsm;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -113,7 +115,7 @@ class WatcherStateMachineTest {
             1L,
             response -> {},
             connection,
-            WatcherOptions.builder().withSendTimeout(50).build(),
+            WatcherOptions.builder().withSendTimeout(Duration.ofMillis(50)).build(),
             timer);
 
     watcher.runOnce();
@@ -137,6 +139,12 @@ class WatcherStateMachineTest {
 
     @Override
     public CompletableFuture<Greeting> connect(InetSocketAddress addr, long timeoutMs) {
+      return new CompletableFuture<>();
+    }
+
+    @Override
+    public CompletionStage<Greeting> connect(InetSocketAddress address, Duration timeout)
+        throws IllegalStateException {
       return new CompletableFuture<>();
     }
 
@@ -167,6 +175,9 @@ class WatcherStateMachineTest {
 
     @Override
     public void setIdleTimeout(int idleTimeout) {}
+
+    @Override
+    public void setIdleTimeout(Duration timeout) {}
 
     @Override
     public boolean isPaused() {

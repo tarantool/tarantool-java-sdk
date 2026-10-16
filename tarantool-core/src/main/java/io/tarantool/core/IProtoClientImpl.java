@@ -6,6 +6,7 @@
 package io.tarantool.core;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
@@ -78,7 +80,7 @@ public class IProtoClientImpl implements IProtoClient {
 
   public static final IProtoAuth.AuthType DEFAULT_AUTH_TYPE = IProtoAuth.AuthType.CHAP_SHA1;
   public static final IProtoRequestOpts DEFAULT_REQUEST_OPTS =
-      IProtoRequestOpts.empty().withRequestTimeout(5000);
+      IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(5));
   public static final WatcherOptions DEFAULT_WATCHER_OPTS = WatcherOptions.builder().build();
   private static final Set<IProtoFeature> FEATURES_SET_ENUM = EnumSet.allOf(IProtoFeature.class);
   private static final List<Integer> FEATURES_LIST_INT =
@@ -89,7 +91,7 @@ public class IProtoClientImpl implements IProtoClient {
   private static final String CALL_CONNECT_BEFORE_GETTING_SERVER_DETAILS =
       "Call connect before getting server details";
   private static final String SHUTDOWN_EVENT_KEY = "box.shutdown";
-  private static final int DEFAULT_IDLE_TIMEOUT = 1_000;
+  private static final Duration DEFAULT_IDLE_TIMEOUT = Duration.ofSeconds(1);
   private static final Logger log = LoggerFactory.getLogger(IProtoClientImpl.class);
   private final AtomicLong streamIdSequence;
   private final AtomicLong syncIdSequence;
@@ -178,13 +180,26 @@ public class IProtoClientImpl implements IProtoClient {
   }
 
   @Override
+  @Deprecated
   public CompletableFuture<Void> connect(InetSocketAddress address, long timeoutMs) {
-    return connect(address, timeoutMs, true);
+    return connect(address, Duration.ofMillis(timeoutMs), true).toCompletableFuture();
   }
 
   @Override
+  public CompletionStage<Void> connect(InetSocketAddress address, Duration timeout) {
+    return connect(address, timeout, true);
+  }
+
+  @Override
+  @Deprecated
   public CompletableFuture<Void> connect(
       InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
+    return connect(address, Duration.ofMillis(timeoutMs), gracefulShutdown).toCompletableFuture();
+  }
+
+  @Override
+  public CompletionStage<Void> connect(
+      InetSocketAddress address, Duration timeout, boolean gracefulShutdown) {
     if (gracefulShutdown) {
       watch(SHUTDOWN_EVENT_KEY, this::shutdownEventCallback);
     }
@@ -193,7 +208,7 @@ public class IProtoClientImpl implements IProtoClient {
     serverProtocolVersion = new CompletableFuture<>();
     serverFeatures = new CompletableFuture<>();
     return connection
-        .connect(address, timeoutMs)
+        .connect(address, timeout)
         .thenRun(
             () -> {
               updateWatchers();
@@ -542,15 +557,36 @@ public class IProtoClientImpl implements IProtoClient {
     return streamIdSequence.updateAndGet(n -> n == Long.MAX_VALUE ? 1 : n + 1);
   }
 
+  @Deprecated
   @Override
   public CompletableFuture<IProtoResponse> begin(
-      Long streamId, long streamTimeout, TransactionIsolationLevel level) {
-    return begin(streamId, streamTimeout, level, DEFAULT_REQUEST_OPTS);
+      Long streamId, long streamTimeoutMs, TransactionIsolationLevel level) {
+    return begin(streamId, Duration.ofMillis(streamTimeoutMs), level, DEFAULT_REQUEST_OPTS)
+        .toCompletableFuture();
   }
 
   @Override
+  public CompletionStage<IProtoResponse> begin(
+      Long streamId, Duration timeout, TransactionIsolationLevel level) {
+    return begin(streamId, timeout, level, DEFAULT_REQUEST_OPTS);
+  }
+
+  @Deprecated
+  @Override
   public CompletableFuture<IProtoResponse> begin(
-      Long streamId, long streamTimeout, TransactionIsolationLevel level, IProtoRequestOpts opts) {
+      Long streamId,
+      long streamTimeoutMs,
+      TransactionIsolationLevel level,
+      IProtoRequestOpts opts) {
+    return begin(streamId, Duration.ofMillis(streamTimeoutMs), level, opts).toCompletableFuture();
+  }
+
+  @Override
+  public CompletionStage<IProtoResponse> begin(
+      Long streamId,
+      Duration streamTimeout,
+      TransactionIsolationLevel level,
+      IProtoRequestOpts opts) {
     return runRequest(new IProtoBegin(streamId, streamTimeout, level), opts);
   }
 
@@ -794,11 +830,17 @@ public class IProtoClientImpl implements IProtoClient {
 
   @Override
   public void setIdleTimeout(int idleTimeout) {
-    if (idleTimeout <= 0) {
+    setIdleTimeout(Duration.ofMillis(idleTimeout));
+  }
+
+  @Override
+  public void setIdleTimeout(Duration timeout) {
+    if (timeout.isNegative() || timeout.isZero()) {
       log.warn("idleTimeout must be greater than 0");
       this.connection.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+      return;
     }
-    this.connection.setIdleTimeout(idleTimeout);
+    this.connection.setIdleTimeout(timeout);
   }
 
   @Override

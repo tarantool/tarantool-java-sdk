@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -1111,7 +1112,7 @@ public class IProtoClientTest extends BaseTest {
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     return client;
   }

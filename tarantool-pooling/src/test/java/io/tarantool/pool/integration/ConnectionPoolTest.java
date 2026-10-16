@@ -5,6 +5,7 @@
 
 package io.tarantool.pool.integration;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -584,7 +585,7 @@ public class ConnectionPoolTest extends BasePoolTest {
                 .withTag("node-b")
                 .build()));
 
-    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(1000);
+    IProtoRequestOpts opts = IProtoRequestOpts.empty().withRequestTimeout(Duration.ofSeconds(1));
     ArrayValue args =
         ValueFactory.newArray(ValueFactory.newString("one"), ValueFactory.newInteger(1));
     List<CompletableFuture<IProtoResponse>> futures = new ArrayList<>();

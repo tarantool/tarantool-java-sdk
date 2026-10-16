@@ -6,6 +6,7 @@
 package io.tarantool.core.integration;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -52,7 +53,7 @@ public class GracefulShutdownTest extends BaseTest {
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     return client;
   }
 

@@ -7,6 +7,7 @@ package io.tarantool.core.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +94,7 @@ public abstract class BaseTest {
             null,
             null,
             useTupleExtension);
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     return client;
   }
 }

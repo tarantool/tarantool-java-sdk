@@ -7,6 +7,7 @@ package io.tarantool.client.factory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -168,7 +169,7 @@ abstract class TarantoolClientImpl implements TarantoolClient {
    */
   private IProtoRequestOpts convertOptions(Options opts) {
     return IProtoRequestOpts.empty()
-        .withRequestTimeout(opts.getTimeout())
+        .withRequestTimeout(Duration.ofMillis(opts.getTimeout()))
         .withStreamId(opts.getStreamId());
   }
 
