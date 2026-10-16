@@ -8,7 +8,6 @@ package io.tarantool.pool;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import io.micrometer.core.instrument.Counter;
@@ -94,27 +93,11 @@ final class PoolEntry {
   /** Flag for graceful shutdown handling. */
   private final boolean gracefulShutdown;
 
-  /** Death threshold from {@link io.tarantool.pool.HeartbeatOpts}. */
-  private final int deathThreshold;
-
-  /** Count of ping failed, computed from window size and percent of failures. */
-  private final int failedPingsThreshold;
-
   /** Index of entry within group. */
   private final int index;
 
-  /** Window size from {@link io.tarantool.pool.HeartbeatOpts}. */
-  private final int windowSize;
-
   /** Time in milliseconds after that reconnect task will be executed. */
   private final long reconnectAfter;
-
-  /**
-   * Function that send IProto packet that will be sent to tarantool. The response of this packet
-   * will be considered as pong result.
-   */
-  private final BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>>
-      pingFunction;
 
   /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
@@ -238,23 +221,13 @@ final class PoolEntry {
     // heartbeat related
     this.isHeartbeatStarted = false;
     this.lastHeartbeatEvent = HeartbeatEvent.KILL;
-    if (heartbeatOpts == null) {
-      this.heartbeatOpts = null;
-      this.heartbeatPingOpts = null;
-      this.deathThreshold = 0;
-      this.failedPingsThreshold = 0;
-      this.windowSize = 0;
-      this.window = null;
-      this.pingFunction = null;
+    this.heartbeatOpts = heartbeatOpts;
+    if (heartbeatOpts != null) {
+      this.window = new ArrayDeque<>(heartbeatOpts.getWindowSize());
+      this.heartbeatPingOpts = IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
     } else {
-      this.heartbeatOpts = heartbeatOpts;
-      this.heartbeatPingOpts =
-          IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
-      this.deathThreshold = heartbeatOpts.getDeathThreshold();
-      this.failedPingsThreshold = heartbeatOpts.getInvalidationThreshold();
-      this.windowSize = heartbeatOpts.getWindowSize();
-      this.window = new ArrayDeque<>(this.windowSize);
-      this.pingFunction = heartbeatOpts.getPingFunction();
+      this.window = null;
+      this.heartbeatPingOpts = null;
     }
     this.connectTimeout = connectTimeout;
     this.gracefulShutdown = gracefulShutdown;
@@ -368,9 +341,9 @@ final class PoolEntry {
         "heartbeat: start for {}/{}: failures = {}, interval = {}, death pings = {}",
         tag,
         index,
-        failedPingsThreshold,
+        heartbeatOpts.getInvalidationThreshold(),
         heartbeatOpts.getPingInterval(),
-        deathThreshold);
+        heartbeatOpts.getDeathThreshold());
     isHeartbeatStarted = true;
     window.clear();
     // heartbeat is being started immediately after first check so it is
@@ -485,8 +458,9 @@ final class PoolEntry {
   private void ping(Timeout handler) {
     lastPingTs = System.currentTimeMillis();
     LongTaskTimer.Sample timer = startTimer(heartbeatTime);
-    pingFunction
-        .apply(client, heartbeatPingOpts)
+    heartbeatOpts
+        .getPingFunction()
+        .apply(client, this.heartbeatPingOpts)
         .whenComplete(
             (r, exc) -> {
               stopTimer(timer);
@@ -532,16 +506,16 @@ final class PoolEntry {
 
     window.addFirst(failure);
     currentFailedPings += failure;
-    if (window.size() > windowSize) {
+    if (window.size() > heartbeatOpts.getWindowSize()) {
       currentFailedPings -= window.removeLast();
-    } else if (window.size() < windowSize) {
+    } else if (window.size() < heartbeatOpts.getWindowSize()) {
       return;
     }
 
-    if (currentFailedPings >= failedPingsThreshold) {
+    if (currentFailedPings >= heartbeatOpts.getInvalidationThreshold()) {
       fire(HeartbeatEvent.INVALIDATE);
       currentDeathPings++;
-      if (currentDeathPings > deathThreshold) {
+      if (currentDeathPings > heartbeatOpts.getDeathThreshold()) {
         fire(HeartbeatEvent.KILL);
       }
       return;
