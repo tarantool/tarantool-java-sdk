@@ -5,6 +5,7 @@
 
 package io.tarantool.client.factory;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -441,7 +442,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   int indexId;
@@ -496,7 +497,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   Integer indexId;
@@ -548,7 +549,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   Integer indexId;
@@ -613,7 +614,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   Integer indexId;
@@ -673,7 +674,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   if (fetcher == null) {
@@ -715,7 +716,7 @@ final class TarantoolBoxSpaceImpl extends AbstractTarantoolSpace implements Tara
                 client -> {
                   final IProtoRequestOpts requestOpts =
                       IProtoRequestOpts.empty()
-                          .withRequestTimeout(options.getTimeout())
+                          .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                           .withStreamId(options.getStreamId());
 
                   if (fetcher == null) {

@@ -6,6 +6,7 @@
 package io.tarantool.core.integration;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +58,7 @@ public class IProtoClientWatchersTest extends BaseTest {
   private IProtoClient getClientAndConnect(TarantoolContainer<?> tt) throws Exception {
     InetSocketAddress address = tt.mappedAddress();
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     return client;
   }
 
@@ -181,7 +182,7 @@ public class IProtoClientWatchersTest extends BaseTest {
     client.close();
     Thread.sleep(100);
     InetSocketAddress address = tt.mappedAddress();
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     Thread.sleep(1000);
 
     TarantoolContainerClientHelper.executeCommand(

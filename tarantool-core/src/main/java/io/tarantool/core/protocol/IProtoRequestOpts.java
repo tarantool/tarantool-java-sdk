@@ -5,28 +5,37 @@
 
 package io.tarantool.core.protocol;
 
+import java.time.Duration;
 import java.util.function.Consumer;
+
+import io.tarantool.core.TimeoutsUtils;
 
 public class IProtoRequestOpts {
 
   private Consumer<IProtoMessage> pushHandler;
   private Handlers handlers;
-  private long requestTimeoutMs;
+  private Duration requestTimeout;
   private Long streamId;
 
   private IProtoRequestOpts() {
-    requestTimeoutMs = 3_000L;
+    this.requestTimeout = Duration.ofSeconds(3);
   }
 
   public static IProtoRequestOpts empty() {
     return new IProtoRequestOpts();
   }
 
+  /**
+   * @deprecated Use {@link #withRequestTimeout(Duration)}
+   */
+  @Deprecated
   public IProtoRequestOpts withRequestTimeout(long timeoutMs) {
-    if (timeoutMs <= 0) {
-      throw new IllegalArgumentException("timeout should be greater than 0");
-    }
-    this.requestTimeoutMs = timeoutMs;
+    return withRequestTimeout(Duration.ofMillis(timeoutMs));
+  }
+
+  public IProtoRequestOpts withRequestTimeout(Duration timeout) {
+    TimeoutsUtils.checkTimeoutIsPositive(timeout);
+    this.requestTimeout = timeout;
     return this;
   }
 
@@ -43,8 +52,16 @@ public class IProtoRequestOpts {
     return this;
   }
 
+  /**
+   * @deprecated Use {@link #requestTimeout()}
+   */
+  @Deprecated
   public long getRequestTimeout() {
-    return this.requestTimeoutMs;
+    return this.requestTimeout.toMillis();
+  }
+
+  public Duration requestTimeout() {
+    return this.requestTimeout;
   }
 
   public Long getStreamId() {

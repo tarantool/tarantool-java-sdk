@@ -156,8 +156,8 @@ public class WatcherStateMachine implements IProtoStateMachine {
                 future.completeExceptionally(new ClientException("watcher timeout"));
               }
             },
-            opts.getSendTimeout(),
-            TimeUnit.MILLISECONDS);
+            opts.sendTimeout().toNanos(),
+            TimeUnit.NANOSECONDS);
     future.whenComplete(
         (r, exc) -> {
           timer.cancel();

@@ -6,8 +6,10 @@
 package io.tarantool.core.connection;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -16,7 +18,14 @@ import io.tarantool.core.protocol.IProtoResponse;
 
 public interface Connection extends AutoCloseable {
 
+  /**
+   * @deprecated Use {@link #connect(InetSocketAddress, Duration)}
+   */
+  @Deprecated
   CompletableFuture<Greeting> connect(InetSocketAddress addr, long timeoutMs)
+      throws IllegalStateException;
+
+  CompletionStage<Greeting> connect(InetSocketAddress address, Duration timeout)
       throws IllegalStateException;
 
   CompletableFuture<Void> send(IProtoMessage message) throws IllegalStateException;
@@ -35,7 +44,13 @@ public interface Connection extends AutoCloseable {
 
   void resume();
 
+  /**
+   * @deprecated Use {@link #setIdleTimeout(Duration)}
+   */
+  @Deprecated
   void setIdleTimeout(int idleTimeout);
+
+  void setIdleTimeout(Duration timeout);
 
   boolean isPaused();
 }

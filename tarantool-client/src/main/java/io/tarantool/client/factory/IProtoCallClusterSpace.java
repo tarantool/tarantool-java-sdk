@@ -5,6 +5,7 @@
 
 package io.tarantool.client.factory;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,7 +79,7 @@ abstract class IProtoCallClusterSpace extends AbstractTarantoolSpace implements 
                     TarantoolJacksonMapping.toValue(withSpaceName(args)),
                     null,
                     IProtoRequestOpts.empty()
-                        .withRequestTimeout(options.getTimeout())
+                        .withRequestTimeout(Duration.ofMillis(options.getTimeout()))
                         .withStreamId(options.getStreamId())));
   }
 

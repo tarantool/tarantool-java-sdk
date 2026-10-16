@@ -6,6 +6,7 @@
 package io.tarantool.core.unit.requests;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,7 +61,7 @@ public class RequestTest {
 
     // begin
     final Long streamId = 1L;
-    long timeout = 1L;
+    Duration timeout = Duration.ofSeconds(1L);
     IProtoRequest begin = new IProtoBegin(streamId, timeout, TransactionIsolationLevel.DEFAULT);
     assertEquals(
         "IProtoBegin(syncId = "

@@ -8,6 +8,7 @@ package io.tarantool.core.integration;
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -133,7 +134,7 @@ public class MVCCStreamsTest extends BaseTest {
 
   private IProtoClient getClientAndConnect() throws Exception {
     IProtoClient client = new IProtoClientImpl(factory, factory.getTimerService());
-    client.connect(address, 3_000).get();
+    client.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     client.authorize(API_USER, CREDS.get(API_USER)).join();
     return client;
   }
@@ -143,7 +144,10 @@ public class MVCCStreamsTest extends BaseTest {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
     IProtoMessage messageBegin =
-        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
+        client
+            .begin(streamId, Duration.ofSeconds(3), TransactionIsolationLevel.DEFAULT)
+            .toCompletableFuture()
+            .get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
@@ -178,7 +182,10 @@ public class MVCCStreamsTest extends BaseTest {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
     IProtoMessage messageBegin =
-        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
+        client
+            .begin(streamId, Duration.ofSeconds(3), TransactionIsolationLevel.DEFAULT)
+            .toCompletableFuture()
+            .get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
@@ -196,7 +203,10 @@ public class MVCCStreamsTest extends BaseTest {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
     IProtoMessage messageBegin =
-        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
+        client
+            .begin(streamId, Duration.ofSeconds(3), TransactionIsolationLevel.DEFAULT)
+            .toCompletableFuture()
+            .get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
     IProtoMessage messageCall = client.call("insert_c", ValueFactory.emptyArray(), opts).get();
@@ -217,7 +227,10 @@ public class MVCCStreamsTest extends BaseTest {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
     IProtoMessage messageBegin =
-        client.begin(streamId, 3_000L, TransactionIsolationLevel.DEFAULT).get();
+        client
+            .begin(streamId, Duration.ofSeconds(3), TransactionIsolationLevel.DEFAULT)
+            .toCompletableFuture()
+            .get();
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
     IProtoMessage messageInsertA = client.insert(spaceAId, null, tupleA, opts).get();
 
@@ -248,7 +261,11 @@ public class MVCCStreamsTest extends BaseTest {
   public void testStreamAutoRollback() throws Exception {
     IProtoClient client = getClientAndConnect();
     Long streamId = client.allocateStreamId();
-    IProtoMessage messageBegin = client.begin(streamId, 1, TransactionIsolationLevel.DEFAULT).get();
+    IProtoMessage messageBegin =
+        client
+            .begin(streamId, Duration.ofMillis(1), TransactionIsolationLevel.DEFAULT)
+            .toCompletableFuture()
+            .get();
     Thread.sleep(3_000L);
     IProtoRequestOpts opts = IProtoRequestOpts.empty().withStreamId(streamId);
 

@@ -6,6 +6,7 @@
 package io.tarantool.core.protocol.requests;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,18 +23,25 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.RAW_IPROTO_TXN_
 import static io.tarantool.core.protocol.requests.IProtoConstant.RAW_IPROTO_TYPE_BEGIN;
 import static io.tarantool.core.protocol.requests.IProtoConstant.RAW_MAP_HEADER_WITH_ONE_ITEM;
 import static io.tarantool.core.protocol.requests.IProtoConstant.RAW_MAP_HEADER_WITH_TWO_ITEMS;
+import io.tarantool.core.TimeoutsUtils;
 import io.tarantool.core.protocol.TransactionIsolationLevel;
 
 public class IProtoBegin extends IProtoBaseRequest {
 
   // body fields
-  private final long timeout;
+  private final Duration timeout;
   private final TransactionIsolationLevel level;
 
-  public IProtoBegin(Long streamId, long timeout, TransactionIsolationLevel level) {
-    if (timeout <= 0) {
-      throw new IllegalArgumentException("timeout should be greater than 0");
-    }
+  /**
+   * @deprecated Use {@link #IProtoBegin(Long, Duration, TransactionIsolationLevel)}
+   */
+  @Deprecated
+  public IProtoBegin(Long streamId, long timeoutMs, TransactionIsolationLevel level) {
+    this(streamId, Duration.ofMillis(timeoutMs), level);
+  }
+
+  public IProtoBegin(Long streamId, Duration timeout, TransactionIsolationLevel level) {
+    TimeoutsUtils.checkTimeoutIsPositive(timeout);
     this.timeout = timeout;
     this.level = level;
     this.setStreamId(streamId);
@@ -55,7 +63,9 @@ public class IProtoBegin extends IProtoBaseRequest {
     }
 
     packer.addPayload(RAW_IPROTO_TIMEOUT); // key
-    packer.packDouble(timeout); // value
+
+    double totalSeconds = timeout.toNanos() / 1_000_000_000.0;
+    packer.packDouble(totalSeconds); // value
 
     if (!level.equals(TransactionIsolationLevel.DEFAULT)) {
       packer.addPayload(RAW_IPROTO_TXN_ISOLATION); // key
@@ -68,7 +78,8 @@ public class IProtoBegin extends IProtoBaseRequest {
   @Override
   public MapValue getBody() {
     Map<Value, Value> map = new HashMap<>();
-    map.put(MP_IPROTO_TIMEOUT, ValueFactory.newInteger(timeout));
+    double totalSeconds = timeout.toNanos() / 1_000_000_000.0;
+    map.put(MP_IPROTO_TIMEOUT, ValueFactory.newFloat(totalSeconds));
 
     if (!level.equals(TransactionIsolationLevel.DEFAULT)) {
       map.put(MP_IPROTO_TXN_ISOLATION, ValueFactory.newInteger(level.ordinal()));

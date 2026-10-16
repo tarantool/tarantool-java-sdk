@@ -6,6 +6,7 @@
 package io.tarantool.core.integration;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -50,7 +51,7 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
           closeFuture.completeExceptionally(ex);
         });
     InetSocketAddress address = tt.mappedAddress();
-    connection.connect(address, 3_000).get();
+    connection.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     Thread.sleep(500);
     connection.close();
     Exception ex = assertThrows(CompletionException.class, closeFuture::join);
@@ -70,7 +71,7 @@ public class ConnectionCloseOnClientSideTest extends BaseTest {
           closeFuture.completeExceptionally(ex);
         });
     InetSocketAddress address = tt.mappedAddress();
-    connection.connect(address, 3_000).get();
+    connection.connect(address, Duration.ofSeconds(3)).toCompletableFuture().get();
     Thread.sleep(500);
     connection.shutdownClose();
     Exception ex = assertThrows(CompletionException.class, closeFuture::join);

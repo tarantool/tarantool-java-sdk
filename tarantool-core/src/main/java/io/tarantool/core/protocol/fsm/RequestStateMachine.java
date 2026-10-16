@@ -5,6 +5,7 @@
 
 package io.tarantool.core.protocol.fsm;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +31,7 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
   private final Consumer<IProtoMessage> pushConsumer;
   private final Handlers handlers;
   private final Timer timerService;
-  private final long timeout;
+  private final Duration timeout;
   private final CompletableFuture<IProtoResponse> promise;
   private Timeout timer;
 
@@ -48,7 +49,7 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
     this.pushConsumer = opts.getPushHandler();
     this.handlers = requestHandlers;
     this.timerService = timerService;
-    this.timeout = opts.getRequestTimeout();
+    this.timeout = opts.requestTimeout();
     this.promise = promise;
     fsmRegistry.put(syncId, this);
   }
@@ -60,7 +61,6 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
       handlers.getOnBeforeSend().accept(request);
     }
 
-    // TODO: remove string format
     this.timer =
         runAfter(
             timeout,
@@ -68,9 +68,7 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
               if (handlers != null && handlers.getOnTimeout() != null) {
                 handlers.getOnTimeout().accept(request);
               }
-              kill(
-                  new TimeoutException(
-                      String.format("Request timeout: %s; timeout = %sms", request, timeout)));
+              kill(new TimeoutException("Request timeout: " + request + "; timeout = " + timeout));
             });
 
     promise.whenComplete((iProtoResponse, throwable) -> this.timer.cancel());
@@ -119,12 +117,13 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
     promise.completeExceptionally(ex);
   }
 
-  private Timeout runAfter(long after, Runnable cb) {
-    if (after == 0) {
+  private Timeout runAfter(Duration after, Runnable cb) {
+    if (after.isZero()) {
       cb.run();
       return null;
     }
 
-    return timerService.newTimeout(timeoutHandler -> cb.run(), after, TimeUnit.MILLISECONDS);
+    return timerService.newTimeout(
+        timeoutHandler -> cb.run(), after.toNanos(), TimeUnit.NANOSECONDS);
   }
 }
