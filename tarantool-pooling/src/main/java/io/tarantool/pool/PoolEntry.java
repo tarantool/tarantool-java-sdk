@@ -8,7 +8,6 @@ package io.tarantool.pool;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import io.micrometer.core.instrument.Counter;
@@ -94,27 +93,11 @@ final class PoolEntry {
   /** Flag for graceful shutdown handling. */
   private final boolean gracefulShutdown;
 
-  /** Death threshold from {@link io.tarantool.pool.HeartbeatOpts}. */
-  private final int deathThreshold;
-
-  /** Count of ping failed, computed from window size and percent of failures. */
-  private final int failedPingsThreshold;
-
   /** Index of entry within group. */
   private final int index;
 
-  /** Window size from {@link io.tarantool.pool.HeartbeatOpts}. */
-  private final int windowSize;
-
   /** Time in milliseconds after that reconnect task will be executed. */
   private final long reconnectAfter;
-
-  /**
-   * Function that send IProto packet that will be sent to tarantool. The response of this packet
-   * will be considered as pong result.
-   */
-  private final BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>>
-      pingFunction;
 
   /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
@@ -169,23 +152,8 @@ final class PoolEntry {
    */
   private long connectTimeout;
 
-  /** Count of successul connect attempts. */
-  private Counter connectSuccess;
-
-  /** Count of failed connect attempts. */
-  private Counter connectErrors;
-
-  /** Time of connect. */
-  private LongTaskTimer connectTime;
-
-  /** Count of successful heartbeat ping requests. */
-  private Counter heartbeatSuccess;
-
-  /** Count of failed heartbeat ping requests. */
-  private Counter heartbeatErrors;
-
-  /** Time of ping request. */
-  private LongTaskTimer heartbeatTime;
+  /** Metrics of {@link PoolEntry}. */
+  private final PoolEntryMetrics metrics;
 
   /**
    * Constructor for PoolEntry.
@@ -223,7 +191,9 @@ final class PoolEntry {
       TripleConsumer<String, Integer, IProtoResponse> ignoredPacketsHandler,
       Handlers handlers,
       boolean useTupleExtension,
-      PoolEventListener poolEventListener) {
+      PoolEventListener poolEventListener,
+      PoolEntryMetrics metrics) {
+    this.metrics = metrics;
     this.metricsRegistry = registry;
     this.handlers = handlers;
     this.client =
@@ -238,23 +208,14 @@ final class PoolEntry {
     // heartbeat related
     this.isHeartbeatStarted = false;
     this.lastHeartbeatEvent = HeartbeatEvent.KILL;
-    if (heartbeatOpts == null) {
-      this.heartbeatOpts = null;
-      this.heartbeatPingOpts = null;
-      this.deathThreshold = 0;
-      this.failedPingsThreshold = 0;
-      this.windowSize = 0;
-      this.window = null;
-      this.pingFunction = null;
-    } else {
-      this.heartbeatOpts = heartbeatOpts;
+    this.heartbeatOpts = heartbeatOpts;
+    if (heartbeatOpts != null) {
+      this.window = new ArrayDeque<>(heartbeatOpts.getWindowSize());
       this.heartbeatPingOpts =
           IProtoRequestOpts.empty().withRequestTimeout(heartbeatOpts.getPingInterval());
-      this.deathThreshold = heartbeatOpts.getDeathThreshold();
-      this.failedPingsThreshold = heartbeatOpts.getInvalidationThreshold();
-      this.windowSize = heartbeatOpts.getWindowSize();
-      this.window = new ArrayDeque<>(this.windowSize);
-      this.pingFunction = heartbeatOpts.getPingFunction();
+    } else {
+      this.window = null;
+      this.heartbeatPingOpts = null;
     }
     this.connectTimeout = connectTimeout;
     this.gracefulShutdown = gracefulShutdown;
@@ -273,8 +234,6 @@ final class PoolEntry {
     if (ignoredPacketsHandler != null) {
       client.onIgnoredPacket(packet -> ignoredPacketsHandler.accept(this.tag, this.index, packet));
     }
-
-    initMetrics();
   }
 
   /**
@@ -368,9 +327,9 @@ final class PoolEntry {
         "heartbeat: start for {}/{}: failures = {}, interval = {}, death pings = {}",
         tag,
         index,
-        failedPingsThreshold,
+        heartbeatOpts.getInvalidationThreshold(),
         heartbeatOpts.getPingInterval(),
-        deathThreshold);
+        heartbeatOpts.getDeathThreshold());
     isHeartbeatStarted = true;
     window.clear();
     // heartbeat is being started immediately after first check so it is
@@ -400,7 +359,8 @@ final class PoolEntry {
    */
   private CompletableFuture<IProtoClient> internalConnect() {
     log.info("connect {}/{}", tag, index);
-    LongTaskTimer.Sample timer = startTimer(connectTime);
+    final LongTaskTimer.Sample timer =
+        this.metrics != null ? this.metrics.poolConnectTime.start() : null;
     CompletableFuture<?> future =
         client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
     String user = group.getUser();
@@ -408,7 +368,7 @@ final class PoolEntry {
         future
             .thenCompose(
                 greeting -> {
-                  stopTimer(timer);
+                  PoolEntryMetrics.stopTimer(timer);
                   if (user != null) {
                     return client.authorize(user, group.getPassword(), group.getAuthType());
                   }
@@ -429,13 +389,10 @@ final class PoolEntry {
    * @param exc exception occurred during connection process
    */
   private void onConnectComplete(Object r, Throwable exc) {
-    if (metricsRegistry != null) {
-      if (exc != null) {
-        connectErrors.increment();
-      } else {
-        connectSuccess.increment();
-      }
+    if (this.metrics != null) {
+      this.metrics.incrementPoolConnectMetrics(exc);
     }
+
     if (exc != null) {
       handleConnectError(r, exc);
       return;
@@ -484,12 +441,14 @@ final class PoolEntry {
    */
   private void ping(Timeout handler) {
     lastPingTs = System.currentTimeMillis();
-    LongTaskTimer.Sample timer = startTimer(heartbeatTime);
-    pingFunction
-        .apply(client, heartbeatPingOpts)
+    final LongTaskTimer.Sample timer =
+        this.metrics != null ? this.metrics.heartbeatTime.start() : null;
+    heartbeatOpts
+        .getPingFunction()
+        .apply(client, this.heartbeatPingOpts)
         .whenComplete(
             (r, exc) -> {
-              stopTimer(timer);
+              PoolEntryMetrics.stopTimer(timer);
               pong(r, exc);
             });
   }
@@ -528,20 +487,20 @@ final class PoolEntry {
         && !result.getBodyArrayValue(IPROTO_DATA).get(0).equals(ImmutableBooleanValueImpl.TRUE)) {
       failure = 1;
     }
-    incHeartbeatCounters(failure);
+    PoolEntryMetrics.incrementHeartbeatMetrics(this.metrics, failure);
 
     window.addFirst(failure);
     currentFailedPings += failure;
-    if (window.size() > windowSize) {
+    if (window.size() > heartbeatOpts.getWindowSize()) {
       currentFailedPings -= window.removeLast();
-    } else if (window.size() < windowSize) {
+    } else if (window.size() < heartbeatOpts.getWindowSize()) {
       return;
     }
 
-    if (currentFailedPings >= failedPingsThreshold) {
+    if (currentFailedPings >= heartbeatOpts.getInvalidationThreshold()) {
       fire(HeartbeatEvent.INVALIDATE);
       currentDeathPings++;
-      if (currentDeathPings > deathThreshold) {
+      if (currentDeathPings > heartbeatOpts.getDeathThreshold()) {
         fire(HeartbeatEvent.KILL);
       }
       return;
@@ -580,70 +539,6 @@ final class PoolEntry {
     }
   }
 
-  /**
-   * Metrics initializations.
-   *
-   * <p>When registry is passed to {@link PoolEntry} constructor, metrics for heartbeats and connect
-   * are created and registered in this registry.
-   */
-  private void initMetrics() {
-    if (metricsRegistry == null) {
-      return;
-    }
-
-    heartbeatSuccess = metricsRegistry.get("pool.heartbeat.success").counter();
-    heartbeatErrors = metricsRegistry.get("pool.heartbeat.errors").counter();
-    heartbeatTime = metricsRegistry.get("pool.heartbeat.time").longTaskTimer();
-
-    connectSuccess = metricsRegistry.get("pool.connect.success").counter();
-    connectErrors = metricsRegistry.get("pool.connect.errors").counter();
-    connectTime = metricsRegistry.get("pool.connect.time").longTaskTimer();
-  }
-
-  /**
-   * Creates timer span for time measurement.
-   *
-   * @param timer an instance of {@code LongTaskTimer}
-   * @return instance of {@code LongTaskTimer.Sample}
-   */
-  private LongTaskTimer.Sample startTimer(LongTaskTimer timer) {
-    if (metricsRegistry == null) {
-      return null;
-    }
-
-    return timer.start();
-  }
-
-  /**
-   * If timer span is not null, stops time measurement.
-   *
-   * @param timer an instance of {@code LongTaskTimer.Sample}
-   */
-  private void stopTimer(LongTaskTimer.Sample timer) {
-    if (timer == null) {
-      return;
-    }
-
-    timer.stop();
-  }
-
-  /**
-   * Increments heartbeat related metrics.
-   *
-   * @param fail if ping is failed then this value is 1, otherwise this value is 0.
-   */
-  private void incHeartbeatCounters(int fail) {
-    if (metricsRegistry == null || heartbeatSuccess == null || heartbeatErrors == null) {
-      return;
-    }
-
-    if (fail != 0) {
-      heartbeatErrors.increment();
-    } else {
-      heartbeatSuccess.increment();
-    }
-  }
-
   /** Stops reconnecting task if it is active. */
   private void stopReconnectTask() {
     if (reconnectTask != null) {
@@ -661,6 +556,121 @@ final class PoolEntry {
   private void emit(Consumer<PoolEventListener> action) {
     if (poolEventListener != null) {
       action.accept(poolEventListener);
+    }
+  }
+
+  /** {@link PoolEntry} metrics. */
+  static class PoolEntryMetrics {
+
+    static final String POOL_HEARTBEAT_SUCCESS_METRIC = "pool.heartbeat.success";
+    static final String POOL_HEARTBEAT_SUCCESS_METRIC_DESC =
+        "Total count of successful heartbeat ping requests";
+
+    /** Count of successful heartbeat ping requests. */
+    private final Counter heartbeatSuccess;
+
+    static final String POOL_HEARTBEAT_ERRORS_METRIC = "pool.heartbeat.errors";
+    static final String POOL_HEARTBEAT_ERRORS_METRIC_DESC =
+        "Total count of failed heartbeat ping requests";
+
+    /** Count of failed heartbeat ping requests. */
+    private final Counter heartbeatErrors;
+
+    static final String POOL_HEARTBEAT_TIME_METRIC = "pool.heartbeat.time";
+    static final String POOL_HEARTBEAT_TIME_METRIC_DESC = "Time of ping request";
+
+    /** Time of ping request. */
+    private final LongTaskTimer heartbeatTime;
+
+    static final String POOL_CONNECT_SUCCESS_METRIC = "pool.connect.success";
+    static final String POOL_CONNECT_SUCCESS_METRIC_DESC = "Total count of succeeded connects";
+
+    /** Count of successful connect attempts. */
+    private final Counter poolConnectSuccess;
+
+    static final String POOL_CONNECT_ERRORS_METRIC = "pool.connect.errors";
+    static final String POOL_CONNECT_ERRORS_METRIC_DESC = "Total count of connect failures";
+
+    /** Count of failed connect attempts. */
+    private final Counter poolConnectErrors;
+
+    static final String POOL_CONNECT_TIME_METRIC = "pool.connect.time";
+    static final String POOL_CONNECT_TIME_METRIC_DESC = "Total time of connects";
+
+    /** Time of connect. */
+    private final LongTaskTimer poolConnectTime;
+
+    public PoolEntryMetrics(MeterRegistry registry) {
+
+      this.heartbeatSuccess =
+          Counter.builder(POOL_HEARTBEAT_SUCCESS_METRIC)
+              .description(POOL_HEARTBEAT_SUCCESS_METRIC_DESC)
+              .register(registry);
+
+      this.heartbeatErrors =
+          Counter.builder(POOL_HEARTBEAT_ERRORS_METRIC)
+              .description(POOL_HEARTBEAT_ERRORS_METRIC_DESC)
+              .register(registry);
+
+      this.heartbeatTime =
+          LongTaskTimer.builder(POOL_HEARTBEAT_TIME_METRIC)
+              .description(POOL_HEARTBEAT_TIME_METRIC_DESC)
+              .register(registry);
+
+      this.poolConnectSuccess =
+          Counter.builder(POOL_CONNECT_SUCCESS_METRIC)
+              .description(POOL_CONNECT_SUCCESS_METRIC_DESC)
+              .register(registry);
+
+      this.poolConnectErrors =
+          Counter.builder(POOL_CONNECT_ERRORS_METRIC)
+              .description(POOL_CONNECT_ERRORS_METRIC_DESC)
+              .register(registry);
+
+      this.poolConnectTime =
+          LongTaskTimer.builder(POOL_CONNECT_TIME_METRIC)
+              .description(POOL_CONNECT_TIME_METRIC_DESC)
+              .register(registry);
+    }
+
+    /**
+     * Increment {@link #poolConnectSuccess} if exception is null and increment {@link
+     * #poolConnectErrors} if exception is not null.
+     */
+    private void incrementPoolConnectMetrics(Throwable exception) {
+      if (exception != null) {
+        this.poolConnectErrors.increment();
+      } else {
+        this.poolConnectSuccess.increment();
+      }
+    }
+
+    /**
+     * Increments heartbeat related metrics.
+     *
+     * @param fail if ping is failed then this value is 1, otherwise this value is 0.
+     */
+    private static void incrementHeartbeatMetrics(PoolEntryMetrics metrics, int fail) {
+      if (metrics == null) {
+        return;
+      }
+
+      if (fail != 0) {
+        metrics.heartbeatErrors.increment();
+      } else {
+        metrics.heartbeatSuccess.increment();
+      }
+    }
+
+    /**
+     * If timer span is not null, stops time measurement.
+     *
+     * @param timer an instance of {@code LongTaskTimer.Sample}
+     */
+    private static void stopTimer(LongTaskTimer.Sample timer) {
+      if (timer != null) {
+        timer.stop();
+      }
     }
   }
 }
