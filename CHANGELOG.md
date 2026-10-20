@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Bug fixes
+
+- Fixed a bug: the timeout in IProtoBegin was being specified in milliseconds (as a `long`), but
+  the [protocol](https://www.tarantool.io/ru/doc/latest/reference/internals/iproto/streams/#iproto-begin)
+  requires the timeout to be passed in seconds (as a `double`).
+
 ## [1.7.2] - 2026-09-25
 
 ### Client

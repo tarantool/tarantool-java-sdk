@@ -27,14 +27,14 @@ import io.tarantool.core.protocol.TransactionIsolationLevel;
 public class IProtoBegin extends IProtoBaseRequest {
 
   // body fields
-  private final long timeout;
+  private final double timeoutS;
   private final TransactionIsolationLevel level;
 
-  public IProtoBegin(Long streamId, long timeout, TransactionIsolationLevel level) {
-    if (timeout <= 0) {
-      throw new IllegalArgumentException("timeout should be greater than 0");
+  public IProtoBegin(Long streamId, long timeoutMs, TransactionIsolationLevel level) {
+    if (timeoutMs <= 0) {
+      throw new IllegalArgumentException("timeoutMs should be greater than 0");
     }
-    this.timeout = timeout;
+    this.timeoutS = timeoutMs / 1_000d;
     this.level = level;
     this.setStreamId(streamId);
   }
@@ -55,7 +55,7 @@ public class IProtoBegin extends IProtoBaseRequest {
     }
 
     packer.addPayload(RAW_IPROTO_TIMEOUT); // key
-    packer.packDouble(timeout); // value
+    packer.packDouble(timeoutS); // value
 
     if (!level.equals(TransactionIsolationLevel.DEFAULT)) {
       packer.addPayload(RAW_IPROTO_TXN_ISOLATION); // key
@@ -68,7 +68,7 @@ public class IProtoBegin extends IProtoBaseRequest {
   @Override
   public MapValue getBody() {
     Map<Value, Value> map = new HashMap<>();
-    map.put(MP_IPROTO_TIMEOUT, ValueFactory.newInteger(timeout));
+    map.put(MP_IPROTO_TIMEOUT, ValueFactory.newFloat(timeoutS));
 
     if (!level.equals(TransactionIsolationLevel.DEFAULT)) {
       map.put(MP_IPROTO_TXN_ISOLATION, ValueFactory.newInteger(level.ordinal()));
@@ -94,8 +94,8 @@ public class IProtoBegin extends IProtoBaseRequest {
           .append("IProtoBegin(syncId = ")
           .append(getSyncId())
           .append(", timeout = ")
-          .append(timeout)
-          .append(", level = ")
+          .append(timeoutS)
+          .append("s, level = ")
           .append(level)
           .append(")");
     }

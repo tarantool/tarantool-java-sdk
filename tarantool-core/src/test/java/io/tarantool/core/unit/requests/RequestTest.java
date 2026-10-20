@@ -60,14 +60,15 @@ public class RequestTest {
 
     // begin
     final Long streamId = 1L;
-    long timeout = 1L;
-    IProtoRequest begin = new IProtoBegin(streamId, timeout, TransactionIsolationLevel.DEFAULT);
+    long timeoutMs = 1L;
+    double timeoutS = timeoutMs / 1_000d;
+    IProtoRequest begin = new IProtoBegin(streamId, timeoutMs, TransactionIsolationLevel.DEFAULT);
     assertEquals(
         "IProtoBegin(syncId = "
             + begin.getSyncId()
             + ", timeout = "
-            + timeout
-            + ", level = "
+            + timeoutS
+            + "s, level = "
             + TransactionIsolationLevel.DEFAULT
             + ")",
         begin.toString());
