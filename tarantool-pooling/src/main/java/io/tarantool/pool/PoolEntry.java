@@ -97,7 +97,7 @@ final class PoolEntry {
   private final int index;
 
   /** Time in milliseconds after that reconnect task will be executed. */
-  private final long reconnectAfter;
+  private volatile long reconnectAfter;
 
   /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
@@ -316,6 +316,15 @@ final class PoolEntry {
    */
   public void setConnectTimeout(long timeout) {
     this.connectTimeout = timeout;
+  }
+
+  /**
+   * Setter for {@link #reconnectAfter}.
+   *
+   * @param reconnectAfter reconnect time in milliseconds
+   */
+  public void setReconnectAfter(long reconnectAfter) {
+    this.reconnectAfter = reconnectAfter;
   }
 
   /** Heartbeat starter. */
