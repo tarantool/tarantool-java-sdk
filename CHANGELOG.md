@@ -12,6 +12,10 @@
   `TimeoutException`, whose message names the address and the timeout, and no
   `CLOSE_BY_REMOTE` event is fired. Previously the connection pool could handle such an attempt
   twice and schedule two reconnect tasks for it.
+- Fixed a leak when graceful shutdown is enabled: every connect attempt added one more
+  `box.shutdown` callback to the same watcher, so a client that kept reconnecting accumulated
+  callbacks, and a `box.shutdown` event after a successful connect ran the callback once per
+  previous attempt. The callback is now added once per client.
 
 ### Documentation
 
