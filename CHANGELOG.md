@@ -68,6 +68,12 @@
   `VHANDSHAKE_NOT_COMPLETE`. The check now makes a synchronous `callrw` to every replicaset master,
   which reopens a router connection that vshard closed after a failed handshake and waits for the
   new one, requires every master to be `available`, and logs the replica and bucket states.
+- Fixed a bug when a server that accepts the TCP connection but does not send the greeting was
+  reported as "Connection closed by server". The connect future is now failed only with
+  `TimeoutException`, and no `CLOSE_BY_REMOTE` event is fired. Previously the connection pool
+  handled every such attempt twice, so the reconnect chains multiplied while the server stayed
+  silent. The greeting timer of an attempt that the server closed no longer closes the channel of
+  the next attempt.
 
 ### Documentation
 
