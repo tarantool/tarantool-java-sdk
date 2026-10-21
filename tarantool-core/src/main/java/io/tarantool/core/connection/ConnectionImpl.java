@@ -44,7 +44,9 @@ public class ConnectionImpl implements Connection {
     /** Closed by client close reason. */
     CLOSED_BY_CLIENT(ERR_CLOSED_BY_CLIENT),
     /** Closed by shutdown close reason. */
-    CLOSED_BY_SHUTDOWN(ERR_CLOSED_BY_SHUTDOWN);
+    CLOSED_BY_SHUTDOWN(ERR_CLOSED_BY_SHUTDOWN),
+    /** Closed by the client because the greeting did not arrive in time. */
+    CLOSED_BY_TIMEOUT(ERR_CLOSED_BY_TIMEOUT);
 
     private final String message;
 
@@ -98,6 +100,9 @@ public class ConnectionImpl implements Connection {
   private static final String ERR_CLOSED_BY_CLIENT = "Connection closed by client";
   private static final String ERR_CLOSED_BY_SERVER = "Connection closed by server";
   private static final String ERR_CLOSED_BY_SHUTDOWN = "Connection closed by shutdown";
+  private static final String ERR_CLOSED_BY_TIMEOUT = "Connection closed by connect timeout";
+  private static final String ERR_GREETING_TIMEOUT =
+      "Connection timeout: no greeting from %s within %d ms";
   private static final String ERR_NOT_CONNECTED = "Connection is not established";
   private static final String ERR_SEND_FAILURE = "Failed to send IProto message: %s";
 
@@ -186,7 +191,7 @@ public class ConnectionImpl implements Connection {
       log.debug("{} is connecting to {}", this, address);
 
       CompletableFuture<Greeting> promise = new CompletableFuture<>();
-      scheduleGreetingTimeout(promise, timeoutMs);
+      scheduleGreetingTimeout(promise, address, timeoutMs);
       connectPromise =
           promise.thenApply(
               greeting -> {
@@ -354,6 +359,14 @@ public class ConnectionImpl implements Connection {
     String message;
     ConnectionCloseEvent event;
     CloseReason lastCloseReason = closedBy.get();
+    if (lastCloseReason == CloseReason.CLOSED_BY_TIMEOUT) {
+      // The connect promise is failed with TimeoutException by the greeting timer. The connection
+      // has never been established, so there is no close event to fire.
+      state.set(State.CLOSED);
+      channel = null;
+      connectPromise = null;
+      return;
+    }
     switch (lastCloseReason) {
       case CLOSED_BY_SHUTDOWN:
         message = lastCloseReason.getMessage();
@@ -405,7 +418,8 @@ public class ConnectionImpl implements Connection {
     }
   }
 
-  private void scheduleGreetingTimeout(CompletableFuture<Greeting> promise, long timeoutMs) {
+  private void scheduleGreetingTimeout(
+      CompletableFuture<Greeting> promise, InetSocketAddress address, long timeoutMs) {
     log.debug("Schedule timeout for connect in milliseconds: {}", timeoutMs);
     if (timeoutMs <= 0) {
       throw new IllegalStateException("Timeout must be greater than zero!");
@@ -413,16 +427,33 @@ public class ConnectionImpl implements Connection {
     timeoutHandler =
         this.timerService.newTimeout(
             timeoutHandler -> {
-              if (promise.isDone()) {
-                return;
-              }
-              if (state.get() == State.CONNECTING || state.get() == State.WAITING) {
-                channel.pipeline().close();
-                promise.completeExceptionally(new TimeoutException("Connection timeout"));
+              if (closeOnGreetingTimeout(promise)) {
+                promise.completeExceptionally(
+                    new TimeoutException(String.format(ERR_GREETING_TIMEOUT, address, timeoutMs)));
               }
             },
             timeoutMs,
             TimeUnit.MILLISECONDS);
+  }
+
+  /**
+   * Closes the channel if the greeting has not arrived yet.
+   *
+   * <p>The close reason is set before the channel is closed, so the close is not reported as a
+   * close by server. The promise is completed by the caller outside the monitor.
+   *
+   * @param promise greeting promise
+   * @return true if the channel is being closed because of the timeout
+   */
+  private synchronized boolean closeOnGreetingTimeout(CompletableFuture<Greeting> promise) {
+    if (promise.isDone()) {
+      return false;
+    }
+    if (state.get() != State.CONNECTING && state.get() != State.WAITING) {
+      return false;
+    }
+    closeChannel(CloseReason.CLOSED_BY_TIMEOUT);
+    return true;
   }
 
   private void cancelGreetingTimeout() {

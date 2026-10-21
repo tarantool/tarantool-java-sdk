@@ -182,7 +182,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
           cause.getMessage());
       assertEquals(ConnectTimeoutException.class, findRootCause(ex).getClass());
     } else if (cause.getClass() == TimeoutException.class) {
-      assertEquals("Connection timeout", cause.getMessage());
+      assertTrue(cause.getMessage().startsWith("Connection timeout"), cause.getMessage());
       log.info(findRootCause(ex).getClass().toString()); // Need for debug in the future
     } else {
       fail("An unknown exception was thrown during connection to the bad hostname!", cause);
@@ -255,7 +255,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = findRootCause(ex);
     assertEquals(TimeoutException.class, cause.getClass());
-    assertEquals("Connection timeout", cause.getMessage());
+    assertTrue(cause.getMessage().startsWith("Connection timeout"), cause.getMessage());
   }
 
   /*
@@ -341,7 +341,7 @@ public class ConnectionToTarantoolTest extends BaseTest {
     assertTrue(
         cause instanceof TimeoutException || cause instanceof ConnectionClosedException,
         "Exception should be either TimeoutException or ConnectionClosedException");
-    assertEquals("Connection timeout", cause.getMessage());
+    assertTrue(cause.getMessage().startsWith("Connection timeout"), cause.getMessage());
   }
 
   @Test

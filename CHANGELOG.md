@@ -7,6 +7,11 @@
 - Fixed a bug: the timeout in IProtoBegin was being specified in milliseconds (as a `long`), but
   the [protocol](https://www.tarantool.io/ru/doc/latest/reference/internals/iproto/streams/#iproto-begin)
   requires the timeout to be passed in seconds (as a `double`).
+- Fixed a bug when a server that accepts the TCP connection but does not send the greeting was
+  reported as "Connection closed by server". The connect future is now failed only with
+  `TimeoutException`, whose message names the address and the timeout, and no
+  `CLOSE_BY_REMOTE` event is fired. Previously the connection pool could handle such an attempt
+  twice and schedule two reconnect tasks for it.
 
 ### Documentation
 
