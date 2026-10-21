@@ -16,6 +16,11 @@
   `box.shutdown` callback to the same watcher, so a client that kept reconnecting accumulated
   callbacks, and a `box.shutdown` event after a successful connect ran the callback once per
   previous attempt. The callback is now added once per client.
+- Fixed resource growth in the connection pool while a server is unavailable. A failed attempt
+  handled twice (by the connect future and by a close event) scheduled a second reconnect task
+  without cancelling the first one, so the number of reconnect chains grew with every attempt;
+  a new task now replaces the previous one. The `pool.connect.time` timer is now also stopped
+  when an attempt fails.
 
 ### Documentation
 

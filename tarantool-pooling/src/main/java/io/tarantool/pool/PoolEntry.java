@@ -363,12 +363,13 @@ final class PoolEntry {
         this.metrics != null ? this.metrics.poolConnectTime.start() : null;
     CompletableFuture<?> future =
         client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
+    // Stop the timer on failure too, otherwise every failed attempt leaves an active sample.
+    future.whenComplete((r, exc) -> PoolEntryMetrics.stopTimer(timer));
     String user = group.getUser();
     connectFuture =
         future
             .thenCompose(
                 greeting -> {
-                  PoolEntryMetrics.stopTimer(timer);
                   if (user != null) {
                     return client.authorize(user, group.getPassword(), group.getAuthType());
                   }
@@ -422,15 +423,25 @@ final class PoolEntry {
     connectAfter();
   }
 
-  /** Reconnect task scheduler. */
+  /**
+   * Reconnect task scheduler.
+   *
+   * <p>One failed attempt can be handled more than once (for example, by the connect future and by
+   * a close event). A new task replaces the previous one, so the entry never has more than one
+   * pending reconnect.
+   */
   private void connectAfter() {
     log.info("reconnect {}/{} after {} ms", tag, index, reconnectAfter);
-    if (reconnectTask == null) {
-      this.connectionStatistics.incrementReconnecting();
+    synchronized (this) {
+      if (reconnectTask == null) {
+        this.connectionStatistics.incrementReconnecting();
+      } else {
+        reconnectTask.cancel();
+      }
+      reconnectTask =
+          timerService.newTimeout(
+              timeout -> internalConnect(), reconnectAfter, TimeUnit.MILLISECONDS);
     }
-    reconnectTask =
-        timerService.newTimeout(
-            timeout -> internalConnect(), reconnectAfter, TimeUnit.MILLISECONDS);
     emit(listener -> listener.onReconnectScheduled(tag, index, reconnectAfter));
   }
 
@@ -540,7 +551,7 @@ final class PoolEntry {
   }
 
   /** Stops reconnecting task if it is active. */
-  private void stopReconnectTask() {
+  private synchronized void stopReconnectTask() {
     if (reconnectTask != null) {
       this.connectionStatistics.decrementReconnecting();
       reconnectTask.cancel();
