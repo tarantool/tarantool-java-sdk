@@ -9,6 +9,15 @@
   exit code, stdout and stderr are logged and included in the error. Before, the error carried
   only the empty stdout ("Failed to change the app topology via cartridge CLI: ").
 
+### Bug fixes
+
+- Fixed a bug when a server that accepts the TCP connection but does not send the greeting was
+  reported as "Connection closed by server". The connect future is now failed only with
+  `TimeoutException`, and no `CLOSE_BY_REMOTE` event is fired. Previously the connection pool
+  handled every such attempt twice, so the reconnect chains multiplied while the server stayed
+  silent. The greeting timer of an attempt that the server closed no longer closes the channel of
+  the next attempt.
+
 ## [1.7.3] - 2026-10-30
 
 ### Pool
