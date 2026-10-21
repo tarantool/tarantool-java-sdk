@@ -44,7 +44,9 @@ public class ConnectionImpl implements Connection {
     /** Closed by client close reason. */
     CLOSED_BY_CLIENT(ERR_CLOSED_BY_CLIENT),
     /** Closed by shutdown close reason. */
-    CLOSED_BY_SHUTDOWN(ERR_CLOSED_BY_SHUTDOWN);
+    CLOSED_BY_SHUTDOWN(ERR_CLOSED_BY_SHUTDOWN),
+    /** Closed by the client because the greeting did not arrive in time. */
+    CLOSED_BY_TIMEOUT(ERR_CLOSED_BY_TIMEOUT);
 
     private final String message;
 
@@ -98,6 +100,9 @@ public class ConnectionImpl implements Connection {
   private static final String ERR_CLOSED_BY_CLIENT = "Connection closed by client";
   private static final String ERR_CLOSED_BY_SERVER = "Connection closed by server";
   private static final String ERR_CLOSED_BY_SHUTDOWN = "Connection closed by shutdown";
+  private static final String ERR_CLOSED_BY_TIMEOUT = "Connection closed by connect timeout";
+  private static final String ERR_GREETING_TIMEOUT =
+      "Connection timeout: no greeting from %s within %d ms";
   private static final String ERR_NOT_CONNECTED = "Connection is not established";
   private static final String ERR_SEND_FAILURE = "Failed to send IProto message: %s";
 
@@ -118,6 +123,10 @@ public class ConnectionImpl implements Connection {
   private Consumer<IProtoResponse> consumer;
   private CompletableFuture<Greeting> connectPromise;
   private Timeout timeoutHandler;
+
+  /** Greeting promise of the current attempt; a timer of an earlier attempt must not touch it. */
+  private CompletableFuture<Greeting> greetingPromise;
+
   private int idleTimeout;
 
   /**
@@ -190,7 +199,8 @@ public class ConnectionImpl implements Connection {
       log.debug("{} is connecting to {}", this, address);
 
       CompletableFuture<Greeting> promise = new CompletableFuture<>();
-      scheduleGreetingTimeout(promise, timeoutMs);
+      greetingPromise = promise;
+      scheduleGreetingTimeout(promise, address, timeoutMs);
       connectPromise =
           promise.thenApply(
               greeting -> {
@@ -358,6 +368,15 @@ public class ConnectionImpl implements Connection {
     String message;
     ConnectionCloseEvent event;
     CloseReason lastCloseReason = closedBy.get();
+    if (lastCloseReason == CloseReason.CLOSED_BY_TIMEOUT) {
+      // The greeting timer has already failed the connect promise with TimeoutException, so the
+      // greeting can no longer complete it: the connection has never been established and there
+      // is no close event to fire.
+      state.set(State.CLOSED);
+      channel = null;
+      connectPromise = null;
+      return;
+    }
     switch (lastCloseReason) {
       case CLOSED_BY_SHUTDOWN:
         message = lastCloseReason.getMessage();
@@ -416,21 +435,40 @@ public class ConnectionImpl implements Connection {
     }
   }
 
-  private void scheduleGreetingTimeout(CompletableFuture<Greeting> promise, long timeoutMs) {
+  private void scheduleGreetingTimeout(
+      CompletableFuture<Greeting> promise, InetSocketAddress address, long timeoutMs) {
     log.debug("Schedule timeout for connect in milliseconds: {}", timeoutMs);
     timeoutHandler =
         this.timerService.newTimeout(
             timeoutHandler -> {
-              if (promise.isDone()) {
-                return;
-              }
-              if (state.get() == State.CONNECTING || state.get() == State.WAITING) {
-                channel.pipeline().close();
-                promise.completeExceptionally(new TimeoutException("Connection timeout"));
+              // Fail the promise before closing the channel: if the greeting has already
+              // completed it, the connection is established and must not be closed here.
+              if (promise.completeExceptionally(
+                  new TimeoutException(String.format(ERR_GREETING_TIMEOUT, address, timeoutMs)))) {
+                closeOnGreetingTimeout(promise);
               }
             },
             timeoutMs,
             TimeUnit.MILLISECONDS);
+  }
+
+  /**
+   * Closes the channel of a connection whose greeting promise has been failed by the timeout.
+   *
+   * <p>The close reason is set before the channel is closed, so the close is not reported as a
+   * close by server: the connection has never been established. A timer of an earlier attempt does
+   * nothing: its channel is already closed, and the current one belongs to another attempt.
+   *
+   * @param promise greeting promise of the attempt the timer was scheduled for
+   */
+  private synchronized void closeOnGreetingTimeout(CompletableFuture<Greeting> promise) {
+    if (promise != greetingPromise) {
+      return;
+    }
+    if (state.get() != State.CONNECTING && state.get() != State.WAITING) {
+      return;
+    }
+    closeChannel(CloseReason.CLOSED_BY_TIMEOUT);
   }
 
   private void cancelGreetingTimeout() {

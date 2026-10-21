@@ -15,6 +15,12 @@
   terminates with an error. Providing not positive timeout value throws an exception.
 - Fixed connection close callbacks executing before the connection state becomes closed.
 - Fixed greeting object remaining non-null after connection closure.
+- Fixed a bug when a server that accepts the TCP connection but does not send the greeting was
+  reported as "Connection closed by server". The connect future is now failed only with
+  `TimeoutException`, whose message names the address and the timeout, and no
+  `CLOSE_BY_REMOTE` event is fired. Previously the connection pool handled every such attempt
+  twice, so the reconnect chains multiplied while the server stayed silent. The greeting timer of
+  an attempt that the server closed no longer closes the channel of the next attempt.
 
 ### Documentation
 
