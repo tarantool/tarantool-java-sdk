@@ -25,6 +25,10 @@
   connection and closes it before the greeting: the close was reported both by the failed connect
   future and by a `CLOSE_BY_REMOTE` event, and the pool handled each report. Close events are now
   fired only for a connection that has received the greeting.
+- Fixed a leak when graceful shutdown is enabled: every connect attempt added one more
+  `box.shutdown` callback to the same watcher, so a client that kept reconnecting accumulated
+  callbacks, and a `box.shutdown` event after a successful connect ran the callback once per
+  previous attempt. The callback is now added once per client.
 
 ### Documentation
 

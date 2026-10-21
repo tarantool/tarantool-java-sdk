@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -97,6 +98,10 @@ public class IProtoClientImpl implements IProtoClient {
   private final List<String> toUnwatch;
   protected final Map<Long, IProtoStateMachine> fsmRegistry;
   private final Map<String, Watcher> watchers;
+
+  /** Set once the {@code box.shutdown} callback is added; it survives reconnects. */
+  private final AtomicBoolean shutdownWatcherRegistered = new AtomicBoolean();
+
   protected final Timer timerService;
   private final WatcherOptions watcherOpts;
   private CompletableFuture<Integer> serverProtocolVersion;
@@ -185,7 +190,7 @@ public class IProtoClientImpl implements IProtoClient {
   @Override
   public CompletableFuture<Void> connect(
       InetSocketAddress address, long timeoutMs, boolean gracefulShutdown) {
-    if (gracefulShutdown) {
+    if (gracefulShutdown && shutdownWatcherRegistered.compareAndSet(false, true)) {
       watch(SHUTDOWN_EVENT_KEY, this::shutdownEventCallback);
     }
 
