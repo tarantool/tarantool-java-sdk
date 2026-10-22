@@ -31,6 +31,10 @@
   previous attempt. The callback is now added once per client.
 - Fixed the `pool.connect.time` timer of the connection pool: it was stopped only when an
   attempt succeeded, so every failed attempt left an active sample behind.
+- Fixed `reconnectAfter` being ignored for the connections created with the client: the client
+  builder set it on the pool after the connections had been created with the default of 1000 ms,
+  and the pool did not pass the new value to existing connections. `withReconnectAfter` and the
+  `reconnect-after` property of Spring Data now take effect.
 
 ### Documentation
 
