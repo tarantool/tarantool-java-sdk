@@ -45,6 +45,8 @@
 - Added a table that maps Spring Boot minor lines to `tarantool-spring-data-*` modules.
 - Described locked connections of the pool: when a connection is locked and unlocked, and that
   a request fails with `NoAvailableClientsException` when no unlocked connection is found.
+- Fixed the description of the `testcontainers` module in its `pom.xml`: it was copied from the
+  connector.
 
 ## [1.7.2] - 2026-09-25
 
