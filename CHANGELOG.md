@@ -74,6 +74,10 @@
   handled every such attempt twice, so the reconnect chains multiplied while the server stayed
   silent. The greeting timer of an attempt that the server closed no longer closes the channel of
   the next attempt.
+- Fixed reconnect chains multiplying when a server (or a proxy in front of it) accepts the TCP
+  connection and closes it before the greeting: the close was reported both by the failed connect
+  future and by a `CLOSE_BY_REMOTE` event, and the pool handled each report. Close events are now
+  fired only for a connection that has received the greeting.
 
 ### Documentation
 

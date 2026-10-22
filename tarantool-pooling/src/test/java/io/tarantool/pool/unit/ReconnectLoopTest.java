@@ -114,7 +114,53 @@ public class ReconnectLoopTest {
             + " attempts");
   }
 
+  @Test
+  public void test_closedBeforeGreeting_shouldNotMultiplyReconnectTasks() throws Exception {
+    AtomicInteger scheduled = new AtomicInteger();
+    PoolEventListener listener =
+        new PoolEventListener() {
+          @Override
+          public void onReconnectScheduled(String tag, int index, long delayMs) {
+            scheduled.incrementAndGet();
+          }
+        };
+    AtomicInteger attempts = new AtomicInteger();
+    try (ServerSocket closingServer = new ServerSocket(0, 50, InetAddress.getLoopbackAddress())) {
+      // Accepts and closes at once, before the greeting, like a proxy without a backend.
+      Thread closer =
+          new Thread(
+              () -> {
+                while (!closingServer.isClosed()) {
+                  try (Socket socket = closingServer.accept()) {
+                    attempts.incrementAndGet();
+                  } catch (IOException e) {
+                    return;
+                  }
+                }
+              });
+      closer.setDaemon(true);
+      closer.start();
+      pool = createPool(null, listener, closingServer);
+      pool.get(TAG, 0);
+
+      Thread.sleep(OBSERVE_MS);
+    }
+
+    int count = attempts.get();
+    assertTrue(count >= 3, "too few attempts to judge: " + count);
+    // A connection closed before the greeting has never been established: the failed connect
+    // future is the only report of the attempt, so each attempt schedules one reconnect.
+    assertTrue(
+        scheduled.get() <= count + 1,
+        "reconnect tasks multiply: " + scheduled.get() + " scheduled for " + count + " attempts");
+  }
+
   private IProtoClientPoolImpl createPool(MeterRegistry registry, PoolEventListener listener) {
+    return createPool(registry, listener, server);
+  }
+
+  private IProtoClientPoolImpl createPool(
+      MeterRegistry registry, PoolEventListener listener, ServerSocket target) {
     Bootstrap bootstrap =
         new Bootstrap()
             .group(group)
@@ -137,8 +183,8 @@ public class ReconnectLoopTest {
     pool.setGroups(
         Collections.singletonList(
             InstanceConnectionGroup.builder()
-                .withHost(server.getInetAddress().getHostAddress())
-                .withPort(server.getLocalPort())
+                .withHost(target.getInetAddress().getHostAddress())
+                .withPort(target.getLocalPort())
                 .withSize(1)
                 .withTag(TAG)
                 .build()));
