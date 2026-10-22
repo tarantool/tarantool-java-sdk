@@ -838,6 +838,8 @@
       
         
       
+        
+      
     
     
     
@@ -1541,6 +1543,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../client/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Limitations and workarounds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2340,6 +2370,47 @@ using <a href="https://www.tarantool.io">Tarantool</a> as a data store.</p>
 </tr>
 </tbody>
 </table>
+<p>Choose the module by the Spring Boot minor line of your application. The table above lists the
+Spring Boot versions each module is built and tested with; other patch versions of the same line are
+not tested in CI, and newer minor lines are not tested at all.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Spring Boot line</th>
+<th style="text-align: center;">Module</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">2.7.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-27</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.1.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-31</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.2.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-32</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.3.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-33</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.4.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-34</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.5.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-35</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4.0.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-40</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="tarantool-version-and-supported-client-modules">Tarantool Version and Supported Client Modules</h3>
 <table>
 <thead>
@@ -2394,6 +2465,22 @@ with support for CRUD operations.</p>
 <p>To work with the module, access to a running Tarantool is required. Instructions for installing and running
 Tarantool can be found
 here: <a href="https://github.com/tarantool/tarantool?tab=readme-ov-file#tarantool"><code>github</code></a>.</p>
+<details class="warning" open="open">
+<summary>Cluster with <code>crud</code> and <code>vshard</code> is required for <code>Repository</code></summary>
+<p>The repository layer (<code>@EnableTarantoolRepositories</code>) is bound to <code>TarantoolCrudClient</code> and calls
+the <code>crud.*</code> stored procedures, which are provided by the <a href="https://github.com/tarantool/crud"><code>crud</code></a>
+module on top of <code>vshard</code>. A plain <code>tarantool/tarantool</code> image from Docker Hub has neither of them,
+so <code>Repository</code> calls fail with <code>Procedure 'crud.select' is not defined</code>.
+Run a cluster (a router with <code>crud</code> and storages with <code>vshard</code>), using one of the following ways:</p>
+<ul>
+<li>an image of Tarantool DB (TDB), which already includes <code>crud</code> and <code>vshard</code>;</li>
+<li>the <a href="../testcontainers/tdb/">tarantool-java-sdk/testcontainers</a> module, which starts
+  a TDB cluster from a test;</li>
+<li>your own image: an example based on <code>tarantool/tarantool</code> with the <code>crud</code> rock and the
+  <code>router.lua</code>/<code>storage.lua</code> scripts is in the repository, directory
+  <code>tarantool-shared-resources/vshard_cluster</code>.</li>
+</ul>
+</details>
 <details class="warning" open="open">
 <summary>Important</summary>
 <ul>

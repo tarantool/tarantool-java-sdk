@@ -890,6 +890,8 @@
       
         
       
+        
+      
     
     
     
@@ -1593,6 +1595,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../client/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Limitations and workarounds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2324,6 +2354,10 @@ the custom <code>Repository</code>. For example:</p>
 <summary>Important</summary>
 <p>Currently, only methods with a single predicate are supported (nested <code>AND</code> or 
 <code>OR</code> are not supported).</p>
+<p>Any keyword not listed above (for example <code>In</code>, <code>NotIn</code>, <code>Like</code>) is not supported and fails with
+<code>InvalidDataAccessApiUsageException: Unsupported type ...</code>; a method with <code>And</code> or <code>Or</code> fails with
+<code>UnsupportedOperationException</code>.
+Workarounds: <a href="../../client/limitations/">Limitations and workarounds</a>.</p>
 </details>
 <details class="note" open="open">
 <summary>Note</summary>

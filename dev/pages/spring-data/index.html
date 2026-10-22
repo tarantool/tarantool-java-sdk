@@ -832,6 +832,8 @@
       
         
       
+        
+      
     
     
     
@@ -1535,6 +1537,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../client/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ограничения и способы обхода
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2334,6 +2364,47 @@
 </tr>
 </tbody>
 </table>
+<p>Модуль выбирается по минорной линии Spring Boot приложения. В таблице выше — версии Spring Boot, с
+которыми модули собраны и протестированы; другие патч-версии той же линии в CI не проверяются, более
+новые минорные линии не проверяются вовсе.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Линия Spring Boot</th>
+<th style="text-align: center;">Модуль</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">2.7.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-27</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.1.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-31</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.2.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-32</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.3.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-33</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.4.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-34</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">3.5.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-35</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">4.0.x</td>
+<td style="text-align: center;"><code>tarantool-spring-data-40</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="tarantool-">Версия Tarantool и поддерживаемые модули-клиенты</h3>
 <table>
 <thead>
@@ -2388,6 +2459,22 @@
 <p>Для работы с модулем, необходим доступ к запущенному Tarantool. Инструкции по установке и запуску
 Tarantool можно найти
 здесь: <a href="https://github.com/tarantool/tarantool?tab=readme-ov-file#tarantool"><code>github</code></a>.</p>
+<details class="warning" open="open">
+<summary>Для <code>Repository</code> нужен кластер с <code>crud</code> и <code>vshard</code></summary>
+<p>Слой репозиториев (<code>@EnableTarantoolRepositories</code>) привязан к <code>TarantoolCrudClient</code> и вызывает
+хранимые процедуры <code>crud.*</code>, которые даёт модуль <a href="https://github.com/tarantool/crud"><code>crud</code></a>
+поверх <code>vshard</code>. В обычном образе <code>tarantool/tarantool</code> с Docker Hub нет ни того, ни другого,
+поэтому вызовы <code>Repository</code> завершаются ошибкой <code>Procedure 'crud.select' is not defined</code>.
+Поднимите кластер (роутер с <code>crud</code> и хранилища с <code>vshard</code>) одним из способов:</p>
+<ul>
+<li>образ Tarantool DB (TDB): <code>crud</code> и <code>vshard</code> в нём уже есть;</li>
+<li>модуль <a href="../testcontainers/tdb/">tarantool-java-sdk/testcontainers</a>: запускает кластер
+  TDB из теста;</li>
+<li>собственный образ: пример на основе <code>tarantool/tarantool</code> с рокспеком <code>crud</code> и скриптами
+  <code>router.lua</code>/<code>storage.lua</code> лежит в репозитории, каталог
+  <code>tarantool-shared-resources/vshard_cluster</code>.</li>
+</ul>
+</details>
 <details class="warning" open="open">
 <summary>Важно</summary>
 <ul>

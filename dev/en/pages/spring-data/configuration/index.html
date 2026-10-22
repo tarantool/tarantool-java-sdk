@@ -940,6 +940,8 @@
       
         
       
+        
+      
     
     
     
@@ -1643,6 +1645,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../client/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Limitations and workarounds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2472,7 +2502,11 @@ necessary settings:</p>
 <li>Time in ms after which to reconnect upon failed connection 
    (<code>reconnect-after: 1000</code> - 1 second)</li>
 <li>Sets a list of connection groups with descriptions of each</li>
-<li>Authentication protocol type</li>
+<li>Authentication protocol type. It must match the method the user's password is stored with,
+    i.e. <code>security.auth_type</code> (<code>box.cfg.auth_type</code>) of the cluster; otherwise the login fails with
+    <code>User not found or supplied credentials are invalid</code>. The default is <code>chap-sha1</code>, and it is
+    also the client default, so the parameter can be omitted. <code>pap-sha256</code> is available only in
+    Enterprise Edition (and TDB) and only over an encrypted (TLS) connection</li>
 <li>The address to which the client connects</li>
 <li>The port to which the client connects on <code>host</code></li>
 <li>The username for connecting to <code>Tarantool</code></li>

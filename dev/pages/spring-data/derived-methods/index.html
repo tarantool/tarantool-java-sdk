@@ -884,6 +884,8 @@
       
         
       
+        
+      
     
     
     
@@ -1587,6 +1589,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../client/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ограничения и способы обхода
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2318,6 +2348,10 @@
 <summary>Важно</summary>
 <p>На данный момент поддерживаются только методы с одним предикатом (не поддерживаются <code>AND</code> или 
 <code>OR</code>).</p>
+<p>Любое ключевое слово вне списка выше (например, <code>In</code>, <code>NotIn</code>, <code>Like</code>) не поддерживается и
+приводит к <code>InvalidDataAccessApiUsageException: Unsupported type ...</code>; метод с <code>And</code> или <code>Or</code>
+завершается <code>UnsupportedOperationException</code>.
+Способы обхода: <a href="../../client/limitations/">Ограничения и способы обхода</a>.</p>
 </details>
 <details class="note" open="open">
 <summary>Заметка</summary>
