@@ -127,6 +127,12 @@ public class ConnectionImpl implements Connection {
   /** Greeting promise of the current attempt; a timer of an earlier attempt must not touch it. */
   private CompletableFuture<Greeting> greetingPromise;
 
+  /**
+   * Whether the current attempt has received the greeting. A close of a connection that has never
+   * been established is reported only through the failed connect future, not by a close event.
+   */
+  private volatile boolean established;
+
   private int idleTimeout;
 
   /**
@@ -200,6 +206,7 @@ public class ConnectionImpl implements Connection {
 
       CompletableFuture<Greeting> promise = new CompletableFuture<>();
       greetingPromise = promise;
+      established = false;
       scheduleGreetingTimeout(promise, address, timeoutMs);
       connectPromise =
           promise.thenApply(
@@ -207,6 +214,7 @@ public class ConnectionImpl implements Connection {
                 cancelGreetingTimeout();
                 log.info("{} connected to {}", this, address);
                 this.greeting = greeting;
+                established = true;
                 state.set(State.READY);
                 return greeting;
               });
@@ -396,13 +404,14 @@ public class ConnectionImpl implements Connection {
     if (notify) {
       failConnectPromise(ex);
     }
+    final boolean fireEvent = notify && established;
 
     channel = null;
     connectPromise = null;
     greeting = null;
     state.set(State.CLOSED);
 
-    if (notify) {
+    if (fireEvent) {
       fire(event, ex);
     }
   }
