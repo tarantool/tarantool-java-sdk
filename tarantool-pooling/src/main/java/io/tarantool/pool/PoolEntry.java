@@ -8,6 +8,7 @@ package io.tarantool.pool;
 import java.util.ArrayDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import io.micrometer.core.instrument.Counter;
@@ -132,9 +133,11 @@ final class PoolEntry {
    * Flag signaling if connection is available or not.
    *
    * <p>When connection comes to invalidated state or killed, pool entry is locked and connection
-   * will not be returned to outer client.
+   * will not be returned to outer client. Connect, close and heartbeat handlers run on different
+   * threads, so the flag is changed with compare-and-set: only the call that changes it updates the
+   * count of unavailable connections.
    */
-  private boolean isLocked;
+  private final AtomicBoolean isLocked = new AtomicBoolean();
 
   /** Count of failed pings occurred in invalidated state. */
   private int currentDeathPings;
@@ -221,7 +224,6 @@ final class PoolEntry {
     this.gracefulShutdown = gracefulShutdown;
     this.group = group;
     this.index = index;
-    this.isLocked = false;
     this.reconnectAfter = reconnectAfter;
     this.tag = group.getTag();
     this.timerService = timerService;
@@ -251,9 +253,8 @@ final class PoolEntry {
    * <p>Also increments count of unavailable clients.
    */
   public void lock() {
-    if (!isLocked) {
+    if (isLocked.compareAndSet(false, true)) {
       this.connectionStatistics.incrementUnavailable();
-      isLocked = true;
     }
   }
 
@@ -263,10 +264,9 @@ final class PoolEntry {
    * <p>Also decrements count of unavailable clients and cancels reconnect task.
    */
   public void unlock() {
-    if (isLocked) {
+    if (isLocked.compareAndSet(true, false)) {
       stopReconnectTask();
       this.connectionStatistics.decrementUnavailable();
-      isLocked = false;
     }
   }
 
@@ -276,7 +276,7 @@ final class PoolEntry {
    * @return {@link #isLocked} value.
    */
   public boolean isLocked() {
-    return isLocked;
+    return isLocked.get();
   }
 
   /** Closes client and stops heartbeat and reconnect tasks if started. */

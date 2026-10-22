@@ -31,6 +31,11 @@
   previous attempt. The callback is now added once per client.
 - Fixed the `pool.connect.time` timer of the connection pool: it was stopped only when an
   attempt succeeded, so every failed attempt left an active sample behind.
+- Fixed the count of unavailable connections in the pool drifting when a connection was locked
+  or unlocked from several threads at once (connect, close and heartbeat handlers): both calls
+  could pass the check and change the count twice. A count below the real value made the
+  balancer loop while all connections were locked; a count above it hid free connections or made
+  the pool fail with "Invalid pool state".
 - Fixed `reconnectAfter` being ignored for the connections created with the client: the client
   builder set it on the pool after the connections had been created with the default of 1000 ms,
   and the pool did not pass the new value to existing connections. `withReconnectAfter` and the
