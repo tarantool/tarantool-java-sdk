@@ -26,6 +26,10 @@ public class TarantoolDistributingRoundRobinBalancer implements TarantoolBalance
   private final List<String> tags;
   private int tagIndex;
   private final int tagsCount;
+
+  /** Total number of connections; one full pass over them is the upper bound of attempts. */
+  private final int totalSize;
+
   private final ReentrantLock balancerLock = new ReentrantLock();
 
   public TarantoolDistributingRoundRobinBalancer(IProtoClientPool pool) {
@@ -36,15 +40,19 @@ public class TarantoolDistributingRoundRobinBalancer implements TarantoolBalance
     tagsCount = tags.size();
     tagsIndices = new int[tagsCount];
     groupSizes = new int[tagsCount];
+    int total = 0;
     for (int i = 0; i < tagsCount; i++) {
       tagsIndices[i] = 0;
       groupSizes[i] = pool.getGroupSize(tags.get(i));
+      total += groupSizes[i];
     }
+    totalSize = total;
   }
 
   @Override
   public CompletableFuture<IProtoClient> getNext() {
-    while (pool.hasAvailableClients()) {
+    int attempts = totalSize;
+    while (attempts-- > 0 && pool.hasAvailableClients()) {
       String tag;
       int connectionIndex;
 

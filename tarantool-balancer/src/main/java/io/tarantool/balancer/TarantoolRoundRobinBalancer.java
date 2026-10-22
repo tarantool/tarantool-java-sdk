@@ -36,7 +36,8 @@ public class TarantoolRoundRobinBalancer implements TarantoolBalancer {
 
   @Override
   public CompletableFuture<IProtoClient> getNext() {
-    while (pool.hasAvailableClients()) {
+    int attempts = totalSize();
+    while (attempts-- > 0 && pool.hasAvailableClients()) {
       String tag;
       int connectionIndex;
 
@@ -76,6 +77,15 @@ public class TarantoolRoundRobinBalancer implements TarantoolBalancer {
     CompletableFuture<IProtoClient> future = new CompletableFuture<>();
     future.completeExceptionally(new NoAvailableClientsException());
     return future;
+  }
+
+  /** Total number of connections; one full pass over them is the upper bound of attempts. */
+  private int totalSize() {
+    int total = 0;
+    for (String tag : tags) {
+      total += pool.getGroupSize(tag);
+    }
+    return total;
   }
 
   @Override
