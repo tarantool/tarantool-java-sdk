@@ -31,6 +31,20 @@ data storage.
 |           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.13 / 4.0.6 |
 
+Choose the module by the Spring Boot minor line of your application. The table above lists the
+Spring Boot versions each module is built and tested with; other patch versions of the same line are
+not tested in CI, and newer minor lines are not tested at all.
+
+| Spring Boot line | Module                      |
+|:----------------:|:---------------------------:|
+|      2.7.x       | `tarantool-spring-data-27`  |
+|      3.1.x       | `tarantool-spring-data-31`  |
+|      3.2.x       | `tarantool-spring-data-32`  |
+|      3.3.x       | `tarantool-spring-data-33`  |
+|      3.4.x       | `tarantool-spring-data-34`  |
+|      3.5.x       | `tarantool-spring-data-35`  |
+|      4.0.x       | `tarantool-spring-data-40`  |
+
 ### Tarantool Version and Supported Client Modules
 
 | Tarantool Version | CRUD API (cluster) | BOX API (single instance) |

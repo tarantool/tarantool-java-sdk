@@ -29,6 +29,20 @@ hide:
 |           1.6.x           |            1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x           |            1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.13 / 4.0.6 |
 
+Модуль выбирается по минорной линии Spring Boot приложения. В таблице выше — версии Spring Boot, с
+которыми модули собраны и протестированы; другие патч-версии той же линии в CI не проверяются, более
+новые минорные линии не проверяются вовсе.
+
+| Линия Spring Boot |           Модуль            |
+|:-----------------:|:---------------------------:|
+|       2.7.x       | `tarantool-spring-data-27`  |
+|       3.1.x       | `tarantool-spring-data-31`  |
+|       3.2.x       | `tarantool-spring-data-32`  |
+|       3.3.x       | `tarantool-spring-data-33`  |
+|       3.4.x       | `tarantool-spring-data-34`  |
+|       3.5.x       | `tarantool-spring-data-35`  |
+|       4.0.x       | `tarantool-spring-data-40`  |
+
 ### Версия Tarantool и поддерживаемые модули-клиенты
 
 | Версия Tarantool | CRUD API (кластер) | BOX API (один экземпляр) |
@@ -57,6 +71,21 @@ hide:
 Для работы с модулем, необходим доступ к запущенному Tarantool. Инструкции по установке и запуску
 Tarantool можно найти
 здесь: [`github`](https://github.com/tarantool/tarantool?tab=readme-ov-file#tarantool).
+
+???+ warning "Для `Repository` нужен кластер с `crud` и `vshard`"
+
+    Слой репозиториев (`@EnableTarantoolRepositories`) привязан к `TarantoolCrudClient` и вызывает
+    хранимые процедуры `crud.*`, которые даёт модуль [`crud`](https://github.com/tarantool/crud)
+    поверх `vshard`. В обычном образе `tarantool/tarantool` с Docker Hub нет ни того, ни другого,
+    поэтому вызовы `Repository` завершаются ошибкой `Procedure 'crud.select' is not defined`.
+    Поднимите кластер (роутер с `crud` и хранилища с `vshard`) одним из способов:
+
+    - образ Tarantool DB (TDB): `crud` и `vshard` в нём уже есть;
+    - модуль [tarantool-java-sdk/testcontainers](../testcontainers/tdb/index.md): запускает кластер
+      TDB из теста;
+    - собственный образ: пример на основе `tarantool/tarantool` с рокспеком `crud` и скриптами
+      `router.lua`/`storage.lua` лежит в репозитории, каталог
+      `tarantool-shared-resources/vshard_cluster`.
 
 ???+ warning "Важно"
 

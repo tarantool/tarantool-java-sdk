@@ -110,7 +110,11 @@ To configure the client through a configuration file (for example, via
     8. Time in ms after which to reconnect upon failed connection 
        (`reconnect-after: 1000` - 1 second)
     9. Sets a list of connection groups with descriptions of each
-    10. Authentication protocol type
+    10. Authentication protocol type. It must match the method the user's password is stored with,
+        i.e. `security.auth_type` (`box.cfg.auth_type`) of the cluster; otherwise the login fails with
+        `User not found or supplied credentials are invalid`. The default is `chap-sha1`, and it is
+        also the client default, so the parameter can be omitted. `pap-sha256` is available only in
+        Enterprise Edition (and TDB) and only over an encrypted (TLS) connection
     11. The address to which the client connects
     12. The port to which the client connects on `host`
     13. The username for connecting to `Tarantool`

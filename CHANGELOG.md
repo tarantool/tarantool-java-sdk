@@ -13,6 +13,13 @@
 - Fixed broken links in `tarantool-spring-data/README.md` and `testcontainers/README.md`:
   they pointed to `doc/` directories that do not exist and now point to the pages under
   `documentation/doc-src/pages`.
+- Documented that the spring-data `Repository` layer needs a cluster with `crud` and `vshard`,
+  and listed three ways to get one.
+- Explained in the spring-data configuration example that `auth-type` must match
+  `security.auth_type` of the cluster and that `pap-sha256` requires Enterprise Edition and TLS.
+- Added the "Limitations and workarounds" page: no batch delete and no `IN` condition in `crud`,
+  examples of parallel requests instead, and derived-method keywords that are not supported.
+- Added a table that maps Spring Boot minor lines to `tarantool-spring-data-*` modules.
 
 ## [1.7.2] - 2026-09-25
 

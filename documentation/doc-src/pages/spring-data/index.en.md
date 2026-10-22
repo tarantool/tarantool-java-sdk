@@ -29,6 +29,20 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 |           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.13 / 4.0.6 |
 
+Choose the module by the Spring Boot minor line of your application. The table above lists the
+Spring Boot versions each module is built and tested with; other patch versions of the same line are
+not tested in CI, and newer minor lines are not tested at all.
+
+| Spring Boot line | Module                      |
+|:----------------:|:---------------------------:|
+|      2.7.x       | `tarantool-spring-data-27`  |
+|      3.1.x       | `tarantool-spring-data-31`  |
+|      3.2.x       | `tarantool-spring-data-32`  |
+|      3.3.x       | `tarantool-spring-data-33`  |
+|      3.4.x       | `tarantool-spring-data-34`  |
+|      3.5.x       | `tarantool-spring-data-35`  |
+|      4.0.x       | `tarantool-spring-data-40`  |
+
 ### Tarantool Version and Supported Client Modules
 
 | Tarantool Version | CRUD API (cluster) | BOX API (single instance) |
@@ -57,6 +71,21 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 To work with the module, access to a running Tarantool is required. Instructions for installing and running
 Tarantool can be found
 here: [`github`](https://github.com/tarantool/tarantool?tab=readme-ov-file#tarantool).
+
+???+ warning "Cluster with `crud` and `vshard` is required for `Repository`"
+
+    The repository layer (`@EnableTarantoolRepositories`) is bound to `TarantoolCrudClient` and calls
+    the `crud.*` stored procedures, which are provided by the [`crud`](https://github.com/tarantool/crud)
+    module on top of `vshard`. A plain `tarantool/tarantool` image from Docker Hub has neither of them,
+    so `Repository` calls fail with `Procedure 'crud.select' is not defined`.
+    Run a cluster (a router with `crud` and storages with `vshard`), using one of the following ways:
+
+    - an image of Tarantool DB (TDB), which already includes `crud` and `vshard`;
+    - the [tarantool-java-sdk/testcontainers](../testcontainers/tdb/index.md) module, which starts
+      a TDB cluster from a test;
+    - your own image: an example based on `tarantool/tarantool` with the `crud` rock and the
+      `router.lua`/`storage.lua` scripts is in the repository, directory
+      `tarantool-shared-resources/vshard_cluster`.
 
 ???+ warning "Important"
 

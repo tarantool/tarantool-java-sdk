@@ -56,6 +56,11 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
     На данный момент поддерживаются только методы с одним предикатом (не поддерживаются `AND` или 
     `OR`).
 
+    Любое ключевое слово вне списка выше (например, `In`, `NotIn`, `Like`) не поддерживается и
+    приводит к `InvalidDataAccessApiUsageException: Unsupported type ...`; метод с `And` или `Or`
+    завершается `UnsupportedOperationException`.
+    Способы обхода: [Ограничения и способы обхода](../client/limitations.md).
+
 ???+ note "Заметка"
 
     В версию tarantool-spring-data32 добавлена возможность использовать в производных методах

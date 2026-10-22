@@ -56,6 +56,11 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
     Currently, only methods with a single predicate are supported (nested `AND` or 
     `OR` are not supported).
 
+    Any keyword not listed above (for example `In`, `NotIn`, `Like`) is not supported and fails with
+    `InvalidDataAccessApiUsageException: Unsupported type ...`; a method with `And` or `Or` fails with
+    `UnsupportedOperationException`.
+    Workarounds: [Limitations and workarounds](../client/limitations.md).
+
 ???+ note "Note"
 
     In version tarantool-spring-data32, the ability to use the [Limit](https://docs.spring.io/spring-data/data-commons/docs/3.2.3/api/org/springframework/data/domain/Limit.html)

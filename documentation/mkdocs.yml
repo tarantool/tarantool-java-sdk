@@ -133,6 +133,7 @@ nav:
               - Хранимые процедуры:
                   - pages/client/examples/call/index.md
                   - pages/client/examples/call/call.md
+          - pages/client/limitations.md
       - Tarantool Testcontainers:
           - pages/testcontainers/index.md
           - Одиночный узел:
