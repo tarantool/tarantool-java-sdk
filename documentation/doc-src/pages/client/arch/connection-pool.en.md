@@ -28,3 +28,16 @@ requests can be found in the [balancers](balancer.md) section.
 
     The actual establishment of the connection in `IProtoClientPool` occurs when the balancer first
     selects this connection from the pool.
+
+### Locked connections
+
+A `PoolEntry` is *locked* when its connection is considered unusable: a connection attempt failed,
+the established connection was closed by the server or by a server shutdown, or the
+[heartbeat](heartbeat.md) moved the connection to the invalidated state. A locked entry is not
+returned to the balancer and is unlocked when the connection is restored (the reconnect succeeds or
+the heartbeat reports recovery) or when the entry is removed from a shrinking group. A connection is **not** locked just because a long request is
+running on it: many requests are in flight over one iproto connection at the same time.
+
+The pool counts locked entries. When all entries are locked, the balancer does not wait for one to
+be unlocked: the request fails with `NoAvailableClientsException`. A server that is busy so long
+that it stops answering pings can lead to this, because the heartbeat invalidates its connections.
