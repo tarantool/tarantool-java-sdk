@@ -363,12 +363,13 @@ final class PoolEntry {
         this.metrics != null ? this.metrics.poolConnectTime.start() : null;
     CompletableFuture<?> future =
         client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
+    // Stop the timer on failure too, otherwise every failed attempt leaves an active sample.
+    future.whenComplete((r, exc) -> PoolEntryMetrics.stopTimer(timer));
     String user = group.getUser();
     connectFuture =
         future
             .thenCompose(
                 greeting -> {
-                  PoolEntryMetrics.stopTimer(timer);
                   if (user != null) {
                     return client.authorize(user, group.getPassword(), group.getAuthType());
                   }

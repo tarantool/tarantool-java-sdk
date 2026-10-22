@@ -29,6 +29,8 @@
   `box.shutdown` callback to the same watcher, so a client that kept reconnecting accumulated
   callbacks, and a `box.shutdown` event after a successful connect ran the callback once per
   previous attempt. The callback is now added once per client.
+- Fixed the `pool.connect.time` timer of the connection pool: it was stopped only when an
+  attempt succeeded, so every failed attempt left an active sample behind.
 
 ### Documentation
 

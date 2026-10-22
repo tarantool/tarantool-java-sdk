@@ -16,7 +16,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.LongTaskTimer;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -155,6 +158,27 @@ public class ReconnectLoopTest {
         "reconnect tasks multiply: " + scheduled.get() + " scheduled for " + count + " attempts");
   }
 
+  @Test
+  public void test_failedAttempts_shouldStopConnectTimer() throws Exception {
+    MeterRegistry registry = createMetricsRegistry();
+    pool = createPool(registry, null);
+    pool.get(TAG, 0);
+
+    Thread.sleep(OBSERVE_MS);
+
+    int attempts = accepted.size();
+    assertTrue(attempts >= 3, "too few attempts to judge: " + attempts);
+    LongTaskTimer connectTime = registry.find("pool.connect.time").longTaskTimer();
+    // At most one attempt of the single connection can be in flight.
+    assertTrue(
+        connectTime.activeTasks() <= 1,
+        "connect timer is not stopped on failure: "
+            + connectTime.activeTasks()
+            + " active for "
+            + attempts
+            + " attempts");
+  }
+
   private IProtoClientPoolImpl createPool(MeterRegistry registry, PoolEventListener listener) {
     return createPool(registry, listener, server);
   }
@@ -189,5 +213,15 @@ public class ReconnectLoopTest {
                 .withTag(TAG)
                 .build()));
     return pool;
+  }
+
+  private static MeterRegistry createMetricsRegistry() {
+    MeterRegistry registry = new SimpleMeterRegistry();
+    LongTaskTimer.builder("request.timer").register(registry);
+    Counter.builder("request.counter").register(registry);
+    Counter.builder("response.success").register(registry);
+    Counter.builder("response.errors").register(registry);
+    Counter.builder("response.ignored").register(registry);
+    return registry;
   }
 }
