@@ -134,7 +134,7 @@ final class PoolEntry {
    * <p>When connection comes to invalidated state or killed, pool entry is locked and connection
    * will not be returned to outer client.
    */
-  private boolean isLocked;
+  private volatile boolean isLocked;
 
   /** Count of failed pings occurred in invalidated state. */
   private int currentDeathPings;
@@ -265,8 +265,10 @@ final class PoolEntry {
   public void unlock() {
     if (isLocked) {
       stopReconnectTask();
-      this.connectionStatistics.decrementUnavailable();
+      // Flag first, counter second: a reader that sees the counter decremented must not
+      // still see the entry as locked.
       isLocked = false;
+      this.connectionStatistics.decrementUnavailable();
     }
   }
 

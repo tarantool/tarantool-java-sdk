@@ -25,6 +25,11 @@
   builder set it on the pool after the connections had been created with the default of 1000 ms,
   and the pool did not pass the new value to existing connections. `withReconnectAfter` and the
   `reconnect-after` property of Spring Data now take effect.
+- Fixed a busy loop in `getNext()` of the round-robin balancers: while the unavailable counter
+  and the lock flag of a connection disagreed, the balancer could loop without a pause and
+  without a limit. It now makes at most one pass over the connections and then fails with
+  `NoAvailableClientsException`. The lock flag of a pool entry is now `volatile` and is reset
+  before the counter.
 
 ### Documentation
 
