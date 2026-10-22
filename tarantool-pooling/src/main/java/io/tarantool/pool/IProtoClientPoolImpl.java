@@ -501,6 +501,8 @@ public class IProtoClientPoolImpl implements IProtoClientPool {
     if (reconnectAfter <= 0) {
       throw new IllegalArgumentException("reconnect period should be positive number");
     }
+    entries.forEach(
+        (tag, entryGroup) -> entryGroup.forEach(pe -> pe.setReconnectAfter(reconnectAfter)));
     this.reconnectAfter = reconnectAfter;
   }
 
