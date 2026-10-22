@@ -43,6 +43,8 @@
 - Added the "Limitations and workarounds" page: no batch delete and no `IN` condition in `crud`,
   examples of parallel requests instead, and derived-method keywords that are not supported.
 - Added a table that maps Spring Boot minor lines to `tarantool-spring-data-*` modules.
+- Described locked connections of the pool: when a connection is locked and unlocked, and that
+  a request fails with `NoAvailableClientsException` when no unlocked connection is found.
 
 ## [1.7.2] - 2026-09-25
 
