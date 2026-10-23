@@ -34,6 +34,7 @@ import static org.msgpack.value.ValueFactory.newInteger;
 import static org.msgpack.value.ValueFactory.newMap;
 import io.netty.channel.ConnectTimeoutException;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -388,6 +389,31 @@ public class ConnectionToTarantoolTest extends BaseTest {
     }
     assertEquals(0, failed);
     assertEquals(CONCURRENT_THREADS_COUNT, success);
+  }
+
+  /**
+   * This test checks for an inconsistent state caused by passing a non-positive timeout during a
+   * connection attempt, followed by a subsequent attempt to connect.
+   */
+  @Test
+  void testConnectWithNonPositiveTimeoutForFirstAttempt() throws Exception {
+    try (Connection connection = factory.create()) {
+      InetSocketAddress address = tt.mappedAddress();
+
+      Assertions.assertThrows(
+          IllegalArgumentException.class, () -> connection.connect(address, -1L));
+
+      final CompletableFuture<Greeting> connectionFuture = connection.connect(address, 1_000L);
+      Assertions.assertNotNull(connectionFuture, "Connection future must be not null!");
+
+      final Greeting greeting = connectionFuture.join();
+      Assertions.assertNotNull(greeting, "Greeting must be not null!");
+      Assertions.assertTrue(connection.isConnected(), "Connection must be connected");
+
+      final Greeting secondGreeting = connection.connect(address, 5_000L).join();
+
+      Assertions.assertSame(greeting, secondGreeting, "Must be same!");
+    }
   }
 
   private IProtoRequest createSelectRequest(int syncId) {

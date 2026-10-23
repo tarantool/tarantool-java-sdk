@@ -7,6 +7,12 @@
 - Fixed a bug: the timeout in IProtoBegin was being specified in milliseconds (as a `long`), but
   the [protocol](https://www.tarantool.io/ru/doc/latest/reference/internals/iproto/streams/#iproto-begin)
   requires the timeout to be passed in seconds (as a `double`).
+- Fixed a bug where the `Connection#connect()` method would leave the connection in a `CONNECTING` 
+  state if a failure occurred before the channel was created (for example, when an 
+  invalid—non-positive—timeout value was provided). As a result, all subsequent calls to this 
+  method would return `null` instead of a `CompletableFuture`. The method now always returns a 
+  `CompletableFuture` object, which either completes successfully (upon receipt of a greeting) or 
+  terminates with an error. Providing not positive timeout value throws an exception.
 
 ### Documentation
 
