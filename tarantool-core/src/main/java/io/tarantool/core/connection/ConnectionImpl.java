@@ -181,6 +181,10 @@ public class ConnectionImpl implements Connection {
   @Override
   public synchronized CompletableFuture<Greeting> connect(InetSocketAddress address, long timeoutMs)
       throws IllegalStateException {
+    if (timeoutMs <= 0) {
+      throw new IllegalArgumentException("Timeout must be greater than zero!");
+    }
+
     if (state.compareAndSet(State.CLOSED, State.CONNECTING)) {
       closedBy.set(CloseReason.NO_REASON);
       log.debug("{} is connecting to {}", this, address);
@@ -407,9 +411,6 @@ public class ConnectionImpl implements Connection {
 
   private void scheduleGreetingTimeout(CompletableFuture<Greeting> promise, long timeoutMs) {
     log.debug("Schedule timeout for connect in milliseconds: {}", timeoutMs);
-    if (timeoutMs <= 0) {
-      throw new IllegalStateException("Timeout must be greater than zero!");
-    }
     timeoutHandler =
         this.timerService.newTimeout(
             timeoutHandler -> {
