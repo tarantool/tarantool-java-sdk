@@ -13,6 +13,8 @@
   method would return `null` instead of a `CompletableFuture`. The method now always returns a 
   `CompletableFuture` object, which either completes successfully (upon receipt of a greeting) or 
   terminates with an error. Providing not positive timeout value throws an exception.
+- Fixed connection close callbacks executing before the connection state becomes closed.
+- Fixed greeting object remaining non-null after connection closure.
 
 ### Documentation
 

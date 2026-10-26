@@ -6,10 +6,12 @@
 package io.tarantool.core.integration;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +23,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,6 +62,9 @@ import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_SELECT;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_SPACE_ID;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_SYNC_ID;
 import io.tarantool.core.connection.Connection;
+import io.tarantool.core.connection.ConnectionCloseEvent;
+import io.tarantool.core.connection.ConnectionImpl;
+import io.tarantool.core.connection.ConnectionImpl.State;
 import io.tarantool.core.connection.Greeting;
 import io.tarantool.core.connection.exceptions.BadGreetingException;
 import io.tarantool.core.connection.exceptions.ConnectionClosedException;
@@ -143,6 +150,65 @@ public class ConnectionToTarantoolTest extends BaseTest {
     assertEquals(greeting.getVersion(), version);
     assertEquals(greeting.getProtocolType(), protocolType);
     assertEquals(greeting.getInstanceUUID(), instanceUUID);
+  }
+
+  @Test
+  void testFireOnCloseCallbacksInClosedState() throws Throwable {
+    try (Connection connection = factory.create()) {
+      final CountDownLatch latch = new CountDownLatch(1);
+      final InetSocketAddress address = tt.mappedAddress();
+      final AtomicReference<Throwable> ex = new AtomicReference<>();
+
+      connection.onClose(
+          ConnectionCloseEvent.CLOSE_BY_CLIENT,
+          (c, e) -> {
+            try {
+              final Field stateField = ConnectionImpl.class.getDeclaredField("state");
+              stateField.setAccessible(true);
+
+              Assertions.assertEquals(
+                  State.CLOSED, ((AtomicReference<State>) stateField.get(connection)).get());
+
+            } catch (Throwable exception) {
+              ex.set(exception);
+            } finally {
+              latch.countDown();
+            }
+          });
+
+      connection.connect(address, Duration.ofSeconds(3).toMillis()).join();
+      connection.close();
+
+      if (!latch.await(2, TimeUnit.MINUTES)) {
+        Assertions.fail("Test should complete");
+      }
+
+      if (ex.get() != null) {
+        throw ex.get();
+      }
+    }
+  }
+
+  @Test
+  void testGreetingNullAfterClosing() throws Exception {
+    try (Connection connection = factory.create()) {
+      final InetSocketAddress address = tt.mappedAddress();
+      final CountDownLatch latch = new CountDownLatch(1);
+      connection.onClose(ConnectionCloseEvent.CLOSE_BY_CLIENT, (c, e) -> latch.countDown());
+
+      Assertions.assertFalse(connection.getGreeting().isPresent(), "Must be empty");
+      connection.connect(address, Duration.ofSeconds(3).toMillis()).join();
+
+      Assertions.assertTrue(connection.getGreeting().isPresent(), "Must not be empty");
+
+      connection.close();
+
+      if (!latch.await(2, TimeUnit.MINUTES)) {
+        Assertions.fail("Connection must be disconnected");
+      }
+
+      Assertions.assertFalse(connection.getGreeting().isPresent(), "Must be empty");
+    }
   }
 
   /*

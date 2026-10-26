@@ -62,7 +62,7 @@ public class ConnectionImpl implements Connection {
     }
   }
 
-  private enum State {
+  public enum State {
     /** Closed state. */
     CLOSED(ERR_NOT_CONNECTED),
     /** Connecting state. */
@@ -371,14 +371,21 @@ public class ConnectionImpl implements Connection {
         message = ERR_CLOSED_BY_SERVER;
         event = ConnectionCloseEvent.CLOSE_BY_REMOTE;
     }
-    if (state.get() != State.CONNECTING) {
-      Exception ex = new ConnectionClosedException(message, f.cause());
+
+    final boolean notify = state.get() != State.CONNECTING;
+    final Exception ex = notify ? new ConnectionClosedException(message, f.cause()) : null;
+    if (notify) {
       failConnectPromise(ex);
-      fire(event, ex);
     }
-    state.set(State.CLOSED);
+
     channel = null;
     connectPromise = null;
+    greeting = null;
+    state.set(State.CLOSED);
+
+    if (notify) {
+      fire(event, ex);
+    }
   }
 
   private <T> void completePromise(CompletableFuture<T> promise, T result) {
