@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Pool
+
+- Introduced `AvailabilityPolicy`, `PoolEntryView`, and `PoolEntryState` abstractions
+  to lay the groundwork for custom node availability strategies, moving away
+  from explicit heartbeat checks in the future:
+  - Added `AvailabilityPolicy` interface with a strictly managed lifecycle.
+  - Added `PoolEntryView` to expose safe, non-blocking connection controls.
+  - Added `PoolEntryState` abstract class to support custom immutable state values.
+
 ### Bug fixes
 
 - Fixed a bug: the timeout in IProtoBegin was being specified in milliseconds (as a `long`), but
