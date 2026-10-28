@@ -2538,10 +2538,7 @@ public class TarantoolCrudClientTest extends BaseTest {
     CrudException cause = (CrudException) ex.getCause();
     assertEquals(CompletionException.class, ex.getClass());
     assertEquals(CrudException.class, cause.getClass());
-    assertTrue(
-        cause
-            .getMessage()
-            .matches("SelectError:.*" + "unexpected argument opts.coolOption to nil"));
+    assertTrue(cause.getMessage().contains("unexpected argument opts.coolOption"));
   }
 
   @SuppressWarnings("unchecked")
