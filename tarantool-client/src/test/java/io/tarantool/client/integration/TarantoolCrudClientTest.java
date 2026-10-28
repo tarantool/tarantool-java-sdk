@@ -2538,10 +2538,11 @@ public class TarantoolCrudClientTest extends BaseTest {
     CrudException cause = (CrudException) ex.getCause();
     assertEquals(CompletionException.class, ex.getClass());
     assertEquals(CrudException.class, cause.getClass());
+    // checks >= 287c88e omits the " to nil" suffix when the function name is unknown.
     assertTrue(
         cause
             .getMessage()
-            .matches("SelectError:.*" + "unexpected argument opts.coolOption to nil"));
+            .matches("SelectError:.*unexpected argument opts\\.coolOption( to nil)?"));
   }
 
   @SuppressWarnings("unchecked")
