@@ -2,6 +2,40 @@
 
 ## [Unreleased]
 
+### Dependencies
+- Updated dependencies:
+
+  Compile:
+    * Bump cartridge-java version from 0.13.0 to 0.14.3 in documentation module
+    * Bump commons-codec version from 1.22.0 to 1.23.0
+    * Bump commons-io version from 2.21.0 to 2.22.0
+    * Bump commons-lang3 version from 3.19.0 to 3.21.0
+    * Bump guava version from 33.5.0-jre to 33.7.2-jre
+    * Bump httpclient5 version from 5.5.2 to 5.6.5
+    * Bump httpcore5 version from 5.4.3 to 5.4.4
+    * Bump jackson version from 2.21.6 to 2.22.4
+    * Bump jetcd version from 0.8.6 to 0.8.7
+    * Bump lombok version from 1.18.44 to 1.18.48
+    * Bump micrometer version from 1.16.6 to 1.17.2
+    * Bump netty version from 4.2.16.Final to 4.2.19.Final
+    * Bump opentelemetry version from 1.62.0 to 1.67.0
+    * Bump slf4j version from 2.0.17 to 2.0.20
+
+  Tests:
+    * Bump grpc version from 1.77.0 to 1.85.1
+    * Bump instancio version from 5.5.1 to 5.6.0
+    * Bump junit-jupiter version from 5.14.3 to 5.14.4
+
+  Maven:
+    * Bump central-publishing-maven-plugin from 0.10.0 to 0.12.0
+    * Bump jacoco-maven-plugin from 0.8.14 to 0.8.16
+    * Bump maven-compiler-plugin from 3.15.0 to 3.16.0
+    * Bump maven-enforcer-plugin from 3.6.2 to 3.6.3
+    * Bump maven-surefire-plugin from 3.5.5 to 3.6.1
+    * Bump protobuf-maven-plugin from 5.1.4 to 5.1.11
+    * Bump spotbugs version from 4.9.8.3 to 4.10.5
+    * Bump spotbugs-maven-plugin from 4.9.8.3 to 4.10.5.0
+
 ### Bug fixes
 
 - Fixed a bug: the timeout in IProtoBegin was being specified in milliseconds (as a `long`), but
