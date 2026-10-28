@@ -10,8 +10,8 @@
   <artifactId>site</artifactId>
 
   <properties>
-    <cartridge-java.version>0.13.0</cartridge-java.version>
-    <junit.version>5.14.3</junit.version>
+    <cartridge-java.version>0.14.3</cartridge-java.version>
+    <junit.version>5.14.4</junit.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
