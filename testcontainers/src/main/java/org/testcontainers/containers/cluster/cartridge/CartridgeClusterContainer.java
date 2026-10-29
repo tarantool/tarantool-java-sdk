@@ -72,6 +72,7 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
   protected String instancesFile;
   protected SslContext sslContext;
   protected final List<String> additionalScriptPaths;
+  private String lastTopologyError;
 
   public CartridgeClusterContainer(String instancesFile, String topologyConfigurationFile) {
     this(DOCKERFILE, instancesFile, topologyConfigurationFile, Collections.emptyList());
@@ -465,9 +466,17 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
                 "setup",
                 "--bootstrap-vshard");
         if (result.getExitCode() != 0) {
-          throw new RuntimeException(
-              "Failed to change the app topology via cartridge CLI: " + result.getStdout());
+          lastTopologyError =
+              String.format(
+                  "cartridge CLI exit code: %d, stdout: %s, stderr: %s",
+                  result.getExitCode(), result.getStdout(), result.getStderr());
+          logger()
+              .warn("Failed to change the app topology via cartridge CLI: {}", lastTopologyError);
+          return false;
         }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        throw new RuntimeException(e);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -501,7 +510,9 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
         throw new RuntimeException(e);
       }
       if (!setupTopology()) {
-        throw new RuntimeException("Failed to change the app topology after retry");
+        throw new RuntimeException(
+            "Failed to change the app topology after retry"
+                + (lastTopologyError == null ? "" : ": " + lastTopologyError));
       }
     }
   }
