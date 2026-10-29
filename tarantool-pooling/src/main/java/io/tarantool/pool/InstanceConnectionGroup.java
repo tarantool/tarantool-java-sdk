@@ -11,6 +11,7 @@ import io.netty.handler.flush.FlushConsolidationHandler;
 
 import static io.tarantool.core.protocol.requests.IProtoAuth.DEFAULT_AUTH_TYPE;
 import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
+import io.tarantool.pool.availability.AvailabilityPolicy;
 
 /**
  * Class that implements a group of connections to a host.
@@ -85,6 +86,11 @@ public final class InstanceConnectionGroup {
   private final FlushConsolidationHandler flushConsolidationHandler;
 
   /**
+   * @see AvailabilityPolicy
+   */
+  private final AvailabilityPolicy availabilityPolicy;
+
+  /**
    * Tag of group.
    *
    * <p><i><b>Default</b></i>: {@code "<user>:<host>:<port>"}.
@@ -113,7 +119,8 @@ public final class InstanceConnectionGroup {
       String user,
       String password,
       AuthType authType,
-      FlushConsolidationHandler flushConsolidationHandler)
+      FlushConsolidationHandler flushConsolidationHandler,
+      AvailabilityPolicy availabilityPolicy)
       throws IllegalArgumentException {
     if (user != null && user.equals("guest")) {
       user = null;
@@ -130,6 +137,7 @@ public final class InstanceConnectionGroup {
     this.tag = tag;
     this.address = new InetSocketAddress(host, port);
     this.flushConsolidationHandler = flushConsolidationHandler;
+    this.availabilityPolicy = availabilityPolicy;
   }
 
   /**
@@ -235,6 +243,10 @@ public final class InstanceConnectionGroup {
     return flushConsolidationHandler;
   }
 
+  public AvailabilityPolicy getAvailabilityPolicy() {
+    return availabilityPolicy;
+  }
+
   /** Builder of {@link InstanceConnectionGroup} class. */
   public static class Builder {
 
@@ -275,6 +287,11 @@ public final class InstanceConnectionGroup {
 
     /** Default netty flush handler. */
     private FlushConsolidationHandler flushConsolidationHandler;
+
+    /**
+     * @see AvailabilityPolicy
+     */
+    private AvailabilityPolicy availabilityPolicy;
 
     /** Constructor of {@link Builder}. */
     private Builder() {}
@@ -441,6 +458,14 @@ public final class InstanceConnectionGroup {
     }
 
     /**
+     * @see AvailabilityPolicy
+     */
+    public Builder withAvailabilityPolicy(AvailabilityPolicy policy) {
+      this.availabilityPolicy = policy;
+      return this;
+    }
+
+    /**
      * Builds {@link InstanceConnectionGroup} object.
      *
      * @return {@link InstanceConnectionGroup} object.
@@ -455,7 +480,8 @@ public final class InstanceConnectionGroup {
           this.user,
           this.password,
           this.authType,
-          this.flushConsolidationHandler);
+          this.flushConsolidationHandler,
+          this.availabilityPolicy);
     }
   }
 }
