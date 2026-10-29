@@ -9,6 +9,13 @@
   exit code, stdout and stderr are logged and included in the error. Before, the error carried
   only the empty stdout ("Failed to change the app topology via cartridge CLI: ").
 
+### Bug fixes
+
+- Fixed a request sent while the client closes the connection failing with a netty
+  `ClosedChannelException` instead of `ConnectionClosedException`: the request passed the state
+  check, and `close()` closed the channel before the request was written. The root cause is now
+  `ConnectionClosedException` with the close reason; the netty error is kept as suppressed.
+
 ## [1.7.3] - 2026-10-30
 
 ### Pool
