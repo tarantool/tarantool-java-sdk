@@ -15,6 +15,12 @@
   terminates with an error. Providing not positive timeout value throws an exception.
 - Fixed connection close callbacks executing before the connection state becomes closed.
 - Fixed greeting object remaining non-null after connection closure.
+- Fixed the `VshardClusterContainer` readiness check: it read a `replicas` field that
+  `vshard.router.info()` does not return, so the container could be reported ready while a
+  replicaset master was still in the vshard handshake, and the first CRUD request failed with
+  `VHANDSHAKE_NOT_COMPLETE`. The check now makes a synchronous `callrw` to every replicaset master,
+  which reopens a router connection that vshard closed after a failed handshake and waits for the
+  new one, requires every master to be `available`, and logs the replica and bucket states.
 
 ### Documentation
 
