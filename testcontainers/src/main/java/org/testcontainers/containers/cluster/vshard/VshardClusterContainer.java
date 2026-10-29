@@ -65,16 +65,39 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final String VSHARD_BOOTSTRAP_COMMAND =
       "return require('vshard').router.bootstrap({if_not_bootstrapped = true})";
   protected static final String ROUTER_HEALTH_COMMAND = "return box.info.status";
+  // The probe makes a synchronous `callrw` to the master of every replicaset. If the router's
+  // connection to a master was closed (vshard closes it when the handshake fails, e.g. because
+  // the storage was not configured yet), only a request to that master reopens it, and only a
+  // synchronous request waits for the new handshake. Asynchronous CRUD map calls do neither,
+  // so without this they fail with VHANDSHAKE_NOT_COMPLETE. After the calls, every master must
+  // also be `available` in vshard.router.info(). Replica and bucket states are not required
+  // (`bucket.unknown` may lag behind discovery and is even the string '???' on a bucket count
+  // mismatch); they are returned as the second value for diagnostics only.
   protected static final String VSHARD_STORAGES_READY_COMMAND =
-      "local info = require('vshard').router.info();"
-          + " for _, rs in pairs(info.replicasets or {}) do"
-          + "   if rs.master == nil or rs.master == box.NULL then return false end;"
-          + "   for _, r in pairs(rs.replicas or {}) do"
-          + "     if r.status == nil or r.status ~= 'available' then return false end;"
-          + "   end;"
-          + " end;"
-          + " if info.bucket and (info.bucket.unreachable or 0) > 0 then return false end;"
-          + " return true";
+      "local vshard = require('vshard')"
+          + " local replicasets = vshard.router.routeall()"
+          + " local ready = next(replicasets) ~= nil"
+          + " local parts = {}"
+          + " for id, rs in pairs(replicasets) do"
+          + "   local res, err = rs:callrw('vshard.storage.buckets_count', {}, {timeout = 2})"
+          + "   if res == nil then"
+          + "     ready = false"
+          + "     table.insert(parts, tostring(id) .. ' callrw failed: ' .. tostring(err))"
+          + "   end"
+          + " end"
+          + " local info = vshard.router.info()"
+          + " for id, rs in pairs(info.replicasets or {}) do"
+          + "   local m = rs.master and rs.master.status or 'nil'"
+          + "   local r = rs.replica and rs.replica.status or 'nil'"
+          + "   if m ~= 'available' then ready = false end"
+          + "   table.insert(parts, tostring(id) .. ' master=' .. m .. ' replica=' .. r)"
+          + " end"
+          + " local b = info.bucket or {}"
+          + " table.insert(parts, 'buckets rw=' .. tostring(b.available_rw)"
+          + "   .. ' ro=' .. tostring(b.available_ro)"
+          + "   .. ' unreachable=' .. tostring(b.unreachable)"
+          + "   .. ' unknown=' .. tostring(b.unknown))"
+          + " return ready, table.concat(parts, '; ')";
   private static final ObjectMapper YAML_MAPPER = new ObjectMapper(new YAMLFactory());
 
   public static final String ENV_TARANTOOL_VERSION = "TARANTOOL_VERSION";
@@ -569,13 +592,14 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   }
 
   /**
-   * Waits until every vshard replica is in the {@code available} state (i.e. the vshard handshake
-   * with each storage has completed) and there are no unreachable buckets. {@link
-   * #vshardIsBootstrapped()} only verifies that {@code vshard.router.bootstrap} returned cleanly,
-   * which does not preclude individual storages from still being in {@code VHANDSHAKE_NOT_COMPLETE}
-   * (vshard code 40) during the initial rebalance. Issuing a CRUD request against such a cluster
-   * fails immediately, so the readiness check must additionally inspect the per-replica status
-   * surfaced by {@code vshard.router.info()}.
+   * Waits until a synchronous {@code callrw} to the master of every replicaset succeeds and every
+   * master is {@code available} in {@code vshard.router.info()}. {@link #vshardIsBootstrapped()}
+   * only verifies that {@code vshard.router.bootstrap} returned cleanly. The router may still hold
+   * a closed connection to a master: vshard closes it when the handshake fails (for example, the
+   * storage was not configured yet when the router connected), and only a request to that master
+   * reopens it. An asynchronous CRUD map call reopens it but does not wait for the new handshake
+   * and fails with {@code VHANDSHAKE_NOT_COMPLETE} (vshard code 40), so the probe makes the
+   * synchronous call itself.
    */
   protected void waitUntilVshardStoragesAreReady(int secondsToWait) {
     if (!waitUntilTrue(secondsToWait, this::vshardStoragesAreReady)) {
@@ -658,9 +682,10 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   }
 
   /**
-   * Returns {@code true} when {@code vshard.router.info()} reports every replica as {@code
-   * available} and {@code info.bucket.unreachable == 0}, i.e. the vshard handshake has completed
-   * for all storages. See {@link #waitUntilVshardStoragesAreReady(int)} for rationale.
+   * Returns {@code true} when a synchronous {@code callrw} to every replicaset master succeeds and
+   * {@code vshard.router.info()} reports every master as {@code available}. Call errors, replica
+   * and bucket states returned by the probe are only logged. See {@link
+   * #waitUntilVshardStoragesAreReady(int)} for rationale.
    */
   protected boolean vshardStoragesAreReady() {
     try {
@@ -672,8 +697,11 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
         return false;
       }
       boolean ready = Boolean.TRUE.equals(result.get(0));
-      if (!ready) {
-        logger().warn("Vshard storages are not handshaked yet");
+      Object state = result.get(1);
+      if (ready) {
+        logger().info("Vshard storages are ready: {}", state);
+      } else {
+        logger().warn("Vshard storages are not handshaked yet: {}", state);
       }
       return ready;
     } catch (Exception e) {
