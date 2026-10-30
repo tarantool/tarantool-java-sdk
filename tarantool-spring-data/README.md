@@ -29,7 +29,7 @@ data storage.
 |           1.4.x            |             1.4.x             |          2.7.18 / 3.1.10 / 3.2.4 / 3.3.13 / 3.4.10          |
 |           1.5.x            |             1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
 |           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
-|           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.13 / 4.0.6 |
+|           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.16 / 4.0.9 |
 
 Choose the module by the Spring Boot minor line of your application. The table above lists the
 Spring Boot versions each module is built and tested with; other patch versions of the same line are
