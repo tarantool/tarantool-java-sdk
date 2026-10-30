@@ -8,7 +8,10 @@ package io.tarantool.core.integration;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
@@ -397,18 +400,69 @@ public class ConnectionToTarantoolTest extends BaseTest {
     assertEquals(CONCURRENT_THREADS_COUNT, success);
   }
 
+  /*
+   * Server accepts the connection but does not send the greeting. The connect future fails only
+   * with TimeoutException, and no CLOSE_BY_REMOTE event is fired: the client closes the channel
+   * itself.
+   */
   @Test
   @DisabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
   public void testConnectWithGreetingTimeout() throws InterruptedException {
-    Connection client = factory.create();
+    AtomicReference<Throwable> closedByRemote = new AtomicReference<>();
+    Connection client =
+        factory
+            .create()
+            .onClose(ConnectionCloseEvent.CLOSE_BY_REMOTE, (c, ex) -> closedByRemote.set(ex));
     InetSocketAddress address = new InetSocketAddress(tt.getHost(), tt.getMappedPort(3306));
     CompletableFuture<Greeting> future = client.connect(address, 1_000);
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable cause = ex.getCause();
-    assertTrue(
-        cause instanceof TimeoutException || cause instanceof ConnectionClosedException,
-        "Exception should be either TimeoutException or ConnectionClosedException");
+    assertEquals(TimeoutException.class, cause.getClass());
     assertEquals("Connection timeout", cause.getMessage());
+    // Without the fix the close event follows the timeout within milliseconds.
+    Thread.sleep(500);
+    assertNull(closedByRemote.get(), "greeting timeout is reported as closed by server");
+  }
+
+  /*
+   * The server closes the first attempt before the greeting; the second attempt waits for the
+   * greeting of a silent server. The greeting timer of the first attempt must not close the second
+   * one: it fails with TimeoutException after its own timeout.
+   */
+  @Test
+  @DisabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
+  public void testGreetingTimerOfClosedAttemptDoesNotCloseNextAttempt() throws Exception {
+    long timeoutMs = 1_000;
+    long pauseMs = 500;
+    Connection client = factory.create();
+    try (ServerSocket closingServer = new ServerSocket(0, 50, InetAddress.getLoopbackAddress())) {
+      Thread closer =
+          new Thread(
+              () -> {
+                try (Socket socket = closingServer.accept()) {
+                  // closed by try-with-resources before the greeting
+                } catch (IOException ignored) {
+                  // the test fails on its own assertions
+                }
+              });
+      closer.setDaemon(true);
+      closer.start();
+      InetSocketAddress closing =
+          new InetSocketAddress(closingServer.getInetAddress(), closingServer.getLocalPort());
+      assertThrows(CompletionException.class, client.connect(closing, timeoutMs)::join);
+    }
+    Thread.sleep(pauseMs);
+
+    InetSocketAddress silent = new InetSocketAddress(tt.getHost(), tt.getMappedPort(3306));
+    long start = System.nanoTime();
+    CompletableFuture<Greeting> second = client.connect(silent, timeoutMs);
+    Throwable cause = assertThrows(CompletionException.class, second::join).getCause();
+    long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+
+    // Without the fix the timer of the first attempt closes the second one about
+    // timeoutMs - pauseMs after it starts, and it fails as closed by server.
+    assertEquals(TimeoutException.class, cause.getClass(), cause.toString());
+    assertTrue(elapsedMs >= timeoutMs - 100, "second attempt failed after " + elapsedMs + " ms");
   }
 
   @Test

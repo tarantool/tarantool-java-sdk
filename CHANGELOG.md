@@ -68,6 +68,26 @@
   `VHANDSHAKE_NOT_COMPLETE`. The check now makes a synchronous `callrw` to every replicaset master,
   which reopens a router connection that vshard closed after a failed handshake and waits for the
   new one, requires every master to be `available`, and logs the replica and bucket states.
+- Fixed a bug when a server that accepts the TCP connection but does not send the greeting was
+  reported as "Connection closed by server". The connect future is now failed only with
+  `TimeoutException`, and no `CLOSE_BY_REMOTE` event is fired. Previously the connection pool
+  handled every such attempt twice, so the reconnect chains multiplied while the server stayed
+  silent. The greeting timer of an attempt that the server closed no longer closes the channel of
+  the next attempt.
+- Fixed reconnect chains multiplying when a server (or a proxy in front of it) accepts the TCP
+  connection and closes it before the greeting: the close was reported both by the failed connect
+  future and by a `CLOSE_BY_REMOTE` event, and the pool handled each report. Close events are now
+  fired only for a connection that has received the greeting.
+- Fixed a leak when graceful shutdown is enabled: every connect attempt added one more
+  `box.shutdown` callback to the same watcher, so a client that kept reconnecting accumulated
+  callbacks, and a `box.shutdown` event after a successful connect ran the callback once per
+  previous attempt. The callback is now added once per client.
+- Fixed the `pool.connect.time` timer of the connection pool: it was stopped only when an
+  attempt succeeded, so every failed attempt left an active sample behind.
+- Fixed `reconnectAfter` being ignored for the connections created with the client: the client
+  builder set it on the pool after the connections had been created with the default of 1000 ms,
+  and the pool did not pass the new value to existing connections. `withReconnectAfter` and the
+  `reconnect-after` property of Spring Data now take effect.
 
 ### Documentation
 
