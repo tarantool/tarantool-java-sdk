@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-10-30
+
 ### Pool
 
 - Introduced `AvailabilityPolicy`, `PoolEntryView`, and `PoolEntryState` abstractions
@@ -29,6 +31,8 @@
     * Bump netty version from 4.2.16.Final to 4.2.19.Final
     * Bump opentelemetry version from 1.62.0 to 1.67.0
     * Bump slf4j version from 2.0.17 to 2.0.20
+    * Bump spring-boot version from 4.0.6 to 4.0.9 in tarantool-spring-data-40
+    * Pin spring-data-keyvalue to 4.0.8 in tarantool-spring-data-40
 
   Tests:
     * Bump grpc version from 1.77.0 to 1.85.1

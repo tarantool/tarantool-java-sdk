@@ -18,7 +18,10 @@
   <properties>
     <!-- Recommended Java version is 25, minimal version is 17 -->
     <maven.compiler.release>17</maven.compiler.release>
-    <spring.boot.version>4.0.6</spring.boot.version>
+    <spring.boot.version>4.0.9</spring.boot.version>
+    <!--spring-data-keyvalue has not published a 4.0.9 release; pin to 4.0.8,
+        the latest matching artifact on Maven Central-->
+    <spring-data-keyvalue.version>4.0.8</spring-data-keyvalue.version>
     <shared.dir>${project.parent.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.parent.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
     <!-- Spring Framework 7.x uses JUnit 6 -->
@@ -29,6 +32,11 @@
     <dependency>
       <groupId>io.tarantool</groupId>
       <artifactId>tarantool-spring-data-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-keyvalue</artifactId>
+      <version>${spring-data-keyvalue.version}</version>
     </dependency>
   </dependencies>
 </project>
