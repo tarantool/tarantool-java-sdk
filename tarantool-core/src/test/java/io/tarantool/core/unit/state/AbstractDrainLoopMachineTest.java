@@ -1,0 +1,176 @@
+/*
+ * Copyright (c) 2026 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
+package io.tarantool.core.unit.state;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import io.tarantool.core.state.AbstractDrainLoopMachine;
+import io.tarantool.core.state.Event;
+
+class AbstractDrainLoopMachineTest {
+
+  private TestStateMachine stateMachine;
+
+  @BeforeEach
+  void setUp() {
+    stateMachine = new TestStateMachine();
+  }
+
+  @Test
+  void testSequentialProcessing() {
+    final Event event1 = Mockito.mock(Event.class);
+    final Event event2 = Mockito.mock(Event.class);
+
+    this.stateMachine.handle(event1);
+    this.stateMachine.handle(event2);
+
+    final List<Event> processed = this.stateMachine.processedEvents();
+    Assertions.assertEquals(2, processed.size());
+    Assertions.assertSame(event1, processed.get(0));
+    Assertions.assertSame(event2, processed.get(1));
+    Assertions.assertEquals(0, this.stateMachine.errorCount());
+  }
+
+  @Test
+  void testRecoveryAfterException() {
+    final Event event1 = Mockito.mock(Event.class);
+    final Event event2 = Mockito.mock(Event.class);
+    final Event event3 = Mockito.mock(Event.class);
+
+    this.stateMachine.handle(event1);
+    this.stateMachine.throwOnEvent = new RuntimeException("Simulation error");
+
+    this.stateMachine.handle(event2);
+    this.stateMachine.handle(event3);
+
+    Assertions.assertEquals(1, this.stateMachine.errorCount());
+    final List<Event> processed = this.stateMachine.processedEvents();
+    Assertions.assertEquals(2, processed.size());
+    Assertions.assertSame(event1, processed.get(0));
+    Assertions.assertSame(event3, processed.get(1));
+  }
+
+  @Test
+  void testConcurrentDrainLoop() throws InterruptedException {
+    int threadCount = 10;
+    int eventsPerThread = 10000;
+    int totalEvents = threadCount * eventsPerThread;
+
+    final ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    final CountDownLatch startLatch = new CountDownLatch(1);
+    final CountDownLatch finishLatch = new CountDownLatch(threadCount);
+
+    // Генерируем пачку потоков, которые будут одновременно бомбардировать машину событиями
+    for (int i = 0; i < threadCount; i++) {
+      executor.submit(
+          () -> {
+            try {
+              startLatch.await();
+              for (int j = 0; j < eventsPerThread; j++) {
+                this.stateMachine.handle(Mockito.mock(Event.class));
+              }
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            } finally {
+              finishLatch.countDown();
+            }
+          });
+    }
+
+    startLatch.countDown(); // Даем старт всем потокам одновременно
+    boolean completed = finishLatch.await(5, TimeUnit.SECONDS);
+    executor.shutdown();
+
+    Assertions.assertTrue(completed);
+    Assertions.assertEquals(totalEvents, stateMachine.processedEvents().size());
+    Assertions.assertEquals(0, stateMachine.errorCount());
+  }
+
+  @Test
+  void testEventSerialization() throws InterruptedException {
+    final Event event1 = Mockito.mock(Event.class);
+    final Event event2 = Mockito.mock(Event.class);
+
+    final CountDownLatch inProcessEvent1 = new CountDownLatch(1);
+    final CountDownLatch proceedEvent1 = new CountDownLatch(1);
+    final AtomicInteger activeThreadsInHandler = new AtomicInteger(0);
+
+    this.stateMachine.onProcessHook =
+        () -> {
+          activeThreadsInHandler.incrementAndGet();
+          inProcessEvent1.countDown();
+          try {
+            proceedEvent1.await(2, TimeUnit.SECONDS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          } finally {
+            activeThreadsInHandler.decrementAndGet();
+          }
+        };
+
+    final Thread t1 = new Thread(() -> stateMachine.handle(event1));
+    t1.start();
+
+    Assertions.assertTrue(inProcessEvent1.await(1, TimeUnit.SECONDS));
+
+    final long startTime = System.currentTimeMillis();
+    this.stateMachine.handle(event2);
+    final long duration = System.currentTimeMillis() - startTime;
+
+    Assertions.assertTrue(duration < 500);
+
+    proceedEvent1.countDown();
+    t1.join(2000);
+
+    Assertions.assertEquals(2, stateMachine.processedEvents().size());
+  }
+
+  private static class TestStateMachine extends AbstractDrainLoopMachine<Event> {
+
+    private final List<Event> processedEvents = Collections.synchronizedList(new ArrayList<>());
+    private final AtomicInteger errorCount = new AtomicInteger(0);
+    private volatile Runnable onProcessHook = null;
+    private volatile RuntimeException throwOnEvent = null;
+
+    @Override
+    protected void processEvent(Event event) {
+      if (throwOnEvent != null) {
+        final RuntimeException ex = throwOnEvent;
+        throwOnEvent = null;
+        throw ex;
+      }
+      if (onProcessHook != null) {
+        onProcessHook.run();
+      }
+      processedEvents.add(event);
+    }
+
+    @Override
+    protected void onHandleError(Throwable error) {
+      this.errorCount.incrementAndGet();
+    }
+
+    public List<Event> processedEvents() {
+      return this.processedEvents;
+    }
+
+    public int errorCount() {
+      return this.errorCount.get();
+    }
+  }
+}
