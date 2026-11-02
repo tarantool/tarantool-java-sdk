@@ -61,17 +61,6 @@ public interface PoolEntryView {
   void reconnect();
 
   /**
-   * Asynchronously restarts only the availability policy (strategy) execution for this connection.
-   *
-   * @implNote This method forces the library to recycle the lifecycle of the current policy for
-   *     this specific entry (effectively invoking {@code stop} followed by {@code start} on the
-   *     policy). In contrast to {@link #reconnect()}, this method <b>does not</b> drop, stop, or
-   *     restart the underlying physical network connection.
-   * @implSpec This method is non-blocking and returns immediately.
-   */
-  void restart();
-
-  /**
    * Emits events occurring in the connection and {@link
    * io.tarantool.pool.availability.AvailabilityPolicy}.
    *
