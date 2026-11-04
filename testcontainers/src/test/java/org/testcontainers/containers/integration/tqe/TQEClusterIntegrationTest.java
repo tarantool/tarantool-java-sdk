@@ -66,6 +66,8 @@ class TQEClusterIntegrationTest {
         .generate(
             Select.field(User::getName), g -> g.string().alphaNumeric().allowEmpty().nullable())
         .generate(Select.field(User::getAge), Generators::ints)
+        // The consumer collects into a set: equal users would leave it short of the list size.
+        .withUnique(Select.field(User::getAge))
         .create();
   }
 }
