@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -91,15 +92,8 @@ public class ReconnectLoopTest {
 
   @Test
   public void test_failedAttempts_shouldNotMultiplyReconnectTasks() throws Exception {
-    AtomicInteger scheduled = new AtomicInteger();
-    PoolEventListener listener =
-        new PoolEventListener() {
-          @Override
-          public void onReconnectScheduled(String tag, int index, long delayMs) {
-            scheduled.incrementAndGet();
-          }
-        };
-    pool = createPool(null, listener);
+    ReconnectCounter counter = new ReconnectCounter();
+    pool = createPool(null, counter);
     pool.get(TAG, 0);
 
     Thread.sleep(OBSERVE_MS);
@@ -108,25 +102,12 @@ public class ReconnectLoopTest {
     assertTrue(attempts >= 3, "too few attempts to judge: " + attempts);
     // Each failed attempt schedules one reconnect. When a greeting timeout was also reported as
     // a close by server, every attempt was handled twice and the reconnect chains multiplied.
-    assertTrue(
-        scheduled.get() <= attempts + 1,
-        "reconnect tasks multiply: "
-            + scheduled.get()
-            + " scheduled for "
-            + attempts
-            + " attempts");
+    counter.assertNotMultiplied(attempts);
   }
 
   @Test
   public void test_closedBeforeGreeting_shouldNotMultiplyReconnectTasks() throws Exception {
-    AtomicInteger scheduled = new AtomicInteger();
-    PoolEventListener listener =
-        new PoolEventListener() {
-          @Override
-          public void onReconnectScheduled(String tag, int index, long delayMs) {
-            scheduled.incrementAndGet();
-          }
-        };
+    ReconnectCounter counter = new ReconnectCounter();
     AtomicInteger attempts = new AtomicInteger();
     try (ServerSocket closingServer = new ServerSocket(0, 50, InetAddress.getLoopbackAddress())) {
       // Accepts and closes at once, before the greeting, like a proxy without a backend.
@@ -143,7 +124,7 @@ public class ReconnectLoopTest {
               });
       closer.setDaemon(true);
       closer.start();
-      pool = createPool(null, listener, closingServer);
+      pool = createPool(null, counter, closingServer);
       pool.get(TAG, 0);
 
       Thread.sleep(OBSERVE_MS);
@@ -153,9 +134,73 @@ public class ReconnectLoopTest {
     assertTrue(count >= 3, "too few attempts to judge: " + count);
     // A connection closed before the greeting has never been established: the failed connect
     // future is the only report of the attempt, so each attempt schedules one reconnect.
-    assertTrue(
-        scheduled.get() <= count + 1,
-        "reconnect tasks multiply: " + scheduled.get() + " scheduled for " + count + " attempts");
+    counter.assertNotMultiplied(count);
+  }
+
+  /** Counts scheduled reconnects and the attempts that never reached the server. */
+  private static final class ReconnectCounter implements PoolEventListener {
+
+    private final AtomicInteger scheduled = new AtomicInteger();
+
+    private final AtomicInteger notSent = new AtomicInteger();
+
+    @Override
+    public void onReconnectScheduled(String tag, int index, long delayMs) {
+      scheduled.incrementAndGet();
+    }
+
+    @Override
+    public void onConnectionFailed(String tag, int index, Throwable cause) {
+      // The channel of the previous attempt was still closing: this attempt failed before
+      // connecting, so the server has not seen it, but it schedules a reconnect too.
+      if (cause instanceof IllegalStateException) {
+        notSent.incrementAndGet();
+      }
+    }
+
+    void assertNotMultiplied(int serverAttempts) {
+      int attempts = serverAttempts + notSent.get();
+      assertTrue(
+          scheduled.get() <= attempts + 1,
+          "reconnect tasks multiply: "
+              + scheduled.get()
+              + " scheduled for "
+              + serverAttempts
+              + " attempts seen by the server and "
+              + notSent.get()
+              + " failed while the previous one was closing");
+    }
+  }
+
+  @Test
+  public void test_reconnectWhileClosing_shouldKeepReconnecting() throws Exception {
+    AtomicBoolean held = new AtomicBoolean();
+    PoolEventListener listener =
+        new PoolEventListener() {
+          @Override
+          public void onConnectionFailed(String tag, int index, Throwable cause) {
+            if (!held.compareAndSet(false, true)) {
+              return;
+            }
+            // Hold the event loop once, longer than the reconnect delay: the channel of the
+            // failed attempt stays closing when the reconnect task runs.
+            group.execute(
+                () -> {
+                  try {
+                    Thread.sleep(4 * RECONNECT_AFTER_MS);
+                  } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                  }
+                });
+          }
+        };
+    pool = createPool(null, listener);
+    pool.get(TAG, 0);
+
+    Thread.sleep(OBSERVE_MS);
+
+    int attempts = accepted.size();
+    assertTrue(attempts >= 3, "reconnecting stopped after " + attempts + " attempts");
   }
 
   @Test
