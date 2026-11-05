@@ -5,4 +5,9 @@
 
 package io.tarantool.core.state;
 
-public interface Event {}
+public interface Event {
+
+  default boolean isControl() {
+    return false;
+  }
+}
