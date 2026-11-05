@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Testcontainers
+
+- `CartridgeClusterContainer`: a failed `cartridge replicasets setup` from a YAML topology file
+  is now retried once after 10 seconds, as it already was for a Lua topology script, and the CLI
+  exit code, stdout and stderr are logged and included in the error. Before, the error carried
+  only the empty stdout ("Failed to change the app topology via cartridge CLI: ").
+
 ## [1.7.3] - 2026-10-30
 
 ### Pool
