@@ -17,11 +17,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 
 import io.tarantool.core.state.AbstractDrainLoopMachine;
 import io.tarantool.core.state.Event;
 
+@Execution(ExecutionMode.CONCURRENT)
+@TestInstance(Lifecycle.PER_METHOD)
 class AbstractDrainLoopMachineTest {
 
   private TestStateMachine stateMachine;
@@ -138,6 +144,55 @@ class AbstractDrainLoopMachineTest {
     t1.join(2000);
 
     Assertions.assertEquals(2, stateMachine.processedEvents().size());
+  }
+
+  @Test
+  void testControlEventsPriority() throws InterruptedException {
+    final Event blockerEvent = Mockito.mock(Event.class);
+    final Event regularEvent = Mockito.mock(Event.class);
+    final Event controlEvent = Mockito.mock(Event.class);
+
+    Mockito.when(blockerEvent.isControl()).thenReturn(false);
+    Mockito.when(regularEvent.isControl()).thenReturn(false);
+    Mockito.when(controlEvent.isControl()).thenReturn(true);
+
+    final CountDownLatch inProcessBlocker = new CountDownLatch(1);
+    final CountDownLatch resumeBlocker = new CountDownLatch(1);
+
+    this.stateMachine.onProcessHook =
+        () -> {
+          if (inProcessBlocker.getCount() > 0) {
+            inProcessBlocker.countDown();
+            try {
+              resumeBlocker.await(2, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+          }
+        };
+
+    final Thread workerThread = new Thread(() -> this.stateMachine.handle(blockerEvent));
+    workerThread.start();
+
+    Assertions.assertTrue(inProcessBlocker.await(1, TimeUnit.SECONDS));
+
+    this.stateMachine.onProcessHook = null;
+
+    this.stateMachine.handle(regularEvent);
+    this.stateMachine.handle(controlEvent);
+
+    resumeBlocker.countDown();
+    workerThread.join(2000);
+
+    final List<Event> processed = this.stateMachine.processedEvents();
+
+    Assertions.assertEquals(3, processed.size());
+    Assertions.assertSame(blockerEvent, processed.get(0));
+    Assertions.assertSame(
+        controlEvent, processed.get(1), "Control event must bypass regular event due to priority");
+    Assertions.assertSame(regularEvent, processed.get(2));
+
+    Assertions.assertEquals(0, this.stateMachine.errorCount());
   }
 
   private static class TestStateMachine extends AbstractDrainLoopMachine<Event> {
