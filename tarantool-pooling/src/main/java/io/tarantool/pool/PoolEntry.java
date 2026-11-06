@@ -97,7 +97,7 @@ final class PoolEntry {
   private final int index;
 
   /** Time in milliseconds after that reconnect task will be executed. */
-  private final long reconnectAfter;
+  private volatile long reconnectAfter;
 
   /** Parameter that will say tarantool not to use Tuple Extension. */
   private final boolean useTupleExtension;
@@ -318,6 +318,15 @@ final class PoolEntry {
     this.connectTimeout = timeout;
   }
 
+  /**
+   * Setter for {@link #reconnectAfter}.
+   *
+   * @param reconnectAfter reconnect time in milliseconds
+   */
+  public void setReconnectAfter(long reconnectAfter) {
+    this.reconnectAfter = reconnectAfter;
+  }
+
   /** Heartbeat starter. */
   public void startHeartbeat() {
     if (isHeartbeatStarted || heartbeatOpts == null) {
@@ -361,14 +370,24 @@ final class PoolEntry {
     log.info("connect {}/{}", tag, index);
     final LongTaskTimer.Sample timer =
         this.metrics != null ? this.metrics.poolConnectTime.start() : null;
-    CompletableFuture<?> future =
-        client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
+    CompletableFuture<?> future;
+    try {
+      future = client.connect(group.getAddress(), connectTimeout, gracefulShutdown);
+    } catch (RuntimeException e) {
+      // The connection of a failed attempt may still be closing when the reconnect task runs.
+      // Report the throw as a failed attempt, so that the next reconnect is scheduled; an
+      // exception escaping into the timer task would stop reconnecting for good.
+      CompletableFuture<?> failed = new CompletableFuture<>();
+      failed.completeExceptionally(e);
+      future = failed;
+    }
+    // Stop the timer on failure too, otherwise every failed attempt leaves an active sample.
+    future.whenComplete((r, exc) -> PoolEntryMetrics.stopTimer(timer));
     String user = group.getUser();
     connectFuture =
         future
             .thenCompose(
                 greeting -> {
-                  PoolEntryMetrics.stopTimer(timer);
                   if (user != null) {
                     return client.authorize(user, group.getPassword(), group.getAuthType());
                   }
