@@ -238,12 +238,28 @@ public class ConnectionImpl implements Connection {
                 return;
               }
 
-              failPromise(
-                  promise,
-                  new ConnectionException(String.format(ERR_SEND_FAILURE, msg), f.cause()));
+              failPromise(promise, sendFailure(msg, f.cause()));
             });
 
     return promise;
+  }
+
+  /**
+   * A write that passed the READY check can still fail if the client closes the connection before
+   * netty writes it. Report it as {@link ConnectionClosedException}, like other requests cut off by
+   * the close, and keep the netty error as suppressed.
+   */
+  private ConnectionException sendFailure(IProtoMessage msg, Throwable cause) {
+    String message = String.format(ERR_SEND_FAILURE, msg);
+    CloseReason reason = closedBy.get();
+    if (reason == CloseReason.NO_REASON) {
+      return new ConnectionException(message, cause);
+    }
+    ConnectionClosedException closed = new ConnectionClosedException(reason.getMessage());
+    if (cause != null) {
+      closed.addSuppressed(cause);
+    }
+    return new ConnectionException(message, closed);
   }
 
   @Override
