@@ -891,6 +891,74 @@ public class IProtoClientTest extends BaseTest {
     assertEquals(expected, decodeTuple(client, data));
   }
 
+  public static Stream<Arguments> dataForTestIterator3() {
+    final String prepared =
+        "box.space.space_a:insert({'a', 'a'});"
+            + "box.space.space_a:insert({'aa', 'aa'});"
+            + "box.space.space_a:insert({'ab', 'ab'});"
+            + "box.space.space_a:insert({'b', 'b'});"
+            + "box.space.space_a:insert({'ba', 'ba'});"
+            + "box.space.space_a:insert({'bb', 'bb'});"
+            + "box.space.space_a:insert({'c', 'c'});"
+            + "box.space.space_a:insert({'ca', 'ca'});"
+            + "box.space.space_a:insert({'cb', 'cb'});";
+
+    return Stream.of(
+        Arguments.of(
+            BoxIterator.NP.toString(),
+            prepared,
+            ValueFactory.newArray(ValueFactory.newString("b")),
+            ValueFactory.newArray(
+                ValueFactory.newArray(ValueFactory.newString("c"), ValueFactory.newString("c")),
+                ValueFactory.newArray(ValueFactory.newString("ca"), ValueFactory.newString("ca")),
+                ValueFactory.newArray(ValueFactory.newString("cb"), ValueFactory.newString("cb"))),
+            spaceAId,
+            BoxIterator.NP),
+        Arguments.of(
+            BoxIterator.PP.toString(),
+            prepared,
+            ValueFactory.newArray(ValueFactory.newString("b")),
+            ValueFactory.newArray(
+                ValueFactory.newArray(ValueFactory.newString("ab"), ValueFactory.newString("ab")),
+                ValueFactory.newArray(ValueFactory.newString("aa"), ValueFactory.newString("aa")),
+                ValueFactory.newArray(ValueFactory.newString("a"), ValueFactory.newString("a"))),
+            spaceAId,
+            BoxIterator.PP));
+  }
+
+  @EnabledIfEnvironmentVariable(named = "TARANTOOL_VERSION", matches = "3.*")
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("dataForTestIterator3")
+  void testIterator3(
+      String label,
+      String toPrepare,
+      ArrayValue key,
+      ArrayValue expected,
+      Integer space,
+      BoxIterator iterator)
+      throws Exception {
+    testIteratorCommon(toPrepare, key, expected, space, 0, Integer.MAX_VALUE, 0, iterator);
+  }
+
+  void testIteratorCommon(
+      String toPrepare,
+      ArrayValue key,
+      ArrayValue expected,
+      Integer space,
+      Integer index,
+      Integer limit,
+      Integer offset,
+      BoxIterator iterator)
+      throws Exception {
+    TarantoolContainerClientHelper.executeCommand(tt, toPrepare);
+    IProtoClient client = createClientAndConnect(address, true);
+    client.authorize(API_USER, CREDS.get(API_USER)).join();
+    IProtoMessage message = client.select(space, index, key, limit, offset, iterator).get();
+    checkMessageHeader(message, IPROTO_OK, 4);
+    ArrayValue data = message.getBodyArrayValue(IPROTO_DATA);
+    Assertions.assertEquals(expected, decodeTuple(client, data));
+  }
+
   @ParameterizedTest
   @MethodSource("dataForTestSelect")
   public void testRawSelect(
