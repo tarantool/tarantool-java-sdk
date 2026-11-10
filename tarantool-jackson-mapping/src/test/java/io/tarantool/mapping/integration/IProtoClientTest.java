@@ -24,17 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -51,11 +55,15 @@ import org.testcontainers.containers.utils.TarantoolContainerClientHelper;
 
 import io.tarantool.core.IProtoClient;
 import io.tarantool.core.IProtoClientImpl;
+import io.tarantool.core.exceptions.BoxErrorStackItem;
+import io.tarantool.core.exceptions.BoxErrorValue;
 import io.tarantool.core.protocol.BoxIterator;
 import io.tarantool.core.protocol.IProtoResponse;
+import io.tarantool.core.protocol.requests.IProtoConstant;
 import io.tarantool.mapping.Adjust;
 import io.tarantool.mapping.Interval;
 import io.tarantool.mapping.TarantoolJacksonMapping;
+import io.tarantool.mapping.TarantoolResponse;
 import io.tarantool.mapping.Tuple;
 import io.tarantool.mapping.entities.TestEntity;
 
@@ -82,6 +90,7 @@ public class IProtoClientTest extends BaseTest {
   public static final LocalDateTime LOCAL_DATE_TIME =
       LocalDateTime.parse(T_2022_08_30_05_000000123);
   public static final long EPOCH_SECOND = LOCAL_DATE_TIME.toEpochSecond(ZoneOffset.UTC);
+  private static final String LONG_MESSAGE = String.join("", Collections.nCopies(256, "x"));
   private static int spaceTestId;
   private static InetSocketAddress address;
 
@@ -1169,5 +1178,311 @@ public class IProtoClientTest extends BaseTest {
     String parsedResponse =
         TarantoolJacksonMapping.readResponse(evalResponse, String.class).get().get(0);
     assertEquals(object, parsedResponse);
+  }
+
+  public static Stream<Arguments> dataForTestErrorDeserialization() {
+    return Stream.of(
+        // The error with the code and the argument.
+        Arguments.of(
+            "The error with the code and the argument",
+            "return box.error.new(box.error.NO_SUCH_SPACE, 'my_space')",
+            1,
+            "ClientError",
+            "Space 'my_space' does not exist",
+            36L),
+        // The error without the code: the unknown code is used by default.
+        Arguments.of(
+            "The error without the code: the unknown code is used by default",
+            "return box.error.new({reason = 'The error without a code'})",
+            1,
+            "ClientError",
+            "The error without a code",
+            0L),
+        // The error with the custom payload.
+        Arguments.of(
+            "The error with the custom payload",
+            "return box.error.new({code = 42, reason = 'The custom error'})",
+            1,
+            "ClientError",
+            "The custom error",
+            42L),
+        // The plain Lua error is a string, not a box.error object: it must be wrapped
+        // into the box.error object to be returned as the MP_ERROR value.
+        Arguments.of(
+            "The Lua error, caught by pcall",
+            "local ok, err = pcall(fail) return box.error.new({reason = tostring(err)})",
+            1,
+            "ClientError",
+            "Fail!",
+            0L),
+        // The error with the chain of two errors.
+        Arguments.of(
+            "The error with the chain of two errors",
+            "local ok, err = pcall(wrapped_fail_by_box_error) return err",
+            2,
+            "ClientError",
+            "wrapped failure",
+            0L),
+        // The error in the eval script itself. The plain Lua error is a string, not a
+        // box.error object: it must be wrapped into the box.error object to be returned
+        // as the MP_ERROR value.
+        Arguments.of(
+            "The error in the eval script itself",
+            "local x = nil local ok, err = pcall(function() return x.field end) "
+                + "return box.error.new({reason = tostring(err)})",
+            1,
+            "ClientError",
+            "attempt to index",
+            0L));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("dataForTestErrorDeserialization")
+  void testErrorDeserialization(
+      String label,
+      String expression,
+      int expectedStackSize,
+      String expectedType,
+      String expectedMessage,
+      long expectedCode)
+      throws Exception {
+    final IProtoClient client = getClientAndConnect();
+    final IProtoResponse response = client.eval(expression, ValueFactory.emptyArray()).join();
+
+    final TarantoolResponse<List<BoxErrorValue>> result =
+        TarantoolJacksonMapping.readResponse(response, BoxErrorValue.class);
+    final BoxErrorValue errorValue = result.get().get(0);
+
+    Assertions.assertEquals(expectedStackSize, errorValue.stack().size());
+
+    final BoxErrorStackItem item = errorValue.stack().get(0);
+    Assertions.assertEquals(expectedType, item.type());
+    // The Lua error message contains the position prefix, so it is compared partially.
+    Assertions.assertTrue(
+        item.message().contains(expectedMessage),
+        "Expected the message to contain '" + expectedMessage + "', but got: " + item.message());
+    Assertions.assertEquals(expectedCode, item.code());
+    Assertions.assertEquals(0L, item.errNo());
+
+    client.close();
+  }
+
+  // The second element of the chain must not be lost.
+  @Test
+  @DisplayName("Check wrapped errors")
+  void testErrorDeserializationStack() throws Exception {
+    final IProtoClient client = getClientAndConnect();
+    try {
+      final IProtoResponse response =
+          client
+              .eval(
+                  "local ok, err = pcall(wrapped_fail_by_box_error) return err",
+                  ValueFactory.emptyArray())
+              .join();
+
+      final BoxErrorValue errorValue =
+          TarantoolJacksonMapping.readResponse(response, BoxErrorValue.class).get().get(0);
+      Assertions.assertEquals(2, errorValue.stack().size());
+      Assertions.assertEquals("wrapped failure", errorValue.stack().get(0).message());
+      Assertions.assertEquals("fail", errorValue.stack().get(1).message());
+    } finally {
+      client.close();
+    }
+  }
+
+  // The error inside an array and inside a map.
+  @Test
+  void testErrorDeserializationInContainer() throws Exception {
+    final IProtoClient client = getClientAndConnect();
+    try {
+      // The error is the first element of the returned array.
+      final IProtoResponse arrayResponse =
+          client
+              .eval(
+                  "return {box.error.new(box.error.NO_SUCH_SPACE, 'my_space'), 42}",
+                  ValueFactory.emptyArray())
+              .join();
+
+      final List<?> arrayResult = TarantoolJacksonMapping.readResponse(arrayResponse).get();
+      final List<?> tuple = (List<?>) arrayResult.get(0);
+      final BoxErrorValue errorValue = assertInstanceOf(BoxErrorValue.class, tuple.get(0));
+      Assertions.assertEquals(
+          "Space 'my_space' does not exist", errorValue.stack().get(0).message());
+
+      // The error is the value of the 'err' key of the returned map.
+      final IProtoResponse mapResponse =
+          client
+              .eval(
+                  "return {err = box.error.new(box.error.NO_SUCH_SPACE, 'my_space')}",
+                  ValueFactory.emptyArray())
+              .join();
+
+      final List<?> mapResult = TarantoolJacksonMapping.readResponse(mapResponse).get();
+      Map<?, ?> map = assertInstanceOf(Map.class, mapResult.get(0));
+      final BoxErrorValue err = assertInstanceOf(BoxErrorValue.class, map.get("err"));
+      Assertions.assertEquals("Space 'my_space' does not exist", err.stack().get(0).message());
+    } finally {
+      client.close();
+    }
+  }
+
+  @Test
+  void testNilErrorDeserialization() throws Exception {
+    final IProtoClient client = getClientAndConnect();
+    try {
+      final IProtoResponse response = client.eval("return nil", ValueFactory.emptyArray()).join();
+      final List<BoxErrorValue> errors =
+          TarantoolJacksonMapping.readResponse(response, BoxErrorValue.class).get();
+      Assertions.assertEquals(1, errors.size());
+      Assertions.assertNull(errors.get(0));
+    } finally {
+      client.close();
+    }
+  }
+
+  public static Stream<Arguments> dataForTestErrorSerialization() {
+    return Stream.of(
+        // All the fields have their default values.
+        Arguments.of(
+            new BoxErrorValue(Collections.singletonList(BoxErrorStackItem.builder().build())),
+            "all the fields are default"),
+        // All the fields are set.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withType("ClientError")
+                        .withLine(42L)
+                        .withFile("test.lua")
+                        .withMessage("Something went wrong")
+                        .withErrNo(7L)
+                        .withCode(32L)
+                        .build())),
+            "all the fields are set"),
+        // Only the type and the message are set, the other fields have their default values.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withType("ClientError")
+                        .withMessage("Only the type and the message are set")
+                        .build())),
+            "only the type and the message are set"),
+        // Only the message is set, the other fields have their default values.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder().withMessage("Only the message is set").build())),
+            "only the message is set"),
+        // The additional fields are set to an empty map.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withType("ClientError")
+                        .withMessage("The additional fields are empty")
+                        .withFields(ValueFactory.emptyMap())
+                        .build())),
+            "the additional fields are an empty map"),
+        // The additional fields are set to a non-empty map.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withType("AccessDeniedError")
+                        .withMessage("The additional fields are not empty")
+                        .withFields(
+                            ValueFactory.newMap(
+                                ValueFactory.newString("object_type"),
+                                ValueFactory.newString("space"),
+                                ValueFactory.newString("object_name"),
+                                ValueFactory.newString("my_space"),
+                                ValueFactory.newString("access_type"),
+                                ValueFactory.newString("write")))
+                        .build())),
+            "the additional fields are a non-empty map"),
+        // The stack consists of two errors.
+        Arguments.of(
+            new BoxErrorValue(
+                Arrays.asList(
+                    BoxErrorStackItem.builder()
+                        .withType("ClientError")
+                        .withMessage("The first error of the stack")
+                        .build(),
+                    BoxErrorStackItem.builder()
+                        .withType("LuajitError")
+                        .withMessage("The second error of the stack")
+                        .build())),
+            "the stack consists of two errors"),
+        // The message contains special characters.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withMessage("\"quotes\", \n newline, \\ backslash, \t tab")
+                        .build())),
+            "the message contains special characters"),
+        // The numeric fields have the maximum values.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder()
+                        .withLine(Integer.MAX_VALUE)
+                        .withErrNo(Integer.MAX_VALUE)
+                        .withCode(Integer.MAX_VALUE)
+                        .withMessage("The maximum numeric values")
+                        .build())),
+            "the numeric fields have the maximum values"),
+        // The message is long.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.builder().withMessage(LONG_MESSAGE).build())),
+            "the message is long"),
+        // The error object is built by parsing the MP_ERROR structure.
+        Arguments.of(
+            new BoxErrorValue(
+                Collections.singletonList(
+                    BoxErrorStackItem.fromStruct(
+                        ValueFactory.newMap(
+                            IProtoConstant.MP_ERROR_TYPE,
+                            ValueFactory.newString("ClientError"),
+                            IProtoConstant.MP_ERROR_FILE,
+                            ValueFactory.newString("test.lua"),
+                            IProtoConstant.MP_ERROR_LINE,
+                            ValueFactory.newInteger(42L),
+                            IProtoConstant.MP_ERROR_MESSAGE,
+                            ValueFactory.newString("The parsed error"),
+                            IProtoConstant.MP_ERROR_ERRNO,
+                            ValueFactory.newInteger(7L),
+                            IProtoConstant.MP_ERROR_ERRCODE,
+                            ValueFactory.newInteger(32L))))),
+            "the error object is parsed from the MP_ERROR structure"));
+  }
+
+  @ParameterizedTest(name = "{1}")
+  @MethodSource("dataForTestErrorSerialization")
+  void testErrorSerialization(BoxErrorValue errorValue, String caseName) throws Exception {
+    final IProtoClient client = getClientAndConnect();
+    try {
+      final byte[] value = TarantoolJacksonMapping.toValue(Collections.singletonList(errorValue));
+      final CompletableFuture<IProtoResponse> call = client.call("error_verify", value);
+      final IProtoResponse response = call.join();
+
+      final List<?> result = TarantoolJacksonMapping.readResponse(response).get();
+      final Object check = result.get(0);
+      final Map<?, ?> checkMap =
+          Assertions.assertInstanceOf(
+              Map.class, check, String.format("Unexpected result: %s", check));
+
+      Assertions.assertEquals(
+          Boolean.TRUE,
+          checkMap.get("ok"),
+          String.format(
+              "The case '%s' has failed: %s (%s)",
+              caseName, checkMap.get("reason"), checkMap.get("raw_value")));
+    } finally {
+      client.close();
+    }
   }
 }
