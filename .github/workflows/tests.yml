@@ -41,7 +41,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven'
+
+      - name: Cache maven repository
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ github.job }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ github.job }}-
 
       - name: Docker login to private registry
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
@@ -78,7 +84,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven'
+
+      - name: Cache maven repository
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ github.job }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ github.job }}-
 
       - name: Docker login to private registry
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
@@ -134,7 +146,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven'
+
+      - name: Cache maven repository
+        uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ github.job }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ github.job }}-
 
       - name: Docker login to private registry
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
