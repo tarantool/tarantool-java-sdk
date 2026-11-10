@@ -207,6 +207,24 @@ function wrapped_fail_by_box_error()
     box.error(exception)
 end
 
+function error_verify(err)
+    local ok = pcall(function() return err:unpack() end)
+
+    if not ok then
+        return {
+            ok = false,
+            reason = 'Expected box.error object, got: ' .. type(err),
+            raw_value = tostring(err)
+        }
+    else
+        return {
+            ok = true,
+            reason = nil,
+            raw_value = nil
+        }
+    end
+end
+
 function echo_with_push(...)
     box.session.push({ "push1", "out of band" })
     box.session.push({ "push2", "out of band" })
