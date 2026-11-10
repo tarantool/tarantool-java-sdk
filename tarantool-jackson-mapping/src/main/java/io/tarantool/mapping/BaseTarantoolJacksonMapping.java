@@ -32,6 +32,7 @@ public class BaseTarantoolJacksonMapping {
           .registerModule(IntervalExtensionModule.INSTANCE)
           .registerModule(TupleExtensionModule.INSTANCE)
           .registerModule(UUIDExtensionModule.INSTANCE)
+          .registerModule(ErrorExtensionModule.INSTANCE)
           .registerModule(UniversalExtensionModule.INSTANCE);
   public static final TypeFactory typeFactory = objectMapper.getTypeFactory();
   public static final CollectionType LIST_TUPLE =
@@ -46,6 +47,7 @@ public class BaseTarantoolJacksonMapping {
           .registerModule(IntervalExtensionModule.INSTANCE)
           .registerModule(TupleExtensionModule.INSTANCE)
           .registerModule(UUIDExtensionModule.INSTANCE)
+          .registerModule(ErrorExtensionModule.INSTANCE)
           .registerModule(UniversalExtensionModule.INSTANCE)
           .registerModule(FormatsModule.INSTANCE);
   public static final MessagePackFactory innerMpFactory =
@@ -57,6 +59,7 @@ public class BaseTarantoolJacksonMapping {
           .registerModule(UUIDExtensionModule.INSTANCE)
           .registerModule(DatetimeExtensionModule.INSTANCE)
           .registerModule(IntervalExtensionModule.INSTANCE)
+          .registerModule(ErrorExtensionModule.INSTANCE)
           .registerModule(TupleExtensionModule.INSTANCE)
           .registerModule(UniversalExtensionModule.INSTANCE);
 

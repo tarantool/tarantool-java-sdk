@@ -10,6 +10,12 @@
   [LINEARIZABLE](https://github.com/tarantool/tarantool/blob/e643f88a5e0c6d9ef2789b2033088fd04e7d39ae/src/box/txn.h#L228)
   isolation level.
 
+### Protocol
+
+- Added processing
+  for [MP_ERROR](https://www.tarantool.io/en/doc/latest/reference/internals/msgpack_extensions/#the-error-type),
+  which is returned as an object within a response of type OK.
+
 ### Testcontainers
 
 - `CartridgeClusterContainer`: a failed `cartridge replicasets setup` from a YAML topology file

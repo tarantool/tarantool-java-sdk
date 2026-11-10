@@ -21,9 +21,12 @@ import org.msgpack.jackson.dataformat.MessagePackExtensionType;
 
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_DATETIME;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_DECIMAL;
+import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_ERROR;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_INTERVAL;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_TUPLE;
 import static io.tarantool.core.protocol.requests.IProtoConstant.IPROTO_EXT_UUID;
+import io.tarantool.core.exceptions.BoxErrorValue;
+import io.tarantool.mapping.ErrorExtensionModule.ErrorDeserializer;
 
 public class UniversalExtensionModule {
 
@@ -52,6 +55,7 @@ public class UniversalExtensionModule {
       deserializers.put(
           IPROTO_EXT_INTERVAL, new IntervalExtensionModule.IntervalDeserializer(Interval.class));
       deserializers.put(IPROTO_EXT_TUPLE, new TupleExtensionModule.TupleDeserializer());
+      deserializers.put(IPROTO_EXT_ERROR, new ErrorDeserializer(BoxErrorValue.class));
     }
 
     private boolean isExtensionValue(Object object) {
@@ -59,10 +63,10 @@ public class UniversalExtensionModule {
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+    public Object deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
       if (p.currentTokenId() != JsonTokenId.ID_EMBEDDED_OBJECT
           || !isExtensionValue(p.getEmbeddedObject())) {
-        return super.deserialize(p, ctxt);
+        return super.deserialize(p, ctx);
       }
       MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
       byte type = ext.getType();
