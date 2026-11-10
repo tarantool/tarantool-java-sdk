@@ -226,13 +226,13 @@ public class MVCCStreamsTest extends BaseTest {
     Exception ex1 = assertThrows(CompletionException.class, callFuture::join);
     Throwable rootCause1 = findRootCause(ex1);
     assertEquals(BoxError.class, rootCause1.getClass());
-    assertEquals(IPROTO_ERR_PROC_LUA, ((BoxError) rootCause1).getErrorCode());
+    assertEquals(IPROTO_ERR_PROC_LUA, ((BoxError) rootCause1).errorCode());
 
     CompletableFuture<IProtoResponse> insertA2Future = client.insert(spaceAId, null, tupleA, opts);
     Exception ex2 = assertThrows(CompletionException.class, insertA2Future::join);
     Throwable rootCause2 = findRootCause(ex2);
     assertEquals(BoxError.class, rootCause2.getClass());
-    assertEquals(IPROTO_ERR_TUPLE_FOUND, ((BoxError) rootCause2).getErrorCode());
+    assertEquals(IPROTO_ERR_TUPLE_FOUND, ((BoxError) rootCause2).errorCode());
 
     IProtoMessage messageInsertB = client.insert(spaceBId, null, tupleB, opts).get();
     IProtoMessage messageCommit = client.commit(streamId).get();
