@@ -9,6 +9,16 @@
   exit code, stdout and stderr are logged and included in the error. Before, the error carried
   only the empty stdout ("Failed to change the app topology via cartridge CLI: ").
 
+### Spring Data
+
+- **Breaking:** only Spring Boot 4.x is supported. The `tarantool-spring-data-27`,
+  `tarantool-spring-data-31`, `-32`, `-33`, `-34` and `-35` modules are removed.
+  `tarantool-spring-data-40` is renamed to `tarantool-spring-data-4`, now the single artifact.
+- **Breaking:** packages are renamed from `io.tarantool.spring.data40.*` to
+  `io.tarantool.spring4.data.*`. Update imports after upgrading.
+- `tarantool-spring-data-4` is built against Spring Boot 4.0.x and unit-tested with 4.0.x and 4.1.x.
+- Users staying on Spring Boot 2.7.x or 3.x should keep using tarantool-spring-data 1.7.x.
+
 ## [1.7.3] - 2026-10-30
 
 ### Pool

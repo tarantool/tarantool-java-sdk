@@ -28,20 +28,15 @@ using [Tarantool](https://www.tarantool.io) as a data store.
 |           1.5.x            |             1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
 |           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.16 / 4.0.9 |
+|           2.0.x            |             2.0.x             |                      4.0.x / 4.1.x                       |
 
-Choose the module by the Spring Boot minor line of your application. The table above lists the
-Spring Boot versions each module is built and tested with; other patch versions of the same line are
-not tested in CI, and newer minor lines are not tested at all.
+The `tarantool-spring-data-4` module supports Spring Boot 4.x. CI builds it against 4.0.x and
+runs unit tests with 4.0.x and 4.1.x. Its packages carry the Spring major version
+(`io.tarantool.spring4.data`), so future Spring Data majors can be supported alongside.
 
-| Spring Boot line | Module                      |
-|:----------------:|:---------------------------:|
-|      2.7.x       | `tarantool-spring-data-27`  |
-|      3.1.x       | `tarantool-spring-data-31`  |
-|      3.2.x       | `tarantool-spring-data-32`  |
-|      3.3.x       | `tarantool-spring-data-33`  |
-|      3.4.x       | `tarantool-spring-data-34`  |
-|      3.5.x       | `tarantool-spring-data-35`  |
-|      4.0.x       | `tarantool-spring-data-40`  |
+| Spring Boot line | Module                     |
+|:----------------:|:--------------------------:|
+|   4.0.x / 4.1.x  | `tarantool-spring-data-4`  |
 
 ### Tarantool Version and Supported Client Modules
 
@@ -119,7 +114,7 @@ Include the module in your project as follows:
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-40</artifactId>
+    <artifactId>tarantool-spring-data-4</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>

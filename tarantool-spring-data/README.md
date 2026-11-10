@@ -30,20 +30,13 @@ data storage.
 |           1.5.x            |             1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
 |           1.6.x            |             1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x            |             1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.16 / 4.0.9 |
+|           2.0.x            |             2.0.x             |                      4.0.x / 4.1.x                       |
 
-Choose the module by the Spring Boot minor line of your application. The table above lists the
-Spring Boot versions each module is built and tested with; other patch versions of the same line are
-not tested in CI, and newer minor lines are not tested at all.
+The `tarantool-spring-data-4` module supports Spring Boot 4.x.
 
-| Spring Boot line | Module                      |
-|:----------------:|:---------------------------:|
-|      2.7.x       | `tarantool-spring-data-27`  |
-|      3.1.x       | `tarantool-spring-data-31`  |
-|      3.2.x       | `tarantool-spring-data-32`  |
-|      3.3.x       | `tarantool-spring-data-33`  |
-|      3.4.x       | `tarantool-spring-data-34`  |
-|      3.5.x       | `tarantool-spring-data-35`  |
-|      4.0.x       | `tarantool-spring-data-40`  |
+| Spring Boot line | Module                     |
+|:----------------:|:--------------------------:|
+|   4.0.x / 4.1.x  | `tarantool-spring-data-4`  |
 
 ### Tarantool Version and Supported Client Modules
 
@@ -96,11 +89,12 @@ CRUD operations of the
 > which are not available in TDG. Using a `Repository` with a TDG connection fails with
 > `BoxError{code=33, message='Procedure 'crud.select' is not defined'}`.
 
-> [!IMPORTANT] 
-> #### Spring Data 3.4.x
-> Verified operation of 
-> [repository fragments SPI](https://github.com/spring-projects/spring-data-commons/wiki/Spring-Data-2024.1-Release-Notes#repository-fragments-spi).
-> Additional information [here](https://github.com/spring-projects/spring-data-commons/pull/3093).
+> [!IMPORTANT]
+> #### Repository fragments
+> The
+> [repository fragments SPI](https://github.com/spring-projects/spring-data-commons/wiki/Spring-Data-2024.1-Release-Notes#repository-fragments-spi)
+> is supported. Additional information
+> [here](https://github.com/spring-projects/spring-data-commons/pull/3093).
 
 ## Getting Started with Spring Data Tarantool
 
