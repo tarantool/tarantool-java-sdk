@@ -1488,13 +1488,13 @@ public class IProtoClientTest extends BaseTest {
             "Incorrect password supplied for user 'user_a'",
             "User not found or supplied credentials are invalid");
 
-    assertEquals(IPROTO_ERR_CREDS_MISMATCH, boxError.getErrorCode());
-    assertEquals(1, boxError.getTarantoolStack().size());
-    assertTrue(ERROR_MESSAGES.contains(boxError.getTarantoolMessage()));
+    assertEquals(IPROTO_ERR_CREDS_MISMATCH, boxError.errorCode());
+    assertEquals(1, boxError.stack().size());
+    assertTrue(ERROR_MESSAGES.contains(boxError.tarantoolMessage()));
 
-    BoxErrorStackItem item = boxError.getTarantoolStack().get(0);
-    assertEquals("ClientError", item.getType());
-    assertTrue(ERROR_MESSAGES.contains(item.getMessage()));
+    BoxErrorStackItem item = boxError.stack().get(0);
+    assertEquals("ClientError", item.type());
+    assertTrue(ERROR_MESSAGES.contains(item.message()));
   }
 
   @Test
@@ -1511,13 +1511,13 @@ public class IProtoClientTest extends BaseTest {
 
     String ERROR_MESSAGE = "User not found or supplied credentials are invalid";
 
-    assertEquals(IPROTO_ERR_CREDS_MISMATCH, boxError.getErrorCode());
-    assertEquals(1, boxError.getTarantoolStack().size());
-    assertEquals(ERROR_MESSAGE, boxError.getTarantoolMessage());
+    assertEquals(IPROTO_ERR_CREDS_MISMATCH, boxError.errorCode());
+    assertEquals(1, boxError.stack().size());
+    assertEquals(ERROR_MESSAGE, boxError.tarantoolMessage());
 
-    BoxErrorStackItem item = boxError.getTarantoolStack().get(0);
-    assertEquals("ClientError", item.getType());
-    assertEquals(ERROR_MESSAGE, item.getMessage());
+    BoxErrorStackItem item = boxError.stack().get(0);
+    assertEquals("ClientError", item.type());
+    assertEquals(ERROR_MESSAGE, item.message());
   }
 
   @Test
@@ -1534,13 +1534,13 @@ public class IProtoClientTest extends BaseTest {
 
     String ERROR_MESSAGE = "Session access to universe '' is denied for user 'user_c'";
 
-    assertEquals(IPROTO_ERR_ACCESS_DENIED, boxError.getErrorCode());
-    assertEquals(1, boxError.getTarantoolStack().size());
-    assertEquals(ERROR_MESSAGE, boxError.getTarantoolMessage());
+    assertEquals(IPROTO_ERR_ACCESS_DENIED, boxError.errorCode());
+    assertEquals(1, boxError.stack().size());
+    assertEquals(ERROR_MESSAGE, boxError.tarantoolMessage());
 
-    BoxErrorStackItem item = boxError.getTarantoolStack().get(0);
-    assertEquals("AccessDeniedError", item.getType());
-    assertEquals(ERROR_MESSAGE, item.getMessage());
+    BoxErrorStackItem item = boxError.stack().get(0);
+    assertEquals("AccessDeniedError", item.type());
+    assertEquals(ERROR_MESSAGE, item.message());
   }
 
   @Test
@@ -1563,14 +1563,14 @@ public class IProtoClientTest extends BaseTest {
       ERROR_MESSAGE = "Execute access to universe '' is denied for user 'user_d'";
     }
 
-    assertEquals(IPROTO_ERR_ACCESS_DENIED, boxError.getErrorCode());
-    assertEquals(1, boxError.getTarantoolStack().size());
-    String tarantoolMessage = boxError.getTarantoolMessage();
+    assertEquals(IPROTO_ERR_ACCESS_DENIED, boxError.errorCode());
+    assertEquals(1, boxError.stack().size());
+    String tarantoolMessage = boxError.tarantoolMessage();
     assertEquals(tarantoolMessage, ERROR_MESSAGE);
 
-    BoxErrorStackItem item = boxError.getTarantoolStack().get(0);
-    assertEquals("AccessDeniedError", item.getType());
-    tarantoolMessage = item.getMessage();
+    BoxErrorStackItem item = boxError.stack().get(0);
+    assertEquals("AccessDeniedError", item.type());
+    tarantoolMessage = item.message();
     assertEquals(tarantoolMessage, ERROR_MESSAGE);
   }
 
@@ -1665,7 +1665,7 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(errorCode, ((BoxError) rootCause).getErrorCode());
+    assertEquals(errorCode, ((BoxError) rootCause).errorCode());
   }
 
   @ParameterizedTest
@@ -1679,7 +1679,7 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(errorCode, ((BoxError) rootCause).getErrorCode());
+    assertEquals(errorCode, ((BoxError) rootCause).errorCode());
   }
 
   @ParameterizedTest
@@ -1843,20 +1843,20 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(errorCode, ((BoxError) rootCause).getErrorCode());
-    List<BoxErrorStackItem> stacktrace = ((BoxError) rootCause).getTarantoolStack();
+    assertEquals(errorCode, ((BoxError) rootCause).errorCode());
+    List<BoxErrorStackItem> stacktrace = ((BoxError) rootCause).stack();
     assertEquals(stacktrace.size(), stack.size());
     for (int i = 0; i < stack.size(); i++) {
       List<?> stackline = stack.get(i);
       BoxErrorStackItem item = stacktrace.get(i);
       System.out.println(item.toString());
-      assertEquals(stackline.get(0), item.getType());
+      assertEquals(stackline.get(0), item.type());
       if (tarantoolVersion != '3') {
-        assertEquals(stackline.get(1), item.getFile());
+        assertEquals(stackline.get(1), item.file());
       }
-      assertTrue(item.getMessage().contains(stackline.get(2).toString()));
-      assertEquals(stackline.get(3), item.getCode());
-      assertEquals(stackline.get(4), item.getErrno());
+      assertTrue(item.message().contains(stackline.get(2).toString()));
+      assertEquals(stackline.get(3), item.code());
+      assertEquals(stackline.get(4), item.errNo());
     }
   }
 
@@ -1872,19 +1872,19 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(errorCode, ((BoxError) rootCause).getErrorCode());
-    List<BoxErrorStackItem> stacktrace = ((BoxError) rootCause).getTarantoolStack();
+    assertEquals(errorCode, ((BoxError) rootCause).errorCode());
+    List<BoxErrorStackItem> stacktrace = ((BoxError) rootCause).stack();
     assertEquals(stacktrace.size(), stack.size());
     for (int i = 0; i < stack.size(); i++) {
       List<?> stackline = stack.get(i);
       BoxErrorStackItem item = stacktrace.get(i);
-      assertEquals(stackline.get(0), item.getType());
+      assertEquals(stackline.get(0), item.type());
       if (tarantoolVersion != '3') {
-        assertEquals(stackline.get(1), item.getFile());
+        assertEquals(stackline.get(1), item.file());
       }
-      assertTrue(item.getMessage().contains(stackline.get(2).toString()));
-      assertEquals(stackline.get(3), item.getCode());
-      assertEquals(stackline.get(4), item.getErrno());
+      assertTrue(item.message().contains(stackline.get(2).toString()));
+      assertEquals(stackline.get(3), item.code());
+      assertEquals(stackline.get(4), item.errNo());
     }
   }
 
@@ -1938,7 +1938,7 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
+    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).errorCode());
     assertTrue(
         rootCause.getMessage().contains("Space 'unknown_space' does not exist"),
         "Message should contain space error: " + rootCause.getMessage());
@@ -1954,9 +1954,8 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
-    assertEquals(
-        "Space 'unknown_space' does not exist", ((BoxError) rootCause).getTarantoolMessage());
+    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).errorCode());
+    assertEquals("Space 'unknown_space' does not exist", ((BoxError) rootCause).tarantoolMessage());
   }
 
   @Test
@@ -1970,7 +1969,7 @@ public class IProtoClientTest extends BaseTest {
     Exception ex = assertThrows(CompletionException.class, future::join);
     Throwable rootCause = findRootCause(ex);
     assertEquals(BoxError.class, rootCause.getClass());
-    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).getErrorCode());
+    assertEquals(IPROTO_ERR_SPACE_DOES_NOT_EXIST, ((BoxError) rootCause).errorCode());
     assertTrue(
         rootCause.getMessage().contains("Space 'unknown_space' does not exist"),
         "Message should contain space error: " + rootCause.getMessage());

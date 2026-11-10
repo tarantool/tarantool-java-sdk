@@ -105,7 +105,12 @@ public class RequestStateMachine extends AbstractIProtoStateMachine {
     }
 
     if (message.isError()) {
-      promise.completeExceptionally(BoxError.fromIProtoMessage(message));
+      try {
+        promise.completeExceptionally(BoxError.fromIProtoMessage(message));
+      } catch (Exception ex) {
+        promise.completeExceptionally(ex);
+      }
+
     } else {
       promise.complete(message);
     }

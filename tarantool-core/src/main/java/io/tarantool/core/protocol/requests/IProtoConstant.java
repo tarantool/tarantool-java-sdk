@@ -69,6 +69,7 @@ public interface IProtoConstant {
 
   byte IPROTO_EXT_DECIMAL = 0x01;
   byte IPROTO_EXT_UUID = 0x02;
+  byte IPROTO_EXT_ERROR = 0x03;
   byte IPROTO_EXT_DATETIME = 0x04;
   byte IPROTO_EXT_INTERVAL = 0x06;
   byte IPROTO_EXT_TUPLE = 0x07;
