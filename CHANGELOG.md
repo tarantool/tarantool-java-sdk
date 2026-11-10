@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Core
+
+- Added
+  [LINEARIZABLE](https://github.com/tarantool/tarantool/blob/e643f88a5e0c6d9ef2789b2033088fd04e7d39ae/src/box/txn.h#L228)
+  isolation level.
+
 ### Testcontainers
 
 - `CartridgeClusterContainer`: a failed `cartridge replicasets setup` from a YAML topology file
