@@ -4,6 +4,8 @@
 
 ### Core
 
+- Added NP/PP box index
+  iterator [support](https://github.com/tarantool/tarantool/commit/96df090fe71a7152ddee105eca454efc0c096c28)
 - Added
   [LINEARIZABLE](https://github.com/tarantool/tarantool/blob/e643f88a5e0c6d9ef2789b2033088fd04e7d39ae/src/box/txn.h#L228)
   isolation level.
