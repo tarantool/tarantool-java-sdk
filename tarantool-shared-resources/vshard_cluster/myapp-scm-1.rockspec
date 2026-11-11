@@ -4,8 +4,8 @@ source  = {
     url = '/dev/null',
 }
 dependencies = {
-    'vshard == 0.1.25',
-    'crud == 1.5.0'
+    'vshard == 1.0.0',
+    'crud == 1.8.0'
 }
 build = {
     type = 'none';
