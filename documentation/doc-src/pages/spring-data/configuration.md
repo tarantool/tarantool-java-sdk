@@ -20,7 +20,7 @@ title: Конфигурация клиентов
 ```java
 import io.tarantool.client.factory.TarantoolCrudClientBuilder;
 import io.tarantool.client.factory.TarantoolFactory;
-import io.tarantool.spring.data.repository.config.EnableTarantoolRepositories;
+import io.tarantool.spring4.data.repository.config.EnableTarantoolRepositories;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,7 +53,7 @@ public class Config {
 
     ```java
 
-    import io.tarantool.spring.data.repository.config.EnableTarantoolRepositories;
+    import io.tarantool.spring4.data.repository.config.EnableTarantoolRepositories;
     import org.springframework.context.annotation.Configuration;
 
     @Configuration

@@ -79,10 +79,8 @@ tarantool-java-sdk (parent POM)
 ├── tarantool-balancer
 ├── tarantool-schema
 ├── tarantool-spring-data
-    ├── tarantool-spring-data-core    
-    ├── tarantool-spring-data-27    
-    ├── ...
-    ├── tarantool-spring-data-35
+    ├── tarantool-spring-data-core
+    └── tarantool-spring-data-4
 ├── testcontainers
 └── jacoco-coverage-aggregate-report
 ```

@@ -1,0 +1,13 @@
+/*
+ * Copyright (c) 2026 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
+package io.tarantool.spring4.data.integration.crud;
+
+import org.springframework.boot.test.context.SpringBootTest;
+
+import io.tarantool.spring4.data.integration.crud.CrudConfigurations.JavaConfigConfiguration;
+
+@SpringBootTest(classes = {JavaConfigConfiguration.class})
+class RepositoryViaJavaConfigTest extends GenericRepositoryTest {}
