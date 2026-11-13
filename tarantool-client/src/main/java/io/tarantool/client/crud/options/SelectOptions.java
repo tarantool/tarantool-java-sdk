@@ -216,7 +216,16 @@ public class SelectOptions implements CrudOptions {
   /** A map containing the correspondence between option names and their meanings. */
   private final Map<String, Object> crudOptions;
 
-  /** Default {@link #FIRST} value. */
+  /**
+   * Default {@link #FIRST} value.
+   *
+   * <p><i><b>Note</b></i>: {@link Builder} sets this limit implicitly, so {@code select} with
+   * conditions and without an explicit {@link Builder#withFirst(int)} (including {@code select}
+   * without options) returns at most {@value #DEFAULT_LIMIT} tuples, without any sign that the
+   * result was truncated. {@code select(Options, TypeReference, Object...)} passes its arguments as
+   * is and is not affected. To read more, set {@link Builder#withFirst(int)} and page through the
+   * result with {@link Builder#withAfter(Object)}.
+   */
   public static final int DEFAULT_LIMIT = 100;
 
   /**
@@ -359,7 +368,9 @@ public class SelectOptions implements CrudOptions {
     }
 
     /**
-     * Sets value of {@link #FIRST} option.
+     * Sets value of {@link #FIRST} option: the maximum number of tuples to return.
+     *
+     * <p>Default value: {@value SelectOptions#DEFAULT_LIMIT}.
      *
      * @param first value of {@link #FIRST} option
      * @return {@link SelectOptions.Builder} object
@@ -372,7 +383,8 @@ public class SelectOptions implements CrudOptions {
     }
 
     /**
-     * Sets value of {@link #AFTER} option.
+     * Sets value of {@link #AFTER} option: the tuple after which the selection starts. Pass the
+     * last tuple of the previous page to read the next one.
      *
      * @param after value of {@link #AFTER} option
      * @return {@link SelectOptions.Builder} object

@@ -4,18 +4,26 @@ title: Архитектура heartbeat
 
 ## Heartbeat
 
-`heartbeat` - это фоновая задача, оправляющая постоянные ping-запросы к узлу Tarantool и
-анализирующая результаты успешных и неуспешных ping-запросов. Задача `heartbeat` устанавливается для
-каждого `PoolEntry` в [IProtoClientPool](connection-pool.md). Главная задача `heartbeat` -
-отслеживать доступность соединения к узлу `Tarantool`
+Heartbeat — фоновая задача, которая регулярно отправляет ping-запросы узлу Tarantool и по их
+результатам решает, доступно ли соединение. Задача запускается для каждого `PoolEntry`, то есть
+для каждого соединения [пула](connection-pool.md). Соединение, которое heartbeat признал
+недоступным, [балансировщик](balancer.md) не выбирает для запросов.
+
+### Включение
+
+По умолчанию heartbeat выключен. Он работает, только если в билдере клиента задан
+`withHeartbeat(...)`, а в Spring Data — раздел `spring.data.tarantool.heartbeat`. Без heartbeat
+периодических ping-запросов нет, и соединение блокируется, только когда подключение не удалось или
+узел закрыл соединение. По коду SDK тайм-ауты запросов соединение не блокируют, так что узел,
+который перестал отвечать, но соединение не закрыл, без heartbeat из выбора не исключается.
 
 ### Принцип работы
 
-Для определения доступности узла Tarantool используется подход скользящего окна. Представим, что
-были заданы следующие настройки `heartbeat`:
+Доступность узла оценивается по скользящему окну из последних ping-запросов. Рассмотрим пример с
+настройками:
 
 - `invalidationThreshold == 2`
-- `deathThreshold == 4`
+- `deathThreshold == 3`
 - `windowSize == 3`
 
 <figure markdown="span" id="heartbeat">
@@ -23,81 +31,83 @@ title: Архитектура heartbeat
 ![](../../../assets/drawio/client/heartbeat.drawio)
 </figure>
 
-Анализ доступности узла проводится с помощью ping-запросов. Если количество неудачных ping-запросов
-в момент рассмотрения превышает значение `invalidationThreshold` в окне, то соединение исключается
-из [пула соединений](connection-pool.md) для выбора [балансировщиком](balancer.md) (4,5,6). Для
-исключенного соединения процесс `heartbeat`продолжается. Каждое превышение `invalidationThreshold` 
-увеличивает значение счетчика `currentDeathThreshold` на 1. Если `currentDeathThreshold` достигает
-значения `deathThreshold` соединение считается `мертвым` (статус `KILL`) и запускается процесс
-переподключения соединения (7).
+Проверка выполняется после каждого ping-запроса, как только окно заполнено. Если число неудачных
+ping-запросов в окне больше или равно `invalidationThreshold`, соединение переходит в состояние
+`INVALIDATE`: оно остаётся в пуле, но балансировщик его больше не выбирает (шаги 4, 5, 6 на
+схеме). Ping-запросы по такому соединению продолжаются.
+
+Каждая проверка, на которой порог `invalidationThreshold` достигнут, увеличивает счётчик
+`currentDeathPings` на 1. Когда счётчик становится больше `deathThreshold`, соединение считается
+мёртвым (состояние `KILL`), и клиент начинает его переподключение. На схеме проверки 4, 5, 6 и 7
+дают счётчику значения 1, 2, 3 и 4; на шаге 7 счётчик превышает `deathThreshold == 3`, и соединение
+переходит в `KILL`.
 
 <figure markdown="span" id="heartbeat-1">
-<figcaption>Переход из INVALIDATE к ACTIVATE</figcaption>
+<figcaption>Переход из INVALIDATE в ACTIVATE</figcaption>
 ![](../../../assets/drawio/client/heartbeat-1.drawio)
 </figure>
 
-Переход из состояния `INVALIDATE` в состояние `ACTIVATE` происходит если при последующих итерациях
-анализа доступности количество неудачных ping-запросов меньше значения `invalidationThreshold`.
-Счетчик `currentDeathThreshold` сбрасывается до значения `0` (см. <a href="#heartbeat-1">
-диаграмму</a>)
+Если на очередной проверке неудачных ping-запросов в окне меньше `invalidationThreshold`,
+соединение возвращается в состояние `ACTIVATE`, и счётчик `currentDeathPings` сбрасывается в 0
+(см. <a href="#heartbeat-1">схему</a>). Поэтому до `KILL` доводят только проверки с достигнутым
+порогом, идущие подряд.
 
-Переход из состояния `KILL` в состояние `ACTIVATE` происходит если соединение было успешно
-переподключено.
+Из состояния `KILL` соединение возвращается в `ACTIVATE` после успешного переподключения.
 
-### Параметры heartbeat
+С параметрами по умолчанию (окно из 4 ping-запросов, `invalidationThreshold` 2, `deathThreshold` 4)
+соединение исключается из выбора, когда неудачны хотя бы 2 из 4 последних ping-запросов, и
+переподключается на пятой такой проверке подряд.
 
-<table>
-    <tr align="center">
-        <td>Имя параметра</td>
-        <td>Описание</td>
-        <td>Значение по умолчанию</td>
-    </tr>
-    <tr>
-        <td align="center">pingInterval</td>
-        <td>Время в миллисекундах, по истечении которого выполняется очередной ping-запрос</td>
-        <td>3000</td>
-    </tr>
-    <tr>
-        <td align="center">invalidationThreshold</td>
-        <td>Количество неудачных ping-запросов в окне, при достижении которого <b>PoolEntry</b> 
-            изымается из пула соединений (балансировщик перестает видеть это соединение в процессе 
-            выбора). Выполнение ping-запросов по этому соединению продолжаются
-        </td>
-        <td>2</td>
-    </tr>
-    <tr>
-        <td align="center">windowSize</td>
-        <td>Размер скользящего окна (в количествах ping-запросов)</td>
-        <td>4</td>
-    </tr>
-    <tr>
-        <td align="center">deathThreshold</td>
-        <td>Количество превышений invalidationThreshold, после которых соединение переводится в 
-            состояние переподключения
-        </td>
-        <td>4</td>
-    </tr>
-    <tr>
-        <td align="center">pingFunction</td>
-        <td>Метод для выполнения проверочного запроса (ping-запрос)</td>
-        <td>IProtoClient::ping</td>
-    </tr>
-</table>
+### Параметры
 
-### Настройка параметров
+| Параметр                | Назначение                                                        | По умолчанию         |
+|-------------------------|-------------------------------------------------------------------|----------------------|
+| `pingInterval`          | Интервал между ping-запросами и тайм-аут каждого ping-запроса, мс | 3000                 |
+| `windowSize`            | Размер скользящего окна, в ping-запросах                          | 4                    |
+| `invalidationThreshold` | Число неудачных ping-запросов в окне, при котором соединение исключается из выбора | 2 |
+| `deathThreshold`        | Сколько проверок подряд с достигнутым порогом допускается до переподключения | 4    |
+| `pingFunction`          | Функция проверочного запроса                                      | `IProtoClient::ping` |
 
-Для того, чтобы настроить параметры `heartbeat` воспользуйтесь `HeartbeatOpts` API:
+### Настройка
+
+Параметры задаются через `HeartbeatOpts`. `HeartbeatOpts.getDefault()` возвращает параметры по
+умолчанию; методы `with...` меняют отдельные значения.
 
 ```java
-final HeartbeatOpts heartbeatOpts = HeartbeatOpts.getDefault()
-    .withPingInterval(pingInterval)
-    .withWindowSize(windowSize)
-    .withDeathThreshold(deathThreshold)
-    .withInvalidationThreshold(invalidationThreshold)
-    .withPingFunction(pingFunction);
+import io.tarantool.client.crud.TarantoolCrudClient;
+import io.tarantool.client.factory.TarantoolFactory;
+import io.tarantool.pool.HeartbeatOpts;
 
-final TarantoolCrudClient crudClient = TarantoolFactory.crud()
-    // ... other options
-    .withHeartbeat(heartbeatOpts)
-    .build();
+public class HeartbeatConfig {
+
+  public static TarantoolCrudClient createClient() throws Exception {
+    HeartbeatOpts heartbeatOpts =
+        HeartbeatOpts.getDefault()
+            .withPingInterval(1_000L)
+            .withWindowSize(4)
+            .withInvalidationThreshold(2)
+            .withDeathThreshold(4);
+
+    return TarantoolFactory.crud()
+        // ... прочие настройки
+        .withHeartbeat(heartbeatOpts)
+        .build();
+  }
+}
+```
+
+`pingInterval` служит и тайм-аутом ping-запроса: в примере выше ping, не получивший ответа за
+1 секунду, считается неудачным. Свою функцию проверки можно задать через `withPingFunction(...)`.
+
+В Spring Data те же параметры задаются в разделе `spring.data.tarantool.heartbeat`:
+
+```yaml
+spring:
+  data:
+    tarantool:
+      heartbeat:
+        ping-interval: 1000
+        window-size: 4
+        invalidation-threshold: 2
+        death-threshold: 4
 ```

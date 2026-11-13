@@ -429,8 +429,8 @@ final TarantoolResponse<List<?>> result = client.call("prime_factors", Arrays.as
         </tr>
         <tr>
             <td>NoAvailableClientsException</td>
-            <td>Наследник BalancerException. Выбрасывается в случае когда балансировщик 
-не смог найти ни одного "живого" соединения в пуле соединений</td>
+            <td>Наследник BalancerException. Им завершается <code>CompletableFuture</code>
+запроса, когда в пуле соединений нет ни одного доступного соединения</td>
         </tr>
         <tr>
             <td>SchemaFetchingException</td>

@@ -45,6 +45,7 @@ plugins:
             Примеры использования: Usage examples
             Подключение к узлам: Connecting to nodes
             Хранимые процедуры: Stored procedures
+            Выборка данных: Selecting data
   - drawio:
       darkmode: true
   - plantuml:
@@ -121,6 +122,7 @@ nav:
               - pages/client/arch/connection-pool.md
               - pages/client/arch/instance-connection-group.md
               - pages/client/arch/exception-handling.md
+              - pages/client/arch/timeouts.md
               - pages/client/arch/connection-to-multiple-nodes.md
               - pages/client/arch/call.md
               - pages/client/arch/tuple_pojo_mapping.md
@@ -133,6 +135,9 @@ nav:
               - Хранимые процедуры:
                   - pages/client/examples/call/index.md
                   - pages/client/examples/call/call.md
+              - Выборка данных:
+                  - pages/client/examples/select/index.md
+                  - pages/client/examples/select/select.md
           - pages/client/limitations.md
       - Tarantool Testcontainers:
           - pages/testcontainers/index.md

@@ -23,6 +23,27 @@
   exit code, stdout and stderr are logged and included in the error. Before, the error carried
   only the empty stdout ("Failed to change the app topology via cartridge CLI: ").
 
+### Documentation
+
+- Added the "Selecting data" page: `select` variants, the default limit of 100 tuples
+  (`SelectOptions.DEFAULT_LIMIT`) applied without any sign of truncation, `withFirst`, and
+  pagination with `withAfter`. Described the default in the `SelectOptions` javadoc.
+- Documented the same 100 records limit for Spring Data derived methods (`findBy...`,
+  `deleteBy...`, `countDistinctBy...`) and that `findAll()` and `findAll(Sort)` are not supported.
+- Added the "Timeouts" page: the request timeout (5000 ms, set per request, no client-wide or
+  Spring Data setting), the connect timeout (3000 ms) and the separate Netty
+  `CONNECT_TIMEOUT_MILLIS` channel option that limits the TCP connect.
+- Rewrote the connection pool, balancer, heartbeat and connection group pages: lazy connections
+  and pool warm-up, locked connections and `NoAvailableClientsException`, heartbeat being off by
+  default and its exact thresholds (with the heartbeat diagrams corrected), one-time host name
+  resolution, the `guest` user default.
+- Rewrote the Spring Data configuration page: how a custom `TarantoolCrudClientBuilder` bean
+  replaces the properties, adding a `PoolEventListener` to a client configured from properties,
+  the `EnableTarantoolRepositories` package, the `connect-timeout` default and configuring the Box
+  client from properties with `TarantoolBoxConfiguration`.
+- Rewrote the limitations and derived methods pages and made the code examples on all these
+  pages compilable.
+
 ## [1.7.3] - 2026-10-30
 
 ### Pool

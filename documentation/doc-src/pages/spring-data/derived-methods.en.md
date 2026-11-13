@@ -2,12 +2,14 @@
 title: Dynamic Queries
 ---
 
-## Custom Dynamic Queries
+## Derived methods
 
-To use dynamic queries, define the necessary method in
-the custom `Repository`. For example:
+A derived (dynamic) query is a repository method whose query Spring Data builds from the method
+name. To use one, declare the method in your `Repository` interface:
 
 ```java
+import java.util.List;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface PersonRepository extends PagingAndSortingRepository<Person, Integer> {
@@ -18,79 +20,95 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
 }
 ```
 
-???+ note "Note"
+Here `Person` is the entity class of the space. The general naming rules are described in the
+[Spring Data documentation](https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html).
 
-    More information about dynamic queries in
-    [`official documentation`](https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html)
+### Supported methods and keywords
 
-???+ note "Note"
+Methods:
 
-    The following methods and keywords are available:
+- `findBy`
+- `deleteBy`
+- `existsBy`
+- `countBy`
 
-    - findBy
-    - deleteBy
-    - existsBy
-    - countBy
+Keywords:
 
-    Keywords:
+- `True`, `False`
+- `Equal`
+- `LessThan`, `LessThanEqual`
+- `GreaterThan`, `GreaterThanEqual`
+- `Between`
+- `IsNull`
+- `IsEmpty`
+- `Distinct`
+- `First`, `Top`
+- `After`, `Before`
 
-    - True
-    - False
-    - Equal
-    - LessThan
-    - LessThanEqual
-    - GreaterThan
-    - GreaterThanEqual
-    - Between
-    - IsNull
-    - Distinct
-    - IsEmpty
-    - ExistsBy
-    - First
-    - Top
-    - After
-    - Before
+A method can have only one predicate: `And` and `Or` are not supported, and such a method fails
+with `UnsupportedOperationException`. Any keyword not listed above (for example `In`, `NotIn`,
+`Like`) fails with `InvalidDataAccessApiUsageException: Unsupported type ...`. Workarounds are
+described in [Limitations and workarounds](../client/limitations.md).
 
-???+ warning "Important"
+### How many records a method returns
 
-    Currently, only methods with a single predicate are supported (nested `AND` or 
-    `OR` are not supported).
+If the method name has no `First`/`Top` and no `Limit` parameter is passed, the query runs with the
+`SelectOptions.DEFAULT_LIMIT` limit, which is 100. There is no sign that the result was truncated.
 
-    Any keyword not listed above (for example `In`, `NotIn`, `Like`) is not supported and fails with
-    `InvalidDataAccessApiUsageException: Unsupported type ...`; a method with `And` or `Or` fails with
-    `UnsupportedOperationException`.
-    Workarounds: [Limitations and workarounds](../client/limitations.md).
+- `findBy...` that returns a list, a stream or one record returns **at most 100 records**.
+- Methods with `Pageable` and `Scroll` return at most the page size. For `Page` the query runs with
+  the page size as the limit; for `Slice` and `Scroll` the SDK requests one record more to find out
+  whether there is a next page.
+- `deleteBy...` deletes **at most 100 records**: the method first selects records with this limit
+  and then deletes the found ones one by one. Other matching records stay in the space.
+- `countBy...` counts all matching records. The exception is `countDistinctBy...`: it is limited to
+  100 records as well.
 
-???+ note "Note"
+To read more records, pass `Limit.of(...)` (see below) or read page by page with
+[Page, Slice](page-slice-pageable.md) or the [Scroll API](scroll-api.md).
 
-    In version tarantool-spring-data32, the ability to use the [Limit](https://docs.spring.io/spring-data/data-commons/docs/3.2.3/api/org/springframework/data/domain/Limit.html)
-    interface in derived methods has been added.
+`findAll()` and `findAll(Sort)` are not supported and fail with `UnsupportedOperationException`.
+Read all records of a space page by page with `findAll(Pageable)`.
 
-    **Important**:
-    
-    - The maximum number of expected results must be a **positive number**, otherwise an exception will be thrown.
-    - Priority of result count limitation:
-        - `Limit.of(...)` takes precedence over static limitation in method name 
-          (keywords Top/First).
-    - Static limitation in method names takes precedence over `Limit.unlimited()` or passing 
-      `null` as `Limit`.
-    
-    Examples:
-    
-    ```java
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.of(10)); // returns <= 10 records
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.unlimited()); // returns <= 100 records
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, null); // returns <= 100 records
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, Limit.of(10)); // returns <= 10 records
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, Limit.unlimited()); // returns <= 4 records
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, null); // returns <= 4 records
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.of(-10)); // throws IllegalArgumentException
-    ```
+Selection in the client without Spring Data is limited in the same way, see
+[Selecting and paginating](../client/examples/select/select.md).
 
-More examples can be found in the tests.
+### The `Limit` parameter
+
+Starting with the `tarantool-spring-data-32` module, derived methods accept a
+[Limit](https://docs.spring.io/spring-data/data-commons/docs/3.2.3/api/org/springframework/data/domain/Limit.html)
+parameter.
+
+- A negative `Limit.of(...)` value leads to `IllegalArgumentException`: the SDK checks only for
+  "less than zero", so 0 passes this check.
+- `Limit.of(...)` takes precedence over the limit in the method name (`Top`/`First`).
+- The limit in the method name takes precedence over `Limit.unlimited()` and `null` passed as
+  `Limit`.
+- Without a limit in the name, `Limit.unlimited()` and `null` give the default limit of 100
+  records.
+
+```java
+import java.util.List;
+
+import org.springframework.data.domain.Limit;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+public interface PersonRepository extends PagingAndSortingRepository<Person, Integer> {
+
+  List<Person> findPersonByIdGreaterThanEqual(int id, Limit limit);
+
+  List<Person> findTop4ByIdGreaterThanEqual(int id, Limit limit);
+}
+```
+
+```java
+List<Person> a = repository.findPersonByIdGreaterThanEqual(0, Limit.of(10)); // <= 10 records
+List<Person> b = repository.findPersonByIdGreaterThanEqual(0, Limit.unlimited()); // <= 100 records
+List<Person> c = repository.findPersonByIdGreaterThanEqual(0, null); // <= 100 records
+List<Person> d = repository.findTop4ByIdGreaterThanEqual(0, Limit.of(10)); // <= 10 records
+List<Person> e = repository.findTop4ByIdGreaterThanEqual(0, Limit.unlimited()); // <= 4 records
+List<Person> f = repository.findTop4ByIdGreaterThanEqual(0, null); // <= 4 records
+repository.findPersonByIdGreaterThanEqual(0, Limit.of(-10)); // IllegalArgumentException
+```
+
+More examples can be found in the tests of the `tarantool-spring-data` modules.

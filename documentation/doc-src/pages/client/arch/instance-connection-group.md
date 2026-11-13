@@ -4,114 +4,95 @@ title: Группа соединений
 
 ## InstanceConnectionGroup
 
-`InstanceConnectionGroup` - класс, агрегирующий параметры для настройки группы соединений к узлу
-Tarantool.
+`InstanceConnectionGroup` описывает группу соединений с одним узлом Tarantool: адрес узла,
+учётные данные, число соединений и другие параметры.
 
-### Концепция групп соединений
+### Группы соединений
 
 <figure markdown="span" id="instance-connection-group-img-anchor">
 <figcaption>Место <b>InstanceConnectionGroup</b> в архитектуре Java-клиента</figcaption>
 ![](../../../assets/drawio/client/instance-connection-group.drawio)
 </figure>
 
-Высокоуровневые клиенты `TarantoolCrudClient`/ `TarantoolBoxClient` осуществляют взаимодействие с
-узлами `Tarantool` посредством логически разделенных групп соединений. Каждая группа
-представляет собой набор соединений (`IProtoClient`) к одному узлу Tarantool.
+Высокоуровневые клиенты `TarantoolCrudClient` и `TarantoolBoxClient` работают с узлами Tarantool
+через группы соединений. Каждая группа — набор соединений (`IProtoClient`) с одним узлом.
 
-При создании высокоуровневого клиента объект класса `IProtoClientPool` создает группы соединений на
-основе метаданных, переданных в объектах класса `InstanceConnectionGroup`. Одна логическая группа
-соединений создается на основе метаданных одного объекта класса `InstanceConnectionGroup`.
+При создании клиента [пул соединений](connection-pool.md) `IProtoClientPool` создаёт по одной группе
+на каждый переданный объект `InstanceConnectionGroup`.
 
-Использование нескольких соединений в рамках одной группы позволяет повысить производительность
-работы Java-клиента, особенно в ситуациях, когда операции над данными выполняются параллельно. Выбор
-соединения для выполнения запроса определяется правилами балансировки ([подробнее](balancer.md)).
+Несколько соединений в одной группе позволяют распределять параллельные запросы к узлу по разным
+соединениям; может ли это повысить производительность клиента, зависит от нагрузки (не измерено). Какое соединение получит запрос, решает
+[балансировщик](balancer.md).
 
-### Описание параметров
+### Параметры
 
-<table>
-    <tr align="center">
-        <td>Имя параметра</td>
-        <td>Описание</td>
-        <td>Значение по умолчанию</td>
-    </tr>
-    <tr>
-        <td id="host" align="center">host</td>
-        <td>Адрес узла, к которому должна подключиться группа соединений</td>
-        <td>localhost</td>
-    </tr>
-    <tr>
-        <td id="port" align="center">port</td>
-        <td>Порт, на котором узел Tarantool ожидает соединения. Вместе с 
-            <a href="#host">host</a> составляет полный адрес узла Tarantool
-        </td>
-        <td>3301</td>
-    </tr>
-    <tr>
-        <td id="user" align="center">user</td>
-        <td>Имя пользователя, с помощью которого будет производиться аутентификация клиента при 
-            подключении к узлу Tarantool
-        </td>
-        <td>user</td>
-    </tr>
-    <tr>
-        <td align="center">password</td>
-        <td>Пароль для <a href="#user">пользователя</a></td>
-        <td>""</td>
-    </tr>
-    <tr>
-        <td align="center">size</td>
-        <td>Количество соединений к одному узлу (<a href="#instance-connection-group-img-anchor">
-            Netty connection</a>)
-        </td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td align="center">tag</td>
-        <td>Тег-имя группы подключения. Необходим для идентификации группы в пуле соединений, логах</td>
-        <td>user:host:port</td>
-    </tr>
-    <tr>
-        <td align="center">flushConsolidationHandler</td>
-        <td><a href="https://netty.io/4.1/api/io/netty/handler/flush/FlushConsolidationHandler.html">
-            Подробнее</a>
-        </td>
-        <td>null</td>
-    </tr>
-    <tr>
-        <td align="center">authType</td>
-        <td>Тип алгоритма аутентификации Java-клиента. Подробнее смотрите Javadoc класса 
-            <code>AuthType</code> и официальную 
-            <a href="https://www.tarantool.io/en/doc/latest/reference/configuration/configuration_reference/#confval-security.auth_type">
-            документацию Tarantool</a>
-        </td>
-        <td>AuthType.CHAP_SHA1</td>
-    </tr>
-</table>
+| Параметр                    | Назначение                                                        | По умолчанию                |
+|-----------------------------|-------------------------------------------------------------------|-----------------------------|
+| `host`                      | Имя или IP-адрес узла                                             | `localhost`                 |
+| `port`                      | Порт, на котором узел принимает соединения                        | `3301`                      |
+| `user`                      | Пользователь для аутентификации на узле                           | `guest`                     |
+| `password`                  | Пароль пользователя `user`                                        | не задан                    |
+| `size`                      | Число соединений с узлом (Netty-соединений, см. схему выше)       | `1`                         |
+| `tag`                       | Имя группы: по нему группа различается в пуле и в логах           | `<user>:<host>:<port>`      |
+| `authType`                  | Алгоритм аутентификации, см. ниже                                 | `AuthType.CHAP_SHA1`        |
+| `flushConsolidationHandler` | [FlushConsolidationHandler](https://netty.io/4.1/api/io/netty/handler/flush/FlushConsolidationHandler.html) Netty для соединений группы | не задан |
 
-Значения для <a href="#host">host</a> и <a href="#port">port</a> задаются в соответствии
-с [InetSocketAddress](https://docs.oracle.com/javase/8/docs/api/java/net/InetSocketAddress.html).
+`host` и `port` задаются так же, как для
+[InetSocketAddress](https://docs.oracle.com/javase/8/docs/api/java/net/InetSocketAddress.html).
+
+Пользователь `guest` входит без пароля: если `user` не задан или равен `guest`, пароль задавать
+нельзя, иначе `build()` выбросит `IllegalArgumentException`.
+
+`authType` должен соответствовать способу, которым на узле хранится пароль пользователя
+(подробнее — Javadoc класса `AuthType` и
+[документация Tarantool](https://www.tarantool.io/en/doc/latest/reference/configuration/configuration_reference/#confval-security.auth_type)).
+
+### Разрешение имени узла
+
+Имя узла из `host` разрешается в IP-адрес один раз — при создании группы. Все подключения и
+переподключения группы идут на этот адрес. Если IP-адрес узла меняется (контейнер или ВМ
+пересоздаётся, меняется запись DNS), клиент продолжит подключаться к старому адресу; чтобы
+подключиться к новому, пересоздайте клиент.
 
 ### Использование
 
-Для создания экземпляра класса `InstanceConnectionGroup` нужно воспользоваться
-`InstanceConnectionGroup.Builder`:
+Группа создаётся через `InstanceConnectionGroup.Builder` и передаётся в билдер клиента
+(`TarantoolCrudClientBuilder` или `TarantoolBoxClientBuilder`):
 
 ```java
-final InstanceConnectionGroup connectionGroup = InstanceConnectionGroup.builder()
-    .withHost("localhost")
-    .withPort(3301)
-    .withUser("user2581-test")
-    .withPassword("pwd-1")
-    .withSize(3)
-    .withTag("Node-1")
-    .withAuthType(AuthType.CHAP_SHA1)
-    .build();
+import java.util.Collections;
+
+import io.tarantool.client.crud.TarantoolCrudClient;
+import io.tarantool.client.factory.TarantoolFactory;
+import io.tarantool.core.protocol.requests.IProtoAuth.AuthType;
+import io.tarantool.pool.InstanceConnectionGroup;
+
+public class ConnectionGroupConfig {
+
+  public static TarantoolCrudClient createClient() throws Exception {
+    InstanceConnectionGroup connectionGroup =
+        InstanceConnectionGroup.builder()
+            .withHost("localhost")
+            .withPort(3301)
+            .withUser("user2581-test")
+            .withPassword("pwd-1")
+            .withSize(3)
+            .withTag("Node-1")
+            .withAuthType(AuthType.CHAP_SHA1)
+            .build();
+
+    return TarantoolFactory.crud()
+        .withGroups(Collections.singletonList(connectionGroup))
+        .build();
+  }
+}
 ```
 
-Далее группа добавляется в `TarantoolCrudClientBuilder` или `TarantoolBoxClientBuilder`:
+Если группы не переданы, `TarantoolCrudClientBuilder` создаёт одну группу из своих `withHost(...)`,
+`withPort(...)`, `withUser(...)` и `withPassword(...)` с одним соединением и тегом `default`. Если
+группы переданы, эти настройки билдера не используются.
 
-```java
-final TarantoolCrudClient crudClient = TarantoolFactory.crud()
-    .withGroups(Arrays.asList(connectionGroup))
-    .build();
-```
+Пользователь по умолчанию у `TarantoolCrudClientBuilder` — `api_user` с паролем `secret`, а не
+`guest`. Пароль `secret` остаётся и после `withUser("guest")`, а `guest` с паролем не допускается,
+поэтому для входа гостем без своих групп сбросьте пароль явно:
+`withUser("guest").withPassword(null)`.

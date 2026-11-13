@@ -4,18 +4,27 @@ title: Heartbeat Architecture
 
 ## Heartbeat
 
-`heartbeat` is a background task that sends periodic ping requests to the Tarantool node and
-analyzes the results of successful and unsuccessful ping requests. The `heartbeat` task is set up for
-each `PoolEntry` in [IProtoClientPool](connection-pool.md). The main purpose of `heartbeat` -
-to monitor the availability of the connection to the `Tarantool` node
+Heartbeat is a background task that regularly sends ping requests to a Tarantool node and uses
+their results to decide whether the connection is available. The task runs for every `PoolEntry`,
+that is, for every connection of the [pool](connection-pool.md). The [balancer](balancer.md) does
+not pick a connection that heartbeat has found unavailable.
 
-### How It Works
+### Enabling
 
-To determine the availability of the Tarantool node, a sliding window approach is used. Let's imagine
-that the following `heartbeat` settings were specified:
+Heartbeat is off by default. It runs only if `withHeartbeat(...)` is set in the client builder,
+or the `spring.data.tarantool.heartbeat` section is present in Spring Data. Without heartbeat
+there are no periodic ping requests, and a connection is locked only when a connect attempt fails
+or the node closes the connection. According to the SDK code, request timeouts do not lock a
+connection, so without heartbeat a node that stopped responding but did not close the connection is
+not excluded from selection.
+
+### How it works
+
+Node availability is judged by a sliding window of the latest ping requests. Consider an example
+with the settings:
 
 - `invalidationThreshold == 2`
-- `deathThreshold == 4`
+- `deathThreshold == 3`
 - `windowSize == 3`
 
 <figure markdown="span" id="heartbeat">
@@ -23,81 +32,83 @@ that the following `heartbeat` settings were specified:
 ![](../../../assets/drawio/client/heartbeat.drawio)
 </figure>
 
-Availability analysis of the node is performed using ping requests. If the number of failed ping requests
-at the moment of consideration exceeds the value `invalidationThreshold` in the window, then the connection is excluded
-from the [connection pool](connection-pool.md) for selection by the [balancer](balancer.md) (4,5,6). For
-the excluded connection, the `heartbeat` process continues. Each exceeding of `invalidationThreshold` 
-increases the `currentDeathThreshold` counter by 1. If `currentDeathThreshold` reaches the
-value `deathThreshold`, the connection is considered `dead` (status `KILL`) and the reconnection process
-of the connection is started (7).
+The check runs after every ping request once the window is full. If the number of failed ping
+requests in the window is greater than or equal to `invalidationThreshold`, the connection moves
+to the `INVALIDATE` state: it stays in the pool, but the balancer no longer picks it (steps 4, 5, 6
+on the diagram). Ping requests over this connection continue.
+
+Every check on which the `invalidationThreshold` is reached increments the `currentDeathPings`
+counter by 1. When the counter becomes greater than `deathThreshold`, the connection is considered
+dead (the `KILL` state), and the client starts reconnecting it. On the diagram checks 4, 5, 6 and 7
+set the counter to 1, 2, 3 and 4; at step 7 the counter exceeds `deathThreshold == 3`, and the
+connection moves to `KILL`.
 
 <figure markdown="span" id="heartbeat-1">
 <figcaption>Transition from INVALIDATE to ACTIVATE</figcaption>
 ![](../../../assets/drawio/client/heartbeat-1.drawio)
 </figure>
 
-The transition from the `INVALIDATE` state to the `ACTIVATE` state occurs if in subsequent iterations
-of availability analysis, the number of failed ping requests is less than the value `invalidationThreshold`.
-The `currentDeathThreshold` counter is reset to the value `0` (see <a href="#heartbeat-1">
-diagram</a>)
+If on a later check the window has fewer failed ping requests than `invalidationThreshold`, the
+connection returns to the `ACTIVATE` state, and the `currentDeathPings` counter is reset to 0 (see
+the <a href="#heartbeat-1">diagram</a>). So only consecutive checks with the threshold reached lead
+to `KILL`.
 
-The transition from the `KILL` state to the `ACTIVATE` state occurs if the connection was successfully
-reconnected.
+From the `KILL` state the connection returns to `ACTIVATE` after a successful reconnect.
 
-### Heartbeat Parameters
+With the default parameters (a window of 4 ping requests, `invalidationThreshold` 2,
+`deathThreshold` 4) a connection is excluded from selection when at least 2 of the last 4 ping
+requests failed, and is reconnected on the fifth such check in a row.
 
-<table>
-    <tr align="center">
-        <td>Parameter Name</td>
-        <td>Description</td>
-        <td>Default Value</td>
-    </tr>
-    <tr>
-        <td align="center">pingInterval</td>
-        <td>The time in milliseconds after which the next ping request is executed</td>
-        <td>3000</td>
-    </tr>
-    <tr>
-        <td align="center">invalidationThreshold</td>
-        <td>The number of failed ping requests in the window, upon reaching which <b>PoolEntry</b> 
-            is removed from the connection pool (the balancer stops seeing this connection during 
-            selection). Ping requests on this connection continue to be executed
-        </td>
-        <td>2</td>
-    </tr>
-    <tr>
-        <td align="center">windowSize</td>
-        <td>The size of the sliding window (in terms of ping requests)</td>
-        <td>4</td>
-    </tr>
-    <tr>
-        <td align="center">deathThreshold</td>
-        <td>The number of invalidationThreshold exceedances after which the connection is switched to 
-            the reconnection state
-        </td>
-        <td>4</td>
-    </tr>
-    <tr>
-        <td align="center">pingFunction</td>
-        <td>The method for executing the verification request (ping request)</td>
-        <td>IProtoClient::ping</td>
-    </tr>
-</table>
+### Parameters
 
-### Parameter Configuration
+| Parameter               | Purpose                                                           | Default              |
+|-------------------------|-------------------------------------------------------------------|----------------------|
+| `pingInterval`          | Interval between ping requests and timeout of each ping request, ms | 3000               |
+| `windowSize`            | Size of the sliding window, in ping requests                      | 4                    |
+| `invalidationThreshold` | Number of failed ping requests in the window at which the connection is excluded from selection | 2 |
+| `deathThreshold`        | How many checks in a row with the threshold reached are allowed before a reconnect | 4 |
+| `pingFunction`          | Function of the check request                                     | `IProtoClient::ping` |
 
-To configure the `heartbeat` parameters, use the `HeartbeatOpts` API:
+### Configuration
+
+Parameters are set with `HeartbeatOpts`. `HeartbeatOpts.getDefault()` returns the default
+parameters; the `with...` methods change individual values.
 
 ```java
-final HeartbeatOpts heartbeatOpts = HeartbeatOpts.getDefault()
-    .withPingInterval(pingInterval)
-    .withWindowSize(windowSize)
-    .withDeathThreshold(deathThreshold)
-    .withInvalidationThreshold(invalidationThreshold)
-    .withPingFunction(pingFunction);
+import io.tarantool.client.crud.TarantoolCrudClient;
+import io.tarantool.client.factory.TarantoolFactory;
+import io.tarantool.pool.HeartbeatOpts;
 
-final TarantoolCrudClient crudClient = TarantoolFactory.crud()
-    // ... other options
-    .withHeartbeat(heartbeatOpts)
-    .build();
+public class HeartbeatConfig {
+
+  public static TarantoolCrudClient createClient() throws Exception {
+    HeartbeatOpts heartbeatOpts =
+        HeartbeatOpts.getDefault()
+            .withPingInterval(1_000L)
+            .withWindowSize(4)
+            .withInvalidationThreshold(2)
+            .withDeathThreshold(4);
+
+    return TarantoolFactory.crud()
+        // ... other settings
+        .withHeartbeat(heartbeatOpts)
+        .build();
+  }
+}
+```
+
+`pingInterval` is also the timeout of a ping request: in the example above a ping without a response
+within 1 second counts as failed. A custom check function can be set with `withPingFunction(...)`.
+
+In Spring Data the same parameters are set in the `spring.data.tarantool.heartbeat` section:
+
+```yaml
+spring:
+  data:
+    tarantool:
+      heartbeat:
+        ping-interval: 1000
+        window-size: 4
+        invalidation-threshold: 2
+        death-threshold: 4
 ```

@@ -2,89 +2,102 @@
 title: Balancing
 ---
 
-## Balancers
+## Balancer
 
-The `Balancer` is a `TarantoolClient` component designed to distribute requests
-between Tarantool nodes.
+The balancer is a client component that distributes requests over the connections to Tarantool
+nodes. In `Tarantool Java SDK` it is represented by the `TarantoolBalancer` interface.
 
-### Concept
-
-The balancer abstraction in `Tarantool Java EE` is represented by the `TarantoolBalancer` interface.
-Let's look at how balancing works in the Java client:
+### How a request is executed
 
 <figure markdown="span" id="balancer">
 <figcaption>How the balancer works</figcaption>
 ![](../../../assets/drawio/client/balancer.drawio)
-</figure>  
+</figure>
 
-1. The programmer executes a request through the API of high-level clients (`TarantoolClient`,
-   `TarantoolCrudClient` or `TarantoolBoxClient`)
-2. The high-level client requests a connection to execute the request from `TarantoolBalancer`
-3. The balancer, using its logic, requests an available node from the connection pool (`IProtoClientPool`)
-   Node availability is determined using the [heartbeat](heartbeat.md) mechanism
-4. The connection pool returns an available connection to the balancer
-5. The balancer provides the high-level client with a connection
-6. The high-level client executes the request through the provided connection
-7. The high-level client returns a `CompletableFuture<?>` with the result to the calling code
+1. The application sends a request through the API of a high-level client (`TarantoolClient`,
+   `TarantoolCrudClient` or `TarantoolBoxClient`).
+2. The client asks `TarantoolBalancer` for a connection for this request.
+3. The balancer picks a connection in the [connection pool](connection-pool.md)
+   (`IProtoClientPool`) according to its algorithm.
+4. The pool returns an available connection to the balancer.
+5. The balancer passes the connection to the client.
+6. The client sends the request over this connection.
+7. The client returns a `CompletableFuture` with the request result to the calling code.
 
-???+ warning "Important"
+### Available and locked connections
 
-    The actual connection to the node via the selected connection occurs upon the first selection.
+A connection is opened when the balancer picks it for the first time. If the picked connection is
+unavailable, the balancer moves on to the next one. If there are no available connections at all,
+the request's `CompletableFuture` completes with `NoAvailableClientsException`.
 
-    If the connection is unavailable, the balancer will attempt to select the next one from the available. If there is 
-    no available connection, the client will throw a `NoAvailableClientsException`.
+A connection becomes unavailable (locked) in three cases:
 
-### Available Default Implementations
+- the connect attempt failed;
+- the node closed the connection;
+- [heartbeat](heartbeat.md) moved the connection to the `INVALIDATE` state.
 
-By default, the following types of balancers are available:
+The lock is released when the connection connects successfully again or heartbeat moves it to the
+`ACTIVATE` state. Without heartbeat configured, only the first two cases remain.
 
-#### TarantoolRoundRobinBalancer
+According to the SDK code, long requests do not lock a connection: many requests run over one
+connection at the same time.
+
+## Implementations
+
+The client has two `TarantoolBalancer` implementations.
+
+### TarantoolRoundRobinBalancer
 
 <figure markdown="span" id="round-robin-balancer">
-<figcaption>How the balancer works</figcaption>
+<figcaption>How TarantoolRoundRobinBalancer works</figcaption>
 ![](../../../assets/drawio/client/round-robin.drawio)
-</figure> 
+</figure>
 
-This implementation of the `TarantoolBalancer` interface performs connection selection according to the following
-algorithm:
+Walks over connections group by group:
 
-1. Selection of the group of connections with which the balancing starts (the order is not deterministic).
-2. Connection selection within the group is performed in order from first to last.
-3. After the last connection in the current group, the balancer moves to connections belonging to
-   another group.
+1. Picks the connection group to start from (the order of groups is not defined).
+2. Picks the connections of this group in order, from the first to the last.
+3. After the last connection of the group, moves on to the next group.
 
-#### TarantoolDistributingRoundRobinBalancer
+### TarantoolDistributingRoundRobinBalancer
 
-<figure markdown="span" id="round-robin-balancer">
-<figcaption>How the balancer works</figcaption>
+<figure markdown="span" id="distributing-round-robin-balancer">
+<figcaption>How TarantoolDistributingRoundRobinBalancer works</figcaption>
 ![](../../../assets/drawio/client/distributing-round-robin.drawio)
-</figure>  
+</figure>
 
-This implementation of the `TarantoolBalancer` interface performs connection selection according to the following
-algorithm:
+Alternates groups, so consecutive requests go to different groups:
 
-1. Selection of the group of connections with which the balancing starts (the order is not deterministic).
-2. Selection of the first connection in the first group.
-3. Moving to the next group and selecting the first connection.
-4. Repeat step 3, selecting the next connection in the group.
+1. Picks the connection group to start from (the order of groups is not defined).
+2. Picks the first connection of this group.
+3. Moves on to the next group and picks its first connection.
+4. After visiting all groups, repeats step 3, picking the next connection in each group.
 
-### Client Balancing Configuration
+## Choosing a balancer
 
-To configure balancing in the client, use the `TarantoolFactory` API, for example:
+The balancer class is set in the client builder:
 
 ```java
-final TarantoolCrudClient crudClient = TarantoolFactory.crud()
-    .withBalancerClass(TarantoolRoundRobinBalancer.class)
-    //... other settings
-    .build();
+import io.tarantool.balancer.TarantoolRoundRobinBalancer;
+import io.tarantool.client.crud.TarantoolCrudClient;
+import io.tarantool.client.factory.TarantoolFactory;
+
+public class BalancerConfig {
+
+  public static TarantoolCrudClient createClient() throws Exception {
+    return TarantoolFactory.crud()
+        .withBalancerClass(TarantoolRoundRobinBalancer.class)
+        // ... other settings
+        .build();
+  }
+}
 ```
 
-### Custom Balancers
+In Spring Data the balancer is chosen with the `spring.data.tarantool.balancer-mode` property (see
+[Client Configuration](../../spring-data/configuration.md)).
 
-To use your own balancer, create a class that implements the
-`TarantoolBalancer` interface.
+## Custom balancer
 
-???+ warning "Important"
-
-    The custom class implementing `TarantoolBalancer` must have a default constructor 
-    and a constructor with the signature `public <constructorName>(IProtoClientPool pool) {...}`.
+To use your own algorithm, create a class that implements the `TarantoolBalancer` interface and
+pass it to `withBalancerClass(...)`. The client creates the balancer through a public constructor
+with the signature `public <ClassName>(IProtoClientPool pool)`, so the class must have one.

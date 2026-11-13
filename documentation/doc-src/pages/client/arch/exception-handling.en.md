@@ -427,8 +427,8 @@ final TarantoolResponse<List<?>> result = client.call("prime_factors", Arrays.as
         </tr>
         <tr>
             <td>NoAvailableClientsException</td>
-            <td>Subclass of BalancerException. Thrown when the balancer cannot find any "alive" 
-connection in the connection pool</td>
+            <td>Subclass of BalancerException. The request's <code>CompletableFuture</code>
+completes with it when the connection pool has no available connection</td>
         </tr>
         <tr>
             <td>SchemaFetchingException</td>

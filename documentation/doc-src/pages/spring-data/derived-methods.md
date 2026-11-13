@@ -2,12 +2,14 @@
 title: Динамические запросы
 ---
 
-## Пользовательские динамические запросы
+## Производные методы
 
-Для того чтобы воспользоваться динамическими запросами, определите необходимый метод в
-пользовательском `Repository`. Например:
+Производный (динамический) запрос — метод репозитория, запрос для которого Spring Data строит по
+имени метода. Чтобы им воспользоваться, объявите метод в своём интерфейсе `Repository`:
 
 ```java
+import java.util.List;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface PersonRepository extends PagingAndSortingRepository<Person, Integer> {
@@ -18,80 +20,92 @@ public interface PersonRepository extends PagingAndSortingRepository<Person, Int
 }
 ```
 
-???+ note "Заметка"
+Здесь `Person` — класс-сущность спейса. Общие правила составления имён описаны в
+[документации Spring Data](https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html).
 
-    Больше информации о динамических запросах в
-    [`официальной документации`](https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html)
+### Поддерживаемые методы и ключевые слова
 
-???+ note "Заметка"
+Методы:
 
-    Доступны следующие методы и ключевые слова:
+- `findBy`
+- `deleteBy`
+- `existsBy`
+- `countBy`
 
-    - findBy
-    - deleteBy
-    - existsBy
-    - countBy
+Ключевые слова:
 
-    Ключевые слова:
+- `True`, `False`
+- `Equal`
+- `LessThan`, `LessThanEqual`
+- `GreaterThan`, `GreaterThanEqual`
+- `Between`
+- `IsNull`
+- `IsEmpty`
+- `Distinct`
+- `First`, `Top`
+- `After`, `Before`
 
-    - True
-    - False
-    - Equal
-    - LessThan
-    - LessThanEqual
-    - GreaterThan
-    - GreaterThanEqual
-    - Between
-    - IsNull
-    - Distinct
-    - IsEmpty
-    - ExistsBy
-    - First
-    - Top
-    - After
-    - Before
+Метод может содержать только один предикат: `And` и `Or` не поддерживаются, такой метод
+завершается `UnsupportedOperationException`. Любое ключевое слово вне списка выше (например, `In`,
+`NotIn`, `Like`) приводит к `InvalidDataAccessApiUsageException: Unsupported type ...`. Способы
+обхода описаны в разделе [Ограничения и способы обхода](../client/limitations.md).
 
-???+ warning "Важно"
+### Сколько записей возвращает метод
 
-    На данный момент поддерживаются только методы с одним предикатом (не поддерживаются `AND` или 
-    `OR`).
+Если в имени метода нет `First`/`Top` и не передан параметр `Limit`, запрос выполняется с лимитом
+`SelectOptions.DEFAULT_LIMIT`, равным 100. Признака того, что результат обрезан, нет.
 
-    Любое ключевое слово вне списка выше (например, `In`, `NotIn`, `Like`) не поддерживается и
-    приводит к `InvalidDataAccessApiUsageException: Unsupported type ...`; метод с `And` или `Or`
-    завершается `UnsupportedOperationException`.
-    Способы обхода: [Ограничения и способы обхода](../client/limitations.md).
+- `findBy...`, возвращающий список, поток или одну запись, возвращает **не больше 100 записей**.
+- Методы с `Pageable` и `Scroll` возвращают не больше размера страницы. Для `Page` запрос
+  выполняется с лимитом, равным размеру страницы; для `Slice` и `Scroll` SDK запрашивает на одну
+  запись больше, чтобы узнать, есть ли следующая страница.
+- `deleteBy...` удаляет **не больше 100 записей**: метод сначала выбирает записи с этим лимитом,
+  затем удаляет найденные по одной. Остальные подходящие записи остаются в спейсе.
+- `countBy...` считает все подходящие записи. Исключение — `countDistinctBy...`: он тоже ограничен
+  100 записями.
 
-???+ note "Заметка"
+Чтобы прочитать больше записей, передайте `Limit.of(...)` (см. ниже) или читайте постранично через
+[Page, Slice](page-slice-pageable.md) или [Scroll API](scroll-api.md).
 
-    В версию tarantool-spring-data32 добавлена возможность использовать в производных методах
-    интерфейс [Limit](https://docs.spring.io/spring-data/data-commons/docs/3.2.3/api/org/springframework/data/domain/Limit.html)
+`findAll()` и `findAll(Sort)` не поддерживаются и завершаются `UnsupportedOperationException`. Все
+записи спейса читайте постранично через `findAll(Pageable)`.
 
-    **Важно**:
-    
-    - Максимальное количество ожидаемых результатов должно быть **положительным числом**, в ином 
-      случае будет выброшено исключение.
-    - Приоритетность ограничения количества записей в результате:
-        - `Limit.of(...)` приоритетнее статического ограничения в названии метода 
-          (ключевые слова Top/First).
-    - Статическое ограничение в названиях методов приоритетнее `Limit.unlimited()` или передачи 
-      `null` в качестве `Limit`.
-    
-    Примеры:
-    
-    ```java
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.of(10)); // вернет <= 10 записей
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.unlimited()); // вернет <= 100 записей
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, null); // вернет <= 100 записей
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, Limit.of(10)); // вернет <= 10 записей
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, Limit.unlimited()); // вернет <= 4 записей
-    // ...
-    List<Person> result = repository.findTop4ByIdGreaterThanEqual(0, null); // вернет <= 4 записей
-    // ...
-    List<Person> result = repository.findPersonByIdGreaterThanEqual(0, Limit.of(-10)); // выбросит IllegalArgumentException
-    ```
+Так же ограничена выборка в клиенте без Spring Data, см.
+[Выборка и постраничное чтение](../client/examples/select/select.md).
 
-Больше примеров можно найти в тестах.
+### Параметр `Limit`
+
+Начиная с модуля `tarantool-spring-data-32`, в производные методы можно передавать параметр
+[Limit](https://docs.spring.io/spring-data/data-commons/docs/3.2.3/api/org/springframework/data/domain/Limit.html).
+
+- Отрицательное значение `Limit.of(...)` приводит к `IllegalArgumentException`: SDK проверяет
+  только условие «меньше нуля», значение 0 эту проверку проходит.
+- `Limit.of(...)` важнее ограничения в имени метода (`Top`/`First`).
+- Ограничение в имени метода важнее `Limit.unlimited()` и `null` вместо `Limit`.
+- Без ограничения в имени `Limit.unlimited()` и `null` дают лимит по умолчанию — 100 записей.
+
+```java
+import java.util.List;
+
+import org.springframework.data.domain.Limit;
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+public interface PersonRepository extends PagingAndSortingRepository<Person, Integer> {
+
+  List<Person> findPersonByIdGreaterThanEqual(int id, Limit limit);
+
+  List<Person> findTop4ByIdGreaterThanEqual(int id, Limit limit);
+}
+```
+
+```java
+List<Person> a = repository.findPersonByIdGreaterThanEqual(0, Limit.of(10)); // <= 10 записей
+List<Person> b = repository.findPersonByIdGreaterThanEqual(0, Limit.unlimited()); // <= 100 записей
+List<Person> c = repository.findPersonByIdGreaterThanEqual(0, null); // <= 100 записей
+List<Person> d = repository.findTop4ByIdGreaterThanEqual(0, Limit.of(10)); // <= 10 записей
+List<Person> e = repository.findTop4ByIdGreaterThanEqual(0, Limit.unlimited()); // <= 4 записи
+List<Person> f = repository.findTop4ByIdGreaterThanEqual(0, null); // <= 4 записи
+repository.findPersonByIdGreaterThanEqual(0, Limit.of(-10)); // IllegalArgumentException
+```
+
+Больше примеров — в тестах модулей `tarantool-spring-data`.
