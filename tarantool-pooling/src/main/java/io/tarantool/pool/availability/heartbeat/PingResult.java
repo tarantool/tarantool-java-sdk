@@ -16,11 +16,11 @@ import org.slf4j.LoggerFactory;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.requests.IProtoConstant;
 
-public final class PingResult {
+final class PingResult {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PingResult.class);
 
-  public static boolean hasSuccessPingResult(IProtoResponse result, String identity) {
+  static boolean hasSuccessPingResult(IProtoResponse result, String identity) {
     if (result == null) {
       LOGGER.trace("{}: ping response is null", identity);
       return false;
