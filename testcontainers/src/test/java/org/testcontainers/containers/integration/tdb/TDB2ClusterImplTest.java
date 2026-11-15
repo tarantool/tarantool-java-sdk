@@ -25,6 +25,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -39,6 +40,7 @@ import org.testcontainers.containers.utils.Utils;
 
 import io.tarantool.autogen.Tarantool3Configuration;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TDB2ClusterImplTest {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TDB2ClusterImplTest.class);

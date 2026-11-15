@@ -23,16 +23,12 @@ on:
       - '**/src/test/resources/**'
   workflow_dispatch:
 
-env:
-#  Переменная, указывающая testcontainers в какой репозитории искать образы
-  TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: "registry.ps.tarantool.io/"
-#  Переменная, используемая в тестах в качестве префикса к названию образа. Переопределяется локально, если необходимо
-  TARANTOOL_REGISTRY: "registry.ps.tarantool.io/"
-
 jobs:
   tests-unit:
     runs-on: ubuntu-22.04
     timeout-minutes: 40
+    env:
+      PS_REGISTRY_CONFIGURED: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -44,6 +40,7 @@ jobs:
           cache: 'maven'
 
       - name: Docker login to private registry
+        if: ${{ env.PS_REGISTRY_CONFIGURED == 'true' }}
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
 
       # - name: Cache docker images
@@ -65,6 +62,12 @@ jobs:
 
   tests-box-integration:
     runs-on: ubuntu-22.04
+    env:
+#  Переменная, указывающая testcontainers в какой репозиторий искать образы
+      TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' && 'registry.ps.tarantool.io/' || '' }}
+#  Переменная, используемая в тестах в качестве префикса к названию образа. Переопределяется локально, если необходимо
+      TARANTOOL_REGISTRY: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' && 'registry.ps.tarantool.io/' || '' }}
+      PS_REGISTRY_CONFIGURED: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -81,6 +84,7 @@ jobs:
           cache: 'maven'
 
       - name: Docker login to private registry
+        if: ${{ env.PS_REGISTRY_CONFIGURED == 'true' }}
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
 
       # - name: Cache docker images
@@ -121,6 +125,12 @@ jobs:
 
   tests-crud-integration:
     runs-on: ubuntu-22.04
+    env:
+#  Переменная, указывающая testcontainers в какой репозиторий искать образы
+      TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' && 'registry.ps.tarantool.io/' || '' }}
+#  Переменная, используемая в тестах в качестве префикса к названию образа. Переопределяется локально, если необходимо
+      TARANTOOL_REGISTRY: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' && 'registry.ps.tarantool.io/' || '' }}
+      PS_REGISTRY_CONFIGURED: ${{ secrets.PS_REGISTRY_URL != '' && secrets.PS_REGISTRY_PASSWORD != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -137,6 +147,7 @@ jobs:
           cache: 'maven'
 
       - name: Docker login to private registry
+        if: ${{ env.PS_REGISTRY_CONFIGURED == 'true' }}
         run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
 
       - name: Set locale environment variables
