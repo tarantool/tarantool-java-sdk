@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Bug fixes
+
+- Fixed an issue where the initial delay was equal to the ping interval, preventing the heartbeat
+  from starting immediately upon launch
+
 ### Core
 
 - Added NP/PP box index

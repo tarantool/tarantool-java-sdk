@@ -340,7 +340,8 @@ final class PoolEntry {
     currentFailedPings = 0;
     fire(HeartbeatEvent.ACTIVATE);
     heartbeatTask =
-        timerService.newTimeout(this::ping, heartbeatOpts.getPingInterval(), TimeUnit.MILLISECONDS);
+        timerService.newTimeout(
+            this::ping, heartbeatOpts.initialDelay().toNanos(), TimeUnit.NANOSECONDS);
   }
 
   /** Heartbeat stopper. */
