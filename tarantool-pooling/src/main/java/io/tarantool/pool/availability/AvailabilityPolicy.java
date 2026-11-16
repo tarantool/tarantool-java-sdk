@@ -45,7 +45,7 @@ public interface AvailabilityPolicy {
    *     method for another view.
    * @param view never null.
    */
-  void initStateBeforeAll(PoolEntryView view);
+  PoolEntryState initState(PoolEntryView view);
 
   /**
    * Returns the backoff delay duration before restarting the strategy execution for the given
@@ -56,7 +56,7 @@ public interface AvailabilityPolicy {
    *     Return {@link Duration#ZERO} for an immediate restart. Never null.
    * @implSpec This method can be invoked by the library at any time from any thread. The library
    *     guarantees that this method will be invoked <b>strictly after</b> {@link
-   *     #initStateBeforeAll(PoolEntryView)} has been executed for the provided connection view. The
+   *     #initState(PoolEntryView)} has been executed for the provided connection view. The
    *     implementation <b>must be strictly non-blocking, thread-safe, and return the value
    *     immediately (O(1))</b> without performing heavy computations or network calls.
    * @apiNote Execution of the method for the current view is independent of the execution of this
