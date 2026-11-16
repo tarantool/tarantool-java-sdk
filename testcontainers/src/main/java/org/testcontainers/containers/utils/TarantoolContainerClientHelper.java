@@ -6,12 +6,16 @@
 package org.testcontainers.containers.utils;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +23,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static org.testcontainers.containers.utils.PathUtils.normalizePath;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.PullImageResultCallback;
+import com.github.dockerjava.api.exception.NotFoundException;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.ContainerLaunchException;
 import org.testcontainers.containers.Network;
@@ -77,6 +89,11 @@ public final class TarantoolContainerClientHelper {
    */
   private static final Set<Integer> PROXY_PORTS = Set.of(3304, 3305, 3306);
 
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(TarantoolContainerClientHelper.class);
+  private static final int PULL_TIMEOUT_IN_SECONDS = 600;
+  private static final int CONTENT_HASH_LENGTH = 12;
+
   private static final String EXECUTE_SCRIPT_ERROR_TEMPLATE =
       "Executed script %s with exit code %d, stderr: \"%s\", stdout: \"%s\"";
   private static final String EXECUTE_COMMAND_ERROR_TEMPLATE =
@@ -126,6 +143,102 @@ public final class TarantoolContainerClientHelper {
           put(API_USER, "secret");
         }
       };
+
+  /**
+   * Uses a local image or pulls it from the registry, returning {@code false}
+   * if the image is missing or registry credentials or access are unavailable
+   */
+  public static boolean tryPullImage(String imageName) {
+    try {
+      DockerClient client = DockerClientFactory.instance().client();
+      try {
+        client.inspectImageCmd(imageName).exec();
+        return true;
+      } catch (NotFoundException e) {
+        // image is not present locally, pull it from the registry
+      }
+      // awaitCompletion returns false on timeout instead of throwing, and must not be ignored
+      return client
+          .pullImageCmd(imageName)
+          .exec(new PullImageResultCallback())
+          .awaitCompletion(PULL_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    } catch (Exception e) {
+      LOGGER.warn(
+          "Prebuilt image {} is not available, a new image will be built: {}",
+          imageName,
+          e.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Returns the prebuilt image name, or {@code null} for unqualified names.
+   * Builds locally if shared-resources changed or extra scripts are outside it
+   */
+  public static String prebuiltImageName(
+      String buildImageName, String dockerFileResource, List<String> additionalScriptPaths) {
+    if (buildImageName == null || buildImageName.isEmpty() || !buildImageName.contains("/")) {
+      return null;
+    }
+    Path dockerFilePath = Path.of(dockerFileResource);
+    Path resourceDirectory = dockerFilePath.getParent();
+    if (resourceDirectory == null) {
+      return null;
+    }
+    if (hasScriptOutsideDirectory(additionalScriptPaths, resourceDirectory)) {
+      return null;
+    }
+    String contentHash = classpathResourceHash(resourceDirectory.toString());
+    if (contentHash == null) {
+      return null;
+    }
+    return String.format("%s:%s-%s", buildImageName, TARANTOOL_VERSION, contentHash);
+  }
+
+  private static boolean hasScriptOutsideDirectory(
+      List<String> additionalScriptPaths, Path resourceDirectory) {
+    if (additionalScriptPaths == null) {
+      return false;
+    }
+    return additionalScriptPaths.stream()
+        .anyMatch(
+            scriptPath ->
+                scriptPath == null
+                    || scriptPath.isBlank()
+                    || !Path.of(scriptPath).startsWith(resourceDirectory));
+  }
+
+  /**
+   * SHA-256 of regular file contents, ordered by relative path.
+   * Must match the Images workflow hash for the same classpath directory
+   */
+  private static String classpathResourceHash(String resourceDirectory) {
+    URL resource =
+        TarantoolContainerClientHelper.class.getClassLoader().getResource(resourceDirectory);
+    if (resource == null || !"file".equals(resource.getProtocol())) {
+      LOGGER.warn("Resource directory {} is not available for hashing", resourceDirectory);
+      return null;
+    }
+    try {
+      Path root = Paths.get(resource.toURI());
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      List<Path> files = new ArrayList<>();
+      try (Stream<Path> stream = Files.walk(root)) {
+        stream.filter(Files::isRegularFile).forEach(files::add);
+      }
+      files.sort(Comparator.comparing(path -> root.relativize(path).toString()));
+      for (Path file : files) {
+        digest.update(Files.readAllBytes(file));
+      }
+      return HexFormat.of().formatHex(digest.digest()).substring(0, CONTENT_HASH_LENGTH);
+    } catch (Exception e) {
+      LOGGER.warn("Cannot hash resource directory {}: {}", resourceDirectory, e.getMessage());
+      return null;
+    }
+  }
 
   public static Container.ExecResult executeScript(
       TarantoolContainer<?> container, String scriptResourcePath)

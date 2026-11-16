@@ -1,0 +1,83 @@
+name: Images
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'tarantool-shared-resources/vshard_cluster/**'
+      - 'tarantool-shared-resources/cartridge/**'
+      - '.github/workflows/images.yml'
+  workflow_dispatch:
+
+env:
+  TARANTOOL_REGISTRY: "registry.ps.tarantool.io/"
+
+jobs:
+  build-images:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      # Keep in sync with the tarantool-version matrix in tests.yml: 2.x runs the cartridge
+      # cluster, 3.x runs the vshard cluster
+      matrix:
+        include:
+          - tarantool-version: "2.11.8-ubuntu20.04"
+            image: "cartridge"
+            source-dir: "tarantool-shared-resources/cartridge"
+            context-dir: "cartridge"
+          - tarantool-version: "3.4.2"
+            image: "vshard-cluster-java"
+            source-dir: "tarantool-shared-resources/vshard_cluster"
+            context-dir: "cluster"
+          - tarantool-version: "3.8.2"
+            image: "vshard-cluster-java"
+            source-dir: "tarantool-shared-resources/vshard_cluster"
+            context-dir: "cluster"
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Docker login to private registry
+        run: docker login "${{ secrets.PS_REGISTRY_URL }}" -u admin -p "${{ secrets.PS_REGISTRY_PASSWORD }}"
+
+      # Match ImageFromDockerfile layout; copy Dockerfile and use src/. to keep dotfiles in the image tag hash
+      - name: Prepare build context
+        run: |
+          mkdir -p context/${{ matrix.context-dir }}
+          cp -r ${{ matrix.source-dir }}/. context/${{ matrix.context-dir }}/
+          cp ${{ matrix.source-dir }}/Dockerfile context/Dockerfile
+
+      # Must stay equivalent to the hash computed by TarantoolContainerClientHelper: SHA-256 of
+      # the concatenated contents of all regular files sorted by relative path
+      - name: Compute content hash
+        id: hash
+        run: |
+          HASH=$(
+            find context/${{ matrix.context-dir }} -type f -print0 \
+              | LC_ALL=C sort -z \
+              | xargs -0 cat \
+              | sha256sum \
+              | cut -c1-12
+          )
+          echo "hash=${HASH}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image
+        env:
+          TARANTOOL_VERSION: ${{ matrix.tarantool-version }}
+          TARANTOOL_SERVER_USER: root
+          TARANTOOL_SERVER_GROUP: root
+          IMAGE_TAG: ${{ env.TARANTOOL_REGISTRY }}${{ matrix.image }}:${{ matrix.tarantool-version }}-${{ steps.hash.outputs.hash }}
+        run: |
+          docker build \
+            --build-arg TARANTOOL_VERSION="${TARANTOOL_VERSION}" \
+            --build-arg TARANTOOL_SERVER_USER="${TARANTOOL_SERVER_USER}" \
+            --build-arg TARANTOOL_SERVER_GROUP="${TARANTOOL_SERVER_GROUP}" \
+            --build-arg IMAGE="${TARANTOOL_REGISTRY}tarantool/tarantool" \
+            -f context/Dockerfile \
+            -t "${IMAGE_TAG}" \
+            context
+          docker push "${IMAGE_TAG}"
