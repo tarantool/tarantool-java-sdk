@@ -5,6 +5,8 @@
 
 package io.tarantool.pool;
 
+import java.util.Objects;
+
 /**
  * An interface representing connection availability. Available connections are provided to the
  * balancer object for requests, while unavailable ones are not.
@@ -18,7 +20,7 @@ public abstract class PoolEntryState {
 
   private final boolean isLocked;
 
-  protected PoolEntryState(String name, boolean isLocked) {
+  public PoolEntryState(String name, boolean isLocked) {
     this.name = name;
     this.isLocked = isLocked;
   }
@@ -39,5 +41,19 @@ public abstract class PoolEntryState {
    */
   public boolean isLocked() {
     return this.isLocked;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PoolEntryState that = (PoolEntryState) o;
+    return this.isLocked == that.isLocked && Objects.equals(this.name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name, this.isLocked);
   }
 }
