@@ -5,6 +5,8 @@
 
 package io.tarantool.pool;
 
+import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
@@ -60,6 +62,9 @@ public final class HeartbeatOpts {
 
   /** Default value for {@link #deathThreshold}. */
   public static final int DEFAULT_DEATH_THRESHOLD = 4;
+
+  /** Default value for {@link #initialDelay}. */
+  public static final Duration DEFAULT_INITIAL_DELAY = Duration.ZERO;
 
   /**
    * Interval between pings in milliseconds.
@@ -124,6 +129,9 @@ public final class HeartbeatOpts {
   private BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>>
       pingFunction;
 
+  /** The delay before ping requests start after the heartbeat is launched. */
+  private Duration initialDelay;
+
   /**
    * Static method for getting default heartbeat options.
    *
@@ -140,6 +148,7 @@ public final class HeartbeatOpts {
     windowSize = DEFAULT_WINDOW_SIZE;
     deathThreshold = DEFAULT_DEATH_THRESHOLD;
     pingFunction = IProtoClient::ping;
+    initialDelay = DEFAULT_INITIAL_DELAY;
   }
 
   /**
@@ -236,6 +245,21 @@ public final class HeartbeatOpts {
   }
 
   /**
+   * Sets {@link #initialDelay}.
+   *
+   * @param delay not null object of {@link Duration}
+   * @return instance of {@link io.tarantool.pool.HeartbeatOpts}
+   */
+  public HeartbeatOpts withInitialDelay(Duration delay) {
+    Objects.requireNonNull(delay);
+    if (delay.isNegative()) {
+      throw new IllegalArgumentException("delay must not be null!");
+    }
+    this.initialDelay = delay;
+    return this;
+  }
+
+  /**
    * Getter for {@link #pingInterval}.
    *
    * @return {@link #pingInterval} value
@@ -279,5 +303,12 @@ public final class HeartbeatOpts {
   public BiFunction<IProtoClient, IProtoRequestOpts, CompletableFuture<IProtoResponse>>
       getPingFunction() {
     return pingFunction;
+  }
+
+  /**
+   * @see #initialDelay
+   */
+  public Duration initialDelay() {
+    return initialDelay;
   }
 }
