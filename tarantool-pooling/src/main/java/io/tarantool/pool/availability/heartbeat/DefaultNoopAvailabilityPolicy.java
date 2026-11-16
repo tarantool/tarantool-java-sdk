@@ -20,12 +20,9 @@ import io.tarantool.pool.availability.AvailabilityPolicy;
 
 /**
  * A policy that neither checks nor modifies the connection availability state for the load
- * balancer. The initial state is always {@link #DEFAULT_ACTIVE}.
+ * balancer. The initial state is always {@link HeartbeatConstants#ACTIVE_STATE}.
  */
 public class DefaultNoopAvailabilityPolicy implements AvailabilityPolicy {
-
-  private static final PoolEntryState DEFAULT_ACTIVE =
-      new PoolEntryState("DEFAULT_ACTIVE", false) {};
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNoopAvailabilityPolicy.class);
 
@@ -35,8 +32,8 @@ public class DefaultNoopAvailabilityPolicy implements AvailabilityPolicy {
   }
 
   @Override
-  public void initStateBeforeAll(PoolEntryView view) {
-    view.changeState(DEFAULT_ACTIVE);
+  public PoolEntryState initState(PoolEntryView view) {
+    return HeartbeatConstants.ACTIVE_STATE;
   }
 
   @Override
@@ -46,13 +43,19 @@ public class DefaultNoopAvailabilityPolicy implements AvailabilityPolicy {
 
   @Override
   public CompletionStage<Void> start(PoolEntryView view) {
-    LOGGER.debug("[Noop policy]: started.");
+    LOGGER.debug(
+        "[{}/{}][Noop policy]: started",
+        view.metadata().settings().getTag(),
+        view.metadata().index());
     return CompletableFuture.completedFuture(null);
   }
 
   @Override
   public CompletionStage<Void> stop(PoolEntryView view, Throwable cause) {
-    LOGGER.debug("[Noop policy]: stopped.");
+    LOGGER.debug(
+        "[{}/{}][Noop policy]: stopped",
+        view.metadata().settings().getTag(),
+        view.metadata().index());
     return CompletableFuture.completedFuture(null);
   }
 }
