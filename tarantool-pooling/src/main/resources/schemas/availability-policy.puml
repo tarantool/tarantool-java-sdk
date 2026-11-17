@@ -1,3 +1,6 @@
+
+'HeartbeatStateMachine
+
 @startuml
 skinparam linetype ortho
 skinparam nodesep 100
@@ -228,4 +231,57 @@ class io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine$HeartbeatCt
   ~ scheduleNextPing(long): void
   ~ firstSuccess(): void
 }
+@enduml
+
+'io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy
+@startuml
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 100
+
+interface io.tarantool.pool.availability.AvailabilityPolicy {
+  + configure(timer: Timer, metrics: MeterRegistry): void
+  + initState(view: PoolEntryView): PoolEntryState
+  + restartBackoff(view: PoolEntryView): Duration
+  + start(view: PoolEntryView): CompletionStage<Void>
+  + stop(view: PoolEntryView): CompletionStage<Void> <<default>>
+  + stop(view: PoolEntryView, cause: Throwable): CompletionStage<Void>
+}
+
+class io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy <<public>> {
+  - utils: AtomicReference<Utils> {readOnly}
+  - entries: Map<PoolEntryView, HeartbeatStateMachine> {readOnly}
+  - opts: HeartbeatOpts {readOnly}
+  + DefaultAvailabilityPolicy(opts: HeartbeatOpts): <<create>>
+  + initState(view: PoolEntryView): PoolEntryState
+  + restartBackoff(view: PoolEntryView): Duration
+  + start(view: PoolEntryView): CompletionStage<Void>
+  + stop(view: PoolEntryView, cause: Throwable): CompletionStage<Void>
+  + configure(timer: Timer, metrics: MeterRegistry): void
+  ~ hasView(view: PoolEntryView): boolean
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatConstants <<public final>> {
+  + {static} ACTIVE_STATE_NAME: String {readOnly}
+  + {static} ACTIVE_STATE: PoolEntryState {readOnly}
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine
+class io.tarantool.pool.availability.heartbeat.Utils
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StartEvent
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StopEvent
+class io.tarantool.pool.HeartbeatOpts
+class io.tarantool.pool.PoolEntryView
+class io.tarantool.pool.PoolEntryState
+
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..|> io.tarantool.pool.availability.AvailabilityPolicy
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy --> io.tarantool.pool.HeartbeatOpts: opts
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy --> io.tarantool.pool.availability.heartbeat.Utils: utils (set in configure)
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy "1" o-- io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine: entries (by PoolEntryView)
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine: <<create>>
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StartEvent: <<create>>
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StopEvent: <<create>>
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.availability.heartbeat.HeartbeatConstants: <<use>>
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.PoolEntryView: <<use>>
+io.tarantool.pool.availability.heartbeat.DefaultAvailabilityPolicy ..> io.tarantool.pool.PoolEntryState: <<use>>
 @enduml
