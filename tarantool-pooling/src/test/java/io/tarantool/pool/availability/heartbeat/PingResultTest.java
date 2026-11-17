@@ -3,7 +3,7 @@
  * All Rights Reserved.
  */
 
-package io.tarantool.pool.unit;
+package io.tarantool.pool.availability.heartbeat;
 
 import java.io.IOException;
 import java.util.stream.Stream;
@@ -21,7 +21,6 @@ import org.msgpack.value.ValueFactory;
 import io.tarantool.core.protocol.IProtoRawResponse;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.protocol.requests.IProtoConstant;
-import io.tarantool.pool.availability.heartbeat.PingResult;
 
 class PingResultTest {
 
@@ -73,12 +72,12 @@ final class IProtoResponses {
 
   private IProtoResponses() {}
 
-  /** Заголовок обычного (не ошибочного) ответа: request type = 0 (IPROTO_OK). */
+  /** Normal (non-error) response header: request type = 0 (IPROTO_OK). */
   private static final MapValue OK_HEADER =
       ValueFactory.newMap(
           ValueFactory.newInteger(IProtoConstant.IPROTO_REQUEST_TYPE), ValueFactory.newInteger(0));
 
-  /** Заголовок ошибочного ответа: 0x8000 | code. */
+  /** Error response header: 0x8000 | code. */
   private static MapValue errorHeader(int code) {
     return ValueFactory.newMap(
         ValueFactory.newInteger(IProtoConstant.IPROTO_REQUEST_TYPE),
@@ -86,9 +85,9 @@ final class IProtoResponses {
   }
 
   /**
-   * Собирает ответ из заголовка и тела.
+   * Builds a response from a header and a body.
    *
-   * <p>Формат пакета: [заголовок][тело]; {@code headerSize} = длина заголовка.
+   * <p>Packet format: [header][body]; {@code headerSize} = header length.
    */
   static IProtoResponse response(MapValue header, Value body) {
     try (final MessageBufferPacker headerPacker = MessagePack.newDefaultBufferPacker();
@@ -109,12 +108,12 @@ final class IProtoResponses {
     }
   }
 
-  /** Ответ без тела — как от {@code IPROTO_PING}. */
+  /** Empty-body response, such as from {@code IPROTO_PING}. */
   static IProtoResponse emptyBody() {
     return response(OK_HEADER, ValueFactory.emptyMap());
   }
 
-  /** То же, но с произвольным числом элементов в DATA. */
+  /** Same, but with an arbitrary number of elements in DATA. */
   static IProtoResponse dataArray(Value... values) {
     final ValueFactory.MapBuilder bodyBuilder = ValueFactory.newMapBuilder();
     bodyBuilder.put(
@@ -122,7 +121,7 @@ final class IProtoResponses {
     return response(OK_HEADER, bodyBuilder.build());
   }
 
-  /** Ответ-ошибка сервера. */
+  /** Server error response. */
   static IProtoResponse error(int code, String message) {
     final MapValue body =
         ValueFactory.newMap(
@@ -133,7 +132,7 @@ final class IProtoResponses {
     return response(errorHeader(code), body);
   }
 
-  /** Ответ без IPROTO_DATA — например, ответ на IPROTO_ID. */
+  /** A response without IPROTO_DATA — for example, a response to IPROTO_ID. */
   static IProtoResponse withoutData() {
     return IProtoResponses.response(
         OK_HEADER,
@@ -142,7 +141,7 @@ final class IProtoResponses {
             ValueFactory.newInteger(IProtoConstant.IPROTO_FEATURES), ValueFactory.emptyArray()));
   }
 
-  /** IPROTO_DATA есть, но это не массив. */
+  /** IPROTO_DATA is present, but it is not an array. */
   static IProtoResponse dataNotArray() {
     return IProtoResponses.response(
         OK_HEADER,
