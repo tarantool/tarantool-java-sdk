@@ -10,11 +10,11 @@ import java.util.concurrent.CompletableFuture;
 import io.tarantool.core.protocol.IProtoResponse;
 import io.tarantool.core.state.Event;
 
-abstract class PolicyEvent implements Event {
+abstract class HeartbeatEvent implements Event {
 
   private final String name;
 
-  PolicyEvent(String name) {
+  HeartbeatEvent(String name) {
     this.name = name;
   }
 
@@ -23,7 +23,7 @@ abstract class PolicyEvent implements Event {
     return this.name;
   }
 
-  static final class StartEvent extends PolicyEvent {
+  static final class StartEvent extends HeartbeatEvent {
 
     private final CompletableFuture<Void> startFuture;
 
@@ -38,7 +38,7 @@ abstract class PolicyEvent implements Event {
   }
 
   /** An event sent when a response to a ping request is received. */
-  static final class PongEvent extends PolicyEvent {
+  static final class PongEvent extends HeartbeatEvent {
 
     private final IProtoResponse response;
 
@@ -62,15 +62,16 @@ abstract class PolicyEvent implements Event {
   /**
    * An event sent when the ping timer expires, indicating that a ping request should be dispatched.
    */
-  static final class SendPingEvent extends PolicyEvent {
-    static final PolicyEvent INSTANCE = new SendPingEvent();
+  static final class SendPingEvent extends HeartbeatEvent {
+
+    static final HeartbeatEvent INSTANCE = new SendPingEvent();
 
     private SendPingEvent() {
       super("HEARTBEAT_SEND_PING_EVT");
     }
   }
 
-  static final class StopEvent extends PolicyEvent implements Control {
+  static final class StopEvent extends Control {
 
     private final CompletableFuture<Void> closeFuture;
 
@@ -96,8 +97,9 @@ abstract class PolicyEvent implements Event {
    * HeartbeatConstants#ACTIVE_STATE}. That is, to make the connection available to the load
    * balancer.
    */
-  static final class ActivateEvent extends PolicyEvent implements Control {
-    static final PolicyEvent INSTANCE = new ActivateEvent();
+  static final class ActivateEvent extends Control {
+
+    static final HeartbeatEvent INSTANCE = new ActivateEvent();
 
     private ActivateEvent() {
       super("HEARTBEAT_ACTIVATE_EVT");
@@ -109,8 +111,9 @@ abstract class PolicyEvent implements Event {
    * HeartbeatConstants#INVALIDATE_STATE}. That is, this connection is no longer available to the
    * load balancer.
    */
-  static final class InvalidateEvent extends PolicyEvent implements Control {
-    static final PolicyEvent INSTANCE = new InvalidateEvent();
+  static final class InvalidateEvent extends Control {
+
+    static final HeartbeatEvent INSTANCE = new InvalidateEvent();
 
     private InvalidateEvent() {
       super("HEARTBEAT_INVALIDATE_EVT");
@@ -121,9 +124,9 @@ abstract class PolicyEvent implements Event {
    * An event sent when the connection state changes to {@link HeartbeatConstants#KILL_STATE},
    * signaling that the connection must be reconnected.
    */
-  static final class KillEvent extends PolicyEvent implements Control {
+  static final class KillEvent extends Control {
 
-    static final PolicyEvent INSTANCE = new KillEvent();
+    static final HeartbeatEvent INSTANCE = new KillEvent();
 
     private KillEvent() {
       super("HEARTBEAT_KILL_EVT");
@@ -131,13 +134,17 @@ abstract class PolicyEvent implements Event {
   }
 
   /**
-   * A marker interface. All event classes implementing this interface act as control signals and
-   * have the highest priority over regular events.
+   * A marker class. All event classes extending this class act as control signals and have the
+   * highest priority over regular events.
    */
-  private interface Control extends Event {
+  private abstract static class Control extends HeartbeatEvent {
+
+    Control(String name) {
+      super(name);
+    }
 
     @Override
-    default boolean isControl() {
+    public final boolean isControl() {
       return true;
     }
   }

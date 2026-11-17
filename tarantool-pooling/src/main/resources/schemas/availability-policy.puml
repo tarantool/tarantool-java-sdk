@@ -1,0 +1,231 @@
+@startuml
+skinparam linetype ortho
+skinparam nodesep 100
+skinparam ranksep 100
+
+<style>
+classDiagram {
+  class {
+    Padding 2
+  }
+}
+</style>
+
+interface io.tarantool.core.state.Event {
+  + boolean isControl() <<default: false>>
+}
+
+interface io.tarantool.core.state.State<E extends Event> {
+  + void handle(E)
+}
+
+interface io.tarantool.core.state.StateMachine<E extends Event> {
+  + void handle(E)
+}
+
+abstract class io.tarantool.core.state.AbstractDrainLoopMachine<E extends Event> {
+  - controlEvents: Queue<E> {readOnly}
+  - events: Queue<E> {readOnly}
+  - wip: AtomicInteger {readOnly}
+  - safelyProcess(e: E): void
+  # {abstract} processEvent(E): void
+  # {abstract} onHandleError(Throwable): void
+  + handle(E): void
+}
+
+io.tarantool.core.state.StateMachine ..> io.tarantool.core.state.Event: <<use>>
+io.tarantool.core.state.State ..> io.tarantool.core.state.Event: <<use>>
+io.tarantool.core.state.AbstractDrainLoopMachine ..|> io.tarantool.core.state.StateMachine
+
+enum io.tarantool.pool.HeartbeatEvent <<public>> {
+  INVALIDATE
+  ACTIVATE
+  KILL
+}
+
+abstract class io.tarantool.pool.availability.heartbeat.HeartbeatEvent <<package-private>> {
+  - name: String
+  ~ HeartbeatEvent(String): <<create>>
+}
+
+abstract class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control <<private static>> {
+  + isControl(): boolean <<true>>
+}
+
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent ..|> io.tarantool.core.state.Event
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StartEvent {
+  - startFuture: CompletableFuture<Void> {readOnly}
+  ~ StartEvent(CompletableFuture<Void>): <<create>>
+  ~ startFuture(): CompletableFuture<Void>
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$PongEvent {
+  - response: IProtoResponse {readOnly}
+  - ex: Throwable {readOnly}
+  ~ PongEvent(IProtoResponse, Throwable): <<Create>>
+  ~ response(): IProtoResponse
+  ~ exception(): Throwable
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$SendPingEvent {
+  ~ {static} INSTANCE: HeartbeatEvent {readOnly}
+  - SendPingEvent(): <<Create>>
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StopEvent {
+  - closeFuture: CompletableFuture<Void> {readOnly}
+  - cause: Throwable {readOnly}
+  ~ StopEvent(CompletableFuture<Void>, Throwable): <<Create>>
+  ~ closeFuture(): CompletableFuture<Void>
+  ~ cause(): Throwable
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$ActivateEvent {
+  ~ {static} INSTANCE: HeartbeatEvent {readOnly}
+  - ActivateEvent(): <<Create>>
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$InvalidateEvent {
+  ~ {static} INSTANCE: HeartbeatEvent {readOnly}
+  - InvalidateEvent(): <<Create>>
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatEvent$KillEvent {
+  ~ {static} INSTANCE: HeartbeatEvent {readOnly}
+  - KillEvent(): <<Create>>
+}
+
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StartEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$SendPingEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$PongEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent
+
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$KillEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$ActivateEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$InvalidateEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control
+io.tarantool.pool.availability.heartbeat.HeartbeatEvent$StopEvent --|> io.tarantool.pool.availability.heartbeat.HeartbeatEvent$Control
+
+abstract class io.tarantool.pool.availability.heartbeat.HeartbeatState {
+  # logger: Logger {readOnly}
+  # machine: HeartbeatStateMachine {readOnly}
+  - name: String {readOnly}
+  + handle(HeartbeatEvent): void
+  ~ HeartbeatState(machine: HeartbeatStateMachine, name: String): <<Create>>
+  # onStart(StartEvent): void
+  # onStop(StopEvent): void
+  # onSendPing(SendPingEvent): void
+  # onPong(PongEvent): void
+  # onActivate(ActivateEvent): void
+  # onInvalidate(InvalidateEvent): void
+  # onKill(KillEvent): void
+  # logStartHandleEvent(HeartbeatEvent): void
+  # transitionTo(HeartbeatState): void
+  # completeStop(StopEvent): void
+}
+
+io.tarantool.pool.availability.heartbeat.HeartbeatState ..|> io.tarantool.core.state.State
+
+class io.tarantool.pool.availability.heartbeat.InitialState {
+  ~ InitialState(HeartbeatStateMachine): <<Create>>
+  # onStart(StartEvent): void
+  # onStop(StopEvent): void
+}
+
+class io.tarantool.pool.availability.heartbeat.StoppedState {
+  ~ StoppedState(HeartbeatStateMachine): <<Create>>
+  # onStart(StartEvent): void
+  # onStop(StopEvent): void
+}
+
+class io.tarantool.pool.availability.heartbeat.RunningState {
+  ~ RunningState(HeartbeatStateMachine): <<Create>>
+  # onStart(StartEvent): void
+  # onStop(StopEvent): void
+  # onActivate(ActivateEvent): void
+  # onInvalidate(InvalidateEvent): void
+  # onKill(KillEvent): void
+  # onSendPing(SendPingEvent): void
+  # onPong(PongEvent): void
+  - emitStateChange(HeartbeatEvent, PoolEntryState, io.tarantool.pool.HeartbeatEvent, String): void
+  - nextPing(): void
+  - sendIfNotLast(io.tarantool.pool.HeartbeatEvent, HeartbeatEvent): void
+  - {static} unwrap(Throwable): Throwable
+  - {static} isTerminalError(Throwable): boolean
+}
+
+io.tarantool.pool.availability.heartbeat.InitialState --|> io.tarantool.pool.availability.heartbeat.HeartbeatState
+io.tarantool.pool.availability.heartbeat.StoppedState --|> io.tarantool.pool.availability.heartbeat.HeartbeatState
+io.tarantool.pool.availability.heartbeat.RunningState --|> io.tarantool.pool.availability.heartbeat.HeartbeatState
+
+class io.tarantool.pool.availability.heartbeat.Utils {
+  - timer: Timer
+  - metrics: MeterRegistry
+  - heartbeatSuccess: Counter
+  - heartbeatErrors: Counter
+  - heartbeatTime: LongTaskTimer
+  ~ {static} Utils configure(Timer,MeterRegistry)
+  - Utils(timer: Timer, metrics: MeterRegistry, heartbeatSuccess: Counter,
+    heartbeatErrors: Counter, heartbeatTime: LongTaskTimer): <<Create>>
+  ~ beginHeartbeatTimeMetric(): LongTaskTimer.Sample
+  ~ finishHeartbeatTimeMetric(time: LongTaskTimer.Sample): void
+  ~ incHeartbeatCounters(failures: int): void
+  ~ timer(): Timer
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine {
+  - utils: Utils
+  - heartbeatOpts: HeartbeatOpts
+  - heartbeatPingOpts: IProtoRequestOpts
+  - identity: String
+  - rootStartFuture: CompletableFuture<Void> {readOnly}
+  - rootCloseFuture: CompletableFuture<Void> {readOnly}
+  - ctx: HeartbeatCtx
+  - view: PoolEntryView
+  - state: HeartbeatState {volatile}
+  # processEvent(event: HeartbeatEvent): void
+  # onHandleError(ex: Throwable): void
+  ~ HeartbeatStateMachine(view: PoolEntryView, opts: HeartbeatOpts, utils: Utils): <<Create>>
+  ~ state(state: HeartbeatState): void
+  ~ state(): HeartbeatState
+  ~ ctx(): HeartbeatCtx
+  ~ view(): PoolEntryView
+  ~ opts(): HeartbeatOpts
+  ~ utils(): Utils
+  ~ rootCloseFuture(): CompletableFuture<Void>
+  ~ rootStartFuture(): CompletableFuture<Void>
+  ~ heartbeatPingRequestOpts(): IProtoRequestOpts
+  ~ identity(): String
+}
+
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine --> io.tarantool.pool.availability.heartbeat.Utils: <<use>>
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine ..> io.tarantool.pool.availability.heartbeat.HeartbeatEvent: <<use>>
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine <--> io.tarantool.pool.availability.heartbeat.HeartbeatState
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine --|> io.tarantool.core.state.AbstractDrainLoopMachine
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine *-- io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine$HeartbeatCtx
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine ..> io.tarantool.pool.availability.heartbeat.InitialState: <<create>>
+io.tarantool.pool.availability.heartbeat.HeartbeatState ..> io.tarantool.pool.availability.heartbeat.HeartbeatEvent: <<use>>
+io.tarantool.pool.availability.heartbeat.RunningState ..> io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine$HeartbeatCtx: <<use>>
+io.tarantool.pool.availability.heartbeat.RunningState ..> io.tarantool.pool.availability.heartbeat.PingResult: <<use>>
+io.tarantool.pool.availability.heartbeat.RunningState ..> io.tarantool.pool.HeartbeatEvent: <<use>>
+io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine$HeartbeatCtx --> io.tarantool.pool.HeartbeatEvent: lastEvent
+
+class io.tarantool.pool.availability.heartbeat.PingResult {
+  - {static} LOGGER: Logger {readOnly}
+  ~ {static} hasSuccessPingResult(IProtoResponse, String): boolean
+}
+
+class io.tarantool.pool.availability.heartbeat.HeartbeatStateMachine$HeartbeatCtx <<inner>> {
+  ~ window: Deque<Integer> {readOnly}
+  ~ heartbeatTask: Timeout
+  ~ currentDeathPings: int
+  ~ currentFailedPings: int
+  ~ lastPingNanos: long
+  ~ lastEvent: io.tarantool.pool.HeartbeatEvent
+  ~ HeartbeatCtx(Deque<Integer>): <<Create>>
+  ~ clear(): void
+  ~ cancelNextPingTimer(): void
+  ~ scheduleNextPing(long): void
+  ~ firstSuccess(): void
+}
+@enduml
