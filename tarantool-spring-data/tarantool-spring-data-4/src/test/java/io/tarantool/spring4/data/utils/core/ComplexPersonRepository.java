@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2026 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
+package io.tarantool.spring4.data.utils.core;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import io.tarantool.spring.data.utils.GenericRepositoryMethods;
+import io.tarantool.spring4.data.utils.entity.ComplexPerson;
+import io.tarantool.spring4.data.utils.entity.CompositePersonKey;
+
+public interface ComplexPersonRepository
+    extends PagingAndSortingRepository<ComplexPerson, CompositePersonKey>,
+        GenericRepositoryMethods<ComplexPerson, CompositePersonKey>,
+        GenericPaginationMethods<ComplexPerson, CompositePersonKey> {}
