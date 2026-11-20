@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.testcontainers.containers.tdg.TDGContainer;
 import org.testcontainers.containers.tdg.Utils;
 import org.testcontainers.containers.tdg.cluster.TDGCluster;
@@ -26,6 +27,7 @@ import org.testcontainers.containers.tdg.configuration.impl.file.TDGFileConfigur
 import org.testcontainers.containers.utils.pojo.User;
 import org.testcontainers.utility.DockerImageName;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TDGClusterImplTest {
 
   private static final DockerImageName TDG_IMAGE =

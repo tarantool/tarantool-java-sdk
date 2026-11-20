@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.tdg.cluster.TDGCluster;
 import org.testcontainers.containers.tdg.cluster.TDGClusterImpl;
@@ -37,6 +38,7 @@ import io.tarantool.client.tdg.TarantoolDataGridClient;
 import io.tarantool.client.tdg.TarantoolDataGridSpace;
 import io.tarantool.mapping.slash.errors.TarantoolSlashErrorsException;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TDGClientTest {
 
   private static final DockerImageName TDG_IMAGE =
