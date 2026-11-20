@@ -1,0 +1,7 @@
+quickstart.router:
+  advertise_uri: localhost:3301
+  http_port: 8081
+
+quickstart.s1-master:
+  advertise_uri: localhost:3302
+  http_port: 8082
