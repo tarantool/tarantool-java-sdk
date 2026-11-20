@@ -1,0 +1,5 @@
+tarantool:
+  host: localhost
+  port: 3301
+  username: admin
+  password: secret-cluster-cookie
