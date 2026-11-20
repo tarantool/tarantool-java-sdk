@@ -16,7 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
@@ -55,10 +57,10 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   protected static final String SCRIPT_RESOURCE_DIRECTORY = "";
   protected static final String INSTANCE_DIR = "/app";
   protected static final String APP_NAME = "vshard-cluster";
+  // No tt build here: rocks are installed at image build time
   protected static final String VSHARD_STARTUP_COMMAND_TEMPLATE =
       "cd %s && rm -f tt.yaml"
           + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt init"
-          + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt build"
           + " && env -u TT_APP_NAME -u TT_INSTANCE_NAME tt start "
           + APP_NAME
           + " && sleep infinity";
@@ -264,12 +266,12 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
   }
 
   protected VshardClusterContainer(
-      ImageFromDockerfile image,
+      Future<String> image,
       String instancesFile,
       String configFile,
       Map<String, String> buildArgs,
       List<String> additionalScriptPaths) {
-    super(withBuildArgs(image, buildArgs));
+    super(image);
 
     TARANTOOL_RUN_DIR =
         mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
@@ -290,17 +292,6 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     this.instanceNames = parseInstanceNames(instancesFile);
     this.lock = new ReentrantLock();
     this.configurator = new VshardClusterConfigurator(this);
-  }
-
-  protected static ImageFromDockerfile withBuildArgs(
-      ImageFromDockerfile image, Map<String, String> buildArgs) {
-    Map<String, String> args = mergeBuildArguments(buildArgs);
-
-    if (!args.isEmpty()) {
-      image.withBuildArgs(args);
-    }
-
-    return image;
   }
 
   public VshardClusterContainer withFixedExposedPort(int hostPort, int containerPort) {
@@ -337,16 +328,26 @@ public class VshardClusterContainer extends GenericContainer<VshardClusterContai
     return args;
   }
 
-  protected static ImageFromDockerfile buildImage(
+  protected static Future<String> buildImage(
       String dockerFile,
       String buildImageName,
       final Map<String, String> buildArgs,
       final List<String> additionalScriptPaths) {
+    String prebuiltImage =
+        TarantoolContainerClientHelper.prebuiltImageName(
+            buildImageName, dockerFile, additionalScriptPaths);
+    if (prebuiltImage != null && TarantoolContainerClientHelper.tryPullImage(prebuiltImage)) {
+      return CompletableFuture.completedFuture(prebuiltImage);
+    }
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
+    }
+    Map<String, String> args = mergeBuildArguments(buildArgs);
+    if (!args.isEmpty()) {
+      image.withBuildArgs(args);
     }
     ImageFromDockerfile imageFromDockerfile =
         image

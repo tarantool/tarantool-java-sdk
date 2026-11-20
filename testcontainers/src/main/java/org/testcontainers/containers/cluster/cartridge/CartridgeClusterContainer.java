@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
@@ -175,12 +177,12 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
   }
 
   protected CartridgeClusterContainer(
-      ImageFromDockerfile image,
+      Future<String> image,
       String instancesFile,
       String topologyConfigurationFile,
       Map<String, String> buildArgs,
       List<String> additionalScriptPaths) {
-    super(withBuildArgs(image, buildArgs));
+    super(image);
 
     TARANTOOL_RUN_DIR =
         mergeBuildArguments(buildArgs).getOrDefault(ENV_TARANTOOL_RUNDIR, "/tmp/run");
@@ -199,17 +201,6 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
             : List.copyOf(additionalScriptPaths);
     this.instanceFileParser = new CartridgeConfigParser(instancesFile);
     this.configurator = new CartridgeClusterConfigurator(this);
-  }
-
-  protected static ImageFromDockerfile withBuildArgs(
-      ImageFromDockerfile image, Map<String, String> buildArgs) {
-    Map<String, String> args = mergeBuildArguments(buildArgs);
-
-    if (!args.isEmpty()) {
-      image.withBuildArgs(args);
-    }
-
-    return image;
   }
 
   public CartridgeClusterContainer withFixedExposedPort(int hostPort, int containerPort) {
@@ -246,16 +237,26 @@ public class CartridgeClusterContainer extends GenericContainer<CartridgeCluster
     return args;
   }
 
-  protected static ImageFromDockerfile buildImage(
+  protected static Future<String> buildImage(
       String dockerFile,
       String buildImageName,
       final Map<String, String> buildArgs,
       final List<String> additionalScriptPaths) {
+    String prebuiltImage =
+        TarantoolContainerClientHelper.prebuiltImageName(
+            buildImageName, dockerFile, additionalScriptPaths);
+    if (prebuiltImage != null && TarantoolContainerClientHelper.tryPullImage(prebuiltImage)) {
+      return CompletableFuture.completedFuture(prebuiltImage);
+    }
     ImageFromDockerfile image;
     if (buildImageName != null && !buildImageName.isEmpty()) {
       image = new ImageFromDockerfile(buildImageName, false);
     } else {
       image = new ImageFromDockerfile();
+    }
+    Map<String, String> args = mergeBuildArguments(buildArgs);
+    if (!args.isEmpty()) {
+      image.withBuildArgs(args);
     }
     ImageFromDockerfile imageFromDockerfile =
         image
