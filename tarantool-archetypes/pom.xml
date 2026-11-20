@@ -16,6 +16,11 @@
     <name>Tarantool Java SDK :: Archetypes</name>
     <description>Maven Archetype templates for quick project scaffolding</description>
 
+    <properties>
+        <spotless.check.skip>true</spotless.check.skip>
+        <spotless.apply.skip>true</spotless.apply.skip>
+    </properties>
+
     <build>
         <extensions>
             <extension>
