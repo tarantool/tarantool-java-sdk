@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2026 VK DIGITAL TECHNOLOGIES LIMITED LIABILITY COMPANY
+ * All Rights Reserved.
+ */
+
+package io.tarantool.spring4.data.utils.core;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import io.tarantool.spring.data.utils.GenericRepositoryMethods;
+import io.tarantool.spring4.data.utils.entity.Person;
+import io.tarantool.spring4.data.utils.fragments.core.ReplaceManyFragment;
+
+public interface PersonRepository
+    extends PagingAndSortingRepository<Person, Integer>,
+        GenericRepositoryMethods<Person, Integer>,
+        GenericPaginationMethods<Person, Integer>,
+        ReplaceManyFragment<Person> {}

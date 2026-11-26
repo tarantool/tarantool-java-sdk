@@ -28,20 +28,16 @@ hide:
 |           1.5.x           |            1.5.x             |         2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.11          |
 |           1.6.x           |            1.6.x             |     2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.8      |
 |           1.7.x           |            1.7.x             | 2.7.18 / 3.1.12 / 3.2.12 / 3.3.13 / 3.4.13 / 3.5.16 / 4.0.9 |
+|           2.0.x           |            2.0.x             |                      4.0.x / 4.1.x                       |
 
-Модуль выбирается по минорной линии Spring Boot приложения. В таблице выше — версии Spring Boot, с
-которыми модули собраны и протестированы; другие патч-версии той же линии в CI не проверяются, более
-новые минорные линии не проверяются вовсе.
+Модуль `tarantool-spring-data-4` поддерживает Spring Boot 4.x. В CI он собирается против 4.0.x и
+прогоняет unit-тесты с 4.0.x и 4.1.x. Пакеты содержат мажорную версию Spring
+(`io.tarantool.spring4.data`), поэтому будущие мажорные версии Spring Data можно поддерживать
+параллельно.
 
 | Линия Spring Boot |           Модуль            |
 |:-----------------:|:---------------------------:|
-|       2.7.x       | `tarantool-spring-data-27`  |
-|       3.1.x       | `tarantool-spring-data-31`  |
-|       3.2.x       | `tarantool-spring-data-32`  |
-|       3.3.x       | `tarantool-spring-data-33`  |
-|       3.4.x       | `tarantool-spring-data-34`  |
-|       3.5.x       | `tarantool-spring-data-35`  |
-|       4.0.x       | `tarantool-spring-data-40`  |
+|   4.0.x / 4.1.x   | `tarantool-spring-data-4`   |
 
 ### Версия Tarantool и поддерживаемые модули-клиенты
 
@@ -119,7 +115,7 @@ Tarantool можно найти
   </dependency>
   <dependency>
     <groupId>io.tarantool</groupId>
-    <artifactId>tarantool-spring-data-40</artifactId>
+    <artifactId>tarantool-spring-data-4</artifactId>
     <version>${tarantool-spring-data.version}</version>
   </dependency>
 </dependencies>

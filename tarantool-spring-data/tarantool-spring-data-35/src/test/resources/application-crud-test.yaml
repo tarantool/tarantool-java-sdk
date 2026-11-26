@@ -1,5 +1,0 @@
-spring:
-  data:
-    tarantool:
-      host: localhost
-      port: 3301

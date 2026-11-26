@@ -1,3 +1,0 @@
-/** Core annotations of data mapping. */
-@org.jspecify.annotations.NullMarked
-package io.tarantool.spring.data40.core.annotation;

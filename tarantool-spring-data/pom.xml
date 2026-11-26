@@ -18,13 +18,7 @@
 
   <modules>
     <module>tarantool-spring-data-core</module>
-    <module>tarantool-spring-data-27</module>
-    <module>tarantool-spring-data-31</module>
-    <module>tarantool-spring-data-32</module>
-    <module>tarantool-spring-data-33</module>
-    <module>tarantool-spring-data-34</module>
-    <module>tarantool-spring-data-35</module>
-    <module>tarantool-spring-data-40</module>
+    <module>tarantool-spring-data-4</module>
   </modules>
 
   <properties>
@@ -32,8 +26,10 @@
     <slf4j.version>2.0.20</slf4j.version>
     <logback.version>1.5.32</logback.version>
     <junit.version>5.14.4</junit.version>
-    <!--set minimum version for parent property value-->
-    <spring.boot.version>2.7.18</spring.boot.version>
+    <!-- Spring Boot 4.x baseline. spring-data-keyvalue has no 4.0.9 release,
+         so it is pinned to the latest matching artifact. -->
+    <spring.boot.version>4.0.9</spring.boot.version>
+    <spring-data-keyvalue.version>4.0.8</spring-data-keyvalue.version>
     <license.header.file>${project.parent.basedir}/LICENSE_HEADER.txt</license.header.file>
   </properties>
 
@@ -74,7 +70,7 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-keyvalue</artifactId>
-      <version>${spring.boot.version}</version>
+      <version>${spring-data-keyvalue.version}</version>
     </dependency>
 
     <!-- application.properties processor -->
