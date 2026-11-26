@@ -88,6 +88,7 @@
     <shared.dir>${project.parent.basedir}/tarantool-shared-resources/</shared.dir>
     <license.header.file>${project.basedir}/LICENSE_HEADER.txt</license.header.file>
     <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
+    <maven-archetype-plugin.version>3.4.1</maven-archetype-plugin.version>
   </properties>
 
   <build>
@@ -532,5 +533,6 @@
     <module>testcontainers-autogen</module>
     <module>documentation</module>
     <module>tarantool-java-sdk-bom</module>
+    <module>tarantool-archetypes</module>
   </modules>
 </project>

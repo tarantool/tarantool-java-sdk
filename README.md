@@ -29,6 +29,35 @@ dependencies {
 }
 ```
 
+### Quickstart Archetypes
+
+Instead of configuring a project manually, you can generate a ready-to-use
+skeleton with Maven Archetypes:
+
+**BOX API quickstart:**
+```bash
+mvn archetype:generate \
+    -DarchetypeGroupId=io.tarantool \
+    -DarchetypeArtifactId=tarantool-box-quickstart \
+    -DarchetypeVersion=2.0.0
+```
+
+**CRUD API quickstart:**
+```bash
+mvn archetype:generate \
+    -DarchetypeGroupId=io.tarantool \
+    -DarchetypeArtifactId=tarantool-crud-quickstart \
+    -DarchetypeVersion=2.0.0
+```
+
+> On Windows PowerShell, quote the version: DarchetypeVersion="2.0.0"
+
+The BOX archetype generates a minimal example of client initialization, idempotent space creation, and basic `insert`/`select` operations.
+
+The CRUD archetype generates a Spring Boot project with a `CrudRepository`, a `@Tuple`-mapped entity, and a `TarantoolCartridgeContainer`-based integration test. Note that the CRUD layer requires a Cartridge cluster with the `crud-router` and `crud-storage` roles enabled — a standalone Tarantool instance is not sufficient.
+
+> **Note:** Until the first release, build and install the archetypes locally with `mvn clean install -pl tarantool-archetypes -am` and pass `-DarchetypeCatalog=local` to `mvn archetype:generate`.
+
 ## Documentation
 
 - [Release](RELEASING.md)
