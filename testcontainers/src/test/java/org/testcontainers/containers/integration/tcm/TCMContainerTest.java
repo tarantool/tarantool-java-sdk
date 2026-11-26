@@ -27,6 +27,7 @@ import io.etcd.jetcd.launcher.Etcd;
 import io.etcd.jetcd.launcher.EtcdContainer;
 import io.etcd.jetcd.options.GetOption;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,6 +37,7 @@ import org.testcontainers.containers.tcm.TCMContainer;
 import org.testcontainers.containers.tcm.config.TCMConfig;
 import org.testcontainers.containers.utils.Utils;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TCMContainerTest {
 
   private static final Path PATH_TO_TARANTOOL_CONFIG;

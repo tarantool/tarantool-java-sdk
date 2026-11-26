@@ -16,11 +16,13 @@ import org.instancio.Select;
 import org.instancio.generators.Generators;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.utils.pojo.User;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TQEClusterIntegrationTest {
 
   private static final String QUEUE_NAME = "test";

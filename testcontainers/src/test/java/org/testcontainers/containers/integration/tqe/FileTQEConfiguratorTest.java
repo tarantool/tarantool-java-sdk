@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -22,6 +23,7 @@ import org.testcontainers.containers.tqe.configuration.FileTQEConfigurator;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 import org.testcontainers.lifecycle.Startable;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class FileTQEConfiguratorTest {
 
   @ParameterizedTest

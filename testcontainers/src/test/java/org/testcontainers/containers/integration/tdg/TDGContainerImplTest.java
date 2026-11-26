@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,6 +29,7 @@ import org.testcontainers.containers.tdg.TDGContainer;
 import org.testcontainers.containers.tdg.TDGContainerImpl;
 import org.testcontainers.utility.DockerImageName;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TDGContainerImplTest {
 
   private static final DockerImageName TDG_IMAGE =

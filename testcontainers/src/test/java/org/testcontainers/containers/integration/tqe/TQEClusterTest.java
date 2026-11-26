@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -26,6 +27,7 @@ import org.testcontainers.containers.tqe.TQECluster;
 import org.testcontainers.containers.tqe.TQEClusterImpl;
 import org.testcontainers.containers.tqe.configuration.TQEConfigurator;
 
+@EnabledIfEnvironmentVariable(named = "TARANTOOL_REGISTRY", matches = ".+")
 class TQEClusterTest {
 
   @ParameterizedTest
