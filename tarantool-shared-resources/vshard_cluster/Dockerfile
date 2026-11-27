@@ -17,8 +17,11 @@ RUN apt-get -y update && \
     apt-get -y install build-essential cmake make gcc git unzip && \
     apt-get -y clean
 
+RUN rm -f tt.yaml && \
+    TT_CONFIG=./config.yaml env -u TT_APP_NAME -u TT_INSTANCE_NAME tt init && \
+    TT_CONFIG=./config.yaml env -u TT_APP_NAME -u TT_INSTANCE_NAME tt build
+
 CMD rm -f tt.yaml && \
     TT_CONFIG=./config.yaml env -u TT_APP_NAME -u TT_INSTANCE_NAME tt init && \
-    TT_CONFIG=./config.yaml env -u TT_APP_NAME -u TT_INSTANCE_NAME tt build && \
     TT_CONFIG=./config.yaml env -u TT_APP_NAME -u TT_INSTANCE_NAME tt start vshard-cluster && \
     sleep infinity
